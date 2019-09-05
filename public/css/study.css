@@ -1,0 +1,69 @@
+/* d3 css start **/
+svg *::selection {
+    background: transparent;
+}
+
+svg *::-moz-selection {
+    background: transparent;
+}
+
+svg *::-webkit-selection {
+    background: transparent;
+}
+rect.selection {
+    stroke: #333;
+    stroke-dasharray: 4px;
+    stroke-opacity: 0.5;
+    fill: transparent;
+}
+
+rect.cell-selected {
+    stroke: rgb(51,102,153);
+    stroke-width: 0.5px;
+}
+
+rect.cell-hover {
+    opacity: 0.5;
+    stroke: #C0C0C0;
+    stroke-width:0.3px;
+}
+
+text.text-selected {
+    fill: #000;
+}
+
+text.text-highlight {
+    fill: #ff0000;
+}
+text.text-hover {
+    fill: #ff0000;
+}
+.xAxisLinearTop > path {
+    display: none;
+}
+.xAxisLinearBottom > path {
+    display: none;
+}
+.yAxisLinear > path {
+    display: none;
+}
+.tick > line {
+    display: none;
+}
+text.EmptyDates {
+    fill: #ffffff !important;
+}
+text.DatesText{
+    fill: #000000;
+}
+/** d3 css end */
+html, body {
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+#main, #main>div{
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}

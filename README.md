@@ -1,1 +1,1 @@
-Read the documentation [here](https://neuroinformatics-research-group-dpdash.readthedocs-hosted.com/en/latest/)
+Read the documentation [here](http://docs.neuroinfo.org/dpdash/en/latest/)!

@@ -20,7 +20,7 @@ From:centos:7.4.1708
 	## update yum and install some useful things
 	yum -y update
 	yum -y groupinstall "Development tools"
-	yum install epel-release
+	yum -y install epel-release
 	yum -y install net-tools telnet wget git tar which \
 		whereis bzip2 p7zip vim vi vixie-cron cronie sudo
 
@@ -39,7 +39,14 @@ From:centos:7.4.1708
 	source miniconda3/bin/activate
 
 	## install the Node.js run-time
+	curl --silent --location https://rpm.nodesource.com/setup_9.x | bash -
 	yum -y install nodejs
+
+	
+	## set nodejs/npm version
+	npm cache clean --force
+	npm install -g n
+	n 9.11.2
 
 	## install the MongoDB document database
 	echo -e "[mongodb-org-3.4]
@@ -57,12 +64,27 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mo
 
 
 	## install the DPdash digital phenotyping dashboard
-	mkdir -p dpdash && cd dpdash
-	git clone https://ncfcode.rc.fas.harvard.edu/dpdash/dpdash.git . 
-	rm -rf ./node_modules
+	git clone https://github.com/PREDICT-DPACC/dpdash.git 
+	cd dpdash
 	npm install --save .
 	npm run build
 
-nvironment
-export PATH=/sw/apps/miniconda/bin:$PATH
+
+	## install Supervisord process control system
+	pip install supervisor
+	
+
+
+	## clear all caches
+	yum clean all
+	conda clean -y --all
+	npm cache clean --force
+	rm -rf /tmp/* /var/tmp/*
+	rm -rf ~/.cache/pip/*
+
+
+%environment
+	## miniconda3 pnlpipe3
+    export PATH=/sw/apps/miniconda3/bin:$PATH
+
 

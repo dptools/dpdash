@@ -7,13 +7,11 @@ httpProxy=$1
 httpsProxy=$2
 noProxy=$3
 
-# Proxy settings
+# proxy settings
 export http_proxy=${httpProxy}
 export https_proxy=${httpsProxy}
 export noProxy=${noProxy}
 
-# miniconda2 settings
-export PATH=/sw/apps/miniconda/bin:$PATH
 
 # vars for rabbitmq-server
 export RABBITMQ_CONFIG_FILE=/data/dpdash/configs/rabbitmq
@@ -24,7 +22,7 @@ export RABBITMQ_LOG_BASE=/data/dpdash/rabbitmq
 export dppy_config=/data/dpdash/configs/dppy.conf
 
 # start mongodb, celery, and rabbit
-/sw/apps/miniconda/bin/supervisord -c /data/dpdash/configs/supervisord.conf
+supervisord -c /data/dpdash/configs/supervisord.conf
 
 # sleep 100 seconds
 sleep 100
@@ -35,5 +33,7 @@ export DPDASH_UPLOADS=/data/dpdash/uploads
 export DPDASH_UPLOADS_CONFIG_SCHEMA=/data/dpdash/configs/dashboard/config.schema
 export DPDASH_DASHBOARD_CONFIG_DEFAULT=/data/dpdash/configs/dashboard/defaultUserConfig.js
 export DPDASH_DASHBOARD_CONFIG_DEFAULT_STUDY=/data/dpdash/configs/dashboard/defaultStudyConfig.js
+
 cd /sw/apps/dpdash
+
 npm start

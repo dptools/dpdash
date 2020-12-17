@@ -70,9 +70,16 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mo
 	npm run build
 
 
+	## install the DPPY DPdash file scanner/importer
+	cd ..
+	git clone https://github.com/harvard-nrg/dppy.git
+	cd dppy
+	python setup.py install
+	rm -rf build dist dppy.egg-info
+	cd ..
+
 	## install Supervisord process control system
 	pip install supervisor
-	
 
 
 	## clear all caches

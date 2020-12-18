@@ -8,9 +8,6 @@ export http_proxy=${httpProxy}
 export https_proxy=${httpsProxy}
 export noProxy=${noProxy}
 
-# miniconda2 settings
-export PATH=/sw/apps/miniconda/bin:$PATH
-
 # vars for rabbitmq-server
 export RABBITMQ_CONFIG_FILE=/data/dpdash/configs/rabbitmq
 export RABBITMQ_MNESIA_BASE=/data/dpdash/rabbitmq

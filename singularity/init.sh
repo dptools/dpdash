@@ -19,7 +19,7 @@ fi
 
 ## Transport script files
 mkdir -p ${containerDataDir}/scripts
-find ./ -type f -maxdepth 1 ! -name dpdash2.img -exec cp -t ${containerDataDir}/scripts/ {} +
+find ./ -type f -maxdepth 1 ! -name dpdash_devel -exec cp -t ${containerDataDir}/scripts/ {} +
 
 ## Get current working directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -95,4 +95,4 @@ cp supervisord.conf ${containerDataDir}/dpdash/configs/
 
 ## Set-up the container
 echo '***************Setting up DPdash*****************'
-singularity exec -B ${containerDataDir}:/data dpdash2.img /data/scripts/setup.sh $mongopw $rabbitpw $appsecret
+singularity exec -B ${containerDataDir}:/data dpdash_devel /data/scripts/setup.sh $mongopw $rabbitpw $appsecret

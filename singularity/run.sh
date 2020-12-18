@@ -7,7 +7,7 @@ httpProxy=$1
 httpsProxy=$2
 noProxy=$3
 
-# proxy settings
+# Proxy settings
 export http_proxy=${httpProxy}
 export https_proxy=${httpsProxy}
 export noProxy=${noProxy}

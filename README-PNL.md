@@ -1,24 +1,29 @@
 ![](https://github.com/pnlbwh/pnlpipe/blob/py3-compatible/Misc/pnl-bwh-hms.png)
 
+This documentation has been developed through first hand experiment of independent DPdash instantiation. 
+It can be primarily followed for running DPdash. Some other details including PHOENIX style 
+can be found at http://docs.neuroinfo.org/dpdash/en/latest/
+
+
 Table of Contents
 =================
 
-      * [Get image](#get-image)
-         * [Download](#download)
-         * [Build](#build)
-      * [Use image](#use-image)
-         * [Define](#define)
-         * [Initialize](#initialize)
-         * [Import](#import)
-         * [Run](#run)
-         * [Quit](#quit)
-         * [Restart](#restart)
-      * [Troubleshoot](#troubleshoot)
-         * [Logs](#logs)
-         * [Cookies](#cookies)
-         * [Database](#database)
+  * [Get image](#get-image)
+     * [Download](#download)
+     * [Build](#build)
+  * [Use image](#use-image)
+     * [Define](#define)
+     * [Initialize](#initialize)
+     * [Import](#import)
+     * [Run](#run)
+     * [Quit](#quit)
+     * [Restart](#restart)
+  * [Troubleshoot](#troubleshoot)
+     * [Logs](#logs)
+     * [Cookies](#cookies)
+     * [Database](#database)
 
-Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
 
 ## Get image
@@ -101,6 +106,16 @@ the recommended method for working with the image.
 At these point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
 
 
+### View
+
+Firstly, make sure the following prints the login page:
+
+    curl -L http://0.0.0.0:8000
+
+Then, try to view the login page in a web browser. Finally, enter the admin credentials and see if that works. 
+If they do not, see the [Cookies](#cookies) section.
+
+
 ### Quit
 
     singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/quit.sh
@@ -119,6 +134,9 @@ To be able to do that, define the [DPdash variables](https://github.com/PREDICT-
 
 Similarly, you can do `npm start` or `npm stop`.
 
+
+## Reverse proxy
+
     
 
 ## Troubleshoot
@@ -127,13 +145,13 @@ Similarly, you can do `npm start` or `npm stop`.
 
 * DPdash app
     
-    Singularity> cd /sw/apps/dpdash
-    Singularity> ./node_modules/pm2/bin/pm2 logs www
+        Singularity> cd /sw/apps/dpdash
+        Singularity> ./node_modules/pm2/bin/pm2 logs www
 
 
 * mongodb
 
-    Singularity> tail -f /data/dpdash/mongodb/logs/mongod.log
+        Singularity> tail -f /data/dpdash/mongodb/logs/mongod.log
 
 
 

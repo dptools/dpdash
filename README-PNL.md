@@ -1,8 +1,8 @@
 ![](https://github.com/pnlbwh/pnlpipe/blob/py3-compatible/Misc/pnl-bwh-hms.png)
 
 This documentation has been developed through first hand experiment of independent DPdash instantiation. 
-It can be primarily followed for running DPdash. Some other details including PHOENIX style 
-can be found at http://docs.neuroinfo.org/dpdash/en/latest/
+It can be primarily followed for running DPdash. Some other details including PHOENIX style directory tree 
+can be found at http://docs.neuroinfo.org/dpdash/en/latest/ .
 
 
 Table of Contents
@@ -18,7 +18,8 @@ Table of Contents
      * [Run](#run)
      * [Quit](#quit)
      * [Restart](#restart)
-  * [Troubleshoot](#troubleshoot)
+  * [Reverse proxy](#reverse-proxy)
+  * [Troubleshooting](#troubleshooting)
      * [Logs](#logs)
      * [Cookies](#cookies)
      * [Database](#database)
@@ -112,8 +113,11 @@ Firstly, make sure the following prints the login page:
 
     curl -L http://0.0.0.0:8000
 
-Then, try to view the login page in a web browser. Finally, enter the admin credentials and see if that works. 
+Then, try to view the login page in a web browser. Finally, enter the admin credentials and see if they work. 
 If they do not, see the [Cookies](#cookies) section.
+
+**NOTE** If you have setup DPdash in a headless remote server, you should need to set up [reverse proxy](#reverse-proxy) to be able to 
+view the login page in a web browser.
 
 
 ### Quit
@@ -137,9 +141,23 @@ Similarly, you can do `npm start` or `npm stop`.
 
 ## Reverse proxy
 
-    
+If `curl -L http://0.0.0.0:8000` works successfully, you can go ahead and set up Nginx reverse proxy. [Here](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#setting-up-a-reverse-proxy) are some details about it. 
+Essentially, you will need to add the following section in a `server{}` block in `/etc/nginx/nginx.conf`:
 
-## Troubleshoot
+```cfg
+    location / {
+            proxy_pass http://127.0.0.1:8000/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+    }
+```
+
+Eventually, you should be able to see DPdash login page in a web browser against your server hostname.
+
+
+## Troubleshooting
 
 ### Logs
 

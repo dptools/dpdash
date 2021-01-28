@@ -58,8 +58,8 @@ and project data:
     export data=/where/you/have/PHOENIX/format/project/data
 
 
-`${state}` is an empty directory that will be populated with files once you do `./init.sh`. But you need to have 
-[PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories) inside `${data}`
+`${state}` is an empty directory that will be populated with files once you do `./init.sh` but you need to have 
+[PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories) inside `${data}`.
 
 ### Initialize
     
@@ -73,7 +73,7 @@ and project data:
 After initializing a DPdash instance, data need to be imported inside a mongo database. This step happens outside 
 the Singularity container and requires https://github.com/PREDICT-DPACC/dpimport. Follow the steps there to install and use it.
 
-`dpimport`: `import.py` requires a [config.yml](https://github.com/PREDICT-DPACC/dpimport/commit/378f99a13a215581f91a9c7feeecefb59a506d1d). 
+`dpimport`: `import.py` requires a [config.yml](https://github.com/PREDICT-DPACC/dpimport/blob/378f99a13a215581f91a9c7feeecefb59a506d1d/examples/config.yml). 
 You can edit the example with proper values of:
 
     ssl_keyfile:

@@ -58,6 +58,9 @@ and project data:
     export data=/where/you/have/PHOENIX/format/project/data
 
 
+`${state}` is an empty directory that will be populated with files once you do `./init.sh`. But you need to have 
+[PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories) inside `${data}`
+
 ### Initialize
     
     export DPDASH_IMG=/path/to/dpdash.sif

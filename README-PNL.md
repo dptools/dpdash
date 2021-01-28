@@ -96,7 +96,7 @@ After initialization, proper values of the above keys can be found in `${state}/
 Launch a DPdash instance as follows:
     
     export DPDASH_IMG=/path/to/dpdash.sif
-    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/run.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/run.sh
     
 Alternatively, you can shell into the container and then execute further commands. In fact, this would be 
 the recommended method for working with the image.
@@ -104,7 +104,7 @@ the recommended method for working with the image.
     export DPDASH_IMG=/path/to/dpdash.sif
     singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
     
-    Singularity> cd /sw/apps/dpdash/
+    Singularity> cd /sw/apps/dpdash/singularity/
     Singularity> ./run.sh
 
 At these point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
@@ -125,7 +125,7 @@ view the login page in a web browser.
 
 ### Quit
 
-    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/quit.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/quit.sh
 
     
 ### Restart

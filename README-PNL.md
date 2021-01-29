@@ -165,14 +165,18 @@ Eventually, you should be able to see DPdash login page in a web browser against
 ### Logs
 
 * DPdash app
-    
+
         Singularity> cd /sw/apps/dpdash
         Singularity> ./node_modules/pm2/bin/pm2 logs www
+
+Alternatively--
+
+        tail -f ${state}/dpdash/dpdash.log
 
 
 * mongodb
 
-        Singularity> tail -f /data/dpdash/mongodb/logs/mongod.log
+        tail -f ${state}/dpdash/mongodb/logs/mongod.log
 
 
 
@@ -203,5 +207,5 @@ Inside mongo shell:
     > use dpdata                        // the db name specified in config.yml for import.py
     > show collections
     > db.collection_name.findOne()      // one collection_name from the collections
-
+    > db["collection_name"].find()      // useful when collection_name has . or - in it
 

@@ -14,15 +14,18 @@ Table of Contents
   * [Use image](#use-image)
      * [Define](#define)
      * [Initialize](#initialize)
-     * [Import](#import)
      * [Run](#run)
+     * [Import](#import)
+        * [Verify import](#verify-import)
+        * [Set up access](#set-up-access)
+     * [View](#view)
+     * [Configure](#configure)
      * [Quit](#quit)
      * [Restart](#restart)
   * [Reverse proxy](#reverse-proxy)
   * [Troubleshooting](#troubleshooting)
      * [Logs](#logs)
      * [Cookies](#cookies)
-     * [Database](#database)
 
 Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
 
@@ -162,8 +165,8 @@ Firstly, make sure the following prints the login page:
 Then, try to view the login page in a web browser. Finally, enter the admin credentials and see if they work. 
 If they do not, see the [Cookies](#cookies) section.
 
-**NOTE** If you have setup DPdash in a headless remote server, you should need to set up [reverse proxy](#reverse-proxy) to be able to 
-view the login page in a web browser.
+**NOTE** If you have setup DPdash in a headless remote server, you should need to set up [reverse proxy](#reverse-proxy) 
+in the remote server to be able to view the login page in a local web browser.
 
 
 ### Configure
@@ -214,18 +217,23 @@ Eventually, you should be able to see DPdash login page in a web browser against
 
 * DPdash app
 
-        Singularity> cd /sw/apps/dpdash
-        Singularity> ./node_modules/pm2/bin/pm2 logs www
-
-Alternatively--
-
         tail -f ${state}/dpdash/dpdash.log
-
 
 * mongodb
 
         tail -f ${state}/dpdash/mongodb/logs/mongod.log
 
+* supervisord
+        
+        tail -f ${state}/dpdash/supervisord/logs/supervisord.log
+
+* rabbitmq
+
+        tail -f ${state}/dpdash/rabbitmq/rabbit@rc-predict.log
+
+* celery
+        
+        tail -f ${state}/dpdash/celery/celery.log
 
 
 ### Cookies
@@ -237,24 +245,4 @@ To circumvent this issue, set the following to `false`:
     ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
 
 and then [restart](#restart) the DPdash application.
-
-
-### Database
-
-After `init.sh` and `import.py`, you can verify if your data went inside mongo database:
-
-    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
-    
-    Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
-
-
-Inside mongo shell:
-
-    > use admin
-    > db.auth("username", "password")   // located in ${state}/dpdash/configs/dpdash.js
-    > show dbs
-    > use dpdata                        // the db name specified in config.yml for import.py
-    > show collections
-    > db.collection_name.findOne()      // one collection_name from the collections
-    > db["collection_name"].find()      // useful when collection_name has . or - in it
 

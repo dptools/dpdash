@@ -67,6 +67,31 @@ and project data:
     cd dpdash/singularity
     ./init.sh ${data} ${state}
 
+Then, do the following modification to circumvent a cookie issue that might occur later:
+
+    ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
+
+You can read the [Cookies](#cookies) section for details.
+    
+
+### Run
+
+Launch a DPdash instance as follows:
+    
+    export DPDASH_IMG=/path/to/dpdash.sif
+    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/run.sh
+    
+Alternatively, you can shell into the container and then execute further commands. In fact, this would be 
+the recommended method for working with the image.
+    
+    export DPDASH_IMG=/path/to/dpdash.sif
+    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
+    
+    Singularity> cd /sw/apps/dpdash/singularity/
+    Singularity> ./run.sh
+
+At these point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
+
 
 ### Import
 
@@ -87,27 +112,45 @@ You can edit the example with proper values of:
     hostname:
 
 
-After initialization, proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.js`.
-    
-
-### Run
+Proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.js`.
 
 
-Launch a DPdash instance as follows:
-    
-    export DPDASH_IMG=/path/to/dpdash.sif
-    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/run.sh
-    
-Alternatively, you can shell into the container and then execute further commands. In fact, this would be 
-the recommended method for working with the image.
-    
-    export DPDASH_IMG=/path/to/dpdash.sif
+
+#### Verify import
+
+After `import.py`, you can verify if your data went inside mongo database:
+
     singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
     
-    Singularity> cd /sw/apps/dpdash/singularity/
-    Singularity> ./run.sh
+    Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
 
-At these point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
+
+Inside mongo shell:
+
+    > use admin
+    > db.auth("username", "password")   // located in ${state}/dpdash/configs/dpdash.js
+    > show dbs
+    > use dpdata                        // the db name specified in config.yml for import.py
+    > show collections
+    > db.collection_name.findOne()      // one collection_name from the collections
+    > db["collection_name"].find()      // useful when collection_name has . or - in it
+
+
+#### Set up access
+
+Assuming you have imported one `BLS_metadata.csv` file into the mongo database, take a look at the following example 
+to learn how `dpdash` user is given access to the `BLS` study:
+ 
+    Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
+
+Inside mongo shell:
+ 
+    > use admin
+    > db.auth("dpdash", "password")                                   // located in ${state}/dpdash/configs/dpdash.js
+    > show dbs
+    > use dpdmongo
+    > dp.users.find()
+    > db.users.update({"uid": "dpdash"}, {$set: {"access": ["BLS"]}}) // BLS comes from BLS_metadata.csv
 
 
 ### View
@@ -121,6 +164,11 @@ If they do not, see the [Cookies](#cookies) section.
 
 **NOTE** If you have setup DPdash in a headless remote server, you should need to set up [reverse proxy](#reverse-proxy) to be able to 
 view the login page in a web browser.
+
+
+### Configure
+
+Add and enable at least one configuration from the left taskbar.
 
 
 ### Quit
@@ -182,8 +230,9 @@ Alternatively--
 
 ### Cookies
 
-After entering admin credentials in DPdash login page, if you are dropped back to login again, 
-set the following to `false`:
+Within DPdash, [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en/latest/building.html?highlight=cookies) over unencrypted HTTP. 
+For this limitation, after entering admin credentials in DPdash login page, you may be dropped back to login again. 
+To circumvent this issue, set the following to `false`:
 
     ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
 

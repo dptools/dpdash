@@ -60,7 +60,7 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mo
     
 
     ## install the Celery asyncronous task queue
-    pip install celery
+    pip install "celery==4.3.0" "vine<5.0.0"
 
 
     ## install the DPdash digital phenotyping dashboard
@@ -72,7 +72,7 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mo
 
     ## install the DPPY DPdash file scanner/importer
     cd ..
-    git clone https://github.com/harvard-nrg/dppy.git
+    git clone --single-branch --branch py3 https://github.com/PREDICT-DPACC/dppy.git
     cd dppy
     python setup.py install
     rm -rf build dist dppy.egg-info

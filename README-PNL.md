@@ -152,7 +152,7 @@ Inside mongo shell:
     > db.auth("dpdash", "password")                                   // located in ${state}/dpdash/configs/dpdash.js
     > show dbs
     > use dpdmongo
-    > dp.users.find()
+    > db.users.find()
     > db.users.update({"uid": "dpdash"}, {$set: {"access": ["BLS"]}}) // BLS comes from BLS_metadata.csv
 
 

@@ -1,2 +1,6 @@
+Pipfile.lock
 docs/build
 *.log
+config.js
+*.map
+*.min.js

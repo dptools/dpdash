@@ -219,6 +219,11 @@ Eventually, you should be able to see DPdash login page in a web browser against
 
         tail -f ${state}/dpdash/dpdash.log
 
+and
+
+        Singularity> cd /sw/apps/dpdash/
+        Singularity> ./node_modules/pm2/bin/pm2 log
+
 * mongodb
 
         tail -f ${state}/dpdash/mongodb/logs/mongod.log

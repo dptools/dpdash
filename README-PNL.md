@@ -82,13 +82,13 @@ You can read the [Cookies](#cookies) section for details.
 Launch a DPdash instance as follows:
     
     export DPDASH_IMG=/path/to/dpdash.sif
-    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/run.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
     
 Alternatively, you can shell into the container and then execute further commands. In fact, this would be 
 the recommended method for working with the image.
     
     export DPDASH_IMG=/path/to/dpdash.sif
-    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
     
     Singularity> cd /sw/apps/dpdash/singularity/
     Singularity> ./run.sh
@@ -123,7 +123,7 @@ Proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.
 
 After `import.py`, you can verify if your data went inside mongo database:
 
-    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
     
     Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
 
@@ -176,7 +176,7 @@ Add and enable at least one configuration from the left taskbar.
 
 ### Quit
 
-    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/quit.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/quit.sh
 
     
 ### Restart
@@ -184,7 +184,7 @@ Add and enable at least one configuration from the left taskbar.
 Advanced users can save a good amount of time restarting the DPdash instance rather than doing a run-quit-run cycle. 
 To be able to do that, define the [DPdash variables](https://github.com/PREDICT-DPACC/dpdash/blob/dcdc3ca702df688a2cc73376c2929415e0fd6c0b/singularity/run.sh#L30) in the Singularity shell:
 
-    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
     
     Singularity> cd /sw/apps/dpdash/
     Singularity> # define the DPdash variables

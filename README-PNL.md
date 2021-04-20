@@ -54,19 +54,22 @@ into the database, instantiate DPdash, and run it.
 
 ### Define
 
-Define two variables `state` and `data` that can be used respectively for DPdash application data 
+Define two variables `state` and `data` that can be used respectively for DPdash application data
 and project data:
 
     export state=/where/you/want/to/save/app/data
     export data=/where/you/have/PHOENIX/format/project/data
 
-
 `${state}` is an empty directory that will be populated with files once you do `./init.sh` but you need to have 
 [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories) inside `${data}`.
 
+Define a third variable, `DPDASH_IMG`, to reference the path of the `dpdash.sif` image
+file you downloaded or built:
+
+    export DPDASH_IMG=/path/to/dpdash.sif
+
 ### Initialize
     
-    export DPDASH_IMG=/path/to/dpdash.sif
     cd dpdash/singularity
     ./init.sh ${data} ${state}
 
@@ -81,14 +84,12 @@ You can read the [Cookies](#cookies) section for details.
 
 Launch a DPdash instance as follows:
     
-    export DPDASH_IMG=/path/to/dpdash.sif
-    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/run.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
     
 Alternatively, you can shell into the container and then execute further commands. In fact, this would be 
 the recommended method for working with the image.
     
-    export DPDASH_IMG=/path/to/dpdash.sif
-    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
     
     Singularity> cd /sw/apps/dpdash/singularity/
     Singularity> ./run.sh
@@ -123,7 +124,7 @@ Proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.
 
 After `import.py`, you can verify if your data went inside mongo database:
 
-    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
     
     Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
 
@@ -176,7 +177,7 @@ Add and enable at least one configuration from the left taskbar.
 
 ### Quit
 
-    singularity run -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif /sw/apps/dpdash/singularity/quit.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/quit.sh
 
     
 ### Restart
@@ -184,7 +185,7 @@ Add and enable at least one configuration from the left taskbar.
 Advanced users can save a good amount of time restarting the DPdash instance rather than doing a run-quit-run cycle. 
 To be able to do that, define the [DPdash variables](https://github.com/PREDICT-DPACC/dpdash/blob/dcdc3ca702df688a2cc73376c2929415e0fd6c0b/singularity/run.sh#L30) in the Singularity shell:
 
-    singularity shell -B ${state}:/data -B ${data}:/project_data /path/to/dpdash.sif
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
     
     Singularity> cd /sw/apps/dpdash/
     Singularity> # define the DPdash variables

@@ -54,16 +54,19 @@ into the database, instantiate DPdash, and run it.
 
 ### Define
 
-Define two variables `state` and `data` that can be used respectively for DPdash application
-data and project data, as well as a third variable `DPDASH_IMG` that stores the path of the dpdash.sif image file::
+Define two variables `state` and `data` that can be used respectively for DPdash application data
+and project data:
 
     export state=/where/you/want/to/save/app/data
     export data=/where/you/have/PHOENIX/format/project/data
-    export DPDASH_IMG=/path/to/dpdash.sif
-
 
 `${state}` is an empty directory that will be populated with files once you do `./init.sh` but you need to have 
 [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories) inside `${data}`.
+
+Define a third variable, `DPDASH_IMG`, to reference the path of the `dpdash.sif` image
+file you downloaded or built:
+
+    export DPDASH_IMG=/path/to/dpdash.sif
 
 ### Initialize
     

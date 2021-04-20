@@ -54,11 +54,12 @@ into the database, instantiate DPdash, and run it.
 
 ### Define
 
-Define two variables `state` and `data` that can be used respectively for DPdash application data 
-and project data:
+Define two variables `state` and `data` that can be used respectively for DPdash application
+data and project data, as well as a third variable `DPDASH_IMG` that stores the path of the dpdash.sif image file::
 
     export state=/where/you/want/to/save/app/data
     export data=/where/you/have/PHOENIX/format/project/data
+    export DPDASH_IMG=/path/to/dpdash.sif
 
 
 `${state}` is an empty directory that will be populated with files once you do `./init.sh` but you need to have 
@@ -66,7 +67,6 @@ and project data:
 
 ### Initialize
     
-    export DPDASH_IMG=/path/to/dpdash.sif
     cd dpdash/singularity
     ./init.sh ${data} ${state}
 
@@ -81,13 +81,11 @@ You can read the [Cookies](#cookies) section for details.
 
 Launch a DPdash instance as follows:
     
-    export DPDASH_IMG=/path/to/dpdash.sif
     singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
     
 Alternatively, you can shell into the container and then execute further commands. In fact, this would be 
 the recommended method for working with the image.
     
-    export DPDASH_IMG=/path/to/dpdash.sif
     singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
     
     Singularity> cd /sw/apps/dpdash/singularity/

@@ -13,16 +13,19 @@ adminpw=`node -p $nodecmd`
 
 ## Set up MongoDB Authentication & SSL
 echo '***************Setting up MONGOB***************'
-mongod --port 27017 --logpath /data/dpdash/mongodb/logs/mongod.log --dbpath /data/dpdash/mongodb/dbs --fork
-mongo admin --eval "db.createUser({user: 'dpdash', pwd:'"$mongopw"', roles: [ { role: 'root', db: 'admin' } ] });"
-mongo dpdmongo --eval "db.users.insertOne({uid : 'dpdash', password:'"$adminpw"', role: 'admin', ldap: false, display_name: 'dpdash'});"
+mongod --port 27018 --logpath /data/dpdash/mongodb/logs/mongod.log --dbpath /data/dpdash/mongodb/dbs --fork
+mongo admin --port 27018 --eval "db.createUser({user: 'dpdash', pwd:'"$mongopw"', roles: [ { role: 'root', db: 'admin' } ] });"
+mongo dpdmongo --port 27018 --eval "db.users.insertOne({uid : 'dpdash', password:'"$adminpw"', role: 'admin', ldap: false, display_name: 'dpdash'});"
 mongod --shutdown --dbpath /data/dpdash/mongodb/dbs
 
 ## Set up Rabbitmq Server
 echo '***************Setting up RABBITMQ***************'
-export RABBITMQ_CONFIG_FILE=/data/dpdash/configs/rabbitmq
+export RABBITMQ_CONFIG_FILE=/data/dpdash/configs/rabbitmq.config
 export RABBITMQ_MNESIA_BASE=/data/dpdash/rabbitmq
 export RABBITMQ_LOG_BASE=/data/dpdash/rabbitmq
+export RABBITMQ_NODENAME=rabbit2
+export RABBITMQ_DIST_PORT=35672
+export RABBITMQ_NODE_PORT=5971
 /usr/lib/rabbitmq/bin/rabbitmq-server start -detached
 sleep 10 && /usr/lib/rabbitmq/bin/rabbitmqctl add_user dpdash $rabbitpw
 sleep 10 && /usr/lib/rabbitmq/bin/rabbitmqctl set_permissions -p / dpdash ".*" ".*" ".*"

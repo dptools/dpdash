@@ -27,9 +27,9 @@ def main():
 
     parser.add_argument('--rabbit-host', help='Rabbitmq host address')
     parser.add_argument('--mongo-host', help='MongoDB host address')
-    parser.add_argument('--rabbit-port', help='Rabbitmq port number', default=5671)
-    parser.add_argument('--mongo-port', help='MongoDB port number', default=27017)
-    parser.add_argument('--dpdash-port', help='DPdash port number', default=8000)
+    parser.add_argument('--rabbit-port', help='Rabbitmq port number', default=5971)
+    parser.add_argument('--mongo-port', help='MongoDB port number', default=27018)
+    parser.add_argument('--dpdash-port', help='DPdash port number', default=8001)
 
     parser.add_argument('--dpdash-secret', help='DPdash session secret')
     parser.add_argument('--app-secret', help='App secret')
@@ -54,7 +54,11 @@ def export_file(file_path, content):
 def configure_rabbit(rabbit_port, ca_path, cert_path, key_path, config_path):
     configuration = '''[
   {ssl, [{versions, ['tlsv1.2', 'tlsv1.1']}]},
-  {rabbit, [
+  {kernel, [
+    {inet_dist_listen_min, 33672},
+    {inet_dist_listen_max, 33672}
+  ]},
+  {rabbit2, [
     {ssl_listeners, [%(rabbit_port)s]},
     {ssl_options, [{cacertfile, "%(ca_path)s"},
                    {certfile, "%(cert_path)s"},

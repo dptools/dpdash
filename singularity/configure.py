@@ -25,10 +25,12 @@ def main():
     parser.add_argument('--celery-path', help='Path to the Celery bind path')
     parser.add_argument('--dpdash-path', help='Path to the DPdash bind path')
 
-    parser.add_argument('--rabbit-host', help='Rabbitmq host address')
     parser.add_argument('--mongo-host', help='MongoDB host address')
-    parser.add_argument('--rabbit-port', help='Rabbitmq port number', default=5971)
     parser.add_argument('--mongo-port', help='MongoDB port number', default=27018)
+    parser.add_argument('--rabbit-host', help='Rabbitmq host address')
+    parser.add_argument('--rabbit-name', help='Rabbitmq node name', default='rabbit2')
+    parser.add_argument('--rabbit-port', help='Rabbitmq port number', default=5971)
+    parser.add_argument('--rabbit-dist', help='Rabbitmq distribution port number', default=25971)
     parser.add_argument('--dpdash-port', help='DPdash port number', default=8001)
 
     parser.add_argument('--dpdash-secret', help='DPdash session secret')
@@ -36,7 +38,7 @@ def main():
 
     args = parser.parse_args()
 
-    configure_rabbit(args.rabbit_port, args.ssl_ca, args.ssl_server_cert, args.ssl_server_key, args.config_dir)
+    configure_rabbit(args.rabbit_port, args.rabbit_name, args.rabbit_dist, args.ssl_ca, args.ssl_server_cert, args.ssl_server_key, args.config_dir, args.dpdash_path)
     configure_mongo(args.mongo_port, args.mongo_path, args.ssl_ca, args.mongo_server_cert, args.config_dir)
     configure_dppy(args.rabbit_port, args.celery_path, args.ssl_client_key, args.ssl_client_cert, args.ssl_ca, args.config_dir, args.rabbit_pw, args.rabbit_host)
     configure_dpdash(args.ssl_ca, args.ssl_client_key, args.ssl_client_cert, args.dpdash_port, args.mongo_port, args.rabbit_port, args.mongo_pw, args.rabbit_pw, args.dpdash_secret, args.config_dir, args.data_dir, args.dpdash_path, args.rabbit_host, args.mongo_host, args.app_secret)
@@ -51,25 +53,35 @@ def export_file(file_path, content):
 
     return
 
-def configure_rabbit(rabbit_port, ca_path, cert_path, key_path, config_path):
-    configuration = '''[
-  {ssl, [{versions, ['tlsv1.2', 'tlsv1.1']}]},
-  {kernel, [
-    {inet_dist_listen_min, 33672},
-    {inet_dist_listen_max, 33672}
-  ]},
-  {rabbit2, [
-    {ssl_listeners, [%(rabbit_port)s]},
-    {ssl_options, [{cacertfile, "%(ca_path)s"},
-                   {certfile, "%(cert_path)s"},
-                   {keyfile, "%(key_path)s"},
-                   {versions, ['tlsv1.2','tlsv1.1']},
-                   {verify, verify_peer},
-                   {fail_if_no_peer_cert, true}]}
-   ]}
-].''' % { 'rabbit_port' : rabbit_port, 'ca_path' : ca_path, 'cert_path' : cert_path, 'key_path' : key_path }
+def configure_rabbit(rabbit_port, rabbit_name, rabbit_dist, ca_path, cert_path, key_path, config_path, dpdash_path):
+    rabbit_path = os.path.join(dpdash_path, 'rabbitmq')
+    rabbit_conf_path = os.path.join(config_path,'rabbitmq.conf')
+    rabbit_env_path = os.path.join(config_path,'rabbitmq-env.conf')
 
-    return export_file(os.path.join(config_path,'rabbitmq.config'), configuration)
+    # Generate and export rabbitmq-env.conf
+    env = '''NODENAME=%(rabbit_name)s
+NODE_PORT=%(rabbit_port)s
+DIST_PORT=%(rabbit_dist)s
+CTL_DIST_PORT_MIN=%(rabbit_dist_min)s
+CTL_DIST_PORT_MAX=%(rabbit_dist_max)s
+MNESIA_BASE=%(rabbit_path)s
+LOG_BASE=%(rabbit_path)s
+''' % { 'rabbit_name' : rabbit_name, 'rabbit_port' : rabbit_port, 'rabbit_dist': rabbit_dist, 'rabbit_dist_min': rabbit_dist+10000, 'rabbit_dist_max': rabbit_dist+10010, 'rabbit_path': rabbit_path }
+
+    export_file(rabbit_env_path, env)
+
+    # Generate and export rabbitmq.conf
+    configuration = '''ssl_options.versions.1           = tlsv1.2
+ssl_options.versions.2           = tlsv1.1
+ssl_options.cacertfile           = %(ca_path)s
+ssl_options.certfile             = %(cert_path)s
+ssl_options.keyfile              = %(key_path)s
+ssl_options.verify               = verify_peer
+ssl_options.fail_if_no_peer_cert = true
+listeners.ssl.default            = %(rabbit_port)s
+'''    % { 'rabbit_port' : rabbit_port, 'ca_path' : ca_path, 'cert_path' : cert_path, 'key_path' : key_path }
+
+    return export_file(rabbit_conf_path, configuration)
 
 def configure_mongo(mongo_port, mongo_path, ca_path, mongocert_path, config_path):
     configuration = '''auth = true

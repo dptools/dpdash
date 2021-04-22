@@ -14,9 +14,8 @@ export noProxy=${noProxy}
 
 
 # vars for rabbitmq-server
-export RABBITMQ_CONFIG_FILE=/data/dpdash/configs/rabbitmq
-export RABBITMQ_MNESIA_BASE=/data/dpdash/rabbitmq
-export RABBITMQ_LOG_BASE=/data/dpdash/rabbitmq
+export RABBITMQ_CONFIG_FILE=/data/dpdash/configs/rabbitmq.conf
+export RABBITMQ_CONF_ENV_FILE=/data/dpdash/configs/rabbitmq-env.conf
 
 # vars for celery worker
 export dppy_config=/data/dpdash/configs/dppy.conf

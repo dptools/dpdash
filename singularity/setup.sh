@@ -4,8 +4,9 @@
 set -eo pipefail
 
 mongopw=$1
-rabbitpw=$2
-appsecret=$3
+mongoport=$2
+rabbitpw=$3
+appsecret=$4
 
 # Generate dpdash password
 nodecmd='require("/sw/apps/dpdash/utils/crypto/hash.js")("dpdash","aes-256-ctr","encrypt","'$appsecret'")'
@@ -13,9 +14,9 @@ adminpw=`node -p $nodecmd`
 
 ## Set up MongoDB Authentication & SSL
 echo '***************Setting up MONGOB***************'
-mongod --port 27018 --logpath /data/dpdash/mongodb/logs/mongod.log --dbpath /data/dpdash/mongodb/dbs --fork
-mongo admin --port 27018 --eval "db.createUser({user: 'dpdash', pwd:'"$mongopw"', roles: [ { role: 'root', db: 'admin' } ] });"
-mongo dpdmongo --port 27018 --eval "db.users.insertOne({uid : 'dpdash', password:'"$adminpw"', role: 'admin', ldap: false, display_name: 'dpdash'});"
+mongod --port $mongoport --logpath /data/dpdash/mongodb/logs/mongod.log --dbpath /data/dpdash/mongodb/dbs --fork
+mongo admin --port $mongoport --eval "db.createUser({user: 'dpdash', pwd:'"$mongopw"', roles: [ { role: 'root', db: 'admin' } ] });"
+mongo dpdmongo --port $mongoport --eval "db.users.insertOne({uid : 'dpdash', password:'"$adminpw"', role: 'admin', ldap: false, display_name: 'dpdash'});"
 mongod --shutdown --dbpath /data/dpdash/mongodb/dbs
 
 ## Set up Rabbitmq Server

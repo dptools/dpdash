@@ -63,17 +63,22 @@ As this file contains your custom configuration, it will not be committed to the
 
 #### Required variables
 
-In your `.env` file, define the following required variables.
+In your `.env` file, define the following required variables:
 
-* `DPDASH_STATE_DIR`: Used to store DPdash application data. Must be an empty directory that will be populated with files once you initialize below.
-* `DPDASH_DATA_DIR`: Used to store DPDash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
-* `DPDASH_IMG`: The path of the `dpdash.sif` image file you downloaded or built.
+> * **`DPDASH_STATE_DIR`**: Used to store DPdash application data. Must be an empty directory that will be populated with files once you initialize below.
+> * **`DPDASH_DATA_DIR`**: Used to store DPDash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
+> * **`DPDASH_IMG`**: The path of the `dpdash.sif` image file you downloaded or built.
 
 #### Optional variables
 
 If you wish to configure ports and other options for services (for example, if running a second DPDash instance on the same machine as another), you may define the following optional variables:
 
-* `DPDASH_SERVICE_HOST`: Can be used to specify the hostname that services such as MongoDB and RabbitMQ will run on.
+> * **`DPDASH_PORT`**: Can be used to change the port on which DPDash will run (default: 8000)
+> * **`DPDASH_SERVICE_HOST`**: Can be used to change the hostname on which services such as MongoDB and RabbitMQ will run (default: whatever your current `hostname` is)
+> * **`DPDASH_MONGO_PORT`**: Can be used to change the port on which MongoDB will run (default: 27017)
+> * **`DPDASH_RABBIT_DIST`**: Can be used to change the port on which RabbitMQ distribution services will communicate (default: 25671)
+> * **`DPDASH_RABBIT_NAME`**: Cab be used to change the RabbitMQ node name (default: rabbit)
+> * **`DPDASH_RABBIT_PORT`**: Can be used to change the port on which RabbitMQ will run (default: 5671)
 
 #### Using variables in your shell
 
@@ -187,6 +192,7 @@ If they do not, see the [Cookies](#cookies) section.
 **NOTE** If you have setup DPdash in a headless remote server, you should need to set up [reverse proxy](#reverse-proxy) 
 in the remote server to be able to view the login page in a local web browser.
 
+**NOTE** If you changed your port value from 8000 using the `DPDASH_PORT` variable in `.env`, then substitute your port here and in all future cases where 8000 is written.
 
 ### Configure
 

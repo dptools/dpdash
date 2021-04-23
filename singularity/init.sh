@@ -11,6 +11,13 @@ source ./varcheck.sh
 dataDir=$DPDASH_DATA_DIR
 containerDataDir=$DPDASH_STATE_DIR
 
+# use optional vars, or defaults
+dpdashPort=${DPDASH_PORT:-8000}
+mongoPort=${DPDASH_MONGO_PORT:-27017}
+rabbitDist=${DPDASH_RABBIT_DIST:-25671}
+rabbitName=${DPDASH_RABBIT_NAME:-rabbit}
+rabbitPort=${DPDASH_RABBIT_PORT:-5671}
+
 if [ "$(ls -A $containerDataDir)" ]; then
     echo "$containerDataDir needs to both exist and be empty"
     exit 1
@@ -78,7 +85,29 @@ export mongopw=`openssl rand -base64 32 | tr -d "+=/"`
 export rabbitpw=`openssl rand -base64 32| tr -d "+=/"`
 export dpdashsecret=`openssl rand -base64 32`
 export appsecret=`openssl rand -base64 32 | tr -d "+=/"`
-python ./configure.py --data-dir ${dataDir} --config-dir ${containerDataDir}/dpdash/configs --mongo-pw $mongopw --rabbit-pw $rabbitpw --ssl-ca /data/ssl/ca/cacert.pem --ssl-server-cert /data/ssl/server/cert.pem --ssl-server-key /data/ssl/server/key.pem  --ssl-client-cert /data/ssl/client/cert.pem --ssl-client-key /data/ssl/client/key.pem --mongo-server-cert /data/ssl/mongo_server.pem --mongo-path /data/dpdash/mongodb --celery-path /data/dpdash/celery/ --dpdash-secret $dpdashsecret --mongo-host ${serviceHost} --rabbit-host ${serviceHost} --dpdash-path /data/dpdash/ --app-secret $appsecret
+python ./configure.py \
+--celery-path /data/dpdash/celery/ \
+--config-dir ${containerDataDir}/dpdash/configs \
+--data-dir ${dataDir} \
+--dpdash-path /data/dpdash/ \
+--dpdash-port $dpdashPort \
+--dpdash-secret $dpdashsecret \
+--ssl-ca /data/ssl/ca/cacert.pem \
+--ssl-server-cert /data/ssl/server/cert.pem \
+--ssl-server-key /data/ssl/server/key.pem  \
+--ssl-client-cert /data/ssl/client/cert.pem \
+--ssl-client-key /data/ssl/client/key.pem \
+--mongo-host ${serviceHost} \
+--mongo-path /data/dpdash/mongodb \
+--mongo-port $mongoPort \
+--mongo-pw $mongopw \
+--mongo-server-cert /data/ssl/mongo_server.pem \
+--rabbit-dist $rabbitDist \
+--rabbit-host ${serviceHost} \
+--rabbit-name $rabbitName \
+--rabbit-port $rabbitPort \
+--rabbit-pw $rabbitpw \
+--app-secret $appsecret
 
 ## Initializing supervisord Space
 echo '***************Initializing supervisord logdir***************'
@@ -101,4 +130,4 @@ cp supervisord.conf ${containerDataDir}/dpdash/configs/
 
 ## Set-up the container
 echo '***************Setting up DPdash*****************'
-singularity exec -B ${containerDataDir}:/data $DPDASH_IMG /data/scripts/setup.sh $mongopw $rabbitpw $appsecret
+singularity exec -B ${containerDataDir}:/data $DPDASH_IMG /data/scripts/setup.sh $mongopw $mongoPort $rabbitpw $appsecret

@@ -26,12 +26,12 @@ def main():
     parser.add_argument('--dpdash-path', help='Path to the DPdash bind path')
 
     parser.add_argument('--mongo-host', help='MongoDB host address')
-    parser.add_argument('--mongo-port', help='MongoDB port number', default=27018)
+    parser.add_argument('--mongo-port', help='MongoDB port number', default=27017)
     parser.add_argument('--rabbit-host', help='Rabbitmq host address')
-    parser.add_argument('--rabbit-name', help='Rabbitmq node name', default='rabbit2')
-    parser.add_argument('--rabbit-port', help='Rabbitmq port number', default=5971)
-    parser.add_argument('--rabbit-dist', help='Rabbitmq distribution port number', default=25971)
-    parser.add_argument('--dpdash-port', help='DPdash port number', default=8001)
+    parser.add_argument('--rabbit-name', help='Rabbitmq node name', default='rabbit')
+    parser.add_argument('--rabbit-port', help='Rabbitmq port number', default=5671)
+    parser.add_argument('--rabbit-dist', help='Rabbitmq distribution port number', default=25671)
+    parser.add_argument('--dpdash-port', help='DPdash port number', default=8000)
 
     parser.add_argument('--dpdash-secret', help='DPdash session secret')
     parser.add_argument('--app-secret', help='App secret')

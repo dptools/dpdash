@@ -13,6 +13,9 @@ Table of Contents
      * [Build](#build)
   * [Use image](#use-image)
      * [Define](#define)
+        * [Required variables](#required-variables)
+        * [Optional variables](#optional-variables)
+        * [Using variables in your shell](#using-variables-in-your-shell)
      * [Initialize](#initialize)
      * [Run](#run)
      * [Import](#import)
@@ -37,7 +40,6 @@ Table of Contents created by [gh-md-toc](https://github.com/ekalinin/github-mark
     wget https://www.dropbox.com/s/eew4kj86fci6sdp/dpdash.sif
 
 
-
 ### Build
 
 Advanced users are advised to build the image in their own machine:
@@ -52,30 +54,45 @@ Advanced users are advised to build the image in their own machine:
 Once you have the image, follow the next steps to initialize database, import local data 
 into the database, instantiate DPdash, and run it.
 
+
 ### Define
 
-Define two variables `state` and `data` that can be used respectively for DPdash application data
-and project data:
+Begin by creating a file called `.env` in the `dpdash/singularity` directory. A sample `.env` file, called `.env.sample`, is provided for your convenience and demonstrates the correct format for defining variables. You may wish to copy its contents to `.env` before proceeding.
 
-    export state=/where/you/want/to/save/app/data
-    export data=/where/you/have/PHOENIX/format/project/data
+As this file contains your custom configuration, it will not be committed to the repository.
 
-`${state}` is an empty directory that will be populated with files once you do `./init.sh` but you need to have 
-[PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories) inside `${data}`.
+#### Required variables
 
-Define a third variable, `DPDASH_IMG`, to reference the path of the `dpdash.sif` image
-file you downloaded or built:
+In your `.env` file, define the following required variables.
 
-    export DPDASH_IMG=/path/to/dpdash.sif
+* `DPDASH_STATE_DIR`: Used to store DPdash application data. Must be an empty directory that will be populated with files once you initialize below.
+* `DPDASH_DATA_DIR`: Used to store DPDash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
+* `DPDASH_IMG`: The path of the `dpdash.sif` image file you downloaded or built.
+
+#### Optional variables
+
+If you wish to configure ports and other options for services (for example, if running a second DPDash instance on the same machine as another), you may define the following optional variables:
+
+* `DPDASH_SERVICE_HOST`: Can be used to specify the hostname that services such as MongoDB and RabbitMQ will run on.
+
+#### Using variables in your shell
+
+We also provide a convenience script, `loadenv.sh`, which can be run in your shell after defining these variables like so: 
+
+    cd dpdash/singularity
+    source ./loadenv.sh
+
+This script will make the values available in your shell. Where `${DPDASH_STATE_DIR}` is referenced below, it is assumed that you ran `loadenv.sh` in this manner.
+
 
 ### Initialize
     
     cd dpdash/singularity
-    ./init.sh ${data} ${state}
+    ./init.sh
 
 Then, do the following modification to circumvent a cookie issue that might occur later:
 
-    ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
+    ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
 
 You can read the [Cookies](#cookies) section for details.
     
@@ -84,17 +101,18 @@ You can read the [Cookies](#cookies) section for details.
 
 Launch a DPdash instance as follows:
     
-    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
+    cd dpdash/singularity
+    ./start.sh
     
-Alternatively, you can shell into the container and then execute further commands. In fact, this would be 
-the recommended method for working with the image.
+Alternatively, you can shell into the container using the `-s` option and then execute further commands. In fact, this would be the recommended method for working with the image.
     
-    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+    cd dpdash/singularity
+    ./start.sh -s
     
     Singularity> cd /sw/apps/dpdash/singularity/
     Singularity> ./run.sh
 
-At these point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
+At this point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
 
 
 ### Import
@@ -116,15 +134,15 @@ You can edit the example with proper values of:
     hostname:
 
 
-Proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.js`.
-
+Proper values of the above keys can be found in `${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js`.
 
 
 #### Verify import
 
 After `import.py`, you can verify if your data went inside mongo database:
 
-    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+    cd dpdash/singularity
+    ./start.sh -s
     
     Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
 
@@ -132,7 +150,7 @@ After `import.py`, you can verify if your data went inside mongo database:
 Inside mongo shell:
 
     > use admin
-    > db.auth("username", "password")   // located in ${state}/dpdash/configs/dpdash.js
+    > db.auth("username", "password")   // located in ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js
     > show dbs
     > use dpdata                        // the db name specified in config.yml for import.py
     > show collections
@@ -150,7 +168,7 @@ to learn how `dpdash` user is given access to the `BLS` study:
 Inside mongo shell:
  
     > use admin
-    > db.auth("dpdash", "password")                                   // located in ${state}/dpdash/configs/dpdash.js
+    > db.auth("dpdash", "password")                                   // located in ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js
     > show dbs
     > use dpdmongo
     > db.users.find()
@@ -177,15 +195,16 @@ Add and enable at least one configuration from the left taskbar.
 
 ### Quit
 
-    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/quit.sh
-
+    cd dpdash/singularity
+    ./stop.sh
     
 ### Restart
 
 Advanced users can save a good amount of time restarting the DPdash instance rather than doing a run-quit-run cycle. 
 To be able to do that, define the [DPdash variables](https://github.com/PREDICT-DPACC/dpdash/blob/dcdc3ca702df688a2cc73376c2929415e0fd6c0b/singularity/run.sh#L30) in the Singularity shell:
 
-    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+    cd dpdash/singularity
+    ./start.sh -s
     
     Singularity> cd /sw/apps/dpdash/
     Singularity> # define the DPdash variables
@@ -218,7 +237,7 @@ Eventually, you should be able to see DPdash login page in a web browser against
 
 * DPdash app
 
-        tail -f ${state}/dpdash/dpdash.log
+        tail -f ${DPDASH_STATE_DIR}/dpdash/dpdash.log
 
 and
 
@@ -227,19 +246,19 @@ and
 
 * mongodb
 
-        tail -f ${state}/dpdash/mongodb/logs/mongod.log
+        tail -f ${DPDASH_STATE_DIR}/dpdash/mongodb/logs/mongod.log
 
 * supervisord
         
-        tail -f ${state}/dpdash/supervisord/logs/supervisord.log
+        tail -f ${DPDASH_STATE_DIR}/dpdash/supervisord/logs/supervisord.log
 
 * rabbitmq
 
-        tail -f ${state}/dpdash/rabbitmq/rabbit@rc-predict.log
+        tail -f ${DPDASH_STATE_DIR}/dpdash/rabbitmq/rabbit@rc-predict.log
 
 * celery
         
-        tail -f ${state}/dpdash/celery/celery.log
+        tail -f ${DPDASH_STATE_DIR}/dpdash/celery/celery.log
 
 
 ### Cookies
@@ -248,7 +267,7 @@ Within DPdash, [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en
 For this limitation, after entering admin credentials in DPdash login page, you may be dropped back to login again. 
 To circumvent this issue, set the following to `false`:
 
-    ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
+    ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
 
 and then [restart](#restart) the DPdash application.
 

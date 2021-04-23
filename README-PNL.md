@@ -79,6 +79,9 @@ If you wish to configure ports and other options for services (for example, if r
 > * **`DPDASH_RABBIT_DIST`**: Can be used to change the port on which RabbitMQ distribution services will communicate (default: 25671)
 > * **`DPDASH_RABBIT_NAME`**: Cab be used to change the RabbitMQ node name (default: rabbit)
 > * **`DPDASH_RABBIT_PORT`**: Can be used to change the port on which RabbitMQ will run (default: 5671)
+> * **`DPDASH_SUPERVISOR_ID`**: Can be used to change the ID name used by supervisord process (default: supervisor)
+
+We found changing all of these necessary to run two instances on one machine and avoid collisions.
 
 #### Using variables in your shell
 

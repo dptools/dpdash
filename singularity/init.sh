@@ -17,6 +17,7 @@ mongoPort=${DPDASH_MONGO_PORT:-27017}
 rabbitDist=${DPDASH_RABBIT_DIST:-25671}
 rabbitName=${DPDASH_RABBIT_NAME:-rabbit}
 rabbitPort=${DPDASH_RABBIT_PORT:-5671}
+supervisorId=${DPDASH_SUPERVISOR_ID:-supervisor}
 
 if [ "$(ls -A $containerDataDir)" ]; then
     echo "$containerDataDir needs to both exist and be empty"
@@ -107,6 +108,7 @@ python ./configure.py \
 --rabbit-name $rabbitName \
 --rabbit-port $rabbitPort \
 --rabbit-pw $rabbitpw \
+--supervisor-id $supervisorId \
 --app-secret $appsecret
 
 ## Initializing supervisord Space
@@ -126,7 +128,6 @@ echo '***************Initializing DPdash Space*****************'
 mkdir -p ${containerDataDir}/dpdash/uploads && mkdir -p ${containerDataDir}/dpdash/configs/dashboard
 cd ${DIR}
 cp -R ./configs/* ${containerDataDir}/dpdash/configs/dashboard/
-cp supervisord.conf ${containerDataDir}/dpdash/configs/
 
 ## Set-up the container
 echo '***************Setting up DPdash*****************'

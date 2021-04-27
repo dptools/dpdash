@@ -85,12 +85,14 @@ We found changing all of these necessary to run two instances on one machine and
 
 #### Using variables in your shell
 
-We also provide a convenience script, `loadenv.sh`, which can be run in your shell after defining these variables like so: 
+We provide a script to load from `.env` called `loadenv.sh`, which can be run in your shell after defining these variables like so: 
 
     cd dpdash/singularity
     source ./loadenv.sh
 
-This script will make the values available in your shell. Where `${state}` is referenced below, it is assumed that you ran `loadenv.sh` in this manner.
+This script will make the values available in your shell. Where `${state}` and `${data}` are referenced below, it is assumed that you ran `loadenv.sh` in this manner.
+
+You may also wish to run `source ./varcheck.sh` before proceeding to make sure that your variables are defined properly.
 
 
 ### Initialize
@@ -109,18 +111,18 @@ You can read the [Cookies](#cookies) section for details.
 
 Launch a DPdash instance as follows:
     
-    cd dpdash/singularity
-    ./start.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
     
 Alternatively, you can shell into the container using the `-s` option and then execute further commands. In fact, this would be the recommended method for working with the image.
     
-    cd dpdash/singularity
-    ./start.sh -s
-    
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+
     Singularity> cd /sw/apps/dpdash/singularity/
     Singularity> ./run.sh
 
 At this point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
+
+**Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container.
 
 
 ### Import
@@ -149,9 +151,8 @@ Proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.
 
 After `import.py`, you can verify if your data went inside mongo database:
 
-    cd dpdash/singularity
-    ./start.sh -s
-    
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+
     Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
 
 
@@ -192,10 +193,10 @@ Firstly, make sure the following prints the login page:
 Then, try to view the login page in a web browser. Finally, enter the admin credentials and see if they work. 
 If they do not, see the [Cookies](#cookies) section.
 
-**NOTE** If you have setup DPdash in a headless remote server, you should need to set up [reverse proxy](#reverse-proxy) 
+**Note:** If you have setup DPdash in a headless remote server, you should need to set up [reverse proxy](#reverse-proxy) 
 in the remote server to be able to view the login page in a local web browser.
 
-**NOTE** If you changed your port value from 8000 using the `DPDASH_PORT` variable in `.env`, then substitute your port here and in all future cases where 8000 is written.
+**Note:** If you changed your port value from 8000 using the `DPDASH_PORT` variable in `.env`, then substitute your port here and in all future cases where 8000 is written.
 
 ### Configure
 
@@ -203,6 +204,12 @@ Add and enable at least one configuration from the left taskbar.
 
 
 ### Quit
+
+You can stop the DPDash instance with a Singularity command:
+
+    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/quit.sh
+
+Or you may use our convenience script, `stop.sh`:
 
     cd dpdash/singularity
     ./stop.sh
@@ -212,9 +219,8 @@ Add and enable at least one configuration from the left taskbar.
 Advanced users can save a good amount of time restarting the DPdash instance rather than doing a run-quit-run cycle. 
 To be able to do that, define the [DPdash variables](https://github.com/PREDICT-DPACC/dpdash/blob/dcdc3ca702df688a2cc73376c2929415e0fd6c0b/singularity/run.sh#L30) in the Singularity shell:
 
-    cd dpdash/singularity
-    ./start.sh -s
-    
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+        
     Singularity> cd /sw/apps/dpdash/
     Singularity> # define the DPdash variables
     Singularity> npm restart

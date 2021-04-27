@@ -113,7 +113,7 @@ Launch a DPdash instance as follows:
     
     singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
     
-Alternatively, you can shell into the container using the `-s` option and then execute further commands. In fact, this would be the recommended method for working with the image.
+Alternatively, you can shell into the container and then execute further commands. In fact, this would be the recommended method for working with the image.
     
     singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
 
@@ -220,7 +220,7 @@ Advanced users can save a good amount of time restarting the DPdash instance rat
 To be able to do that, define the [DPdash variables](https://github.com/PREDICT-DPACC/dpdash/blob/dcdc3ca702df688a2cc73376c2929415e0fd6c0b/singularity/run.sh#L30) in the Singularity shell:
 
     singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
-        
+
     Singularity> cd /sw/apps/dpdash/
     Singularity> # define the DPdash variables
     Singularity> npm restart

@@ -5,11 +5,11 @@ var defaultUserConfigPath = process.env.DPDASH_DASHBOARD_CONFIG_DEFAULT || '../.
 var defaultUserConfig = require(defaultUserConfigPath);
 var MongoDB = require('mongodb');
 var MongoClient = MongoDB.MongoClient;
+const { verifyHash } = require('../crypto/hash');
 
 module.exports = (req, res, next, user) => {
     //validate submitted password
-    var hashedPassword = require('../crypto/hash')(req.body.password, 'aes-256-ctr', 'encrypt', config.app.secret);
-    if (user.password != hashedPassword) {
+    if (!verifyHash(req.body.password, user.password)) {
         return res.redirect('/login?e=forbidden');
     }
 	//passport local log-in serializer

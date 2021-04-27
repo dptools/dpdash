@@ -15,6 +15,7 @@ var co = require('co');
 var crypto = require('crypto');
 var uuidV4 = require('uuid/v4');
 var passport = require('passport');
+const { hash } = require('../utils/crypto/hash');
 
 var configPath = process.env.DPDASH_CONFIG || '../config';
 var config = require(configPath);
@@ -566,7 +567,7 @@ router.route('/resetpw')
         if(req.body.password !== req.body.confirmpw) {
             return res.redirect('/resetpw?e=unmatched');
         } else {
-            var hashedPW = require('../utils/crypto/hash')(req.body.password, 'aes-256-ctr', 'encrypt', config.app.secret);
+            var hashedPW = hash(password);
 
             checkMongo();
             mongoApp.collection('users').findOneAndUpdate(

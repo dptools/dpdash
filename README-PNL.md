@@ -65,8 +65,8 @@ As this file contains your custom configuration, it will not be committed to the
 
 In your `.env` file, define the following required variables:
 
-> * **`DPDASH_STATE_DIR`**: Used to store DPdash application data. Must be an empty directory that will be populated with files once you initialize below.
-> * **`DPDASH_DATA_DIR`**: Used to store DPDash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
+> * **`state`**: Used to store DPdash application data. Must be an empty directory that will be populated with files once you initialize below.
+> * **`data`**: Used to store DPDash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
 > * **`DPDASH_IMG`**: The path of the `dpdash.sif` image file you downloaded or built.
 
 #### Optional variables
@@ -90,7 +90,7 @@ We also provide a convenience script, `loadenv.sh`, which can be run in your she
     cd dpdash/singularity
     source ./loadenv.sh
 
-This script will make the values available in your shell. Where `${DPDASH_STATE_DIR}` is referenced below, it is assumed that you ran `loadenv.sh` in this manner.
+This script will make the values available in your shell. Where `${state}` is referenced below, it is assumed that you ran `loadenv.sh` in this manner.
 
 
 ### Initialize
@@ -100,7 +100,7 @@ This script will make the values available in your shell. Where `${DPDASH_STATE_
 
 Then, do the following modification to circumvent a cookie issue that might occur later:
 
-    ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
+    ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
 
 You can read the [Cookies](#cookies) section for details.
     
@@ -142,7 +142,7 @@ You can edit the example with proper values of:
     hostname:
 
 
-Proper values of the above keys can be found in `${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js`.
+Proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.js`.
 
 
 #### Verify import
@@ -158,7 +158,7 @@ After `import.py`, you can verify if your data went inside mongo database:
 Inside mongo shell:
 
     > use admin
-    > db.auth("username", "password")   // located in ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js
+    > db.auth("username", "password")   // located in ${state}/dpdash/configs/dpdash.js
     > show dbs
     > use dpdata                        // the db name specified in config.yml for import.py
     > show collections
@@ -176,7 +176,7 @@ to learn how `dpdash` user is given access to the `BLS` study:
 Inside mongo shell:
  
     > use admin
-    > db.auth("dpdash", "password")                                   // located in ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js
+    > db.auth("dpdash", "password")                                   // located in ${state}/dpdash/configs/dpdash.js
     > show dbs
     > use dpdmongo
     > db.users.find()
@@ -246,7 +246,7 @@ Eventually, you should be able to see DPdash login page in a web browser against
 
 * DPdash app
 
-        tail -f ${DPDASH_STATE_DIR}/dpdash/dpdash.log
+        tail -f ${state}/dpdash/dpdash.log
 
 and
 
@@ -255,19 +255,19 @@ and
 
 * mongodb
 
-        tail -f ${DPDASH_STATE_DIR}/dpdash/mongodb/logs/mongod.log
+        tail -f ${state}/dpdash/mongodb/logs/mongod.log
 
 * supervisord
         
-        tail -f ${DPDASH_STATE_DIR}/dpdash/supervisord/logs/supervisord.log
+        tail -f ${state}/dpdash/supervisord/logs/supervisord.log
 
 * rabbitmq
 
-        tail -f ${DPDASH_STATE_DIR}/dpdash/rabbitmq/rabbit@rc-predict.log
+        tail -f ${state}/dpdash/rabbitmq/rabbit@rc-predict.log
 
 * celery
         
-        tail -f ${DPDASH_STATE_DIR}/dpdash/celery/celery.log
+        tail -f ${state}/dpdash/celery/celery.log
 
 
 ### Cookies
@@ -276,7 +276,7 @@ Within DPdash, [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en
 For this limitation, after entering admin credentials in DPdash login page, you may be dropped back to login again. 
 To circumvent this issue, set the following to `false`:
 
-    ${DPDASH_STATE_DIR}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
+    ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
 
 and then [restart](#restart) the DPdash application.
 

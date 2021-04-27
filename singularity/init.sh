@@ -8,8 +8,8 @@ source ./loadenv.sh
 # Check if required variables are defined
 source ./varcheck.sh
 
-dataDir=$DPDASH_DATA_DIR
-containerDataDir=$DPDASH_STATE_DIR
+dataDir=$data
+containerDataDir=$state
 
 # use optional vars, or defaults
 dpdashPort=${DPDASH_PORT:-8000}

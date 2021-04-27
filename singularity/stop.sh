@@ -7,4 +7,4 @@ set -eo pipefail
 source ./loadenv.sh
 source ./varcheck.sh
 
-singularity run -B ${DPDASH_STATE_DIR}:/data -B ${DPDASH_DATA_DIR}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/quit.sh
+singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/quit.sh

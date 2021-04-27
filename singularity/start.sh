@@ -23,7 +23,7 @@ source ./varcheck.sh
 
 if [ $shellmode = true ]
 then
-    singularity shell -B ${DPDASH_STATE_DIR}:/data -B ${DPDASH_DATA_DIR}:/project_data ${DPDASH_IMG}
+    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
 else
-    singularity run -B ${DPDASH_STATE_DIR}:/data -B ${DPDASH_DATA_DIR}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
+    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
 fi

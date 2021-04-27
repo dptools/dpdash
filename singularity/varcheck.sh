@@ -1,13 +1,13 @@
 # Checks the three variables that are needed to run the container
 
-if [ -z ${DPDASH_DATA_DIR+x} ] || [ ! -d "$DPDASH_DATA_DIR" ]
+if [ -z ${data} ] || [ ! -d "$data" ]
 then 
-    echo "DPDASH_DATA_DIR is unset in .env or is not a directory"
+    echo "data is unset in .env or is not a directory"
     exit 1
 fi
-if [ -z ${DPDASH_STATE_DIR+x} ] || [ ! -d "$DPDASH_STATE_DIR" ]
+if [ -z ${state} ] || [ ! -d "$state" ]
 then 
-    echo "DPDASH_STATE_DIR is unset in .env or is not a directory"
+    echo "state is unset in .env or is not a directory"
     exit 1
 fi
 [ -z $DPDASH_IMG ] && DPDASH_IMG=dpdash.sif

@@ -4,3 +4,4 @@ docs/build
 config.js
 *.map
 *.min.js
+.env

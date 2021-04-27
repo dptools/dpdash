@@ -24,7 +24,7 @@ if [ "$(ls -A $containerDataDir)" ]; then
     exit 1
 fi
 
-if [ ! -z ${DPDASH_SERVICE_HOST+x} ]
+if [ ! -z ${DPDASH_SERVICE_HOST} ]
 then 
     serviceHost=$DPDASH_SERVICE_HOST
 else

@@ -90,5 +90,6 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mo
 %environment
     ## miniconda3 pnlpipe3
     export PATH=/sw/apps/miniconda3/bin:$PATH
+    export PATH=/usr/local/bin/node:$PATH
 
 

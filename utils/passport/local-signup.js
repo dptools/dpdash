@@ -5,6 +5,7 @@ var defaultUserConfigPath = process.env.DPDASH_DASHBOARD_CONFIG_DEFAULT || '../.
 var defaultUserConfig = require(defaultUserConfigPath);
 var MongoDB = require('mongodb');
 var MongoClient = MongoDB.MongoClient;
+const { hash } = require('../crypto/hash');
 
 module.exports = (req, res, next) => {
     passport.authenticate('local-signup', {session: true}, function(err, user, reqBody) {
@@ -28,7 +29,7 @@ module.exports = (req, res, next) => {
                 return res.redirect('/login?e=forbidden');
             }
             const mongodb = client.db(config.database.mongo.appDB);
-            var hashedPW = require('../crypto/hash')(password, 'aes-256-ctr', 'encrypt', config.app.secret);
+            var hashedPW = hash(password);
 			mongodb.collection('users').findOneAndUpdate(
 			    {uid: username},
 				{

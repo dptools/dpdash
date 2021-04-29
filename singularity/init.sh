@@ -85,7 +85,7 @@ mkdir -p ${containerDataDir}/dpdash/configs
 export mongopw=`openssl rand -base64 32 | tr -d "+=/"`
 export rabbitpw=`openssl rand -base64 32| tr -d "+=/"`
 export dpdashsecret=`openssl rand -base64 32`
-export appsecret=`openssl rand -base64 32 | tr -d "+=/"`
+export appsecret=`openssl rand -hex 32`
 python ./configure.py \
 --celery-path /data/dpdash/celery/ \
 --config-dir ${containerDataDir}/dpdash/configs \

@@ -7,7 +7,7 @@ var winston = require('winston');
 var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var expressSession = require('express-session');
-var MongoStore = require('connect-mongo')(expressSession);
+var MongoStore = require('connect-mongo');
 var MongoDB = require('mongodb');
 var MongoClient = MongoDB.MongoClient;
 var passport = require('passport');
@@ -17,7 +17,8 @@ var localStrategy = passportLocal.Strategy;
 var co = require('co');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
-
+const noCache = require('nocache');
+const { getMongoURI } = require('./utils/mongoUtil');
 
 var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
@@ -31,9 +32,10 @@ app.use(favicon(path.join(__dirname, '/public/img/favicon.png')));
 
 /** security setup */
 app.use(helmet({
-    noCache: true,
     noSniff: true
 }));
+
+app.use(noCache());
 
 /** logger setup */
 morgan.token('remote-user', function(req, res) {
@@ -74,29 +76,27 @@ app.use(methodOverride());
 
 
 /* database setup */
-var mongodb;
-var mongodbPromise = co(function* () {
-    var mongoURI = 'mongodb://' + config.database.mongo.username + ':';
-    mongoURI = mongoURI + config.database.mongo.password + '@'  + config.database.mongo.host;
-    mongoURI = mongoURI + ':' + config.database.mongo.port + '/' + config.database.mongo.authSource;
+let mongodb;
+const mongoURI = getMongoURI({ settings: config.database.mongo });
+const mongodbPromise = co(function* () {
     return yield MongoClient.connect(mongoURI, config.database.mongo.server);
 }).then(function(res) {
-    mongodb = res.db(config.database.mongo.appDB);
-    mongodb.dropCollection('sessions'); //clear outstanding sessions
-    return mongodb;
+  mongodb = res.db();
+  mongodb.collection('sessions').drop();
+  return res;
 });
 
 /** session store setup */
 app.set('trust proxy', 1);
 app.use(expressSession({
-        secret: config.session.secret,
-        saveUninitialized: config.session.saveUninitialized,
-        resave: config.session.resave,
-        cookie: config.session.cookie,
-        store: new MongoStore({
-        dbPromise : mongodbPromise,
-        autoRemove: 'native'
-    })
+  secret: config.session.secret,
+  saveUninitialized: config.session.saveUninitialized,
+  resave: config.session.resave,
+  cookie: config.session.cookie,
+  store: MongoStore.create({
+    clientPromise: mongodbPromise,
+    autoRemove: 'native'
+  })
 }));
 
 /** authenticator setup */

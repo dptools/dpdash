@@ -16,6 +16,7 @@ var crypto = require('crypto');
 var uuidV4 = require('uuid/v4');
 var passport = require('passport');
 const { hash } = require('../utils/crypto/hash');
+const { getMongoURI } = require('../utils/mongoUtil');
 
 var configPath = process.env.DPDASH_CONFIG || '../config';
 var config = require(configPath);
@@ -24,9 +25,7 @@ var upload = multer({ dest: uploadPath }).single('file');
 var defaultStudyConfigPath = process.env.DPDASH_DASHBOARD_CONFIG_DEFAULT_STUDY || '../defaultStudyConfig';
 var defaultStudyConfig = require(defaultStudyConfigPath);
 
-var mongoURI = 'mongodb://' + config.database.mongo.username + ':';
-mongoURI = mongoURI + config.database.mongo.password + '@'  + config.database.mongo.host;
-mongoURI = mongoURI + ':' + config.database.mongo.port + '/' + config.database.mongo.authSource;
+const mongoURI = getMongoURI({ settings: config.database.mongo });
 
 var mongoClient;
 var mongoApp;
@@ -38,7 +37,7 @@ MongoClient.connect(mongoURI, config.database.mongo.server, function(err, client
         process.exit();
     }
     mongoClient = client;
-    mongoApp = mongoClient.db(config.database.mongo.appDB);
+    mongoApp = mongoClient.db();
     mongoData = mongoClient.db(config.database.mongo.dataDB);
 });
 
@@ -51,7 +50,7 @@ function checkMongo() {
                 process.exit();
             }
             mongoClient = client;
-            mongoApp = mongoClient.db(config.database.mongo.appDB);
+            mongoApp = mongoClient.db();
             mongoData = mongoClient.db(config.database.mongo.dataDB);
         });
     }
@@ -226,6 +225,7 @@ router.route('/login')
     .post(function(req, res, next) {
         passport.authenticate('local-login', {session: true}, function(err, user) {
             if(err) {
+                console.error(err);
                 return res.redirect('/login?e=' + err);
             }
             if(!user) {
@@ -326,7 +326,7 @@ router.get('/dashboard/:study/:subject', ensurePermission, function(req, res) {
             } else if (!doc || Object.keys(doc).length === 0) {
                 return res.status(404).send({});
             } else {
-                if('config' in doc['preferences']) {
+                if(doc.preferences && 'config' in doc.preferences) {
                     mongoApp.collection('configs').findOne(
                     { readers: req.user, _id: new ObjectID(doc['preferences']['config'])}
                     , function(err, data) {
@@ -567,8 +567,7 @@ router.route('/resetpw')
         if(req.body.password !== req.body.confirmpw) {
             return res.redirect('/resetpw?e=unmatched');
         } else {
-            var hashedPW = hash(password);
-
+            var hashedPW = hash(req.body.password);
             checkMongo();
             mongoApp.collection('users').findOneAndUpdate(
                 { uid: req.body.username, reset_key : req.body.reset_key },

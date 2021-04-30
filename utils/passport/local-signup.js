@@ -6,6 +6,7 @@ var defaultUserConfig = require(defaultUserConfigPath);
 var MongoDB = require('mongodb');
 var MongoClient = MongoDB.MongoClient;
 const { hash } = require('../crypto/hash');
+const { getMongoURI } = require('../mongoUtil');
 
 module.exports = (req, res, next) => {
     passport.authenticate('local-signup', {session: true}, function(err, user, reqBody) {
@@ -20,9 +21,7 @@ module.exports = (req, res, next) => {
         var email = reqBody.email;
         var display_name = reqBody.display_name;
 
-        var mongoURI = 'mongodb://' + config.database.mongo.username + ':';
-        mongoURI = mongoURI + config.database.mongo.password + '@'  + config.database.mongo.host;
-        mongoURI = mongoURI + ':' + config.database.mongo.port + '/' + config.database.mongo.authSource;
+        const mongoURI = getMongoURI({ settings: config.database.mongo });
         MongoClient.connect(mongoURI, config.database.mongo.server, function(err, client) {
             if (err) {
                 console.error(err.message);

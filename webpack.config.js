@@ -57,13 +57,10 @@ module.exports = {
 		extensions: ['.js']
 	},
 	plugins: [
-        new webpack.DefinePlugin({
-            'process.env':{
-                'NODE_ENV': JSON.stringify('production'),
-            }
-        }),
-		new webpack.ProvidePlugin({
-			Promise: 'imports-loader?this=>global!exports-loader?global.Promise!es6-promise'
-		})
+    new webpack.DefinePlugin({
+        'process.env':{
+            'NODE_ENV': JSON.stringify('production'),
+        }
+    }),
 	],
 };

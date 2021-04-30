@@ -21,6 +21,7 @@ export RABBITMQ_CONF_ENV_FILE=/data/dpdash/configs/rabbitmq-env.conf
 export dppy_config=/data/dpdash/configs/dppy.conf
 
 # start mongodb, celery, and rabbit
+echo "Starting superivsord..."
 supervisord -c /data/dpdash/configs/supervisord.conf
 
 # sleep 100 seconds
@@ -35,4 +36,5 @@ export DPDASH_DASHBOARD_CONFIG_DEFAULT_STUDY=/data/dpdash/configs/dashboard/defa
 
 cd /sw/apps/dpdash
 
+echo "Starting dpdash..."
 npm start

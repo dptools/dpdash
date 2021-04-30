@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import moment from 'moment';
 import 'whatwg-fetch';
 import update from 'immutability-helper';
@@ -39,7 +39,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import {compose} from 'redux';
+import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import DrawerComponent from './Drawer.react';
 import Drawer from '@material-ui/core/Drawer';
@@ -230,9 +230,9 @@ function MultiValue(props) {
 function Menu(props) {
   return (
     <Paper square className={props.selectProps.classes.paper} {...props.innerProps}>
-        <MenuList>
-            {props.children}
-        </MenuList>
+      <MenuList>
+        {props.children}
+      </MenuList>
     </Paper>
   );
 }
@@ -249,732 +249,732 @@ const components = {
 };
 
 class ConfigPage extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            user: {},
-            preferences:{}, 
-            configurations: [],
-            gridCols : 1,
-            gridWidth : 350,
-            searchUsers: false,
-            friends: [],
-            shared: [],
-            snackTime: false,
-            uploadSnack: false,
-            selectedConfig: {},
-            configOwner: '',
-            totalStudies: 0,
-            totalSubjects: 0,
-            totalDays : 0,
-            mobileOpen: false
-        };
-    }
-    handleDrawerToggle = () => {
-        this.setState(state => ({ mobileOpen: !state.mobileOpen }));
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: {},
+      preferences: {},
+      configurations: [],
+      gridCols: 1,
+      gridWidth: 350,
+      searchUsers: false,
+      friends: [],
+      shared: [],
+      snackTime: false,
+      uploadSnack: false,
+      selectedConfig: {},
+      configOwner: '',
+      totalStudies: 0,
+      totalSubjects: 0,
+      totalDays: 0,
+      mobileOpen: false
     };
-    componentDidUpdate() {
+  }
+  handleDrawerToggle = () => {
+    this.setState(state => ({ mobileOpen: !state.mobileOpen }));
+  };
+  componentDidUpdate() {
+  }
+  componentWillMount() {
+    this.fetchConfigurations(this.props.user.uid);
+    this.fetchPreferences(this.props.user.uid);
+    this.fetchUsers();
+    this.fetchSubjects();
+  }
+  fetchSubjects = () => {
+    return window.fetch('/api/v1/studies', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin'
+    }).then((response) => {
+      if (response.status !== 200) {
+        return
+      }
+      return response.json()
+    }).then((response) => {
+      let studies = response ? response : [];
+      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+      }).then((response) => {
+        if (response.status !== 200) {
+          return
+        }
+        return response.json()
+      }).then((response) => {
+        this.autocomplete(response)
+      });
+    });
+  }
+  autocomplete = (acl) => {
+    var options = [];
+    for (var study = 0; study < acl.length; study++) {
+      Array.prototype.push.apply(options, acl[study].subjects);
     }
-    componentWillMount() {
+    this.setState({
+      totalStudies: acl.length,
+      totalSubjects: options.length,
+      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
+    });
+  }
+  componentDidMount() {
+    if (this.props.user.message.length > 0) {
+      this.setState({
+        uploadSnack: true,
+        avatar: this.getAvatar()
+      });
+    } else {
+      this.setState({
+        avatar: this.getAvatar()
+      });
+    }
+    /* Initial Sizing */
+    this.handleResize(true);
+    /* Resize listener register */
+    window.addEventListener('resize', this.handleResize);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.handleResize);
+  }
+  getAvatar = () => {
+    var icon = this.props.user.icon;
+    var username = this.props.user.name;
+    var uid = this.props.user.uid;
+    if (icon == '' || icon == undefined) {
+      if (username == '' || username == undefined) {
+        if (uid && uid.length > 0) {
+          return <Avatar style={{ width: 60, height: 60 }}>{uid[0]}</Avatar>
+        } else {
+          return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}><Person /></Avatar>
+        }
+      } else {
+        return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>{username[0]}</Avatar>
+      }
+    } else {
+      return <Avatar style={{ width: 60, height: 60 }} src={icon}></Avatar>
+    }
+  }
+  handleResize = (event) => {
+    if (window.innerWidth >= 768) {
+      let gridCols = Math.floor(window.innerWidth / this.state.gridWidth);
+      this.setState({
+        gridCols: gridCols
+      });
+    } else {
+      this.setState({
+        gridCols: 1
+      });
+    }
+  }
+  fetchUsers = () => {
+    return window.fetch('/api/v1/search/users', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin'
+    }).then((response) => {
+      if (response.status !== 200) {
+        return;
+      }
+      return response.json();
+    }).then((response) => {
+      this.setState({
+        friends: response.map(friend => ({
+          value: friend,
+          label: friend
+        }))
+      });
+    });
+  }
+  babyProofPreferences = (preferences) => {
+    let preference = {};
+    preference['star'] = 'star' in preferences ? preferences['star'] : {};
+    preference['sort'] = 'sort' in preferences ? preferences['sort'] : 0;
+    preference['config'] = 'config' in preferences ? preferences['config'] : '';
+    preference['complete'] = 'complete' in preferences ? preferences['complete'] : {};
+    return preference;
+  }
+  updateUserPreferences = (index, type) => {
+    let uid = this.props.user.uid;
+    let preference = {};
+    if (type == 'index') {
+      if (this.state.configurations.length > 0 && this.state.configurations[index]) {
+        preference['config'] = this.state.configurations[index]['_id'];
+      }
+    } else {
+      preference['config'] = index;
+    }
+    preference['complete'] = 'complete' in this.state.preferences ? this.state.preferences['complete'] : {};
+    preference['star'] = 'star' in this.state.preferences ? this.state.preferences['star'] : {};
+    preference['sort'] = 'sort' in this.state.preferences ? this.state.preferences['sort'] : 0;
+    preference = this.babyProofPreferences(preference);
+
+    return window.fetch('/api/v1/users/' + uid + '/preferences', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        preferences: preference
+      })
+    }).then((response) => {
+      if (type == 'index') {
+        this.setState({
+          preferences: preference,
+          snackTime: true
+        });
+      } else {
+        this.setState({
+          preferences: preference
+        });
+      }
+    });
+  }
+  fetchPreferences = (uid) => {
+    return window.fetch('/api/v1/users/' + uid + '/preferences', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin'
+    }).then((response) => {
+      if (response.status !== 200) {
+        return;
+      }
+      return response.json();
+    }).then((response) => {
+      this.setState({
+        preferences: this.babyProofPreferences(response)
+      });
+    });
+  }
+  fetchConfigItem = (uid, _id) => {
+    return window.fetch('/api/v1/users/' + uid + '/configs/' + _id, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin'
+    }).then((response) => {
+      if (response.status !== 200) {
+        return;
+      }
+      return response.json();
+    }).then((response) => {
+    });
+  }
+  fetchConfigurations = (uid) => {
+    return window.fetch('/api/v1/users/' + uid + '/configs', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin'
+    }).then((response) => {
+      if (response.status !== 200) {
+        return;
+      }
+      return response.json();
+    }).then((response) => {
+      this.setState({
+        configurations: response
+      });
+    });
+  }
+  updateConfigurations = (configID, ownsConfig) => {
+    if (ownsConfig) {
+      window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          remove: configID
+        })
+      }).then((response) => {
+        return;
+      });
+    } else {
+      window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          disable: configID
+        })
+      }).then((response) => {
+        return;
+      });
+    }
+  }
+  handleCrumbs = () => {
+    this.setState({
+      snackTime: false,
+      uploadSnack: false
+    });
+  }
+  removeConfig = (configs, index, configID, ownsConfig) => {
+    this.updateConfigurations(configID, ownsConfig);
+    this.setState({
+      configurations: update(configs, {
+        $splice: [[index, 1]]
+      }),
+      snackTime: true
+    });
+    if (index == this.state.preferences['config']) {
+      this.updateUserPreferences(0, 'index');
+    }
+  }
+  openSearchUsers = (index, configID, shared, owner) => {
+    this.setState({
+      searchUsers: true,
+      selectedConfig: {
+        _id: configID,
+        index: index
+      },
+      shared: shared.map(friend => ({
+        label: friend,
+        value: friend
+      })),
+      configOwner: owner
+    });
+  }
+  closeSearchUsers = () => {
+    this.setState({
+      searchUsers: false,
+      selectedConfig: {
+        _id: '',
+        index: -1
+      },
+      shared: [],
+      configOwner: ''
+    });
+  }
+  copyConfig = (config) => {
+    let newConfig = {};
+    newConfig['owner'] = this.props.user.uid;
+    newConfig['readers'] = [this.props.user.uid];
+    newConfig['created'] = (new Date()).toUTCString();
+    newConfig['type'] = config['type'];
+    newConfig['name'] = config['name'];
+    newConfig['config'] = config['config'];
+
+    return window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        add: newConfig
+      })
+    }).then((response) => {
+      if (response.status == 201) {
         this.fetchConfigurations(this.props.user.uid);
-        this.fetchPreferences(this.props.user.uid);
-        this.fetchUsers();
-        this.fetchSubjects();
-    }
-    fetchSubjects = () => {
-        return window.fetch('/api/v1/studies', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        }).then((response) => {
-            if (response.status !== 200) {
-                return
-            }
-            return response.json()
-        }).then((response) => {
-            let studies = response ? response : [];
-            window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-            }).then((response) => {
-                if (response.status !== 200) {
-                    return
-                }
-                return response.json()
-            }).then((response) => {
-                this.autocomplete(response)
-            });
-        });
-    }
-    autocomplete = (acl) => {
-        var options = [];
-        for(var study = 0; study < acl.length; study++) {
-            Array.prototype.push.apply(options, acl[study].subjects);
-        }
-        this.setState({
-            totalStudies: acl.length,
-            totalSubjects: options.length,
-            totalDays: Math.max.apply(Math, options.map(function(o) { return o.days; }))
-        });
-    }
-    componentDidMount() {
-        if(this.props.user.message.length > 0) {
-            this.setState({
-                uploadSnack: true,
-                avatar : this.getAvatar()
-            });
-        } else {
-            this.setState({
-                avatar : this.getAvatar()
-            });
-        }
-        /* Initial Sizing */
-        this.handleResize(true);
-        /* Resize listener register */
-        window.addEventListener('resize', this.handleResize);
-    }
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.handleResize);
-    }
-    getAvatar = () => {
-        var icon = this.props.user.icon;
-        var username = this.props.user.name;
-        var uid = this.props.user.uid;
-        if(icon == '' || icon == undefined) {
-            if(username == '' || username == undefined) {
-                if(uid && uid.length > 0) {
-                    return <Avatar style={{width: 60, height: 60}}>{uid[0]}</Avatar>
-                } else {
-                    return <Avatar style={{width: 60, height: 60, backgroundColor: '#c0d9e1'}}><Person /></Avatar>
-                }
-            } else {
-                return <Avatar style={{width: 60, height: 60, backgroundColor: '#c0d9e1'}}>{username[0]}</Avatar>
-            }
-        } else {
-            return <Avatar style={{width: 60, height: 60}} src={icon}></Avatar>
-        }
-    }
-    handleResize = (event) => {
-        if (window.innerWidth >= 768) {
-            let gridCols = Math.floor(window.innerWidth / this.state.gridWidth);
-            this.setState({
-                gridCols: gridCols
-            });
-        } else {
-            this.setState({
-                gridCols: 1
-            });
-        }
-    }
-    fetchUsers = () => {
-        return window.fetch('/api/v1/search/users', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        }).then((response) => {
-            if (response.status !== 200) {
-                return;
-            }
-            return response.json();
-        }).then((response) => {
-            this.setState({
-                friends: response.map(friend => ({
-                    value: friend,
-                    label: friend
-                }))
-            });
-        });
-    }
-    babyProofPreferences = (preferences) => {
-        let preference = {};
-        preference['star'] = 'star' in preferences ? preferences['star'] : {};
-        preference['sort'] = 'sort' in preferences ? preferences['sort'] : 0;
-        preference['config'] = 'config' in preferences ? preferences['config'] : '';
-        preference['complete'] = 'complete' in preferences ? preferences['complete'] : {};
-        return preference;
-    }
-    updateUserPreferences = (index, type) => {
-        let uid = this.props.user.uid;
-        let preference = {};
-        if (type == 'index') {
-            if(this.state.configurations.length > 0  && this.state.configurations[index]) {
-                preference['config'] = this.state.configurations[index]['_id'];
-            }
-        } else {
-            preference['config'] = index;
-        }
-        preference['complete'] = 'complete' in this.state.preferences ? this.state.preferences['complete'] : {};
-        preference['star'] = 'star' in this.state.preferences ? this.state.preferences['star'] : {};
-        preference['sort'] = 'sort' in this.state.preferences ? this.state.preferences['sort'] : 0;
-        preference = this.babyProofPreferences(preference);
-
-        return window.fetch('/api/v1/users/' + uid + '/preferences', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({
-                preferences: preference
-            })
-        }).then((response) => {
-            if (type == 'index') {
-                this.setState({
-                    preferences: preference,
-                    snackTime: true
-                });
-            } else {
-                this.setState({
-                    preferences: preference
-                });
-            }
-        });
-    }
-    fetchPreferences = (uid) => {
-        return window.fetch('/api/v1/users/' + uid + '/preferences', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        }).then((response) => {
-            if (response.status !== 200) {
-                return;
-            }
-            return response.json();
-        }).then((response) => {
-            this.setState({
-                preferences: this.babyProofPreferences(response)
-            });
-        });
-    }
-    fetchConfigItem =(uid, _id)=> {
-        return window.fetch('/api/v1/users/' + uid + '/configs/' + _id , {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        }).then((response) => {
-            if (response.status !== 200) {
-                return;
-            }
-            return response.json();
-        }).then((response) => {
-        });
-    }
-    fetchConfigurations = (uid) => {
-        return window.fetch('/api/v1/users/' + uid + '/configs', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin'
-        }).then((response) => {
-            if (response.status !== 200) {
-                return;
-            }
-            return response.json();
-        }).then((response) => {
-            this.setState({
-                configurations: response
-            });
-        });
-    }
-    updateConfigurations = (configID, ownsConfig) => {
-        if(ownsConfig) {
-            window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
-                    remove : configID
-                })
-            }).then((response) => {
-                return;
-            });
-        } else {
-            window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
-                    disable : configID
-                })
-            }).then((response) => {
-                return;
-            });
-        }
-    }
-    handleCrumbs =()=> {
-        this.setState({
-            snackTime: false,
-            uploadSnack : false
-        });
-    }
-    removeConfig = (configs, index, configID, ownsConfig) => {
-        this.updateConfigurations(configID, ownsConfig);
-        this.setState({
-            configurations: update(configs, {
-                $splice: [[index, 1]]
-            }),
-            snackTime: true
-        });
-        if(index == this.state.preferences['config']) {
-            this.updateUserPreferences(0, 'index');
-        }
-    }
-    openSearchUsers = (index, configID, shared, owner) => {
-        this.setState({
-            searchUsers: true,
-            selectedConfig: {
-                _id: configID,
-                index: index
-            },
-            shared: shared.map(friend => ({
-                label: friend,
-                value: friend
-            })),
-            configOwner: owner 
-        });
-    }
-    closeSearchUsers = () => {
-        this.setState({
-            searchUsers: false,
-            selectedConfig: {
-                _id: '',
-                index: -1
-            },
-            shared: [],
-            configOwner: ''
-        });
-    }
-    copyConfig = (config) => {
-        let newConfig = {};
-        newConfig['owner'] = this.props.user.uid;
-        newConfig['readers'] = [this.props.user.uid];
-        newConfig['created'] = (new Date()).toUTCString();
-        newConfig['type'] = config['type'];
-        newConfig['name'] = config['name'];
-        newConfig['config'] = config['config'];
-
-        return window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({
-                add : newConfig
-            })
-        }).then((response) => {
-            if (response.status == 201) {
-                this.fetchConfigurations(this.props.user.uid);
-            }
-        });
-    }
-    openNewWindow = (uri) => {
-        window.open(uri, '_self');
-    }
-    generateCards = (configs, preference) => {
-        let cards = [];
-        if(configs && configs.length > 0) {
-            for (let item in configs) {
-                let ownsConfig = this.props.user.uid === configs[item]['owner'] ? true : false;
-                let showTime = 'modified' in configs[item] ? configs[item]['modified'] : configs[item]['created'];
-                let localTime = moment.utc(showTime).local().format();
-                let updated = moment(localTime).calendar();
-                cards.push(
-                    <Card
-                        style={{
-                            margin: '3px'
-                        }}
-                    >
-                        <CardHeader
-                            title={configs[item]['owner']}
-                            subheader={updated}
-                            avatar={this.state.avatar}
-                            action={
-                                <IconButton
-                                    onClick={() => this.removeConfig(configs,item,configs[item]['_id'],ownsConfig)}
-                                >
-                                    <Clear color='rgba(0, 0, 0, 0.54)'/>
-                                </IconButton>
-                            }
-                        />
-                        <Divider />
-                        <div
-                            style={{
-                                padding: '16px 24px'
-                            }}
-                        >
-                            <Typography
-                                variant="headline"
-                                component="h3"
-                            >
-                                {configs[item]['name']}
-                            </Typography>
-                            <Typography
-                                style={{
-                                    color: 'rgba(0, 0, 0, 0.54)'
-                                }}
-                                component="p"
-                            >
-                                {configs[item]['type']}
-                            </Typography>
-                        </div>
-                        <CardActions
-                        >
-                            <div
-                                style={{
-                                    padding: '0px',
-                                    display: 'inline-block',
-                                    whiteSpace: 'nowrap',
-                                    width: '100%',
-                                }}
-                            >
-                                <div style={{ float: 'right'}}>
-                                    { ownsConfig ? <IconButton
-                                        onClick={() => this.openNewWindow('/u/configure?s=edit&id=' + configs[item]['_id'])}
-                                        iconStyle={{color: 'rgba(0, 0, 0, 0.54)'}} 
-                                        tooltipPosition='top-center' 
-                                        tooltip="Edit"><Edit/></IconButton> : <IconButton
-                                        onClick={() => this.openNewWindow('/u/configure?s=view&id=' + configs[item]['_id'])}
-                                        iconStyle={{color: 'rgba(0, 0, 0, 0.54)'}} 
-                                        tooltipPosition='top-center' 
-                                        tooltip="View"><FullView/></IconButton>
-                                    }
-                                    { ownsConfig ? <IconButton
-                                        iconStyle={{color: 'rgba(0, 0, 0, 0.54)'}}
-                                        tooltipPosition='top-center'
-                                        tooltip="Share"
-                                        onClick={() => this.openSearchUsers(item, configs[item]['_id'], configs[item]['readers'], configs[item]['owner'])}
-                                        ><Share /></IconButton> : <IconButton
-                                            iconStyle={{color: 'rgba(0, 0, 0, 0.54)'}}
-                                            tooltipPosition='top-center'
-                                            tooltip="Duplicate"
-                                            onClick={() => this.copyConfig(configs[item])}
-                                        >
-                                        <Copy />
-                                        </IconButton>
-                                    }
-                                </div>
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            style={{
-                                                width: 'auto',
-                                            }}
-                                            labelStyle={{color: 'rgba(0, 0, 0, 0.54)'}}
-                                            checked={'config' in preference ? configs[item]['_id'] == preference['config'] : false}
-                                            onChange={(e, isInputChecked) => this.changeDefaultConfig(e, isInputChecked, item)}
-                                        />
-                                    }
-                                    label='Default'
-                                />
-                            </div>
-                        </CardActions>
-                    </Card>
-                );
-            }
-        }
-        return cards;
-    }
-    shareWithUsers = () => {
-        return window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify({
-                share : this.state.selectedConfig['_id'],
-                shared: this.state.shared.map(o => { return o.value })
-            })
-        }).then((response) => {
-            if (response.status == 201) {
-                this.setState({
-                    configurations: update(this.state.configurations, {
-                        [this.state.selectedConfig['index']]: {
-                            ['readers'] : {
-                                $set : this.state.shared.map(o => { return o.value })
-                            }
-                        }
-                    })
-                });
-            }
-            this.closeSearchUsers();
-        });
-    }
-    handleChange = name => value => {
-        let uid = this.props.user.uid;
-        let names = value.map(o=> {return o.value});
-        if(names.indexOf(uid) === -1) {
-            console.log("Can't delete the owner.");
-            return;
-        }
-        this.setState({
-            [name]: value,
-        });
-    }
-    handleChangeFile = (event) => {
-        this.refs.config_file.submit();
-    }
-    changeDefaultConfig = (e, checked, index) => {
-        this.updateUserPreferences(index, 'index');
-    }
-    render() {
-        const { classes, theme } = this.props;
-        const actions = [
-            <Button
-                onClick={this.closeSearchUsers}
+      }
+    });
+  }
+  openNewWindow = (uri) => {
+    window.open(uri, '_self');
+  }
+  generateCards = (configs, preference) => {
+    let cards = [];
+    if (configs && configs.length > 0) {
+      for (let item in configs) {
+        let ownsConfig = this.props.user.uid === configs[item]['owner'] ? true : false;
+        let showTime = 'modified' in configs[item] ? configs[item]['modified'] : configs[item]['created'];
+        let localTime = moment.utc(showTime).local().format();
+        let updated = moment(localTime).calendar();
+        cards.push(
+          <Card
+            style={{
+              margin: '3px'
+            }}
+          >
+            <CardHeader
+              title={configs[item]['owner']}
+              subheader={updated}
+              avatar={this.state.avatar}
+              action={
+                <IconButton
+                  onClick={() => this.removeConfig(configs, item, configs[item]['_id'], ownsConfig)}
+                >
+                  <Clear color='rgba(0, 0, 0, 0.54)' />
+                </IconButton>
+              }
+            />
+            <Divider />
+            <div
+              style={{
+                padding: '16px 24px'
+              }}
+            >
+              <Typography
+                variant="headline"
+                component="h3"
+              >
+                {configs[item]['name']}
+              </Typography>
+              <Typography
                 style={{
-                    color: '#5790bd'
+                  color: 'rgba(0, 0, 0, 0.54)'
                 }}
-            >Cancel</Button>,
-            <Button
-                variant="outlined"
-                style={{
-                    borderColor: '#5790bd',
-                    paddingTop: '11px',
-                    color: '#ffffff',
-                    backgroundColor: '#5790bd',
-                    marginLeft: '12px'
-                }}
-                keyboardFocused={true}
-                onClick={this.shareWithUsers}
-            >Submit</Button>,
-        ];
-        const selectStyles = {
-            input: base => ({
-                ...base,
-                color: theme.palette.text.primary,
-                '& input': {
-                    font: 'inherit',
-                },
-            }),
-        };
-        return (
+                component="p"
+              >
+                {configs[item]['type']}
+              </Typography>
+            </div>
+            <CardActions
+            >
               <div
-                className={classes.root}
-                >
-                <AppBar
-                    style={{
-                        backgroundColor: '#ffffff',
-                        boxShadow: 'none',
-                    }}
-                    className={classes.appBar}
-                >
-                    <Toolbar
-                        style={{paddingLeft: '16px'}}
-                    >
-                        <IconButton
-                            color="rgba(0, 0, 0, 0.54)"
-                            aria-label="Open drawer"
-                            onClick={this.handleDrawerToggle}
-                            className={classes.navIconHide}
-                        >
-                            <img width='24px' height='24px' src='/img/favicon.png'/>
-                        </IconButton>
-                        <Typography
-                            variant="title"
-                            color="inherit"
-                            style={{
-                                color: 'rgba(0,0,0,0.4)',
-                                fontSize: '18px',
-                                letterSpacing: '1.25px',
-                                flexGrow: 1
-                            }}
-                        >
-                            Configuration
-                        </Typography>
-                        <IconButton
-                            onClick={() => this.openNewWindow('/u')}
-                        >
-                            <Person color='rgba(0,0,0,0.4)'/>
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
-                <Hidden
-                mdUp>
-                    <Drawer
-                        variant="temporary"
-                        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-                        open={this.state.mobileOpen}
-                        onClose={this.handleDrawerToggle}
-                        classes={{
-                            paper: classes.drawerPaper,
-                        }}
-                        ModalProps={{
-                            keepMounted: true, // Better open performance on mobile.
-                        }}
-                    >
-                        <DrawerComponent
-                            avatar={this.state.avatar}
-                            totalStudies={this.state.totalStudies}
-                            totalSubjects={this.state.totalSubjects}
-                            totalDays={this.state.totalDays}
-                            user={this.props.user}
-                            name={this.props.user.name}
-                        />
-                    </Drawer>
-                </Hidden>
-                <Hidden
-                smDown implementation="css">
-                    <Drawer
-                        variant="permanent"
-                        open
-                        classes={{
-                            paper: classes.drawerPaper,
-                        }}
-                    >
-                        <DrawerComponent
-                            avatar={this.state.avatar}
-                            totalStudies={this.state.totalStudies}
-                            totalSubjects={this.state.totalSubjects}
-                            totalDays={this.state.totalDays}
-                            user={this.props.user}
-                            name={this.props.user.name}
-                        />
-                    </Drawer>
-                </Hidden>
-                <div
-                    className={classes.content}
-                    style={{
-                        padding: '12px',
-                        marginTop: '64px',
-                        overflow: 'scroll',
-                    }}
-                >
-                            <GridList
-                                style={{
-                                    padding: '2px',
-                                    overflowY: 'auto',
-                                    marginBottom: '128px',
-                                }}
-                                cols={this.state.gridCols}
-                                cellHeight='auto'
-                            >
-                                {this.generateCards(this.state.configurations, this.state.preferences)}
-                            </GridList>
-                            <div
-                                style={{
-                                    right: 4,
-                                    bottom: 4,
-                                    position:'fixed'
-                                }}
-                            >
-                                <form ref='config_file' action={'/api/v1/users/' + this.props.user.uid + '/config/file'} method="post" encType="multipart/form-data">
-                                    <input
-                                        accept='.csv'
-                                        name='file'
-                                        id="raised-button-file"
-                                        multiple
-                                        type="file"
-                                        style={{display: 'none'}}
-                                        onChange={this.handleChangeFile}
-                                    />
-                                    <label htmlFor="raised-button-file">
-                                        <Button
-                                            component="span"
-                                            variant="fab"
-                                            focusRipple
-                                            style={{
-                                                marginBottom: '8px'
-                                            }}
-                                        >
-                                            <Tooltip title="Upload configuration file">
-                                                <AttachFile />
-                                            </Tooltip>
-                                        </Button>
-                                    </label>
-                                </form>
-                                <Button
-                                    variant="fab"
-                                    color="secondary"
-                                    href='/u/configure?s=add'
-                                    focusRipple
-                                >
-                                    <Tooltip title="Add a configuration manually">
-                                        <ContentAdd />
-                                    </Tooltip>
-                                </Button>
-                        </div>
-                    <Dialog
-                        open={this.state.searchUsers}
-                        onClose={this.closeSearchUsers}
-                        fullScreen={true}
-                    >
-                        <DialogTitle
-                            id="alert-dialog-title"
-                            disableTypography={true}
-                            style={{
-                                backgroundColor: 'rgba(0,0,0,0.7)',
-                            }}
-                        >
-                            <Typography
-                                variant='title'
-                                style={{
-                                    color: '#ffffff'
-                                }}
-                            >
-                                Share your configuration
-                            </Typography>
-                        </DialogTitle>
-                        <DialogContent
-                            style={{
-                                padding: '24px',
-                                overflowY: 'visible'
-                            }}
-                        >
-                            <Select
-                                classes={classes}
-                                styles={selectStyles}
-                                textFieldProps={{
-                                    label: 'Shared with',
-                                    InputLabelProps: {
-                                        shrink: true,
-                                    },
-                                }}
-                                options={this.state.friends}
-                                components={components}
-                                value={this.state.shared}
-                                onChange={this.handleChange('shared')}
-                                placeholder='Shared with'
-                                isMulti
-                            />
-                        </DialogContent>
-                        <DialogActions>
-                            {actions}
-                        </DialogActions>
-                    </Dialog>
+                style={{
+                  padding: '0px',
+                  display: 'inline-block',
+                  whiteSpace: 'nowrap',
+                  width: '100%',
+                }}
+              >
+                <div style={{ float: 'right' }}>
+                  {ownsConfig ? <IconButton
+                    onClick={() => this.openNewWindow('/u/configure?s=edit&id=' + configs[item]['_id'])}
+                    iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                    tooltipPosition='top-center'
+                    tooltip="Edit"><Edit /></IconButton> : <IconButton
+                      onClick={() => this.openNewWindow('/u/configure?s=view&id=' + configs[item]['_id'])}
+                      iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                      tooltipPosition='top-center'
+                      tooltip="View"><FullView /></IconButton>
+                  }
+                  {ownsConfig ? <IconButton
+                    iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                    tooltipPosition='top-center'
+                    tooltip="Share"
+                    onClick={() => this.openSearchUsers(item, configs[item]['_id'], configs[item]['readers'], configs[item]['owner'])}
+                  ><Share /></IconButton> : <IconButton
+                    iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                    tooltipPosition='top-center'
+                    tooltip="Duplicate"
+                    onClick={() => this.copyConfig(configs[item])}
+                  >
+                    <Copy />
+                  </IconButton>
+                  }
                 </div>
-                <Snackbar
-                    open={this.state.snackTime}
-                    message="Your configuration has been updated."
-                    autoHideDuration={2000}
-                    onRequestClose={this.handleCrumbs}
-                />
-                <Snackbar
-                    open={this.state.uploadSnack}
-                    message={this.props.user.message}
-                    autoHideDuration={2000}
-                    onRequestClose={this.handleCrumbs}
+                <FormControlLabel
+                  control={
+                    <Switch
+                      style={{
+                        width: 'auto',
+                      }}
+                      labelStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                      checked={'config' in preference ? configs[item]['_id'] == preference['config'] : false}
+                      onChange={(e, isInputChecked) => this.changeDefaultConfig(e, isInputChecked, item)}
+                    />
+                  }
+                  label='Default'
                 />
               </div>
+            </CardActions>
+          </Card>
         );
+      }
     }
+    return cards;
+  }
+  shareWithUsers = () => {
+    return window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        share: this.state.selectedConfig['_id'],
+        shared: this.state.shared.map(o => { return o.value })
+      })
+    }).then((response) => {
+      if (response.status == 201) {
+        this.setState({
+          configurations: update(this.state.configurations, {
+            [this.state.selectedConfig['index']]: {
+              ['readers']: {
+                $set: this.state.shared.map(o => { return o.value })
+              }
+            }
+          })
+        });
+      }
+      this.closeSearchUsers();
+    });
+  }
+  handleChange = name => value => {
+    let uid = this.props.user.uid;
+    let names = value.map(o => { return o.value });
+    if (names.indexOf(uid) === -1) {
+      console.log("Can't delete the owner.");
+      return;
+    }
+    this.setState({
+      [name]: value,
+    });
+  }
+  handleChangeFile = (event) => {
+    this.refs.config_file.submit();
+  }
+  changeDefaultConfig = (e, checked, index) => {
+    this.updateUserPreferences(index, 'index');
+  }
+  render() {
+    const { classes, theme } = this.props;
+    const actions = [
+      <Button
+        onClick={this.closeSearchUsers}
+        style={{
+          color: '#5790bd'
+        }}
+      >Cancel</Button>,
+      <Button
+        variant="outlined"
+        style={{
+          borderColor: '#5790bd',
+          paddingTop: '11px',
+          color: '#ffffff',
+          backgroundColor: '#5790bd',
+          marginLeft: '12px'
+        }}
+        keyboardFocused={true}
+        onClick={this.shareWithUsers}
+      >Submit</Button>,
+    ];
+    const selectStyles = {
+      input: base => ({
+        ...base,
+        color: theme.palette.text.primary,
+        '& input': {
+          font: 'inherit',
+        },
+      }),
+    };
+    return (
+      <div
+        className={classes.root}
+      >
+        <AppBar
+          style={{
+            backgroundColor: '#ffffff',
+            boxShadow: 'none',
+          }}
+          className={classes.appBar}
+        >
+          <Toolbar
+            style={{ paddingLeft: '16px' }}
+          >
+            <IconButton
+              color="rgba(0, 0, 0, 0.54)"
+              aria-label="Open drawer"
+              onClick={this.handleDrawerToggle}
+              className={classes.navIconHide}
+            >
+              <img width='24px' height='24px' src='/img/favicon.png' />
+            </IconButton>
+            <Typography
+              variant="title"
+              color="inherit"
+              style={{
+                color: 'rgba(0,0,0,0.4)',
+                fontSize: '18px',
+                letterSpacing: '1.25px',
+                flexGrow: 1
+              }}
+            >
+              Configuration
+                        </Typography>
+            <IconButton
+              onClick={() => this.openNewWindow('/u')}
+            >
+              <Person color='rgba(0,0,0,0.4)' />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Hidden
+          mdUp>
+          <Drawer
+            variant="temporary"
+            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+            open={this.state.mobileOpen}
+            onClose={this.handleDrawerToggle}
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+          >
+            <DrawerComponent
+              avatar={this.state.avatar}
+              totalStudies={this.state.totalStudies}
+              totalSubjects={this.state.totalSubjects}
+              totalDays={this.state.totalDays}
+              user={this.props.user}
+              name={this.props.user.name}
+            />
+          </Drawer>
+        </Hidden>
+        <Hidden
+          smDown implementation="css">
+          <Drawer
+            variant="permanent"
+            open
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+          >
+            <DrawerComponent
+              avatar={this.state.avatar}
+              totalStudies={this.state.totalStudies}
+              totalSubjects={this.state.totalSubjects}
+              totalDays={this.state.totalDays}
+              user={this.props.user}
+              name={this.props.user.name}
+            />
+          </Drawer>
+        </Hidden>
+        <div
+          className={classes.content}
+          style={{
+            padding: '12px',
+            marginTop: '64px',
+            overflow: 'scroll',
+          }}
+        >
+          <GridList
+            style={{
+              padding: '2px',
+              overflowY: 'auto',
+              marginBottom: '128px',
+            }}
+            cols={this.state.gridCols}
+            cellHeight='auto'
+          >
+            {this.generateCards(this.state.configurations, this.state.preferences)}
+          </GridList>
+          <div
+            style={{
+              right: 4,
+              bottom: 4,
+              position: 'fixed'
+            }}
+          >
+            <form ref='config_file' action={'/api/v1/users/' + this.props.user.uid + '/config/file'} method="post" encType="multipart/form-data">
+              <input
+                accept='.csv'
+                name='file'
+                id="raised-button-file"
+                multiple
+                type="file"
+                style={{ display: 'none' }}
+                onChange={this.handleChangeFile}
+              />
+              <label htmlFor="raised-button-file">
+                <Button
+                  component="span"
+                  variant="fab"
+                  focusRipple
+                  style={{
+                    marginBottom: '8px'
+                  }}
+                >
+                  <Tooltip title="Upload configuration file">
+                    <AttachFile />
+                  </Tooltip>
+                </Button>
+              </label>
+            </form>
+            <Button
+              variant="fab"
+              color="secondary"
+              href='/u/configure?s=add'
+              focusRipple
+            >
+              <Tooltip title="Add a configuration manually">
+                <ContentAdd />
+              </Tooltip>
+            </Button>
+          </div>
+          <Dialog
+            open={this.state.searchUsers}
+            onClose={this.closeSearchUsers}
+            fullScreen={true}
+          >
+            <DialogTitle
+              id="alert-dialog-title"
+              disableTypography={true}
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.7)',
+              }}
+            >
+              <Typography
+                variant='title'
+                style={{
+                  color: '#ffffff'
+                }}
+              >
+                Share your configuration
+                            </Typography>
+            </DialogTitle>
+            <DialogContent
+              style={{
+                padding: '24px',
+                overflowY: 'visible'
+              }}
+            >
+              <Select
+                classes={classes}
+                styles={selectStyles}
+                textFieldProps={{
+                  label: 'Shared with',
+                  InputLabelProps: {
+                    shrink: true,
+                  },
+                }}
+                options={this.state.friends}
+                components={components}
+                value={this.state.shared}
+                onChange={this.handleChange('shared')}
+                placeholder='Shared with'
+                isMulti
+              />
+            </DialogContent>
+            <DialogActions>
+              {actions}
+            </DialogActions>
+          </Dialog>
+        </div>
+        <Snackbar
+          open={this.state.snackTime}
+          message="Your configuration has been updated."
+          autoHideDuration={2000}
+          onRequestClose={this.handleCrumbs}
+        />
+        <Snackbar
+          open={this.state.uploadSnack}
+          message={this.props.user.message}
+          autoHideDuration={2000}
+          onRequestClose={this.handleCrumbs}
+        />
+      </div>
+    );
+  }
 }
 
 /*
@@ -991,10 +991,10 @@ class ConfigPage extends Component {
 */
 
 const mapStateToProps = (state) => ({
-    user: state.user
+  user: state.user
 });
 
 export default compose(
-    withStyles(styles, { withTheme: true }),
-    connect(mapStateToProps)
+  withStyles(styles, { withTheme: true }),
+  connect(mapStateToProps)
 )(ConfigPage);

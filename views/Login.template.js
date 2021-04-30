@@ -1,8 +1,8 @@
 module.exports = (message) => {
-    var userState = {
-        "message" : message,
-    };
-	return `
+  var userState = {
+    "message": message,
+  };
+  return `
 		<!DOCTYPE html>
 		<html>
 			<head>

@@ -1,12 +1,12 @@
 module.exports = (user, name, icon, mail, role) => {
-    var userState = {
-        "uid" : user,
-        "name" : name,
-        "icon" : icon,
-        "mail" : mail,
-        "role" : role
-    };
-	return `
+  var userState = {
+    "uid": user,
+    "name": name,
+    "icon": icon,
+    "mail": mail,
+    "role": role
+  };
+  return `
 		<!DOCTYPE html>
 		<html>
 			<head>

@@ -1,10 +1,10 @@
 module.exports = (user, goal, id) => {
-    var userState = {
-        "uid" : user,
-        "goal" : goal,
-        "config" : id
-    };
-	return `
+  var userState = {
+    "uid": user,
+    "goal": goal,
+    "config": id
+  };
+  return `
 		<!DOCTYPE html>
 		<html>
 			<head>

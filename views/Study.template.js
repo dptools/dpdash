@@ -1,20 +1,20 @@
 module.exports = (project, user, name, icon, role, acl, celeryTasks, matrixData, configurations) => {
-    var userState = {
-        "uid": user,
-        "name" : name,
-        "icon" : icon,
-        "role" : role,
-        "acl": acl,
-        "celeryTasks" : celeryTasks
-    };
-    var subjectState = {
-        "project": project
-    };
-    var graphState = {
-        "matrixData" : matrixData,
-        "configurations" : configurations
-    };
-    return `<!DOCTYPE html>
+  var userState = {
+    "uid": user,
+    "name": name,
+    "icon": icon,
+    "role": role,
+    "acl": acl,
+    "celeryTasks": celeryTasks
+  };
+  var subjectState = {
+    "project": project
+  };
+  var graphState = {
+    "matrixData": matrixData,
+    "configurations": configurations
+  };
+  return `<!DOCTYPE html>
         <html>
             <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">

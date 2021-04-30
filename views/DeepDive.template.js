@@ -1,10 +1,10 @@
 module.exports = (study, subject, day) => {
-	var subjectState = {
-        "study" : study,
-        "subject" : subject,
-        "day" : day
-	};
-	return `
+  var subjectState = {
+    "study": study,
+    "subject": subject,
+    "day": day
+  };
+  return `
 		<!DOCTYPE html>
 		<html>
 			<head>

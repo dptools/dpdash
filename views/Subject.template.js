@@ -1,24 +1,24 @@
-module.exports = (subject, project, user, name, icon, mail, acl, matrixData, configs,celeryTasks) => {
-	var userState = {
-		"uid": user,
-		"name" : name,
-		"icon" : icon,
-        "mail" : mail,
-		"acl": acl,
-		"celeryTasks" : celeryTasks,
-        'configs' : configs
-	};
-	var subjectState = {
-		"sid": subject,
-		"project" : project
-	};
-	var graphState = {
-		"matrixData" : matrixData.matrixData,
-		"configurations" : matrixData.matrixConfig,
-		"consentDate" : matrixData.consentDate	
-	};
+module.exports = (subject, project, user, name, icon, mail, acl, matrixData, configs, celeryTasks) => {
+  var userState = {
+    "uid": user,
+    "name": name,
+    "icon": icon,
+    "mail": mail,
+    "acl": acl,
+    "celeryTasks": celeryTasks,
+    'configs': configs
+  };
+  var subjectState = {
+    "sid": subject,
+    "project": project
+  };
+  var graphState = {
+    "matrixData": matrixData.matrixData,
+    "configurations": matrixData.matrixConfig,
+    "consentDate": matrixData.consentDate
+  };
 
-	return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 		<html>
 			<head>
 				<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">

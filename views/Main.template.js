@@ -1,11 +1,11 @@
-module.exports = (user,name,role,icon) => {
-	var userState = {
-		"uid" : user,
-		"name" : name,
-        "role" : role,
-        "icon" : icon
-	};
-	return `
+module.exports = (user, name, role, icon) => {
+  var userState = {
+    "uid": user,
+    "name": name,
+    "role": role,
+    "icon": icon
+  };
+  return `
 		<!DOCTYPE html>
 		<html>
 			<head>

@@ -80,6 +80,7 @@ If you wish to configure ports and other options for services (for example, if r
 > * **`DPDASH_RABBIT_NAME`**: Cab be used to change the RabbitMQ node name (default: rabbit)
 > * **`DPDASH_RABBIT_PORT`**: Can be used to change the port on which RabbitMQ will run (default: 5671)
 > * **`DPDASH_SUPERVISOR_ID`**: Can be used to change the ID name used by supervisord process (default: supervisor)
+> * **`DPDASH_DEV_DIR`**: Can be used to set a development directory for use with the Singularity container
 
 We found changing all of these necessary to run two instances on one machine and avoid collisions.
 
@@ -122,7 +123,9 @@ Alternatively, you can shell into the container and then execute further command
 
 At this point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
 
-**Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container. However, `start.sh` (and `stop.sh`) scripts come with a fixed `singularity` command. If you need to mount arbitrary directories or modify the `singularity` command, you will not be able to use the convenience scripts. In that case, use the `singularity` command directly in your terminal as shown above.
+> **Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container. (If you wish to mount a development directory to `/sw/apps/dpdash`, you can also set the `${DPDASH_DEV_DIR}` environment variable and use the `-d` flag: `start.sh -s -d`.) 
+> 
+> However, `start.sh` (and `stop.sh`) scripts come with a fixed `singularity` command. If you need to mount arbitrary directories or modify the `singularity` command, you will not be able to use the convenience scripts. In that case, use the `singularity` command directly in your terminal as shown above.
 
 
 ### Import

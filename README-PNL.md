@@ -122,7 +122,7 @@ Alternatively, you can shell into the container and then execute further command
 
 At this point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
 
-**Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container.
+**Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container. However, `start.sh` (and `stop.sh`) scripts come with a fixed `singularity` command. If you need to mount arbitrary directories or modify the `singularity` command, you will not be able to use the convenience scripts. In that case, use the `singularity` command directly in your terminal as shown above.
 
 
 ### Import

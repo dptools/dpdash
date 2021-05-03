@@ -56,7 +56,7 @@ function checkMongo() {
   }
 }
 
-var amqpAddress = 'amqps://' + config.rabbitmq.username + ':' + config.rabbitmq.password + '@' + config.rabbitmq.host + ':' + config.rabbitmq.port;
+var amqpAddress = 'amqp://' + config.rabbitmq.username + ':' + config.rabbitmq.password + '@' + config.rabbitmq.host + ':' + config.rabbitmq.port;
 var rabbimq_conn = null;
 amqp.connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
   if (err) console.log(err);

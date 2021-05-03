@@ -87,7 +87,7 @@ io.on('connection', function (socket) {
 /**
  * Create a rabbitmq connection
  */
-var amqpAddress = 'amqps://' + config.rabbitmq.username;
+var amqpAddress = 'amqp://' + config.rabbitmq.username;
 amqpAddress = amqpAddress + ':' + config.rabbitmq.password;
 amqpAddress = amqpAddress + '@' + config.rabbitmq.host + ':' + config.rabbitmq.port;
 amqp.connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {

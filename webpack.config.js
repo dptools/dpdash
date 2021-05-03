@@ -1,4 +1,4 @@
-require('babel-register');
+require('@babel/register');
 var webpack = require('webpack');
 
 module.exports = {
@@ -34,7 +34,8 @@ module.exports = {
             presets: [
               '@babel/preset-react',
               '@babel/preset-env',
-            ]
+            ],
+            cacheDirectory: true,
           }
         }],
       }

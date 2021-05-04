@@ -6,6 +6,7 @@ var defaultUserConfig = require(defaultUserConfigPath);
 var MongoDB = require('mongodb');
 var MongoClient = MongoDB.MongoClient;
 const { verifyHash } = require('../crypto/hash');
+const { getMongoURI } = require('../mongoUtil');
 
 module.exports = (req, res, next, user) => {
     //validate submitted password
@@ -24,15 +25,13 @@ module.exports = (req, res, next, user) => {
         if (err) {
             return next(err);
         } else {
-            var mongoURI = 'mongodb://' + config.database.mongo.username + ':';
-            mongoURI = mongoURI + config.database.mongo.password + '@'  + config.database.mongo.host;
-            mongoURI = mongoURI + ':' + config.database.mongo.port + '/' + config.database.mongo.authSource;
-            MongoClient.connect(mongoURI, config.database.mongo.server, function(err, client) {
+          const mongoURI = getMongoURI({ settings: config.database.mongo });
+          MongoClient.connect(mongoURI, config.database.mongo.server, function(err, client) {
                 if (err) {
                     console.error(err.message);
                     return res.redirect('/login?e=forbidden');
                 }
-                const mongodb = client.db(config.database.mongo.appDB);
+                const mongodb = client.db();
                 var uid = user.uid;
                 mongodb.collection('configs').findOne(
                     {owner: uid},

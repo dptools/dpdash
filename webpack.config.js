@@ -1,14 +1,9 @@
-var debug = process.env.NODE_ENV !== 'production';
+require('babel-register');
 var webpack = require('webpack');
 
 module.exports = {
 	target: 'web',
-    devtool: 'nosources-source-map',
-	node : {
-		fs : 'empty',
-		net : 'empty',
-		tls : 'empty'
-	},
+    mode: process.env.NODE_ENV || 'production',
 	entry: {
         study: './views/Study.render.react.js',
         admin: './views/Admin.render.react.js',
@@ -29,7 +24,7 @@ module.exports = {
 				exclude: /node_modules/,
 				use: [{
                     loader: 'babel-loader',
-                    query: {
+                    options: {
                         plugins: [
                             'react-html-attrs',
                             '@babel/plugin-proposal-class-properties',
@@ -45,23 +40,27 @@ module.exports = {
 			}
 		],
 	},
+    optimization: {
+        minimize: true,
+    },
 	output: {
 		path: __dirname + '/public/js/',
 		filename: '[name].min.js',
 		publicPath: '/js/'
 	},
 	resolve: {
+        fallback: {
+            fs: false,
+            net : false,
+            tls : false,
+        },
 		extensions: ['.js']
 	},
 	plugins: [
-        new webpack.DefinePlugin({
-            'process.env':{
-                'NODE_ENV': JSON.stringify('production'),
-            }
-        }),
-		new webpack.NoEmitOnErrorsPlugin(),
-		new webpack.ProvidePlugin({
-			Promise: 'imports-loader?this=>global!exports-loader?global.Promise!es6-promise'
-		})
+    new webpack.DefinePlugin({
+        'process.env':{
+            'NODE_ENV': JSON.stringify('production'),
+        }
+    }),
 	],
 };

@@ -5,6 +5,7 @@ var defaultUserConfig = require(defaultUserConfigPath);
 var passport = require('passport');
 var MongoDB = require('mongodb');
 var MongoClient = MongoDB.MongoClient;
+const { getMongoURI } = require('../mongoUtil');
 
 function getRealms(user) {
     if(user != null && user.realms) {
@@ -114,9 +115,7 @@ module.exports = (req, res, next) => {
             if (err) {
                 return next(err);
             } else {
-                var mongoURI = 'mongodb://' + config.database.mongo.username + ':';
-                mongoURI = mongoURI + config.database.mongo.password + '@'  + config.database.mongo.host;
-                mongoURI = mongoURI + ':' + config.database.mongo.port + '/' + config.database.mongo.authSource;
+                const mongoURI = getMongoURI({ settings: config.database.mongo });
                 MongoClient.connect(mongoURI, config.database.mongo.server, function(err, client) {
                     if (err) {
                         console.error(err.message);

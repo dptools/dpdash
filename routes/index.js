@@ -326,7 +326,7 @@ router.get('/dashboard/:study/:subject', ensurePermission, function(req, res) {
             } else if (!doc || Object.keys(doc).length === 0) {
                 return res.status(404).send({});
             } else {
-                if(doc.preferences && 'config' in doc.preferences) {
+                if(doc['preferences'] && 'config' in doc['preferences']) {
                     mongoApp.collection('configs').findOne(
                     { readers: req.user, _id: new ObjectID(doc['preferences']['config'])}
                     , function(err, data) {

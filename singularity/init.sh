@@ -137,7 +137,6 @@ echo '***************Setting up DPdash*****************'
 singularity exec \
 -B ${containerDataDir}:/data \
 -B ${containerDataDir}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
--B ${containerDataDir}/dpdash/dist:/sw/apps/dpdash/dist \
 -B ${dataDir}:/project_data \
 $DPDASH_IMG \
 /data/scripts/setup.sh $mongopw $mongoPort $rabbitpw $appsecret

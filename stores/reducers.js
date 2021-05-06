@@ -1,14 +1,15 @@
-import { combineReducers } from 'redux'
+import { combineReducers } from 'redux';
+import { isBrowser } from '../server/utils/browserUtil';
 
-function subject(state = window.SUBJECT, action) {
+function subject(state = isBrowser() ? window.SUBJECT : null, action) {
   return state
 }
 
-function graph(state = window.GRAPH, action) {
+function graph(state = isBrowser() ? window.GRAPH : null, action) {
   return state
 }
 
-function user(state = window.USER, action) {
+function user(state = isBrowser() ? window.USER : null, action) {
   return state
 }
 

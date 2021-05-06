@@ -1,7 +1,7 @@
-import * as d3 from 'd3'
-import AbstractGraph from './AbstractGraph.d3'
-import * as invertColor from '../utils/invertColor'
-import * as dateConverter from '../utils/dateConverter'
+import * as d3 from 'd3';
+import AbstractGraph from './AbstractGraph.d3';
+import { getColor } from '../server/utils/invertColor';
+import { stringToDate } from '../server/utils/dateConverter';
 const margin = {
   top: 30,
   bottom: 20,
@@ -109,7 +109,7 @@ export default class Matrix extends AbstractGraph {
               if (d[data[type].variable] !== '' && d[data[type].variable] !== undefined) {
                 blockColor = thresholdScale(d[data[type].variable])
               }
-              return invertColor.getColor(blockColor, true)
+              return getColor(blockColor, true)
             })
             .attr("font-family", "Tahoma, Geneva, sans-serif")
             .style("text-anchor", "middle")
@@ -266,7 +266,7 @@ export default class Matrix extends AbstractGraph {
   }
   generateXAxisForDatesData = (firstDayOfStudy, lastDayOfStudy, consentDate) => {
     let xAxisForDatesData = []
-    let startDate = dateConverter.stringToDate(consentDate, "yyyy-mm-dd", "-")
+    let startDate = stringToDate(consentDate, "yyyy-mm-dd", "-")
     let firstDay = firstDayOfStudy - 1 //Consent date is 1
     for (let i = firstDay; i < lastDayOfStudy; i++) {
       if (startDate.getDay() == 0 || startDate.getDay() == 6) {

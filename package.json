@@ -3,24 +3,24 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack",
-    "start": "NODE_ENV=production ./node_modules/pm2/bin/pm2 start bin/www",
+    "build": "webpack && npm run transpile",
+    "transpile": "npx babel ./server --out-dir dist",
+    "start": "NODE_ENV=production ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
     "monitor": "./node_modules/pm2/bin/pm2 monit",
     "stop": "./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all",
-    "logs": "./node_modules/pm2/bin/pm2 logs",
-    "restart": "NODE_ENV=production ./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all && ./node_modules/pm2/bin/pm2 start bin/www",
-    "node": "DEBUG=* node ./bin/www"
+    "logs": "./node_modules/pm2/bin/pm2 logs --lines 100",
+    "restart": "NODE_ENV=production ./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all && ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
+    "node": "DEBUG=* node ./dist/bin/www.js"
   },
   "babel": {
-    "env": {
-      "production": {
-        "plugins": [
-          "transform-react-constant-elements",
-          "transform-react-inline-elements",
-          "transform-react-remove-prop-types"
-        ]
-      }
-    }
+    "presets": [
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/plugin-transform-runtime",
+      "@babel/plugin-transform-react-constant-elements",
+      "@babel/plugin-transform-react-inline-elements"
+    ]
   },
   "dependencies": {
     "@material-ui/core": "^3.3.0",
@@ -71,6 +71,7 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.13.16",
     "@babel/core": "^7.14.0",
     "@babel/plugin-proposal-decorators": "^7.13.15",
     "@babel/plugin-transform-react-constant-elements": "^7.13.13",

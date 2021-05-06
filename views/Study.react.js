@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import 'whatwg-fetch'
 import update from 'immutability-helper'
 
-import * as dateConverter from '../utils/dateConverter'
+import { stringToDate, diffDates } from '../server/utils/dateConverter'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
@@ -225,7 +225,7 @@ class Study extends Component {
         }
       }
       let consentDate = matrixDataList[item].consentDate
-      let consentDateObject = dateConverter.stringToDate(consentDate, "yyyy-mm-dd", "-")
+      let consentDateObject = stringToDate(consentDate, "yyyy-mm-dd", "-")
 
       let daysToView = this.state.weeksToView * 7
 
@@ -233,7 +233,7 @@ class Study extends Component {
       let tempDateObj = new Date(consentDateObject.getTime());
       let completed = (matrixDataList[item].project in this.state.complete && this.state.complete[matrixDataList[item].project].indexOf(matrixDataList[item].subject) > -1);
       if (!completed) {
-        numOfDays = dateConverter.diffDates(consentDateObject, this.state.todayDateObject);
+        numOfDays = diffDates(consentDateObject, this.state.todayDateObject);
         tempDateObj = new Date(this.state.todayDateObject.getTime())
       }
       tempDateObj.setDate(tempDateObj.getDate() - daysToView);
@@ -303,7 +303,7 @@ class Study extends Component {
     let today = new Date().toLocaleDateString('en-US', this.state.timezone)
     this.fetchSubjects();
     this.setState({
-      todayDateObject: dateConverter.stringToDate(today, 'mm/dd/yyyy', '/'),
+      todayDateObject: stringToDate(today, 'mm/dd/yyyy', '/'),
       subject: this.props.subject,
       user: this.props.user,
       configurations: this.props.graph.configurations

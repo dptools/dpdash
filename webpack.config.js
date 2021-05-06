@@ -1,5 +1,6 @@
 require('@babel/register');
-var webpack = require('webpack');
+const webpack = require('webpack');
+const path = require('path');
 
 module.exports = {
   target: 'web',
@@ -32,22 +33,31 @@ module.exports = {
               ['@babel/plugin-transform-runtime', { legacy: true }]
             ],
             presets: [
-              '@babel/preset-react',
+              ["@babel/preset-react", {
+                "runtime": "automatic"
+              }],
               '@babel/preset-env',
             ],
             cacheDirectory: true,
           }
         }],
-      }
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'static/[hash][ext][query]'
+        }
+      },
     ],
   },
   optimization: {
     minimize: true,
   },
   output: {
-    path: __dirname + '/public/js/',
+    path: path.resolve(__dirname, 'public')+'/js/',
     filename: '[name].min.js',
-    publicPath: '/js/'
+    publicPath: path.resolve(__dirname, 'public')+'/js/',
   },
   resolve: {
     fallback: {
@@ -60,7 +70,7 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        'NODE_ENV': JSON.stringify('production'),
+        'NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       }
     }),
   ],

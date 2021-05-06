@@ -1,4 +1,4 @@
-const AccountPageTemplate = (user, name, icon, mail, role) => {
+export default (user, name, icon, mail, role) => {
   var userState = {
     "uid": user,
     "name": name,
@@ -26,5 +26,3 @@ const AccountPageTemplate = (user, name, icon, mail, role) => {
 		</html>
 	`;
 };
-
-export default AccountPageTemplate;

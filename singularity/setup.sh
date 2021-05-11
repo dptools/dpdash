@@ -9,7 +9,7 @@ rabbitpw=$3
 appsecret=$4
 
 # Generate dpdash password
-nodecmd='require("/sw/apps/dpdash/utils/crypto/hash.js").hash("dpdash")'
+nodecmd='require("/sw/apps/dpdash/dist/utils/crypto/hash.js").hash("dpdash")'
 adminpw=`node -p $nodecmd`
 
 ## Set up MongoDB Authentication & SSL

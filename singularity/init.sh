@@ -81,7 +81,10 @@ cat ${containerDataDir}/ssl/client/key.pem ${containerDataDir}/ssl/client/cert.p
 ## Generate Configurations
 echo '***************Generating Configs***************'
 cd ${containerDataDir}/scripts
-mkdir -p ${containerDataDir}/dpdash/configs
+mkdir -p ${containerDataDir}/dpdash/configs \
+&& mkdir -p ${containerDataDir}/dpdash/configs/dashboard \
+&& mkdir -p ${containerDataDir}/dpdash/dist
+
 export mongopw=`openssl rand -base64 32 | tr -d "+=/"`
 export rabbitpw=`openssl rand -base64 32| tr -d "+=/"`
 export dpdashsecret=`openssl rand -base64 32`
@@ -125,10 +128,15 @@ mkdir -p ${containerDataDir}/dpdash/rabbitmq && mkdir ${containerDataDir}/dpdash
 
 ## Initializing DPdash Upload Space
 echo '***************Initializing DPdash Space*****************'
-mkdir -p ${containerDataDir}/dpdash/uploads && mkdir -p ${containerDataDir}/dpdash/configs/dashboard
+mkdir -p ${containerDataDir}/dpdash/uploads
 cd ${DIR}
 cp -R ./configs/* ${containerDataDir}/dpdash/configs/dashboard/
 
 ## Set-up the container
 echo '***************Setting up DPdash*****************'
-singularity exec -B ${containerDataDir}:/data $DPDASH_IMG /data/scripts/setup.sh $mongopw $mongoPort $rabbitpw $appsecret
+singularity exec \
+-B ${containerDataDir}:/data \
+-B ${containerDataDir}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+-B ${dataDir}:/project_data \
+$DPDASH_IMG \
+/data/scripts/setup.sh $mongopw $mongoPort $rabbitpw $appsecret

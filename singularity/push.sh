@@ -17,11 +17,8 @@ export RABBITMQ_LOG_BASE=/data/dpdash/rabbitmq
 export dppy_config=/data/dpdash/configs/dppy.conf
 
 # vars for DPdash node app
-export DPDASH_CONFIG=/data/dpdash/configs/dpdash.js
 export DPDASH_UPLOADS=/data/dpdash/uploads
 export DPDASH_UPLOADS_CONFIG_SCHEMA=/data/dpdash/configs/dashboard/config.schema
-export DPDASH_DASHBOARD_CONFIG_DEFAULT=/data/dpdash/configs/dashboard/defaultUserConfig.js
-export DPDASH_DASHBOARD_CONFIG_DEFAULT_STUDY=/data/dpdash/configs/dashboard/defaultStudyConfig.js
 cd /sw/apps/dpdash
 
-node ./utils/importer.js
+node ./dist/utils/importer.js

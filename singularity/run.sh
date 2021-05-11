@@ -24,17 +24,14 @@ export dppy_config=/data/dpdash/configs/dppy.conf
 echo "Starting superivsord..."
 supervisord -c /data/dpdash/configs/supervisord.conf
 
-# sleep 100 seconds
-sleep 100
+# sleep 30 seconds
+sleep 30
 
 # vars for DPdash node app
-export DPDASH_CONFIG=/data/dpdash/configs/dpdash.js
 export DPDASH_UPLOADS=/data/dpdash/uploads
 export DPDASH_UPLOADS_CONFIG_SCHEMA=/data/dpdash/configs/dashboard/config.schema
-export DPDASH_DASHBOARD_CONFIG_DEFAULT=/data/dpdash/configs/dashboard/defaultUserConfig.js
-export DPDASH_DASHBOARD_CONFIG_DEFAULT_STUDY=/data/dpdash/configs/dashboard/defaultStudyConfig.js
 
 cd /sw/apps/dpdash
 
 echo "Starting dpdash..."
-npm start
+npm run transpile && npm start

@@ -80,6 +80,7 @@ If you wish to configure ports and other options for services (for example, if r
 > * **`DPDASH_RABBIT_NAME`**: Cab be used to change the RabbitMQ node name (default: rabbit)
 > * **`DPDASH_RABBIT_PORT`**: Can be used to change the port on which RabbitMQ will run (default: 5671)
 > * **`DPDASH_SUPERVISOR_ID`**: Can be used to change the ID name used by supervisord process (default: supervisor)
+> * **`DPDASH_DEV_DIR`**: Can be used to set a development directory for use with the Singularity container
 
 We found changing all of these necessary to run two instances on one machine and avoid collisions.
 
@@ -102,7 +103,7 @@ You may also wish to run `source ./varcheck.sh` before proceeding to make sure t
 
 Then, do the following modification to circumvent a cookie issue that might occur later:
 
-    ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
+    ${state}/dpdash/configs/dashboard/config.js: config.session.cookie.secure = false;
 
 You can read the [Cookies](#cookies) section for details.
     
@@ -111,18 +112,31 @@ You can read the [Cookies](#cookies) section for details.
 
 Launch a DPdash instance as follows:
     
-    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/run.sh
+    singularity run \
+    -B ${state}:/data \
+    -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+    -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${data}:/project_data \
+    ${DPDASH_IMG} \
+    /sw/apps/dpdash/singularity/run.sh
     
 Alternatively, you can shell into the container and then execute further commands. In fact, this would be the recommended method for working with the image.
     
-    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+    singularity shell \
+    -B ${state}:/data \
+    -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+    -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${data}:/project_data \
+    ${DPDASH_IMG}
 
     Singularity> cd /sw/apps/dpdash/singularity/
     Singularity> ./run.sh
 
 At this point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
 
-**Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container. However, `start.sh` (and `stop.sh`) scripts come with a fixed `singularity` command. If you need to mount arbitrary directories or modify the `singularity` command, you will not be able to use the convenience scripts. In that case, use the `singularity` command directly in your terminal as shown above.
+> **Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container. (If you wish to mount a development directory to `/sw/apps/dpdash`, you can also set the `${DPDASH_DEV_DIR}` environment variable and use the `-d` flag: `start.sh -s -d`.) 
+> 
+> However, `start.sh` (and `stop.sh`) scripts come with a fixed `singularity` command. If you need to mount arbitrary directories or modify the `singularity` command, you will not be able to use the convenience scripts. In that case, use the `singularity` command directly in your terminal as shown above.
 
 
 ### Import
@@ -144,7 +158,7 @@ You can edit the example with proper values of:
     hostname:
 
 
-Proper values of the above keys can be found in `${state}/dpdash/configs/dpdash.js`.
+Proper values of the above keys can be found in `${state}/dpdash/configs/dashboard/config.js`.
 
 
 #### Verify import
@@ -159,7 +173,7 @@ After `import.py`, you can verify if your data went inside mongo database:
 Inside mongo shell:
 
     > use admin
-    > db.auth("username", "password")   // located in ${state}/dpdash/configs/dpdash.js
+    > db.auth("username", "password")   // located in ${state}/dpdash/configs/dashboard/config.js
     > show dbs
     > use dpdata                        // the db name specified in config.yml for import.py
     > show collections
@@ -177,7 +191,7 @@ to learn how `dpdash` user is given access to the `BLS` study:
 Inside mongo shell:
  
     > use admin
-    > db.auth("dpdash", "password")                                   // located in ${state}/dpdash/configs/dpdash.js
+    > db.auth("dpdash", "password")                                   // located in ${state}/dpdash/configs/dashboard/config.js
     > show dbs
     > use dpdmongo
     > db.users.find()
@@ -207,7 +221,13 @@ Add and enable at least one configuration from the left taskbar.
 
 You can stop the DPDash instance with a Singularity command:
 
-    singularity run -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG} /sw/apps/dpdash/singularity/quit.sh
+    singularity run \
+    -B ${state}:/data \
+    -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+    -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${data}:/project_data \
+    ${DPDASH_IMG} \
+    /sw/apps/dpdash/singularity/quit.sh
 
 Or you may use our convenience script, `stop.sh`:
 
@@ -219,7 +239,12 @@ Or you may use our convenience script, `stop.sh`:
 Advanced users can save a good amount of time restarting the DPdash instance rather than doing a run-quit-run cycle. 
 To be able to do that, define the [DPdash variables](https://github.com/PREDICT-DPACC/dpdash/blob/dcdc3ca702df688a2cc73376c2929415e0fd6c0b/singularity/run.sh#L30) in the Singularity shell:
 
-    singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
+    singularity shell \
+    -B ${state}:/data \
+    -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+    -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${data}:/project_data \
+    ${DPDASH_IMG}
 
     Singularity> cd /sw/apps/dpdash/
     Singularity> # define the DPdash variables
@@ -282,7 +307,7 @@ Within DPdash, [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en
 For this limitation, after entering admin credentials in DPdash login page, you may be dropped back to login again. 
 To circumvent this issue, set the following to `false`:
 
-    ${state}/dpdash/configs/dpdash.js: config.session.cookie.secure = false;
+    ${state}/dpdash/configs/dashboard/config.js: config.session.cookie.secure = false;
 
 and then [restart](#restart) the DPdash application.
 

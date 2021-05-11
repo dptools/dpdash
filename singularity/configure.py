@@ -293,12 +293,12 @@ serverurl=AUTO                ; override serverurl computation (childutils)
     return export_file(os.path.join(config_path, 'supervisord.conf'), configuration)
 
 def configure_dpdash(ca_path, key_path, cert_path, dpdash_port, mongo_port, rabbit_port, mongo_password, rabbit_password, session_secret, config_path, data_repo, dpdash_path, rabbit_host, mongo_host, secret):
-    configuration = '''var fs = require("fs");
-var cert = fs.readFileSync("%(cert_path)s");
-var key = fs.readFileSync("%(key_path)s");
-var ca = [fs.readFileSync("%(ca_path)s")];
+    configuration = '''import { readFileSync } from "fs";
+const cert = readFileSync("%(cert_path)s");
+const key = readFileSync("%(key_path)s");
+const ca = [readFileSync("%(ca_path)s")];
 
-var config = {};
+const config = {};
 
 config.app = {};
 config.app.debug = false;
@@ -376,7 +376,7 @@ config.auth.ldap.searchBase = "ou=,dc=,dc=";
 config.auth.ldap.searchFilter = "(uid={{username}})";
 config.auth.ldap.searchAttributes = ["cn", "mail", "memberOf", "uid", "title", "department", "company", "telephoneNumber", "badPwdCount", "badPasswordTime", "lockoutTime", "whenCreated", "whenChanged", "lastLogoff", "lastLogon", "accountExpires"];
 
-module.exports = config;''' % {
+export default config;''' % {
         'secret' : secret,
         'rabbit_host': rabbit_host,
         'mongo_host': mongo_host,
@@ -394,7 +394,7 @@ module.exports = config;''' % {
         'dpdash_log': os.path.join(dpdash_path, 'dpdash.log')
     }
 
-    return export_file(os.path.join(config_path, 'dpdash.js'), configuration)
+    return export_file(os.path.join(config_path, 'dashboard/config.js'), configuration)
 
 if __name__ == '__main__':
     main()

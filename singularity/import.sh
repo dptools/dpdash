@@ -13,4 +13,10 @@ then
 	exit 1
 fi
 
-singularity exec -B ${containerDataDir}:/data -B ${dataDir}:${dataDir} $DPDASH_IMG /data/scripts/push.sh
+singularity exec \
+-B ${containerDataDir}:/data \
+-B ${dataDir}:/project_data \
+-B ${containerDataDir}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+-B ${containerDataDir}/dpdash/dist:/sw/apps/dpdash/dist \
+$DPDASH_IMG \
+/data/scripts/push.sh

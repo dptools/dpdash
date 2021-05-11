@@ -816,7 +816,7 @@ class AdminPage extends Component {
                 dataKey='display_name'
               />
               <Column
-                label='Mail'
+                label='Email'
                 dataKey='mail'
                 width={this.state.width / 6}
               />

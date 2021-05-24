@@ -66,6 +66,9 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mo
     n auto
     export PATH=/usr/local/bin/node:$PATH
     
+    ## use latest version of npm
+    npm install -g npm@latest
+
     ## install and build DPdash
     npm install
     npm run build

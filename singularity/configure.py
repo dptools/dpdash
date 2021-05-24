@@ -40,7 +40,7 @@ def main():
     args = parser.parse_args()
 
     configure_rabbit(args.rabbit_port, args.rabbit_name, args.rabbit_dist, args.ssl_ca, args.ssl_server_cert, args.ssl_server_key, args.config_dir, args.dpdash_path)
-    configure_mongo(args.mongo_port, args.mongo_path, args.ssl_ca, args.mongo_server_cert, args.config_dir)
+    configure_mongo(args.mongo_port, args.mongo_path, args.ssl_ca, args.mongo_server_cert, args.config_dir, args.mongo_host)
     configure_dppy(args.rabbit_port, args.celery_path, args.ssl_client_key, args.ssl_client_cert, args.ssl_ca, args.config_dir, args.rabbit_pw, args.rabbit_host)
     configure_supervisord(args.supervisor_id, args.config_dir)
     configure_dpdash(args.ssl_ca, args.ssl_client_key, args.ssl_client_cert, args.dpdash_port, args.mongo_port, args.rabbit_port, args.mongo_pw, args.rabbit_pw, args.dpdash_secret, args.config_dir, args.data_dir, args.dpdash_path, args.rabbit_host, args.mongo_host, args.app_secret)
@@ -97,20 +97,31 @@ listeners.ssl.default            = %(rabbit_port)s
 
     return export_file(rabbit_conf_path, configuration)
 
-def configure_mongo(mongo_port, mongo_path, ca_path, mongocert_path, config_path):
-    configuration = '''auth = true
-fork = false
-port = %(mongo_port)s
-dbpath = %(mongo_path)s/dbs/
-logappend = true
-logpath = %(mongo_path)s/logs/mongodb.log
-sslMode = requireSSL
-sslPEMKeyFile = %(mongocert_path)s
-sslCAFile = %(ca_path)s''' % { 
+def configure_mongo(mongo_port, mongo_path, ca_path, mongocert_path, config_path, mongo_host):
+    configuration = '''
+security:
+  authorization: enabled
+processManagement:
+  fork: false
+storage:
+  dbPath: %(mongo_path)s/dbs/
+net:
+  port: %(mongo_port)s
+  bindIp: localhost,/tmp/mongodb-%(mongo_port)s.sock,%(mongo_host)s
+  ssl:
+    mode: requireSSL
+    PEMKeyFile: %(mongocert_path)s
+    CAFile: %(ca_path)s
+systemLog:
+   destination: file
+   path: "%(mongo_path)s/logs/mongodb.log"
+   logAppend: true
+''' % { 
         'mongo_port' : mongo_port,
         'mongo_path' : mongo_path,
         'mongocert_path' : mongocert_path,
-        'ca_path' : ca_path
+        'ca_path' : ca_path,
+        'mongo_host': mongo_host,
     }
 
     return export_file(os.path.join(config_path, 'mongodb.conf'), configuration)

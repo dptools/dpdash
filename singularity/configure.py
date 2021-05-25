@@ -108,9 +108,9 @@ storage:
 net:
   port: %(mongo_port)s
   bindIp: localhost,/tmp/mongodb-%(mongo_port)s.sock,%(mongo_host)s
-  ssl:
-    mode: requireSSL
-    PEMKeyFile: %(mongocert_path)s
+  tls:
+    mode: requireTLS
+    certificateKeyFile: %(mongocert_path)s
     CAFile: %(ca_path)s
 systemLog:
    destination: file

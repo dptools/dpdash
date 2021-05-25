@@ -383,10 +383,32 @@ router.get('/dashboard/:study/:subject', ensurePermission, function (req, res) {
                           var encrypted = createHash('sha256').update(collectionName).digest('hex');
                           var varName = default_config[configItem].variable;
                           var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
-                          var query = '[{ $project: {_id: 0, day: 1, "' + escapedVarName + '" : "$' + varName + '"}}]';
-                          var data = yield mongoData.collection(encrypted.toString()).aggregate(eval(query)).toArray();
-                          var queryForStat = '[{ $match : {"' + escapedVarName + '" : { $ne: "" }}},{ $group : { _id: "$null", min: {$min : "$' + escapedVarName + '"}, max: {$max : "$' + escapedVarName + '"}, mean: {$avg : "$' + escapedVarName + '"}}}]';
-                          var stat = yield mongoData.collection(encrypted.toString()).aggregate(eval(queryForStat)).toArray();
+                          const query = [{
+                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
+                          }];
+                          var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
+                          const queryForStat = [
+                            {
+                              $match: {
+                                [escapedVarName]: { $ne: '' }
+                              }
+                            },
+                            {
+                              $group: {
+                                _id: null,
+                                min: {
+                                  $min: `$${escapedVarName}`
+                                },
+                                max: {
+                                  $max: `$${escapedVarName}`
+                                },
+                                mean: {
+                                  $avg: `$${escapedVarName}`
+                                }
+                              }
+                            }
+                          ]
+                          var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
                           var dataPiece = {};
                           dataPiece.text = default_config[configItem].text;
                           dataPiece.analysis = default_config[configItem].analysis;
@@ -444,10 +466,32 @@ router.get('/dashboard/:study/:subject', ensurePermission, function (req, res) {
                     var encrypted = createHash('sha256').update(collectionName).digest('hex');
                     var varName = default_config[configItem].variable;
                     var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
-                    var query = '[{ $project: {_id: 0, day: 1, "' + escapedVarName + '" : "$' + varName + '"}}]';
-                    var data = yield mongoData.collection(encrypted.toString()).aggregate(eval(query)).toArray();
-                    var queryForStat = '[{ $match : {"' + escapedVarName + '" : { $ne: "" }}},{ $group : { _id: "$null", min: {$min : "$' + escapedVarName + '"}, max: {$max : "$' + escapedVarName + '"}, mean: {$avg : "$' + escapedVarName + '"}}}]';
-                    var stat = yield mongoData.collection(encrypted.toString()).aggregate(eval(queryForStat)).toArray();
+                    const query = [{
+                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
+                          }];
+                    var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
+                    const queryForStat = [
+                            {
+                              $match: {
+                                [escapedVarName]: { $ne: '' }
+                              }
+                            },
+                            {
+                              $group: {
+                                _id: null,
+                                min: {
+                                  $min: `$${escapedVarName}`
+                                },
+                                max: {
+                                  $max: `$${escapedVarName}`
+                                },
+                                mean: {
+                                  $avg: `$${escapedVarName}`
+                                }
+                              }
+                            }
+                          ];
+                    var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
                     var dataPiece = {};
                     dataPiece.text = default_config[configItem].text;
                     dataPiece.analysis = default_config[configItem].analysis;
@@ -515,10 +559,32 @@ router.get('/dashboard/:study/:subject', ensurePermission, function (req, res) {
                     var encrypted = createHash('sha256').update(collectionName).digest('hex');
                     var varName = default_config[configItem].variable;
                     var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
-                    var query = '[{ $project: {_id: 0, day: 1, "' + escapedVarName + '" : "$' + varName + '"}}]';
-                    var data = yield mongoData.collection(encrypted.toString()).aggregate(eval(query)).toArray();
-                    var queryForStat = '[{ $match : {"' + escapedVarName + '" : { $ne: "" }}},{ $group : { _id: "$null", min: {$min : "$' + escapedVarName + '"}, max: {$max : "$' + escapedVarName + '"}, mean: {$avg : "$' + escapedVarName + '"}}}]';
-                    var stat = yield mongoData.collection(encrypted.toString()).aggregate(eval(queryForStat)).toArray();
+                    const query = [{
+                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
+                          }];
+                    var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
+                    const queryForStat = [
+                            {
+                              $match: {
+                                [escapedVarName]: { $ne: '' }
+                              }
+                            },
+                            {
+                              $group: {
+                                _id: null,
+                                min: {
+                                  $min: `$${escapedVarName}`
+                                },
+                                max: {
+                                  $max: `$${escapedVarName}`
+                                },
+                                mean: {
+                                  $avg: `$${escapedVarName}`
+                                }
+                              }
+                            }
+                          ];
+                    var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
                     var dataPiece = {};
                     dataPiece.text = default_config[configItem].text;
                     dataPiece.analysis = default_config[configItem].analysis;
@@ -654,10 +720,32 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
 
         var varName = configs_heatmap[configItem].variable;
         var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
-        var query = '[{ $project: {_id: 0, day: 1, "' + escapedVarName + '" : "$' + varName + '"}}]';
-        var data = yield mongoData.collection(encrypted.toString()).aggregate(eval(query)).toArray();
-        var queryForStat = '[{ $match : {"' + escapedVarName + '" : { $ne: "" }}},{ $group : { _id: "$null", min: {$min : "$' + escapedVarName + '"}, max: {$max : "$' + escapedVarName + '"}, mean: {$avg : "$' + escapedVarName + '"}}}]';
-        var stat = yield mongoData.collection(encrypted.toString()).aggregate(eval(queryForStat)).toArray();
+        const query = [{
+                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
+                          }];
+        var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
+        const queryForStat = [
+                            {
+                              $match: {
+                                [escapedVarName]: { $ne: '' }
+                              }
+                            },
+                            {
+                              $group: {
+                                _id: null,
+                                min: {
+                                  $min: `$${escapedVarName}`
+                                },
+                                max: {
+                                  $max: `$${escapedVarName}`
+                                },
+                                mean: {
+                                  $avg: `$${escapedVarName}`
+                                }
+                              }
+                            }
+                          ];
+        var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
         var dataPiece = {};
         dataPiece.text = configs_heatmap[configItem].text;
         dataPiece.analysis = configs_heatmap[configItem].analysis;

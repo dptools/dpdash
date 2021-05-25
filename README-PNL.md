@@ -167,7 +167,7 @@ After `import.py`, you can verify if your data went inside mongo database:
 
     singularity shell -B ${state}:/data -B ${data}:/project_data ${DPDASH_IMG}
 
-    Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
+    Singularity> mongo --tls --host `hostname` --tlsCAFile /data/ssl/ca/cacert.pem --tlsCertificateKeyFile /data/ssl/mongo_client.pem
 
 
 Inside mongo shell:
@@ -186,7 +186,7 @@ Inside mongo shell:
 Assuming you have imported one `BLS_metadata.csv` file into the mongo database, take a look at the following example 
 to learn how `dpdash` user is given access to the `BLS` study:
  
-    Singularity> mongo --ssl --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
+    Singularity> mongo --tls --host `hostname` --sslCAFile /data/ssl/ca/cacert.pem --sslPEMKeyFile /data/ssl/mongo_client.pem
 
 Inside mongo shell:
  

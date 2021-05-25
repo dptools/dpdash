@@ -43,12 +43,12 @@ From:centos:7.4.1708
     yum -y install nodejs
 
     ## install the MongoDB document database
-    echo -e "[mongodb-org-4.0]
+    echo -e "[mongodb-org-4.2]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.0/x86_64/
+baseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.2/x86_64/
 gpgcheck=1
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.0.asc" >> /etc/yum.repos.d/mongodb-org-4.0.repo
+gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc" >> /etc/yum.repos.d/mongodb-org-4.2.repo
 
     yum -y install mongodb-org
     

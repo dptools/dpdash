@@ -5,7 +5,7 @@ import 'whatwg-fetch';
 import update from 'immutability-helper';
 import * as _ from 'lodash';
 import colorbrewer from 'colorbrewer';
-import math from 'mathjs';
+import { bignumber, number, add, subtract, divide, abs } from 'mathjs';
 
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -440,23 +440,23 @@ class EditConfig extends Component {
     let config = this.state.config[this.state.configKey][row];
     let length = config['color'].length - 1;
     let range = config['range'];
-    let min = range[0] ? math.bignumber(range[0]) : 0;
-    let max = range[range.length - 1] ? math.bignumber(range[range.length - 1]) : math.add(min, 1);
-    max = math.number(min) === math.number(max) ? math.add(min, 1) : max;
+    let min = range[0] ? bignumber(range[0]) : 0;
+    let max = range[range.length - 1] ? bignumber(range[range.length - 1]) : add(min, 1);
+    max = number(min) === number(max) ? add(min, 1) : max;
 
-    let diff = math.subtract(max, min);
-    let interval = math.divide(math.abs(diff), length); //This forces linearity
-    max = math.number(max);
+    let diff = subtract(max, min);
+    let interval = divide(abs(diff), length); //This forces linearity
+    max = number(max);
 
     let newRange = [];
     let max_true = max >= min ? true : false;
     if (!max_true) {
-      for (min; min >= max; min = math.subtract(min, interval)) {
-        newRange.push(math.number(min));
+      for (min; min >= max; min = subtract(min, interval)) {
+        newRange.push(number(min));
       }
     } else {
-      for (min; min <= max; min = math.add(min, interval)) {
-        newRange.push(math.number(min));
+      for (min; min <= max; min = add(min, interval)) {
+        newRange.push(number(min));
       }
     }
     this.setState({

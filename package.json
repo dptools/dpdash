@@ -25,7 +25,7 @@
   "dependencies": {
     "@material-ui/core": "^3.3.0",
     "@material-ui/icons": "^3.0.1",
-    "amqplib": "^0.7.1",
+    "amqplib": "^0.8.0",
     "body-parser": "^1.18.3",
     "classnames": "^2.2.6",
     "co": "^4.6.0",
@@ -45,7 +45,7 @@
     "immutability-helper": "^2.8.1",
     "jsonschema": "^1.2.4",
     "material-ui-chip-input": "^1.0.0-beta.8",
-    "mathjs": "^5.2.1",
+    "mathjs": "^7.6.0",
     "method-override": "^3.0.0",
     "moment": "^2.22.2",
     "mongodb": "^3.6.6",

@@ -43,12 +43,12 @@ From:centos:7.4.1708
     yum -y install nodejs
 
     ## install the MongoDB document database
-    echo -e "[mongodb-org-3.4]
+    echo -e "[mongodb-org-4.4]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/3.4/x86_64/
+baseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.4/x86_64/
 gpgcheck=1
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mongodb-org-3.4.repo
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mongodb-org-4.4.repo
 
     yum -y install mongodb-org
     
@@ -66,6 +66,9 @@ gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc" >> /etc/yum.repos.d/mo
     n auto
     export PATH=/usr/local/bin/node:$PATH
     
+    ## use latest version of npm
+    npm install -g npm@latest
+
     ## install and build DPdash
     npm install
     npm run build

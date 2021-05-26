@@ -6,6 +6,10 @@ set -eo pipefail
 shellmode=false
 devmode=false
 
+# Getting environment variables from .env
+source ./loadenv.sh
+source ./varcheck.sh
+
 while getopts ":sd" opt; do
     case $opt in
         s)
@@ -26,10 +30,6 @@ while getopts ":sd" opt; do
             ;;
     esac
 done
-
-# Getting environment variables from .env
-source ./loadenv.sh
-source ./varcheck.sh
 
 if [ $shellmode = true ]
 then

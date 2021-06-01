@@ -369,6 +369,8 @@ config.session.secret = "%(session_secret)s";
 config.session.saveUninitialized = false;
 config.session.resave = true;
 
+config.session.proxy = true;
+
 config.session.cookie = {};
 config.session.cookie.secure = true;
 config.session.cookie.maxAge = 24*60*60*1000;

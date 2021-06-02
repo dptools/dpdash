@@ -66,14 +66,14 @@ As this file contains your custom configuration, it will not be committed to the
 In your `.env` file, define the following required variables:
 
 > * **`state`**: Used to store DPdash application data. Must be an empty directory that will be populated with files once you initialize below.
-> * **`data`**: Used to store DPDash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
+> * **`data`**: Used to store DPdash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
 > * **`DPDASH_IMG`**: The path of the `dpdash.sif` image file you downloaded or built.
 
 #### Optional variables
 
-If you wish to configure ports and other options for services (for example, if running a second DPDash instance on the same machine as another), you may define the following optional variables:
+If you wish to configure ports and other options for services (for example, if running a second DPdash instance on the same machine as another), you may define the following optional variables:
 
-> * **`DPDASH_PORT`**: Can be used to change the port on which DPDash will run (default: 8000)
+> * **`DPDASH_PORT`**: Can be used to change the port on which DPdash will run (default: 8000)
 > * **`DPDASH_SERVICE_HOST`**: Can be used to change the hostname on which services such as MongoDB and RabbitMQ will run (default: whatever your current `hostname` is)
 > * **`DPDASH_MONGO_PORT`**: Can be used to change the port on which MongoDB will run (default: 27017)
 > * **`DPDASH_RABBIT_DIST`**: Can be used to change the port on which RabbitMQ distribution services will communicate (default: 25671)
@@ -136,7 +136,7 @@ Alternatively, you can shell into the container and then execute further command
 
 At this point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
 
-> **Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container. (If you wish to mount a development directory to `/sw/apps/dpdash`, you can also set the `${DPDASH_DEV_DIR}` environment variable and use the `-d` flag: `start.sh -s -d`.) 
+> **Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPdash instance, or run with the `-s` flag to shell into the Singularity container. (If you wish to mount a development directory to `/sw/apps/dpdash`, you can also set the `${DPDASH_DEV_DIR}` environment variable and use the `-d` flag: `start.sh -s -d`.) 
 > 
 > However, `start.sh` (and `stop.sh`) scripts come with a fixed `singularity` command. If you need to mount arbitrary directories or modify the `singularity` command, you will not be able to use the convenience scripts. In that case, use the `singularity` command directly in your terminal as shown above.
 
@@ -221,7 +221,7 @@ Add and enable at least one configuration from the left taskbar.
 
 ### Quit
 
-You can stop the DPDash instance with a Singularity command:
+You can stop the DPdash instance with a Singularity command:
 
     singularity run \
     -B ${state}:/data \

@@ -101,9 +101,11 @@ You may also wish to run `source ./varcheck.sh` before proceeding to make sure t
     cd dpdash/singularity
     ./init.sh
 
-Then, do the following modification to circumvent a cookie issue that might occur later:
+If you are in a development environment without the ability to serve the app on HTTPS, you must make the following modification:
 
     ${state}/dpdash/configs/dashboard/config.js: config.session.cookie.secure = false;
+
+Production environments using HTTPS and a valid SSL certificate for the app's domain should leave this setting as is.
 
 You can read the [Cookies](#cookies) section for details.
     
@@ -303,11 +305,18 @@ and
 
 ### Cookies
 
-Within DPdash, [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en/latest/building.html?highlight=cookies) over unencrypted HTTP. 
-For this limitation, after entering admin credentials in DPdash login page, you may be dropped back to login again. 
-To circumvent this issue, set the following to `false`:
+By default, DPdash [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en/latest/building.html?highlight=cookies) over unencrypted HTTP. 
+
+Due to this limitation, after entering admin credentials in the DPdash login page, you may be dropped back to login again. This will occur when you are using the app over HTTP or do not have a valid HTTPS certificate for your domain. To circumvent this issue, set the following to `false`:
 
     ${state}/dpdash/configs/dashboard/config.js: config.session.cookie.secure = false;
 
 and then [restart](#restart) the DPdash application.
 
+Note that this is not secure and should only be used in a development environment. A production environment should be served over HTTPS with a valid certificate, and with this set to `true`.
+
+See the [express-session docs](https://expressjs.com/en/resources/middleware/session.html) for more information.
+
+**Note**: The developers use a reverse proxy to serve the production DPdash instance, and thus we have set the following to `true` by default. If you do not use a reverse proxy and want stricter security settings, you may set it to `false` or remove it altogether:
+
+    ${state}/dpdash/configs/dashboard/config.js: config.session.proxy = true;

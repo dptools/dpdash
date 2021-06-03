@@ -66,14 +66,14 @@ As this file contains your custom configuration, it will not be committed to the
 In your `.env` file, define the following required variables:
 
 > * **`state`**: Used to store DPdash application data. Must be an empty directory that will be populated with files once you initialize below.
-> * **`data`**: Used to store DPDash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
+> * **`data`**: Used to store DPdash project data. Must contain [PHOENIX style directory trees](http://docs.neuroinfo.org/dpdash/en/latest/quick_start.html#create-data-persistence-directories).
 > * **`DPDASH_IMG`**: The path of the `dpdash.sif` image file you downloaded or built.
 
 #### Optional variables
 
-If you wish to configure ports and other options for services (for example, if running a second DPDash instance on the same machine as another), you may define the following optional variables:
+If you wish to configure ports and other options for services (for example, if running a second DPdash instance on the same machine as another), you may define the following optional variables:
 
-> * **`DPDASH_PORT`**: Can be used to change the port on which DPDash will run (default: 8000)
+> * **`DPDASH_PORT`**: Can be used to change the port on which DPdash will run (default: 8000)
 > * **`DPDASH_SERVICE_HOST`**: Can be used to change the hostname on which services such as MongoDB and RabbitMQ will run (default: whatever your current `hostname` is)
 > * **`DPDASH_MONGO_PORT`**: Can be used to change the port on which MongoDB will run (default: 27017)
 > * **`DPDASH_RABBIT_DIST`**: Can be used to change the port on which RabbitMQ distribution services will communicate (default: 25671)
@@ -101,9 +101,11 @@ You may also wish to run `source ./varcheck.sh` before proceeding to make sure t
     cd dpdash/singularity
     ./init.sh
 
-Then, do the following modification to circumvent a cookie issue that might occur later:
+If you are in a development environment without the ability to serve the app on HTTPS, you must make the following modification:
 
     ${state}/dpdash/configs/dashboard/config.js: config.session.cookie.secure = false;
+
+Production environments using HTTPS and a valid SSL certificate for the app's domain should leave this setting as is.
 
 You can read the [Cookies](#cookies) section for details.
     
@@ -134,7 +136,7 @@ Alternatively, you can shell into the container and then execute further command
 
 At this point, you can even exit from the Singularity shell and yet your DPdash instance would be running.
 
-> **Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPDash instance, or run with the `-s` flag to shell into the Singularity container. (If you wish to mount a development directory to `/sw/apps/dpdash`, you can also set the `${DPDASH_DEV_DIR}` environment variable and use the `-d` flag: `start.sh -s -d`.) 
+> **Note:** We also provide a convenience script in the `singularity` directory called `start.sh`, which can be run on its own to launch the DPdash instance, or run with the `-s` flag to shell into the Singularity container. (If you wish to mount a development directory to `/sw/apps/dpdash`, you can also set the `${DPDASH_DEV_DIR}` environment variable and use the `-d` flag: `start.sh -s -d`.) 
 > 
 > However, `start.sh` (and `stop.sh`) scripts come with a fixed `singularity` command. If you need to mount arbitrary directories or modify the `singularity` command, you will not be able to use the convenience scripts. In that case, use the `singularity` command directly in your terminal as shown above.
 
@@ -219,7 +221,7 @@ Add and enable at least one configuration from the left taskbar.
 
 ### Quit
 
-You can stop the DPDash instance with a Singularity command:
+You can stop the DPdash instance with a Singularity command:
 
     singularity run \
     -B ${state}:/data \
@@ -303,11 +305,18 @@ and
 
 ### Cookies
 
-Within DPdash, [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en/latest/building.html?highlight=cookies) over unencrypted HTTP. 
-For this limitation, after entering admin credentials in DPdash login page, you may be dropped back to login again. 
-To circumvent this issue, set the following to `false`:
+By default, DPdash [cookies are not transferred](http://docs.neuroinfo.org/dpdash/en/latest/building.html?highlight=cookies) over unencrypted HTTP. 
+
+Due to this limitation, after entering admin credentials in the DPdash login page, you may be dropped back to login again. This will occur when you are using the app over HTTP or do not have a valid HTTPS certificate for your domain. To circumvent this issue, set the following to `false`:
 
     ${state}/dpdash/configs/dashboard/config.js: config.session.cookie.secure = false;
 
 and then [restart](#restart) the DPdash application.
 
+Note that this is not secure and should only be used in a development environment. A production environment should be served over HTTPS with a valid certificate, and with this set to `true`.
+
+See the [express-session docs](https://expressjs.com/en/resources/middleware/session.html) for more information.
+
+**Note**: The developers use a reverse proxy to serve the production DPdash instance, and thus we have set the following to `true` by default. If you do not use a reverse proxy and want stricter security settings, you may set it to `false` or remove it altogether:
+
+    ${state}/dpdash/configs/dashboard/config.js: config.session.proxy = true;

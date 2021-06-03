@@ -19,5 +19,11 @@
         "react"
     ],
     "rules": {
+        "react/prop-types": [
+            0
+        ],
+        "react/no-string-refs": [
+            0
+        ]
     }
 }

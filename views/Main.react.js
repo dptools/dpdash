@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import io from 'socket.io-client';
 import 'whatwg-fetch';
 import Select from 'react-select';
 import classNames from 'classnames';
@@ -15,7 +14,6 @@ import DrawerComponent from './Drawer.react';
 import { withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
-import Divider from '@material-ui/core/Divider';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -26,34 +24,16 @@ import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
-import Avatar from '@material-ui/core/Avatar';
 import Checkbox from '@material-ui/core/Checkbox';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import StarBorder from '@material-ui/icons/StarBorder';
 import Star from '@material-ui/icons/Star';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import Person from '@material-ui/icons/Person';
-import ColorLens from '@material-ui/icons/ColorLens';
-import ExitToApp from '@material-ui/icons/ExitToApp';
-import Settings from '@material-ui/icons/Settings';
 import SearchIcon from '@material-ui/icons/Search';
-import MenuIcon from '@material-ui/icons/Menu';
 
-const socketAddress = 'https://' + window.location.hostname + '/';
-const socket = io(socketAddress, {
-  timeout: 1500
-});
+import getAvatar from './fe-utils/avatarUtil';
 
-const sortMenu = [
-  { sort: 'days', order: 'asc', text: 'Days (Asc)' },
-  { sort: 'days', order: 'desc', text: 'Days (Desc)' },
-  { sort: 'synced', order: 'asc', text: 'Updated (Asc)' },
-  { sort: 'synced', order: 'desc', text: 'Updated (Desc)' },
-  { sort: 'subject', order: 'asc', text: 'Subject ID (Asc)' },
-  { sort: 'subject', order: 'desc', text: 'Subject ID (Desc)' }
-];
 
 const drawerWidth = 200;
 const styles = theme => ({
@@ -89,7 +69,6 @@ const styles = theme => ({
     borderRight: '0px'
   },
   content: {
-    padding: 0,
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     flexGrow: 1,
     backgroundColor: '#fefefe',
@@ -213,7 +192,6 @@ function ValueContainer(props) {
   return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
 }
 function MultiValue(props) {
-  var index = props.children.indexOf(' ');
   return (
     <Chip
       tabIndex={-1}
@@ -237,7 +215,7 @@ function Menu(props) {
     </Paper>
   );
 }
-function DropdownIndicator(props) {
+function DropdownIndicator() {
   return (
     <SearchIcon color='disabled' />
   );
@@ -285,7 +263,7 @@ class MainPage extends Component {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight,
-      avatar: this.getAvatar()
+      avatar: getAvatar({ user: this.props.user })
     });
     window.addEventListener('resize', this.handleResize)
   }
@@ -482,7 +460,7 @@ class MainPage extends Component {
       body: JSON.stringify({
         preferences: preference
       })
-    }).then((response) => {
+    }).then(() => {
       return;
     });
   }
@@ -501,16 +479,17 @@ class MainPage extends Component {
       body: JSON.stringify({
         preferences: preference
       })
-    }).then((response) => {
+    }).then(() => {
       return;
     });
   }
-  handleResize = (event) => {
+  handleResize = () => {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight
     })
   }
+  // eslint-disable-next-line react/no-deprecated
   componentWillMount() {
     this.fetchSubjects();
     this.fetchUserPreferences(this.props.user.uid);
@@ -532,24 +511,6 @@ class MainPage extends Component {
       return 'headerRow'
     } else {
       return index % 2 === 0 ? 'evenRow' : 'oddRow'
-    }
-  }
-  getAvatar = () => {
-    var icon = this.props.user.icon;
-    var username = this.props.user.name;
-    var uid = this.props.user.uid;
-    if (icon == '' || icon == undefined) {
-      if (username == '' || username == undefined) {
-        if (uid && uid.length > 0) {
-          return <Avatar style={{ width: 60, height: 60 }}>{uid[0]}</Avatar>
-        } else {
-          return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}><Person /></Avatar>
-        }
-      } else {
-        return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>{username[0]}</Avatar>
-      }
-    } else {
-      return <Avatar style={{ width: 60, height: 60 }} src={icon}></Avatar>
     }
   }
   handleDrawerToggle = () => {
@@ -657,7 +618,7 @@ class MainPage extends Component {
   getSubjectCell = (data) => {
     return <a style={{ textDecoration: 'none' }} href={'/dashboard/' + data.study + '/' + data.subject}>{data.subject}</a>
   }
-  getSyncedCell = (data, type) => {
+  getSyncedCell = (data) => {
     var complete = this.state.complete;
     if (data.study in complete && complete[data.study].indexOf(data.subject) > -1) {
       return <span>{data.synced}</span>
@@ -673,21 +634,6 @@ class MainPage extends Component {
       SingleValue, MultiValue, IndicatorSeparator,
       ValueContainer, Menu, DropdownIndicator
     };
-    const selectStyles = {
-      input: base => ({
-        ...base,
-        color: theme.palette.text.primary,
-      }),
-    };
-    const momentSetting = {
-      sameDay: '[Today]',
-      nextDay: '[Tomorrow]',
-      nextWeek: 'dddd',
-      lastDay: '[Yesterday]',
-      lastWeek: '[Last] dddd',
-      sameElse: 'MM/DD/YYYY'
-    };
-    const nowT = moment().local();
     return (
       <div className={classes.root}>
         <AppBar className={classes.appBar}>

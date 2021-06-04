@@ -89,6 +89,7 @@ app.use(expressSession({
   secret: config.session.secret,
   saveUninitialized: config.session.saveUninitialized,
   resave: config.session.resave,
+  proxy: config.session.proxy,
   cookie: config.session.cookie,
   store: MongoStore.create({
     clientPromise: mongodbPromise,

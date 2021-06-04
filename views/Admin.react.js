@@ -1,17 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import 'whatwg-fetch';
 import update from 'immutability-helper';
 import { Column, Table } from 'react-virtualized';
 import * as _ from 'lodash';
-import ChipInput from 'material-ui-chip-input';
 import uuid from 'uuid';
 import classNames from 'classnames';
 
-import Person from '@material-ui/icons/AccountCircle';
 import Settings from '@material-ui/icons/Settings';
-import Back from '@material-ui/icons/ChevronLeft';
 import SearchIcon from '@material-ui/icons/Search';
 import Clear from '@material-ui/icons/Clear';
 
@@ -20,8 +16,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import Dialog from '@material-ui/core/Dialog';
 import Button from '@material-ui/core/Button';
-import Subheader from '@material-ui/core/ListSubheader';;
-import Divider from '@material-ui/core/Divider';
+import Subheader from '@material-ui/core/ListSubheader';
 import SelectField from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -29,7 +24,6 @@ import IconButton from '@material-ui/core/IconButton';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Avatar from '@material-ui/core/Avatar';
 import NoSsr from '@material-ui/core/NoSsr';
 import Select from 'react-select';
 import TextField from '@material-ui/core/TextField';
@@ -37,18 +31,21 @@ import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
+import { compose } from 'redux';
+import { withStyles } from '@material-ui/core/styles';
+import DrawerComponent from './Drawer.react';
+import Drawer from '@material-ui/core/Drawer';
+import Hidden from '@material-ui/core/Hidden';
+
+import getAvatar from './fe-utils/avatarUtil';
+
+const drawerWidth = 200;
+
 const memberMenu = [
   { value: 0, level: 'admin', text: 'System Admins' },
   { value: 1, level: 'manager', text: 'Study Manager' },
   { value: 2, level: 'member', text: 'Member' }
 ];
-
-import { compose } from 'redux';
-import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './Drawer.react';
-import Drawer from '@material-ui/core/Drawer';
-const drawerWidth = 200;
-import Hidden from '@material-ui/core/Hidden';
 
 const styles = theme => ({
   root: {
@@ -221,7 +218,7 @@ function Menu(props) {
     </Paper>
   );
 }
-function DropdownIndicator(props) {
+function DropdownIndicator() {
   return (
     <SearchIcon color='disabled' />
   );
@@ -269,7 +266,7 @@ class AdminPage extends Component {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight,
-      avatar: this.getAvatar()
+      avatar: getAvatar({ user: this.props.user })
     })
     /* Resize listener register */
     window.addEventListener('resize', this.handleResize)
@@ -285,6 +282,7 @@ class AdminPage extends Component {
       totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
     });
   }
+  // eslint-disable-next-line react/no-deprecated
   componentWillMount() {
     this.fetchUsers();
     this.fetchStudies();
@@ -325,24 +323,6 @@ class AdminPage extends Component {
         this.countSubjects(response)
       });
     });
-  }
-  getAvatar = () => {
-    var icon = this.props.user.icon;
-    var username = this.props.user.name;
-    var uid = this.props.user.uid;
-    if (icon == '' || icon == undefined) {
-      if (username == '' || username == undefined) {
-        if (uid && uid.length > 0) {
-          return <Avatar style={{ width: 60, height: 60 }}>{uid[0]}</Avatar>
-        } else {
-          return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}><Person /></Avatar>
-        }
-      } else {
-        return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>{username[0]}</Avatar>
-      }
-    } else {
-      return <Avatar style={{ width: 60, height: 60 }} src={icon}></Avatar>
-    }
   }
   fetchStudies = () => {
     return window.fetch('/api/v1/search/studies', {
@@ -397,7 +377,7 @@ class AdminPage extends Component {
       tab: value,
     });
   }
-  handleResize = (event) => {
+  handleResize = () => {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight
@@ -447,7 +427,7 @@ class AdminPage extends Component {
         'Content-Type': 'application/json'
       },
       credentials: 'same-origin'
-    }).then((response) => {
+    }).then(() => {
       this.closeDelete();
       location.reload();
     });
@@ -484,7 +464,7 @@ class AdminPage extends Component {
       body: JSON.stringify({
         blocked: block,
       })
-    }).then((response) => {
+    }).then(() => {
       return;
     });
   }
@@ -536,7 +516,7 @@ class AdminPage extends Component {
         force_reset_pw: force_reset,
         reset_key: reset_key
       })
-    }).then((response) => {
+    }).then(() => {
       return;
     });
   }
@@ -564,7 +544,6 @@ class AdminPage extends Component {
   closeAccess = () => {
     let role = memberMenu[this.state.editLevel]['level'];
     let uid = this.state.users[this.state.editUser]['uid'];
-    let access = this.state.editACL;
     this.updateRole(uid, role);
 
     this.setState({
@@ -613,7 +592,7 @@ class AdminPage extends Component {
       body: JSON.stringify({
         acl: access,
       })
-    }).then((response) => {
+    }).then(() => {
       this.closeAccess();
     });
   }
@@ -635,7 +614,7 @@ class AdminPage extends Component {
       body: JSON.stringify({
         role: role,
       })
-    }).then((response) => {
+    }).then(() => {
       return;
     });
   }
@@ -656,19 +635,6 @@ class AdminPage extends Component {
     });
   };
   render() {
-    const actions = [
-      <Button
-        label="Cancel"
-        primary={false}
-        onClick={this.closeAccess}
-      />,
-      <Button
-        label="Submit"
-        primary={true}
-        keyboardFocused={true}
-        onClick={this.modifyACL}
-      />,
-    ];
     const components = {
       Option, Control,
       NoOptionsMessage, Placeholder,
@@ -676,12 +642,6 @@ class AdminPage extends Component {
       ValueContainer, Menu, DropdownIndicator
     };
     const { classes, theme } = this.props;
-    const selectStyles = {
-      input: base => ({
-        ...base,
-        color: theme.palette.text.primary,
-      }),
-    };
     return (
       <div
         className={classes.root}

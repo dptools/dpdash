@@ -592,9 +592,6 @@ class AdminPage extends Component {
       editLevel: event.target.value
     });
   }
-  openNewWindow = (uri) => {
-    window.open(uri, '_self');
-  }
   updateRole = (uid, role) => {
     return window.fetch('/api/v1/users/' + uid + '/role', {
       method: 'POST',

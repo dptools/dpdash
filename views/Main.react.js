@@ -9,15 +9,11 @@ import { Column, Table } from 'react-virtualized';
 import moment from 'moment';
 import update from 'immutability-helper';
 
-import DrawerComponent from './components/Drawer';
-
 import { withStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import Hidden from '@material-ui/core/Hidden';
 import TextField from '@material-ui/core/TextField';
 import NoSsr from '@material-ui/core/NoSsr';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
@@ -32,8 +28,8 @@ import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import SearchIcon from '@material-ui/icons/Search';
 
+import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
-
 
 const drawerWidth = 200;
 const styles = theme => ({
@@ -60,13 +56,6 @@ const styles = theme => ({
     [theme.breakpoints.up('md')]: {
       display: 'none',
     },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      position: 'relative',
-    },
-    borderRight: '0px'
   },
   content: {
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
@@ -627,7 +616,7 @@ class MainPage extends Component {
     }
   };
   render() {
-    const { classes, theme } = this.props;
+    const { classes } = this.props;
     const components = {
       Option, Control,
       NoOptionsMessage, Placeholder,
@@ -667,49 +656,15 @@ class MainPage extends Component {
             </div>
           </Toolbar>
         </AppBar>
-        <Hidden
-          mdUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={this.state.mobileOpen}
-            onClose={this.handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
-        <Hidden
-          smDown implementation="css">
-          <Drawer
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
+        <Sidebar
+          avatar={this.state.avatar}
+          handleDrawerToggle={this.handleDrawerToggle}
+          mobileOpen={this.state.mobileOpen}
+          totalDays={this.state.totalDays}
+          totalStudies={this.state.totalStudies}
+          totalSubjects={this.state.totalSubjects}
+          user={this.props.user}
+        />
         <main className={classes.content} style={{ padding: 0 }}>
           <div className={classes.toolbar} />
           <div

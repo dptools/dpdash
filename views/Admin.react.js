@@ -33,10 +33,8 @@ import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './components/Drawer';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
 
+import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
 
 const drawerWidth = 200;
@@ -71,13 +69,6 @@ const styles = theme => ({
     [theme.breakpoints.up('md')]: {
       display: 'none',
     },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      position: 'relative',
-    },
-    borderRight: '0px'
   },
   content: {
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
@@ -641,7 +632,7 @@ class AdminPage extends Component {
       SingleValue, MultiValue, IndicatorSeparator,
       ValueContainer, Menu, DropdownIndicator
     };
-    const { classes, theme } = this.props;
+    const { classes } = this.props;
     return (
       <div
         className={classes.root}
@@ -677,50 +668,15 @@ class AdminPage extends Component {
             </div>
           </Toolbar>
         </AppBar>
-        <Hidden
-          mdUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={this.state.mobileOpen}
-            onClose={this.handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
-        <Hidden
-          smDown implementation="css">
-          <Drawer
-            ref='permanentDrawer'
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
+        <Sidebar
+          avatar={this.state.avatar}
+          handleDrawerToggle={this.handleDrawerToggle}
+          mobileOpen={this.state.mobileOpen}
+          totalDays={this.state.totalDays}
+          totalStudies={this.state.totalStudies}
+          totalSubjects={this.state.totalSubjects}
+          user={this.props.user}
+        />
         <div
           className={classes.content}
           style={{

@@ -4,20 +4,15 @@ import { connect } from 'react-redux'
 import 'whatwg-fetch'
 
 import { stringToDate, diffDates } from '../server/utils/dateConverter'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import * as _ from 'lodash'
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
 
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './components/Drawer';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';
 
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
 
 const drawerWidth = 200;
@@ -31,28 +26,6 @@ const styles = theme => ({
     position: 'relative',
     display: 'flex',
     width: '100%',
-  },
-  appBar: {
-    position: 'absolute',
-    marginLeft: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-    },
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)'
-  },
-  navIconHide: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      position: 'relative',
-    },
-    borderRight: '0px'
   },
   content: {
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
@@ -306,87 +279,28 @@ class Study extends Component {
     window.removeEventListener('resize', this.handleResize)
   }
   render() {
-    const { classes, theme } = this.props;
+    const { classes } = this.props;
     return (
       <div className={classes.root}>
-        <AppBar className={classes.appBar}>
-          <Toolbar
-            variant='dense'
-            style={{
-              paddingLeft: '16px'
-            }}
-          >
-            <IconButton
-              color="rgba(0, 0, 0, 0.54)"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerToggle}
-              className={classes.navIconHide}
-            >
-              <img width='24px' height='24px' src='/img/favicon.png' />
-            </IconButton>
-            <Typography
-              variant="title"
-              color="inherit"
-              style={{
-                color: 'rgba(0,0,0,0.4)',
-                fontSize: '18px',
-                letterSpacing: '1.25px',
-                flexGrow: 1
-              }}
-            >
-              {this.props.subject.project}
-            </Typography>
-          </Toolbar>
-        </AppBar>
-        <Hidden
-          mdUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={this.state.mobileOpen}
-            onClose={this.handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
-        <Hidden
-          smDown implementation="css">
-          <Drawer
-            ref='permanentDrawer'
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
+        <Header 
+          title={this.props.subject.project}
+          handleDrawerToggle={this.handleDrawerToggle}
+          isAccountPage={false}
+        />
+        <Sidebar
+          avatar={this.state.avatar}
+          handleDrawerToggle={this.handleDrawerToggle}
+          mobileOpen={this.state.mobileOpen}
+          totalDays={this.state.totalDays}
+          totalStudies={this.state.totalStudies}
+          totalSubjects={this.state.totalSubjects}
+          user={this.props.user}
+        />
         <div
           className={classes.content}
           style={{
             padding: '12px',
-            marginTop: '48px',
+            marginTop: '64px',
             overflowY: 'scroll'
           }}
         >

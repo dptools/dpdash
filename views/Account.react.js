@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import 'whatwg-fetch';
 
-import Typography from '@material-ui/core/Typography';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import TextField from '@material-ui/core/TextField';
-import IconButton from '@material-ui/core/IconButton';
-import ColorLens from '@material-ui/icons/ColorLens';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import ButtonBase from '@material-ui/core/ButtonBase';
@@ -15,13 +10,11 @@ import Snackbar from '@material-ui/core/Snackbar';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './components/Drawer';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
+
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 
 import getAvatar from './fe-utils/avatarUtil';
-
-const drawerWidth = 200;
 
 const styles = theme => ({
   root: {
@@ -32,28 +25,6 @@ const styles = theme => ({
     position: 'relative',
     display: 'flex',
     width: '100%',
-  },
-  appBar: {
-    position: 'absolute',
-    marginLeft: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-    },
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)'
-  },
-  navIconHide: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      position: 'relative',
-    },
-    borderRight: '0px'
   },
   content: {
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
@@ -205,9 +176,6 @@ class AccountPage extends Component {
       return error;
     });
   }
-  openNewWindow = (uri) => {
-    window.open(uri, '_self');
-  }
   scaleDownImage = () => {
     let image = this.refs.userSubmittedAvatar;
     let canvas = this.refs.canvas;
@@ -257,89 +225,23 @@ class AccountPage extends Component {
     });
   }
   render() {
-    const { classes, theme } = this.props;
+    const { classes } = this.props;
     return (
       <div className={classes.root}>
-        <AppBar
-          style={{
-            backgroundColor: '#ffffff',
-            boxShadow: 'none',
-          }}
-          className={classes.appBar}
-        >
-          <Toolbar
-            style={{ paddingLeft: '16px' }}
-          >
-            <IconButton
-              color="rgba(0, 0, 0, 0.54)"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerToggle}
-              className={classes.navIconHide}
-            >
-              <img width='24px' height='24px' src='/img/favicon.png' />
-            </IconButton>
-            <Typography
-              variant="title"
-              color="inherit"
-              style={{
-                color: 'rgba(0,0,0,0.4)',
-                fontSize: '18px',
-                letterSpacing: '1.25px',
-                flexGrow: 1
-              }}
-            >
-              Account
-                        </Typography>
-            <IconButton
-              onClick={() => this.openNewWindow('/u/configure')}
-            >
-              <ColorLens color='rgba(0,0,0,0.4)' />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Hidden
-          mdUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={this.state.mobileOpen}
-            onClose={this.handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerComponent
-              avatar={getAvatar({ user: { icon: this.state.icon, name: this.state.display_name, uid: this.state.uid }})}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.state.user}
-              name={this.state.display_name}
-            />
-          </Drawer>
-        </Hidden>
-        <Hidden
-          smDown implementation="css">
-          <Drawer
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <DrawerComponent
-              avatar={getAvatar({ user: { icon: this.state.icon, name: this.state.display_name, uid: this.state.uid }})}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.state.user}
-              name={this.state.display_name}
-            />
-          </Drawer>
-        </Hidden>
+        <Header 
+          title="Account"
+          isAccountPage
+          handleDrawerToggle={this.handleDrawerToggle}
+        />
+        <Sidebar
+          avatar={getAvatar({ user: { icon: this.state.icon, name: this.state.display_name, uid: this.state.uid }})}
+          handleDrawerToggle={this.handleDrawerToggle}
+          mobileOpen={this.state.mobileOpen}
+          totalDays={this.state.totalDays}
+          totalStudies={this.state.totalStudies}
+          totalSubjects={this.state.totalSubjects}
+          user={{ ...this.state.user, name: this.state.display_name }}
+        />
         <div
           className={classes.content}
           style={{

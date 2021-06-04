@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import GraphFactory from './GraphFactory.react'
+import GraphFactory from './components/GraphFactory'
 import { connect } from 'react-redux'
 import 'whatwg-fetch'
 
@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './Drawer.react';
+import DrawerComponent from './components/Drawer';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';

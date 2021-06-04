@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import GraphFactory from './GraphFactory.react'
+import GraphFactory from './components/GraphFactory'
 import { connect } from 'react-redux'
 import io from 'socket.io-client'
 import 'whatwg-fetch'
@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './Drawer.react';
+import DrawerComponent from './components/Drawer';
 import Drawer from '@material-ui/core/Drawer';
 
 import SaveIcon from '@material-ui/icons/Save';

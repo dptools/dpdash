@@ -34,7 +34,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './Drawer.react';
+import DrawerComponent from './components/Drawer';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 

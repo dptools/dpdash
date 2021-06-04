@@ -9,7 +9,7 @@ import { Column, Table } from 'react-virtualized';
 import moment from 'moment';
 import update from 'immutability-helper';
 
-import DrawerComponent from './Drawer.react';
+import DrawerComponent from './components/Drawer';
 
 import { withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';

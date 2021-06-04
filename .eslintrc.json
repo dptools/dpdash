@@ -8,7 +8,14 @@
         "eslint:recommended",
         "plugin:react/recommended"
     ],
+    "parser": "@babel/eslint-parser",
     "parserOptions": {
+        "requireConfigFile": false,
+        "babelOptions": {
+            "presets": [
+                "@babel/preset-react"
+            ]
+        },
         "ecmaFeatures": {
             "jsx": true
         },

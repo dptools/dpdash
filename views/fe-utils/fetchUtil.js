@@ -52,4 +52,18 @@ const fetchUsers = async () => {
   return res.json()
 };
 
-export { fetchStudies, fetchSubjects, fetchUsers };
+const fetchUsernames = async () => {
+  const res = await window.fetch('/api/v1/search/users', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'same-origin'
+  });
+  if (res.status !== 200) {
+    throw new Error(res.statusText);
+  }
+  return res.json()
+}
+
+export { fetchStudies, fetchSubjects, fetchUsers, fetchUsernames };

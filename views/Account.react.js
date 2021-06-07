@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import 'whatwg-fetch';
-import update from 'immutability-helper';
 
-import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
-import Person from '@material-ui/icons/Person';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import TextField from '@material-ui/core/TextField';
@@ -21,8 +17,12 @@ import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import DrawerComponent from './Drawer.react';
 import Drawer from '@material-ui/core/Drawer';
-const drawerWidth = 200;
 import Hidden from '@material-ui/core/Hidden';
+
+import getAvatar from './fe-utils/avatarUtil';
+
+const drawerWidth = 200;
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -87,6 +87,7 @@ class AccountPage extends Component {
   }
   componentDidUpdate() {
   }
+  // eslint-disable-next-line react/no-deprecated
   componentWillMount() {
     this.fetchUserInfo(this.props.user.uid);
     this.setState({
@@ -130,37 +131,6 @@ class AccountPage extends Component {
         this.autocomplete(response)
       });
     });
-  }
-  getAvatar = (icon) => {
-    var username = this.state.display_name;
-    var uid = this.state.uid;
-    if (icon == '' || icon == undefined) {
-      if (username == '' || username == undefined) {
-        if (uid && uid.length > 0) {
-          return (
-            <Avatar style={{ width: 60, height: 60 }}>
-              {uid[0]}
-            </Avatar>
-          );
-        } else {
-          return (
-            <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>
-              <Person />
-            </Avatar>
-          );
-        }
-      } else {
-        return (
-          <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>
-            {username[0]}
-          </Avatar>
-        );
-      }
-    } else {
-      return (
-        <Avatar style={{ width: 60, height: 60 }} src={icon}></Avatar>
-      );
-    }
   }
   autocomplete = (acl) => {
     var options = [];
@@ -342,7 +312,7 @@ class AccountPage extends Component {
             }}
           >
             <DrawerComponent
-              avatar={this.getAvatar(this.state.icon)}
+              avatar={getAvatar({ user: { icon: this.state.icon, name: this.state.display_name, uid: this.state.uid }})}
               totalStudies={this.state.totalStudies}
               totalSubjects={this.state.totalSubjects}
               totalDays={this.state.totalDays}
@@ -361,7 +331,7 @@ class AccountPage extends Component {
             }}
           >
             <DrawerComponent
-              avatar={this.getAvatar(this.state.icon)}
+              avatar={getAvatar({ user: { icon: this.state.icon, name: this.state.display_name, uid: this.state.uid }})}
               totalStudies={this.state.totalStudies}
               totalSubjects={this.state.totalSubjects}
               totalDays={this.state.totalDays}
@@ -402,7 +372,7 @@ class AccountPage extends Component {
                 focusRipple
               >
                 <Tooltip title="Edit Profile Photo">
-                  {this.getAvatar(this.state.icon)}
+                  {getAvatar({ user: { icon: this.state.icon, name: this.state.display_name, uid: this.state.uid }})}
                 </Tooltip>
               </ButtonBase>
             </label>

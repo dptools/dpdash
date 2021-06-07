@@ -3,11 +3,9 @@ import GraphFactory from './GraphFactory.react'
 import { connect } from 'react-redux'
 import io from 'socket.io-client'
 import 'whatwg-fetch'
-import update from 'immutability-helper'
 import FileSaver from 'file-saver'
 
 import Button from '@material-ui/core/Button';
-import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import * as _ from 'lodash';
 
@@ -16,13 +14,10 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 
-import Avatar from '@material-ui/core/Avatar';
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import DrawerComponent from './Drawer.react';
 import Drawer from '@material-ui/core/Drawer';
-const drawerWidth = 200;
-import Hidden from '@material-ui/core/Hidden';
 
 import SaveIcon from '@material-ui/icons/Save';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -42,6 +37,10 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+
+import getAvatar from './fe-utils/avatarUtil';
+
+const drawerWidth = 200;
 
 const socketAddress = 'https://' + window.location.hostname + '/dashboard'
 const socket = io(socketAddress, {
@@ -202,37 +201,19 @@ class Graph extends Component {
     }
     return listItem
   }
-  downloadPng = (event) => {
+  downloadPng = () => {
     let SID = this.props.subject.sid
     this.refs.canvas.toBlob((blob) => {
       FileSaver.saveAs(blob, SID + '.png')
     })
   }
-  handleResize = (event) => {
+  handleResize = () => {
     this.setState({
       graphWidth: window.innerWidth,
       graphHeight: window.innerHeight - 30
     })
   }
-  getAvatar = () => {
-    var icon = this.props.user.icon;
-    var username = this.props.user.name;
-    var uid = this.props.user.uid;
-    if (icon == '' || icon == undefined) {
-      if (username == '' || username == undefined) {
-        if (uid && uid.length > 0) {
-          return <Avatar style={{ width: 60, height: 60 }}>{uid[0]}</Avatar>
-        } else {
-          return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}><Person /></Avatar>
-        }
-      } else {
-        return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>{username[0]}</Avatar>
-      }
-    } else {
-      return <Avatar style={{ width: 60, height: 60 }} src={icon}></Avatar>
-    }
-  }
-  resync = (event) => {
+  resync = () => {
     window.fetch(this.state.socketIOSubjectRoom, {
       method: 'POST',
       headers: {
@@ -290,11 +271,9 @@ class Graph extends Component {
   }
   componentDidUpdate() {
   }
+  // eslint-disable-next-line react/no-deprecated
   componentWillMount() {
     this.fetchSubjects();
-    //this.fetchConfigurations()
-    //this.fetchMetadata(this.props.subject.project, this.props.subject.sid)
-    //this.getData(this.props.subject.project, this.props.subject.sid, this.props.graph.matrixConfig)
     let maxDay = 1
     for (let dataIndex = 0; dataIndex < this.props.graph.matrixData.length; dataIndex++) {
       let maxObj = _.maxBy(this.props.graph.matrixData[dataIndex]['data'], function (o) { return o.day })
@@ -367,7 +346,7 @@ class Graph extends Component {
   componentDidMount() {
     socket.open()
     this.setState({
-      avatar: this.getAvatar()
+      avatar: getAvatar({ user: this.props.user })
     })
     if (this.refs.matrix.graph === undefined) {
       console.log('error');
@@ -380,7 +359,6 @@ class Graph extends Component {
     },
       () => {
         // Download set-up
-        let DOMURL = window.URL || window.webkitURL || window
 
         //svg conversion
         let updatedSvgElement = this.refs.matrix.graph.el.lastChild
@@ -413,7 +391,7 @@ class Graph extends Component {
     window.addEventListener('resize', this.handleResize)
 
     /* Socket.io */
-    socket.on('PROCESSING', message => {
+    socket.on('PROCESSING', () => {
     })
 
     socket.on('SUCCESS', message => {
@@ -430,7 +408,7 @@ class Graph extends Component {
           });
       }
     })
-    socket.on('ERROR', message => {
+    socket.on('ERROR', () => {
     })
     socket.on('CONFIG_UPDATED', message => {
       if (message.uid === this.state.user.uid) {
@@ -451,12 +429,6 @@ class Graph extends Component {
     const buttonClassname = classNames({
       [classes.buttonSuccess]: success,
     });
-    const selectStyles = {
-      input: base => ({
-        ...base,
-        color: theme.palette.text.primary,
-      }),
-    };
     return (
       <div
         className={classes.root}

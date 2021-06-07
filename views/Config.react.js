@@ -5,12 +5,10 @@ import 'whatwg-fetch';
 import update from 'immutability-helper';
 
 import Person from '@material-ui/icons/Person';
-import ColorLens from '@material-ui/icons/ColorLens';
 import Edit from '@material-ui/icons/Edit';
 import Clear from '@material-ui/icons/Clear';
 import Share from '@material-ui/icons/Share';
 import FullView from '@material-ui/icons/AspectRatio';
-import Add from '@material-ui/icons/Add';
 import Copy from '@material-ui/icons/FileCopy';
 import ContentAdd from '@material-ui/icons/Add';
 import AttachFile from '@material-ui/icons/AttachFile';
@@ -18,35 +16,28 @@ import AttachFile from '@material-ui/icons/AttachFile';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardHeader from '@material-ui/core/CardHeader';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardContent from '@material-ui/core/CardContent';
 
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import GridList from '@material-ui/core/GridList';
-import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import ChipInput from 'material-ui-chip-input';
 import Switch from '@material-ui/core/Switch';
 import Divider from '@material-ui/core/Divider';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Snackbar from '@material-ui/core/Snackbar';
-import ButtonBase from '@material-ui/core/ButtonBase';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import DrawerComponent from './Drawer.react';
 import Drawer from '@material-ui/core/Drawer';
-const drawerWidth = 200;
 import Hidden from '@material-ui/core/Hidden';
 
-import NoSsr from '@material-ui/core/NoSsr';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
@@ -57,6 +48,10 @@ import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import Select from 'react-select';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
+
+import getAvatar from './fe-utils/avatarUtil';
+
+const drawerWidth = 200;
 
 const styles = theme => ({
   root: {
@@ -275,6 +270,7 @@ class ConfigPage extends Component {
   };
   componentDidUpdate() {
   }
+  // eslint-disable-next-line react/no-deprecated
   componentWillMount() {
     this.fetchConfigurations(this.props.user.uid);
     this.fetchPreferences(this.props.user.uid);
@@ -326,11 +322,11 @@ class ConfigPage extends Component {
     if (this.props.user.message.length > 0) {
       this.setState({
         uploadSnack: true,
-        avatar: this.getAvatar()
+        avatar: getAvatar({ user: this.props.user })
       });
     } else {
       this.setState({
-        avatar: this.getAvatar()
+        avatar: getAvatar({ user: this.props.user })
       });
     }
     /* Initial Sizing */
@@ -341,25 +337,7 @@ class ConfigPage extends Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
   }
-  getAvatar = () => {
-    var icon = this.props.user.icon;
-    var username = this.props.user.name;
-    var uid = this.props.user.uid;
-    if (icon == '' || icon == undefined) {
-      if (username == '' || username == undefined) {
-        if (uid && uid.length > 0) {
-          return <Avatar style={{ width: 60, height: 60 }}>{uid[0]}</Avatar>
-        } else {
-          return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}><Person /></Avatar>
-        }
-      } else {
-        return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>{username[0]}</Avatar>
-      }
-    } else {
-      return <Avatar style={{ width: 60, height: 60 }} src={icon}></Avatar>
-    }
-  }
-  handleResize = (event) => {
+  handleResize = () => {
     if (window.innerWidth >= 768) {
       let gridCols = Math.floor(window.innerWidth / this.state.gridWidth);
       this.setState({
@@ -424,7 +402,7 @@ class ConfigPage extends Component {
       body: JSON.stringify({
         preferences: preference
       })
-    }).then((response) => {
+    }).then(() => {
       if (type == 'index') {
         this.setState({
           preferences: preference,
@@ -467,7 +445,7 @@ class ConfigPage extends Component {
         return;
       }
       return response.json();
-    }).then((response) => {
+    }).then(() => {
     });
   }
   fetchConfigurations = (uid) => {
@@ -499,7 +477,7 @@ class ConfigPage extends Component {
         body: JSON.stringify({
           remove: configID
         })
-      }).then((response) => {
+      }).then(() => {
         return;
       });
     } else {
@@ -512,7 +490,7 @@ class ConfigPage extends Component {
         body: JSON.stringify({
           disable: configID
         })
-      }).then((response) => {
+      }).then(() => {
         return;
       });
     }
@@ -728,7 +706,7 @@ class ConfigPage extends Component {
       [name]: value,
     });
   }
-  handleChangeFile = (event) => {
+  handleChangeFile = () => {
     this.refs.config_file.submit();
   }
   changeDefaultConfig = (e, checked, index) => {
@@ -742,6 +720,7 @@ class ConfigPage extends Component {
         style={{
           color: '#5790bd'
         }}
+        key="cancel"
       >Cancel</Button>,
       <Button
         variant="outlined"
@@ -754,6 +733,7 @@ class ConfigPage extends Component {
         }}
         keyboardFocused={true}
         onClick={this.shareWithUsers}
+        key="submit"
       >Submit</Button>,
     ];
     const selectStyles = {
@@ -976,19 +956,6 @@ class ConfigPage extends Component {
     );
   }
 }
-
-/*
-                            <ChipInput
-                                style={{
-                                    width: '100%'
-                                }}
-                                label='Shared with'
-                                dataSource={this.state.friends}
-                                value={this.state.shared}
-                                onAdd={(chip) => this.handleAddChip(chip)}
-                                onDelete={(chip, index) => this.handleDeleteChip(chip, index)}
-                                />
-*/
 
 const mapStateToProps = (state) => ({
   user: state.user

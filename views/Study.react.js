@@ -2,15 +2,12 @@ import React, { Component } from 'react'
 import GraphFactory from './GraphFactory.react'
 import { connect } from 'react-redux'
 import 'whatwg-fetch'
-import update from 'immutability-helper'
 
 import { stringToDate, diffDates } from '../server/utils/dateConverter'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button';
 import * as _ from 'lodash'
 import IconButton from '@material-ui/core/IconButton';
-import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
@@ -18,9 +15,12 @@ import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import DrawerComponent from './Drawer.react';
 import Drawer from '@material-ui/core/Drawer';
-const drawerWidth = 200;
 import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';
+
+import getAvatar from './fe-utils/avatarUtil';
+
+const drawerWidth = 200;
 
 const styles = theme => ({
   root: {
@@ -141,25 +141,7 @@ class Study extends Component {
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
-  getAvatar = () => {
-    var icon = this.props.user.icon;
-    var username = this.props.user.name;
-    var uid = this.props.user.uid;
-    if (icon == '' || icon == undefined) {
-      if (username == '' || username == undefined) {
-        if (uid && uid.length > 0) {
-          return <Avatar style={{ width: 60, height: 60 }}>{uid[0]}</Avatar>
-        } else {
-          return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}><Person /></Avatar>
-        }
-      } else {
-        return <Avatar style={{ width: 60, height: 60, backgroundColor: '#c0d9e1' }}>{username[0]}</Avatar>
-      }
-    } else {
-      return <Avatar style={{ width: 60, height: 60 }} src={icon}></Avatar>
-    }
-  }
-  handleResize = (event) => {
+  handleResize = () => {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight
@@ -241,7 +223,7 @@ class Study extends Component {
       let link = '/dashboard/' + matrixDataList[item].project + '/' + matrixDataList[item].subject
       matrixList.push(
         <div className="StudyView">
-          {completed ? <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={link}> {matrixDataList[item].subject + ' (Complete)'}</a> : <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={link}> {matrixDataList[item].subject}</a>}
+          {completed ? <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={link} rel="noreferrer"> {matrixDataList[item].subject + ' (Complete)'}</a> : <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={link} rel="noreferrer"> {matrixDataList[item].subject}</a>}
           <GraphFactory
             id="matrix"
             type="matrix"
@@ -299,6 +281,7 @@ class Study extends Component {
       return;
     });
   }
+  // eslint-disable-next-line react/no-deprecated
   componentWillMount() {
     let today = new Date().toLocaleDateString('en-US', this.state.timezone)
     this.fetchSubjects();
@@ -316,7 +299,7 @@ class Study extends Component {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight,
-      avatar: this.getAvatar()
+      avatar: getAvatar({ user: this.props.user })
     })
   }
   componentWillUnmount() {
@@ -324,12 +307,6 @@ class Study extends Component {
   }
   render() {
     const { classes, theme } = this.props;
-    const selectStyles = {
-      input: base => ({
-        ...base,
-        color: theme.palette.text.primary,
-      }),
-    };
     return (
       <div className={classes.root}>
         <AppBar className={classes.appBar}>

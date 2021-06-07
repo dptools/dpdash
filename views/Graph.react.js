@@ -39,13 +39,14 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 import getAvatar from './fe-utils/avatarUtil';
+import getCounts from './fe-utils/countUtil';
+import { fetchSubjects } from './fe-utils/fetchUtil';
 
 const drawerWidth = 200;
 
 const socketAddress = 'https://' + window.location.hostname + '/dashboard'
 const socket = io(socketAddress, {
   requestTimeout: 1250,
-  //    timeout: 1600,
   randomizationFactor: 0,
   reconnectionDelay: 0,
   autoConnect: false
@@ -229,36 +230,6 @@ class Graph extends Component {
       this.setState({ taskId: response.correlationId, loading: true, success: false })
     })
   }
-  fetchSubjects = () => {
-    return window.fetch('/api/v1/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      let studies = response ? response : [];
-      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-      }).then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      }).then((response) => {
-        this.countSubjects(response)
-      });
-    });
-  }
   closeStat = () => {
     this.setState({
       openStat: false,
@@ -272,8 +243,13 @@ class Graph extends Component {
   componentDidUpdate() {
   }
   // eslint-disable-next-line react/no-deprecated
-  componentWillMount() {
-    this.fetchSubjects();
+  async componentWillMount() {
+    try {
+      const acl = await fetchSubjects();
+      this.setState(getCounts({ acl }));
+    } catch (err) {
+      console.error(err.message);
+    }
     let maxDay = 1
     for (let dataIndex = 0; dataIndex < this.props.graph.matrixData.length; dataIndex++) {
       let maxObj = _.maxBy(this.props.graph.matrixData[dataIndex]['data'], function (o) { return o.day })
@@ -310,17 +286,6 @@ class Graph extends Component {
         }
       })
     }
-  }
-  countSubjects = (acl) => {
-    var options = [];
-    for (var study = 0; study < acl.length; study++) {
-      Array.prototype.push.apply(options, acl[study].subjects);
-    }
-    this.setState({
-      totalStudies: acl.length,
-      totalSubjects: options.length,
-      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
-    });
   }
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));

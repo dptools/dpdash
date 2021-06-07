@@ -14,6 +14,8 @@ import Divider from '@material-ui/core/Divider';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
+import { fetchSubjects } from './fe-utils/fetchUtil';
+import getCounts from './fe-utils/countUtil';
 
 const drawerWidth = 200;
 
@@ -120,47 +122,6 @@ class Study extends Component {
       height: window.innerHeight - this.state.marginHeight
     })
   }
-  countSubjects = (acl) => {
-    var options = [];
-    for (var study = 0; study < acl.length; study++) {
-      Array.prototype.push.apply(options, acl[study].subjects);
-    }
-    this.setState({
-      totalStudies: acl.length,
-      totalSubjects: options.length,
-      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
-    });
-  }
-  fetchSubjects = () => {
-    return window.fetch('/api/v1/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      let studies = response ? response : [];
-      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-      }).then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      }).then((response) => {
-        this.countSubjects(response)
-      });
-    });
-  }
   generateMatrices = (matrixDataList) => {
     let matrixList = []
     if (matrixDataList.length < 1) {
@@ -255,9 +216,8 @@ class Study extends Component {
     });
   }
   // eslint-disable-next-line react/no-deprecated
-  componentWillMount() {
+  async componentWillMount() {
     let today = new Date().toLocaleDateString('en-US', this.state.timezone)
-    this.fetchSubjects();
     this.setState({
       todayDateObject: stringToDate(today, 'mm/dd/yyyy', '/'),
       subject: this.props.subject,
@@ -265,6 +225,12 @@ class Study extends Component {
       configurations: this.props.graph.configurations
     });
     this.fetchUserPreferences(this.props.user.uid);
+    try {
+      const acl = await fetchSubjects();
+      this.setState(getCounts({ acl }));
+    } catch (err) {
+      console.error(err.message);
+    }
   }
   componentDidMount() {
     /* Resize listener register */

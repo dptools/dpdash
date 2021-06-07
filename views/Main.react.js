@@ -30,6 +30,7 @@ import SearchIcon from '@material-ui/icons/Search';
 
 import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
+import { fetchSubjects } from './fe-utils/fetchUtil';
 
 const drawerWidth = 200;
 const styles = theme => ({
@@ -479,9 +480,14 @@ class MainPage extends Component {
     })
   }
   // eslint-disable-next-line react/no-deprecated
-  componentWillMount() {
-    this.fetchSubjects();
-    this.fetchUserPreferences(this.props.user.uid);
+  async componentWillMount() {
+    try {
+      const acl = await fetchSubjects();
+      this.autocomplete(this.aggregateSubjects(acl), acl)
+      this.fetchUserPreferences(this.props.user.uid);
+    } catch (err) {
+      console.error(err.message);
+    }
   }
   sort = ({ sortBy, sortDirection }) => {
     const sortedList = this.sortList({ sortBy, sortDirection })
@@ -505,36 +511,6 @@ class MainPage extends Component {
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
-  fetchSubjects = () => {
-    return window.fetch('/api/v1/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      let studies = response ? response : [];
-      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-      }).then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      }).then((response) => {
-        this.autocomplete(this.aggregateSubjects(response), response)
-      });
-    });
-  }
   handleSearch = value => {
     this.setState({
       search: value,

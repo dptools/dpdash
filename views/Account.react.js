@@ -15,6 +15,8 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 
 import getAvatar from './fe-utils/avatarUtil';
+import getCounts from './fe-utils/countUtil';
+import { fetchSubjects } from './fe-utils/fetchUtil';
 
 const styles = theme => ({
   root: {
@@ -59,12 +61,17 @@ class AccountPage extends Component {
   componentDidUpdate() {
   }
   // eslint-disable-next-line react/no-deprecated
-  componentWillMount() {
-    this.fetchUserInfo(this.props.user.uid);
-    this.setState({
-      user: this.props.user
-    });
-    this.fetchSubjects();
+  async componentWillMount() {
+    try {
+      const acl = await fetchSubjects();
+      this.setState(getCounts({ acl }));
+      this.fetchUserInfo(this.props.user.uid);
+      this.setState({
+        user: this.props.user
+      });
+    } catch (err) {
+      console.error(err.message);
+    }
   }
   componentDidMount() {
   }
@@ -73,47 +80,6 @@ class AccountPage extends Component {
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
-  fetchSubjects = () => {
-    return window.fetch('/api/v1/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      let studies = response ? response : [];
-      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-      }).then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      }).then((response) => {
-        this.autocomplete(response)
-      });
-    });
-  }
-  autocomplete = (acl) => {
-    var options = [];
-    for (var study = 0; study < acl.length; study++) {
-      Array.prototype.push.apply(options, acl[study].subjects);
-    }
-    this.setState({
-      totalStudies: acl.length,
-      totalSubjects: options.length,
-      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
-    });
-  }
   fetchUserInfo = (uid) => {
     return window.fetch('/api/v1/users/' + uid, {
       method: 'GET',

@@ -47,6 +47,8 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 
 import getAvatar from './fe-utils/avatarUtil';
+import getCounts from './fe-utils/countUtil';
+import { fetchSubjects, fetchUsernames } from './fe-utils/fetchUtil';
 import openNewWindow from './fe-utils/windowUtil';
 
 const styles = theme => ({
@@ -245,52 +247,22 @@ class ConfigPage extends Component {
   componentDidUpdate() {
   }
   // eslint-disable-next-line react/no-deprecated
-  componentWillMount() {
-    this.fetchConfigurations(this.props.user.uid);
-    this.fetchPreferences(this.props.user.uid);
-    this.fetchUsers();
-    this.fetchSubjects();
-  }
-  fetchSubjects = () => {
-    return window.fetch('/api/v1/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      let studies = response ? response : [];
-      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-      }).then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      }).then((response) => {
-        this.autocomplete(response)
+  async componentWillMount() {
+    try {
+      const acl = await fetchSubjects();
+      this.setState(getCounts({ acl }));
+      const usernames = await fetchUsernames();
+      this.setState({
+        friends: usernames.map(username => ({
+          value: username,
+          label: username
+        }))
       });
-    });
-  }
-  autocomplete = (acl) => {
-    var options = [];
-    for (var study = 0; study < acl.length; study++) {
-      Array.prototype.push.apply(options, acl[study].subjects);
+      this.fetchConfigurations(this.props.user.uid);
+      this.fetchPreferences(this.props.user.uid);
+    } catch (err) {
+      console.error(err.message);
     }
-    this.setState({
-      totalStudies: acl.length,
-      totalSubjects: options.length,
-      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
-    });
   }
   componentDidMount() {
     if (this.props.user.message.length > 0) {
@@ -322,27 +294,6 @@ class ConfigPage extends Component {
         gridCols: 1
       });
     }
-  }
-  fetchUsers = () => {
-    return window.fetch('/api/v1/search/users', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return;
-      }
-      return response.json();
-    }).then((response) => {
-      this.setState({
-        friends: response.map(friend => ({
-          value: friend,
-          label: friend
-        }))
-      });
-    });
   }
   babyProofPreferences = (preferences) => {
     let preference = {};

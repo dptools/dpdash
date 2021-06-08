@@ -13,6 +13,7 @@ import uuidV4 from 'uuid/v4';
 import passport from 'passport';
 import { hash } from '../utils/crypto/hash';
 import { getMongoURI } from '../utils/mongoUtil';
+import { getConfigForUser, getDashboardState } from '../utils/routerUtil';
 
 import LDAP from '../utils/passport/ldap';
 import LocalLogin from '../utils/passport/local-login';
@@ -30,10 +31,11 @@ import registerPage from '../templates/Register.template';
 import resetPage from '../templates/Resetpw.template';
 import studyPage from '../templates/Study.template';
 
-const router = Router();
-
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
+import defaultUserConfig from '../configs/defaultUserConfig';
+
+const router = Router();
 
 const uploadPath = process.env.DPDASH_UPLOADS || '../uploads';
 const upload = multer({ dest: uploadPath }).single('file');
@@ -311,307 +313,25 @@ router.get('/deepdive/:study/:subject/:day', ensurePermission, function (req, re
 });
 
 //Dashboard page
-router.get('/dashboard/:study/:subject', ensurePermission, function (req, res) {
-  checkMongo();
-  mongoApp.collection('users').findOne(
-    { uid: req.user },
-    { _id: 0, preferences: 1 }
-    , function (err, doc) {
-      if (err) {
-        console.log(err);
-        return res.status(502).send({});
-      } else if (!doc || Object.keys(doc).length === 0) {
-        return res.status(404).send({});
-      } else {
-        if (doc['preferences'] && 'config' in doc['preferences'] && doc['preferences']['config'] !== '') {
-          mongoApp.collection('configs').findOne(
-            { readers: req.user, _id: new ObjectID(doc['preferences']['config']) }
-            , function (err, data) {
-              var keys = data ? Object.keys(data['config']) : [];
-              if (err) {
-                console.log(err);
-                return res.status(502).send({});
-              } else if (!data || keys.length === 0) {
-                mongoApp.collection('configs').findOne(
-                  { readers: req.user }
-                  , function (err, data) {
-                    var keys = data ? Object.keys(data['config']) : [];
-                    if (err) {
-                      console.log(err);
-                      return res.status(502).send({});
-                    } else if (!data || keys.length === 0) {
-                      return res.status(404).send({});
-                    } else {
-                      var default_config = data['config'][keys[0]];
-                      var dashboardState = {
-                        "matrixData": [],
-                        "yAxisData": [],
-                        "assessmentNames": [],
-                        "matrixConfig": default_config,
-                        "subject": req.params.subject,
-                        "project": req.params.study,
-                        "consentDate": '',
-                        "updated": ''
-                      };
-                      co(function* () {
-                        var metadocReference = yield mongoData.collection('metadata').findOne({
-                          study: req.params.study,
-                          role: 'metadata'
-                        });
-                        if (metadocReference != null) {
-                          dashboardState.updated = metadocReference.updated;
-                          if ('collection' in metadocReference) {
-                            var metadoc = yield mongoData.collection(metadocReference.collection).find({}).toArray();
-                            if (metadoc && metadoc != []) {
-                              for (const item in metadoc) {
-                                if (metadoc[item]['Subject ID'] === req.params.subject && (metadoc[item]['Consent'] || metadoc[item]['Consent Date'])) {
-                                  dashboardState.consentDate = metadoc[item]['Consent'] || metadoc[item]['Consent Date'];
-                                }
-                              }
-                            }
-                          }
-                        }
-                        for (var configItem in default_config) {
-                          if (default_config[configItem].variable === '' || default_config[configItem].analysis === '') {
-                            continue;
-                          }
-                          dashboardState.yAxisData.push(default_config[configItem].label);
-                          dashboardState.assessmentNames.push(default_config[configItem].analysis);
-                          var assessment = default_config[configItem].analysis;
-                          var collectionName = req.params.study + req.params.subject + assessment;
-                          var encrypted = createHash('sha256').update(collectionName).digest('hex');
-                          var varName = default_config[configItem].variable;
-                          var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
-                          const query = [{
-                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
-                          }];
-                          var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
-                          const queryForStat = [
-                            {
-                              $match: {
-                                [escapedVarName]: { $ne: '' }
-                              }
-                            },
-                            {
-                              $group: {
-                                _id: null,
-                                min: {
-                                  $min: `$${escapedVarName}`
-                                },
-                                max: {
-                                  $max: `$${escapedVarName}`
-                                },
-                                mean: {
-                                  $avg: `$${escapedVarName}`
-                                }
-                              }
-                            }
-                          ]
-                          var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
-                          var dataPiece = {};
-                          dataPiece.text = default_config[configItem].text;
-                          dataPiece.analysis = default_config[configItem].analysis;
-                          dataPiece.category = default_config[configItem].category;
-                          dataPiece.variable = default_config[configItem].variable;
-                          dataPiece.label = default_config[configItem].label;
-                          dataPiece.range = default_config[configItem].range;
-                          dataPiece.color = default_config[configItem].color;
-                          dataPiece.data = (
-                            data.length >= 1 &&
-                            Object.prototype.hasOwnProperty.call(data[0], default_config[configItem].variable)
-                          ) ? data : [];
-                          dataPiece.stat = (stat.length >= 1) ? stat : [];
-                          dashboardState.matrixData.push(dataPiece);
-                        }
-                        return res.send(graphPage(req.params.subject, req.params.study, req.user, req.session.display_name, req.session.icon, req.session.mail, req.session.toc, dashboardState, default_config, req.session.celery_tasks, req.session.role));
-                      });
-                    }
-                  });
-              } else {
-                var default_config = data['config'][keys[0]];
-                var dashboardState = {
-                  "matrixData": [],
-                  "yAxisData": [],
-                  "assessmentNames": [],
-                  "matrixConfig": default_config,
-                  "subject": req.params.subject,
-                  "project": req.params.study,
-                  "consentDate": '',
-                  "updated": ''
-                };
-                co(function* () {
-                  var metadocReference = yield mongoData.collection('metadata').findOne({
-                    study: req.params.study,
-                    role: 'metadata'
-                  });
-                  if (metadocReference != null) {
-                    dashboardState.updated = metadocReference.updated;
-                    if ('collection' in metadocReference) {
-                      var metadoc = yield mongoData.collection(metadocReference.collection).find({}).toArray();
-                      if (metadoc && metadoc != []) {
-                        for (const item in metadoc) {
-                          if (metadoc[item]['Subject ID'] === req.params.subject && (metadoc[item]['Consent'] || metadoc[item]['Consent Date'])) {
-                            dashboardState.consentDate = metadoc[item]['Consent'] || metadoc[item]['Consent Date'];
-                          }
-                        }
-                      }
-                    }
-                  }
-                  for (var configItem in default_config) {
-                    if (default_config[configItem].variable === '' || default_config[configItem].analysis === '') {
-                      continue;
-                    }
-                    dashboardState.yAxisData.push(default_config[configItem].label);
-                    dashboardState.assessmentNames.push(default_config[configItem].analysis);
-                    var assessment = default_config[configItem].analysis;
-                    var collectionName = req.params.study + req.params.subject + assessment;
-                    var encrypted = createHash('sha256').update(collectionName).digest('hex');
-                    var varName = default_config[configItem].variable;
-                    var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
-                    const query = [{
-                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
-                          }];
-                    var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
-                    const queryForStat = [
-                            {
-                              $match: {
-                                [escapedVarName]: { $ne: '' }
-                              }
-                            },
-                            {
-                              $group: {
-                                _id: null,
-                                min: {
-                                  $min: `$${escapedVarName}`
-                                },
-                                max: {
-                                  $max: `$${escapedVarName}`
-                                },
-                                mean: {
-                                  $avg: `$${escapedVarName}`
-                                }
-                              }
-                            }
-                          ];
-                    var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
-                    var dataPiece = {};
-                    dataPiece.text = default_config[configItem].text;
-                    dataPiece.analysis = default_config[configItem].analysis;
-                    dataPiece.category = default_config[configItem].category;
-                    dataPiece.variable = default_config[configItem].variable;
-                    dataPiece.label = default_config[configItem].label;
-                    dataPiece.range = default_config[configItem].range;
-                    dataPiece.color = default_config[configItem].color;
-                    dataPiece.data = (
-                      data.length >= 1 && 
-                      Object.prototype.hasOwnProperty.call(data[0], default_config[configItem].variable)
-                    ) ? data : [];
-                    dataPiece.stat = (stat.length >= 1) ? stat : [];
-                    dashboardState.matrixData.push(dataPiece);
-                  }
-                  return res.send(graphPage(req.params.subject, req.params.study, req.user, req.session.display_name, req.session.icon, req.session.mail, req.session.toc, dashboardState, default_config, req.session.celery_tasks, req.session.role));
-                });
-              }
-            });
-        } else {
-          mongoApp.collection('configs').findOne(
-            { readers: req.user }
-            , function (err, data) {
-              var keys = data ? Object.keys(data['config']) : [];
-              if (err) {
-                console.log(err);
-                return res.status(502).send({});
-              } else if (!data || keys.length === 0) {
-                return res.status(404).send({});
-              } else {
-                var default_config = data['config'][keys[0]];
-                var dashboardState = {
-                  "matrixData": [],
-                  "yAxisData": [],
-                  "assessmentNames": [],
-                  "matrixConfig": default_config,
-                  "subject": req.params.subject,
-                  "project": req.params.study,
-                  "consentDate": '',
-                  "updated": ''
-                };
-                co(function* () {
-                  var metadocReference = yield mongoData.collection('metadata').findOne({
-                    study: req.params.study,
-                    role: 'metadata'
-                  });
-                  if (metadocReference != null) {
-                    dashboardState.updated = metadocReference.updated;
-                    if ('collection' in metadocReference) {
-                      var metadoc = yield mongoData.collection(metadocReference.collection).find({}).toArray();
-                      if (metadoc && metadoc != []) {
-                        for (const item in metadoc) {
-                          if (metadoc[item]['Subject ID'] === req.params.subject && (metadoc[item]['Consent'] || metadoc[item]['Consent Date'])) {
-                            dashboardState.consentDate = metadoc[item]['Consent'] || metadoc[item]['Consent Date'];
-                          }
-                        }
-                      }
-                    }
-                  }
-                  for (var configItem in default_config) {
-                    if (default_config[configItem].variable === '' || default_config[configItem].analysis === '') {
-                      continue;
-                    }
-                    dashboardState.yAxisData.push(default_config[configItem].label);
-                    dashboardState.assessmentNames.push(default_config[configItem].analysis);
-                    var assessment = default_config[configItem].analysis;
-                    var collectionName = req.params.study + req.params.subject + assessment;
-                    var encrypted = createHash('sha256').update(collectionName).digest('hex');
-                    var varName = default_config[configItem].variable;
-                    var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
-                    const query = [{
-                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
-                          }];
-                    var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
-                    const queryForStat = [
-                            {
-                              $match: {
-                                [escapedVarName]: { $ne: '' }
-                              }
-                            },
-                            {
-                              $group: {
-                                _id: null,
-                                min: {
-                                  $min: `$${escapedVarName}`
-                                },
-                                max: {
-                                  $max: `$${escapedVarName}`
-                                },
-                                mean: {
-                                  $avg: `$${escapedVarName}`
-                                }
-                              }
-                            }
-                          ];
-                    var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
-                    var dataPiece = {};
-                    dataPiece.text = default_config[configItem].text;
-                    dataPiece.analysis = default_config[configItem].analysis;
-                    dataPiece.category = default_config[configItem].category;
-                    dataPiece.variable = default_config[configItem].variable;
-                    dataPiece.label = default_config[configItem].label;
-                    dataPiece.range = default_config[configItem].range;
-                    dataPiece.color = default_config[configItem].color;
-                    dataPiece.data = (
-                      data.length >= 1 &&
-                      Object.prototype.hasOwnProperty.call(data[0], default_config[configItem].variable)
-                    ) ? data : [];
-                    dataPiece.stat = (stat.length >= 1) ? stat : [];
-                    dashboardState.matrixData.push(dataPiece);
-                  }
-                  return res.send(graphPage(req.params.subject, req.params.study, req.user, req.session.display_name, req.session.icon, req.session.mail, req.session.toc, dashboardState, default_config, req.session.celery_tasks, req.session.role));
-                });
-              }
-            });
-        }
-      }
+router.get('/dashboard/:study/:subject', ensurePermission, async function (req, res) {
+  try {
+    checkMongo();
+    const defaultConfig = await getConfigForUser({
+      db: mongoApp,
+      user: req.user,
+      defaultConfig: defaultUserConfig,
     });
+    const dashboardState = await getDashboardState({
+      db: mongoData,
+      study: req.params.study,
+      subject: req.params.subject,
+      defaultConfig,
+    }); 
+    return res.send(graphPage(req.params.subject, req.params.study, req.user, req.session.display_name, req.session.icon, req.session.mail, req.session.toc, dashboardState, defaultConfig, req.session.celery_tasks, req.session.role));
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send({ message: err.message });
+  }
 });
 
 router.route('/resetpw')

@@ -180,14 +180,13 @@ router.route('/u/configure')
     } else if (req.query.s) {
       return res.status(200).send(editConfig(req.user, req.query.s, null));
     } else if (req.query.u) {
+      let message = req.query.u;
       if (req.query.u == 'invalid') {
-        var message = 'Invalid configuration format.';
+        message = 'Invalid configuration format.';
       } else if (req.query.u == 'error') {
-        var message = 'Error occurred while uploading the configuration.';
+        message = 'Error occurred while uploading the configuration.';
       } else if (req.query.u == 'success') {
-        var message = 'Configuratoin upload successful!';
-      } else {
-        var message = req.query.u;
+        message = 'Configuratoin upload successful!';
       }
       return res.status(200).send(configPage(req.user, req.session.display_name, req.session.icon, req.session.mail, req.session.role, message));
     } else {
@@ -203,7 +202,7 @@ router.route('/admin')
 
 //Login
 router.route('/login')
-  .get(function (req, res, next) {
+  .get(function (req, res) {
     let message = '';
     if (req.query.e) {
       if (req.query.e === 'forbidden') {
@@ -247,7 +246,7 @@ router.route('/login')
 
 //register
 router.route('/signup')
-  .get(function (req, res, next) {
+  .get(function (req, res) {
     if (config.auth.useLDAP) {
       return res.redirect('/login?e=NA');
     } else if (req.query.e === 'existingUser') {
@@ -417,7 +416,10 @@ router.get('/dashboard/:study/:subject', ensurePermission, function (req, res) {
                           dataPiece.label = default_config[configItem].label;
                           dataPiece.range = default_config[configItem].range;
                           dataPiece.color = default_config[configItem].color;
-                          dataPiece.data = (data.length >= 1 && data[0].hasOwnProperty(default_config[configItem].variable)) ? data : [];
+                          dataPiece.data = (
+                            data.length >= 1 &&
+                            Object.prototype.hasOwnProperty.call(data[0], default_config[configItem].variable)
+                          ) ? data : [];
                           dataPiece.stat = (stat.length >= 1) ? stat : [];
                           dashboardState.matrixData.push(dataPiece);
                         }
@@ -500,7 +502,10 @@ router.get('/dashboard/:study/:subject', ensurePermission, function (req, res) {
                     dataPiece.label = default_config[configItem].label;
                     dataPiece.range = default_config[configItem].range;
                     dataPiece.color = default_config[configItem].color;
-                    dataPiece.data = (data.length >= 1 && data[0].hasOwnProperty(default_config[configItem].variable)) ? data : [];
+                    dataPiece.data = (
+                      data.length >= 1 && 
+                      Object.prototype.hasOwnProperty.call(data[0], default_config[configItem].variable)
+                    ) ? data : [];
                     dataPiece.stat = (stat.length >= 1) ? stat : [];
                     dashboardState.matrixData.push(dataPiece);
                   }
@@ -593,7 +598,10 @@ router.get('/dashboard/:study/:subject', ensurePermission, function (req, res) {
                     dataPiece.label = default_config[configItem].label;
                     dataPiece.range = default_config[configItem].range;
                     dataPiece.color = default_config[configItem].color;
-                    dataPiece.data = (data.length >= 1 && data[0].hasOwnProperty(default_config[configItem].variable)) ? data : [];
+                    dataPiece.data = (
+                      data.length >= 1 &&
+                      Object.prototype.hasOwnProperty.call(data[0], default_config[configItem].variable)
+                    ) ? data : [];
                     dataPiece.stat = (stat.length >= 1) ? stat : [];
                     dashboardState.matrixData.push(dataPiece);
                   }
@@ -724,28 +732,6 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
                             $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
                           }];
         var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
-        const queryForStat = [
-                            {
-                              $match: {
-                                [escapedVarName]: { $ne: '' }
-                              }
-                            },
-                            {
-                              $group: {
-                                _id: null,
-                                min: {
-                                  $min: `$${escapedVarName}`
-                                },
-                                max: {
-                                  $max: `$${escapedVarName}`
-                                },
-                                mean: {
-                                  $avg: `$${escapedVarName}`
-                                }
-                              }
-                            }
-                          ];
-        var stat = yield mongoData.collection(encrypted.toString()).aggregate(queryForStat).toArray();
         var dataPiece = {};
         dataPiece.text = configs_heatmap[configItem].text;
         dataPiece.analysis = configs_heatmap[configItem].analysis;
@@ -754,7 +740,10 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
         dataPiece.label = configs_heatmap[configItem].label;
         dataPiece.range = configs_heatmap[configItem].range;
         dataPiece.color = configs_heatmap[configItem].color;
-        dataPiece.data = (data.length >= 1 && data[0].hasOwnProperty(configs_heatmap[configItem].variable)) ? data : [];
+        dataPiece.data = (
+          data.length >= 1 &&
+          Object.prototype.hasOwnProperty.call(data[0], configs_heatmap[configItem].variable)
+        ) ? data : [];
         dataPiece.stat = [];
         dashboardState.matrixData.push(dataPiece);
       }
@@ -925,13 +914,13 @@ router.route('/api/v1/users/:uid/configs')
     });
   })
   .post(ensureUser, function (req, res) {
-    if (req.body.hasOwnProperty('disable')) {
+    if (Object.prototype.hasOwnProperty.call(req.body, 'disable')) {
       checkMongo();
       mongoApp.collection('configs').findOneAndUpdate(
         { _id: new ObjectID(req.body.disable) },
         { $pull: { readers: req.params.uid } },
         { returnOriginal: false },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -939,11 +928,11 @@ router.route('/api/v1/users/:uid/configs')
             return res.status(201).send({ message: 'success' });
           }
         });
-    } else if (req.body.hasOwnProperty('remove')) {
+    } else if (Object.prototype.hasOwnProperty.call(req.body, 'remove')) {
       checkMongo();
       mongoApp.collection('configs').deleteOne(
         { _id: new ObjectID(req.body.remove) },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -951,13 +940,13 @@ router.route('/api/v1/users/:uid/configs')
             return res.status(201).send({ message: 'success' });
           }
         });
-    } else if (req.body.hasOwnProperty('share')) {
+    } else if (Object.prototype.hasOwnProperty.call(req.body, 'share')) {
       checkMongo();
       mongoApp.collection('configs').findOneAndUpdate(
         { _id: new ObjectID(req.body.share) },
         { $set: { readers: req.body.shared } },
         { returnOriginal: false },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -965,7 +954,7 @@ router.route('/api/v1/users/:uid/configs')
             return res.status(201).send({ message: 'success' });
           }
         });
-    } else if (req.body.hasOwnProperty('edit')) {
+    } else if (Object.prototype.hasOwnProperty.call(req.body, 'edit')) {
       checkMongo();
       mongoApp.collection('configs').findOneAndUpdate(
         { _id: new ObjectID(req.body.edit._id) },
@@ -978,7 +967,7 @@ router.route('/api/v1/users/:uid/configs')
           }
         },
         { returnOriginal: false },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -986,7 +975,7 @@ router.route('/api/v1/users/:uid/configs')
             return res.status(201).send({ message: 'success' });
           }
         });
-    } else if (req.body.hasOwnProperty('add')) {
+    } else if (Object.prototype.hasOwnProperty.call(req.body, 'add')) {
       checkMongo();
       mongoApp.collection('configs').insertOne(req.body.add
         , function (err, doc) {
@@ -1011,13 +1000,13 @@ router.route('/api/v1/users/:uid/configs')
 
 router.route('/api/v1/users/:uid/resetpw')
   .post(ensureAdmin, function (req, res) {
-    if (req.body.hasOwnProperty('force_reset_pw') && req.body.hasOwnProperty('reset_key')) {
+    if (Object.prototype.hasOwnProperty.call(req.body, 'force_reset_pw') && Object.prototype.hasOwnProperty.call(req.body, 'reset_key')) {
       checkMongo();
       mongoApp.collection('users').findOneAndUpdate(
         { uid: req.params.uid },
         { $set: { force_reset_pw: req.body.force_reset_pw, reset_key: req.body.reset_key } },
         { returnOriginal: false },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -1035,7 +1024,7 @@ router.route('/api/v1/users/:uid/delete')
     checkMongo();
     mongoApp.collection('users').deleteOne(
       { uid: req.params.uid },
-      function (err, doc) {
+      function (err) {
         if (err) {
           console.log(err);
           return res.status(502).send({ message: 'fail' });
@@ -1063,13 +1052,13 @@ router.route('/api/v1/users/:uid/role')
       });
   })
   .post(ensureAdmin, function (req, res) {
-    if (req.body.hasOwnProperty('role')) {
+    if (Object.prototype.hasOwnProperty.call(req.body, 'role')) {
       checkMongo();
       mongoApp.collection('users').findOneAndUpdate(
         { uid: req.params.uid },
         { $set: { role: req.body.role } },
         { returnOriginal: false },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -1100,13 +1089,13 @@ router.route('/api/v1/users/:uid/blocked')
       });
   })
   .post(ensureAdmin, function (req, res) {
-    if (req.body.hasOwnProperty('blocked')) {
+    if (Object.prototype.hasOwnProperty.call(req.body, 'blocked')) {
       checkMongo();
       mongoApp.collection('users').findOneAndUpdate(
         { uid: req.params.uid },
         { $set: { blocked: req.body.blocked } },
         { returnOriginal: false },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -1125,7 +1114,7 @@ router.route('/api/v1/users/:uid/studies')
     mongoApp.collection('users').findOne(
       { uid: req.params.uid },
       { _id: 0, access: 1 },
-      function (err, doc) {
+      function (err) {
         if (err) {
           console.log(err);
           return res.status(502).send({ message: 'fail' });
@@ -1135,13 +1124,13 @@ router.route('/api/v1/users/:uid/studies')
       });
   })
   .post(ensureAdmin, function (req, res) {
-    if (req.body.hasOwnProperty('acl')) {
+    if (Object.prototype.hasOwnProperty.call(req.body, 'acl')) {
       checkMongo();
       mongoApp.collection('users').findOneAndUpdate(
         { uid: req.params.uid },
         { $set: { access: req.body.acl } },
         { returnOriginal: false },
-        function (err, doc) {
+        function (err) {
           if (err) {
             console.log(err);
             return res.status(502).send({ message: 'fail' });
@@ -1190,7 +1179,7 @@ router.route('/api/v1/users/:uid/preferences')
       });
   })
   .post(ensureUser, function (req, res) {
-    if (req.body.hasOwnProperty('preferences')) {
+    if (Object.prototype.hasOwnProperty.call(req.body, 'preferences')) {
       checkMongo();
       mongoApp.collection('users').findOneAndUpdate(
         { uid: req.params.uid },

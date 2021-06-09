@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import moment from 'moment';
 import 'whatwg-fetch';
 import update from 'immutability-helper';
 import * as _ from 'lodash';
@@ -10,10 +9,8 @@ import { bignumber, number, add, subtract, divide, abs } from 'mathjs';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Select from '@material-ui/core/Select';
-import NativeSelect from '@material-ui/core/NativeSelect';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
-import ChipInput from 'material-ui-chip-input';
 import GridList from '@material-ui/core/GridList';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -28,7 +25,6 @@ import Button from '@material-ui/core/Button';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import ContentAdd from '@material-ui/icons/Add';
-import Clear from '@material-ui/icons/Clear';
 import Copy from '@material-ui/icons/FileCopy';
 import Delete from '@material-ui/icons/Delete';
 import Save from '@material-ui/icons/Save';
@@ -36,14 +32,14 @@ import Back from '@material-ui/icons/ChevronLeft';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import NoSsr from '@material-ui/core/NoSsr';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
-import MenuList from '@material-ui/core/MenuList';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import ReactSelect from 'react-select';
 import classNames from 'classnames';
+
+import { fetchUsernames } from './fe-utils/fetchUtil';
 
 const styles = theme => ({
   root: {
@@ -221,34 +217,45 @@ class EditConfig extends Component {
   }
   componentDidUpdate() {
   }
-  componentWillMount() {
-    this.brewColors();
-    if (this.props.user.goal == 'edit') {
-      this.fetchConfigurations(this.props.user.uid, this.props.user.config);
-    } else if (this.props.user.goal == 'add') {
+  // eslint-disable-next-line react/no-deprecated
+  async componentWillMount() {
+    try {
+      this.brewColors();
+      if (this.props.user.goal == 'edit') {
+        this.fetchConfigurations(this.props.user.uid, this.props.user.config);
+      } else if (this.props.user.goal == 'add') {
+        this.setState({
+          viewOnly: false,
+          configKey: 0,
+          config: {
+            0: []
+          },
+          type: 'matrix',
+          readers: [{
+            value: this.props.user.uid,
+            label: this.props.user.uid
+          }],
+          owner: this.props.user.uid,
+          created: (new Date()).toUTCString()
+        });
+      } else {
+        this.setState({
+          viewOnly: true
+        });
+      }
+      const usernames = await fetchUsernames();
       this.setState({
-        viewOnly: false,
-        configKey: 0,
-        config: {
-          0: []
-        },
-        type: 'matrix',
-        readers: [{
-          value: this.props.user.uid,
-          label: this.props.user.uid
-        }],
-        owner: this.props.user.uid,
-        created: (new Date()).toUTCString()
+        friends: usernames.map(username => ({
+          value: username,
+          label: username
+        }))
       });
-    } else {
       this.setState({
-        viewOnly: true
+        user: this.props.user
       });
+    } catch (err) {
+      console.error(err.message);
     }
-    this.fetchUsers();
-    this.setState({
-      user: this.props.user
-    });
   }
   componentDidMount() {
     /* Initial Sizing */
@@ -259,7 +266,7 @@ class EditConfig extends Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
   }
-  handleResize = (event) => {
+  handleResize = () => {
     if (window.innerWidth >= 768) {
       let gridCols = Math.floor(window.innerWidth / this.state.gridWidth);
       this.setState({
@@ -371,27 +378,6 @@ class EditConfig extends Component {
       configKey: configKey
     });
     return configKey;
-  }
-  fetchUsers = () => {
-    return window.fetch('/api/v1/search/users', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return;
-      }
-      return response.json();
-    }).then((response) => {
-      this.setState({
-        friends: response.map(friend => ({
-          value: friend,
-          label: friend
-        }))
-      });
-    });
   }
   handleNameChange = (event) => {
     this.setState({
@@ -736,7 +722,7 @@ class EditConfig extends Component {
         return;
       }
       return response.json();
-    }).then((response) => {
+    }).then(() => {
       this.setState({
         snackTime: true
       });

@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import AbstractGraph from './AbstractGraph.d3';
-import { getColor } from '../server/utils/invertColor';
-import { stringToDate } from '../server/utils/dateConverter';
+import { getColor } from '../../server/utils/invertColor';
+import { stringToDate } from '../../server/utils/dateConverter';
 const margin = {
   top: 30,
   bottom: 20,

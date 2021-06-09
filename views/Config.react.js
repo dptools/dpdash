@@ -4,7 +4,6 @@ import moment from 'moment';
 import 'whatwg-fetch';
 import update from 'immutability-helper';
 
-import Person from '@material-ui/icons/Person';
 import Edit from '@material-ui/icons/Edit';
 import Clear from '@material-ui/icons/Clear';
 import Share from '@material-ui/icons/Share';
@@ -27,16 +26,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Switch from '@material-ui/core/Switch';
 import Divider from '@material-ui/core/Divider';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Snackbar from '@material-ui/core/Snackbar';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './Drawer.react';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
 
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
@@ -49,9 +43,13 @@ import Select from 'react-select';
 import classNames from 'classnames';
 import Typography from '@material-ui/core/Typography';
 
-import getAvatar from './fe-utils/avatarUtil';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
 
-const drawerWidth = 200;
+import getAvatar from './fe-utils/avatarUtil';
+import getCounts from './fe-utils/countUtil';
+import { fetchSubjects, fetchUsernames } from './fe-utils/fetchUtil';
+import openNewWindow from './fe-utils/windowUtil';
 
 const styles = theme => ({
   root: {
@@ -63,28 +61,6 @@ const styles = theme => ({
     display: 'flex',
     width: '100%',
     backgroundColor: '#fefefe',
-  },
-  appBar: {
-    position: 'absolute',
-    marginLeft: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-    },
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)'
-  },
-  navIconHide: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      position: 'relative',
-    },
-    borderRight: '0px'
   },
   content: {
     flexGrow: 1,
@@ -271,52 +247,22 @@ class ConfigPage extends Component {
   componentDidUpdate() {
   }
   // eslint-disable-next-line react/no-deprecated
-  componentWillMount() {
-    this.fetchConfigurations(this.props.user.uid);
-    this.fetchPreferences(this.props.user.uid);
-    this.fetchUsers();
-    this.fetchSubjects();
-  }
-  fetchSubjects = () => {
-    return window.fetch('/api/v1/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      let studies = response ? response : [];
-      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-      }).then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      }).then((response) => {
-        this.autocomplete(response)
+  async componentWillMount() {
+    try {
+      const acl = await fetchSubjects();
+      this.setState(getCounts({ acl }));
+      const usernames = await fetchUsernames();
+      this.setState({
+        friends: usernames.map(username => ({
+          value: username,
+          label: username
+        }))
       });
-    });
-  }
-  autocomplete = (acl) => {
-    var options = [];
-    for (var study = 0; study < acl.length; study++) {
-      Array.prototype.push.apply(options, acl[study].subjects);
+      this.fetchConfigurations(this.props.user.uid);
+      this.fetchPreferences(this.props.user.uid);
+    } catch (err) {
+      console.error(err.message);
     }
-    this.setState({
-      totalStudies: acl.length,
-      totalSubjects: options.length,
-      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
-    });
   }
   componentDidMount() {
     if (this.props.user.message.length > 0) {
@@ -348,27 +294,6 @@ class ConfigPage extends Component {
         gridCols: 1
       });
     }
-  }
-  fetchUsers = () => {
-    return window.fetch('/api/v1/search/users', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return;
-      }
-      return response.json();
-    }).then((response) => {
-      this.setState({
-        friends: response.map(friend => ({
-          value: friend,
-          label: friend
-        }))
-      });
-    });
   }
   babyProofPreferences = (preferences) => {
     let preference = {};
@@ -562,9 +487,6 @@ class ConfigPage extends Component {
       }
     });
   }
-  openNewWindow = (uri) => {
-    window.open(uri, '_self');
-  }
   generateCards = (configs, preference) => {
     let cards = [];
     if (configs && configs.length > 0) {
@@ -624,11 +546,11 @@ class ConfigPage extends Component {
               >
                 <div style={{ float: 'right' }}>
                   {ownsConfig ? <IconButton
-                    onClick={() => this.openNewWindow('/u/configure?s=edit&id=' + configs[item]['_id'])}
+                    onClick={() => openNewWindow('/u/configure?s=edit&id=' + configs[item]['_id'])}
                     iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
                     tooltipPosition='top-center'
                     tooltip="Edit"><Edit /></IconButton> : <IconButton
-                      onClick={() => this.openNewWindow('/u/configure?s=view&id=' + configs[item]['_id'])}
+                      onClick={() => openNewWindow('/u/configure?s=view&id=' + configs[item]['_id'])}
                       iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
                       tooltipPosition='top-center'
                       tooltip="View"><FullView /></IconButton>
@@ -749,86 +671,20 @@ class ConfigPage extends Component {
       <div
         className={classes.root}
       >
-        <AppBar
-          style={{
-            backgroundColor: '#ffffff',
-            boxShadow: 'none',
-          }}
-          className={classes.appBar}
-        >
-          <Toolbar
-            style={{ paddingLeft: '16px' }}
-          >
-            <IconButton
-              color="rgba(0, 0, 0, 0.54)"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerToggle}
-              className={classes.navIconHide}
-            >
-              <img width='24px' height='24px' src='/img/favicon.png' />
-            </IconButton>
-            <Typography
-              variant="title"
-              color="inherit"
-              style={{
-                color: 'rgba(0,0,0,0.4)',
-                fontSize: '18px',
-                letterSpacing: '1.25px',
-                flexGrow: 1
-              }}
-            >
-              Configuration
-                        </Typography>
-            <IconButton
-              onClick={() => this.openNewWindow('/u')}
-            >
-              <Person color='rgba(0,0,0,0.4)' />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <Hidden
-          mdUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={this.state.mobileOpen}
-            onClose={this.handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
-        <Hidden
-          smDown implementation="css">
-          <Drawer
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
+        <Header
+          handleDrawerToggle={this.handleDrawerToggle}
+          title="Configuration"
+          isAccountPage={false}
+        />
+        <Sidebar
+          avatar={this.state.avatar}
+          handleDrawerToggle={this.handleDrawerToggle}
+          mobileOpen={this.state.mobileOpen}
+          totalDays={this.state.totalDays}
+          totalStudies={this.state.totalStudies}
+          totalSubjects={this.state.totalSubjects}
+          user={this.props.user}
+        />
         <div
           className={classes.content}
           style={{
@@ -910,7 +766,7 @@ class ConfigPage extends Component {
                 }}
               >
                 Share your configuration
-                            </Typography>
+              </Typography>
             </DialogTitle>
             <DialogContent
               style={{

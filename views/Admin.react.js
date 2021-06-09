@@ -33,11 +33,11 @@ import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
 import { compose } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './Drawer.react';
-import Drawer from '@material-ui/core/Drawer';
-import Hidden from '@material-ui/core/Hidden';
 
+import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
+import getCounts from './fe-utils/countUtil';
+import { fetchSubjects, fetchStudies, fetchUsers } from './fe-utils/fetchUtil';
 
 const drawerWidth = 200;
 
@@ -71,13 +71,6 @@ const styles = theme => ({
     [theme.breakpoints.up('md')]: {
       display: 'none',
     },
-  },
-  drawerPaper: {
-    width: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      position: 'relative',
-    },
-    borderRight: '0px'
   },
   content: {
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
@@ -232,7 +225,6 @@ const IndicatorSeparator = ({ innerProps }) => {
     <span style={indicatorSeparatorStyle} {...innerProps} />
   );
 };
-var autocomplete = [];
 
 class AdminPage extends Component {
   constructor(props) {
@@ -257,6 +249,7 @@ class AdminPage extends Component {
       mobileOpen: false,
       search: [],
       search_array: [],
+      autocomplete: [],
       deleteUser: -1
     };
   }
@@ -271,22 +264,26 @@ class AdminPage extends Component {
     /* Resize listener register */
     window.addEventListener('resize', this.handleResize)
   }
-  countSubjects = (acl) => {
-    var options = [];
-    for (var study = 0; study < acl.length; study++) {
-      Array.prototype.push.apply(options, acl[study].subjects);
-    }
-    this.setState({
-      totalStudies: acl.length,
-      totalSubjects: options.length,
-      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; }))
-    });
-  }
   // eslint-disable-next-line react/no-deprecated
-  componentWillMount() {
-    this.fetchUsers();
-    this.fetchStudies();
-    this.fetchSubjects();
+  async componentWillMount() {
+    try {
+      const acl = await fetchSubjects();
+      this.setState(getCounts({ acl }));
+      const users = await fetchUsers();
+      this.setState({
+        users,
+        autocomplete: this.autocomplete({ users }),
+      });
+      const studies = await fetchStudies();
+      this.setState({
+        studies: studies.map(suggestion => ({
+          value: suggestion,
+          label: suggestion
+        }))
+      });
+    } catch (err) {
+      console.error(err.message);
+    }
   }
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleResize);
@@ -294,84 +291,10 @@ class AdminPage extends Component {
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
-  fetchSubjects = () => {
-    return window.fetch('/api/v1/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      let studies = response ? response : [];
-      window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'same-origin',
-      }).then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      }).then((response) => {
-        this.countSubjects(response)
-      });
-    });
-  }
-  fetchStudies = () => {
-    return window.fetch('/api/v1/search/studies', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      this.setState({
-        studies: response.map(suggestion => ({
-          value: suggestion,
-          label: suggestion
-        }))
-      });
-      return;
-    });
-  }
-  fetchUsers = () => {
-    return window.fetch('/api/v1/users', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      this.setState({
-        users: this.autocomplete(response)
-      });
-      return;
-    });
-  }
-  autocomplete = (users) => {
-    autocomplete = users.map(option => ({
+  autocomplete = ({ users }) => users.map(option => ({
       value: option.uid,
       label: ((/\S/.test(option.display_name) && option.display_name != undefined) ? option.display_name : option.uid)
     }));
-    return users;
-  }
   handleTab = (value) => {
     this.setState({
       tab: value,
@@ -601,9 +524,6 @@ class AdminPage extends Component {
       editLevel: event.target.value
     });
   }
-  openNewWindow = (uri) => {
-    window.open(uri, '_self');
-  }
   updateRole = (uid, role) => {
     return window.fetch('/api/v1/users/' + uid + '/role', {
       method: 'POST',
@@ -641,7 +561,7 @@ class AdminPage extends Component {
       SingleValue, MultiValue, IndicatorSeparator,
       ValueContainer, Menu, DropdownIndicator
     };
-    const { classes, theme } = this.props;
+    const { classes } = this.props;
     return (
       <div
         className={classes.root}
@@ -668,7 +588,7 @@ class AdminPage extends Component {
                   placeholder='Search users'
                   value={this.state.search}
                   onChange={this.handleSearch}
-                  options={autocomplete}
+                  options={this.state.autocomplete}
                   autoFocus={true}
                   components={components}
                   isMulti
@@ -677,50 +597,15 @@ class AdminPage extends Component {
             </div>
           </Toolbar>
         </AppBar>
-        <Hidden
-          mdUp>
-          <Drawer
-            variant="temporary"
-            anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-            open={this.state.mobileOpen}
-            onClose={this.handleDrawerToggle}
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
-        <Hidden
-          smDown implementation="css">
-          <Drawer
-            ref='permanentDrawer'
-            variant="permanent"
-            open
-            classes={{
-              paper: classes.drawerPaper,
-            }}
-          >
-            <DrawerComponent
-              avatar={this.state.avatar}
-              totalStudies={this.state.totalStudies}
-              totalSubjects={this.state.totalSubjects}
-              totalDays={this.state.totalDays}
-              user={this.props.user}
-              name={this.props.user.name}
-            />
-          </Drawer>
-        </Hidden>
+        <Sidebar
+          avatar={this.state.avatar}
+          handleDrawerToggle={this.handleDrawerToggle}
+          mobileOpen={this.state.mobileOpen}
+          totalDays={this.state.totalDays}
+          totalStudies={this.state.totalStudies}
+          totalSubjects={this.state.totalSubjects}
+          user={this.props.user}
+        />
         <div
           className={classes.content}
           style={{

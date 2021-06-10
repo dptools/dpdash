@@ -16,7 +16,8 @@ module.exports = {
     editConfig: './views/EditConfig.render.react.js',
     config: './views/Config.render.react.js',
     deepdive: './views/DeepDive.render.react.js',
-    graph: './views/Graph.render.react.js'
+    graph: './views/Graph.render.react.js',
+    reports: './views/Reports.render.react.js',
   },
   module: {
     rules: [

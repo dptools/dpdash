@@ -30,6 +30,7 @@ import mainPage from '../templates/Main.template';
 import registerPage from '../templates/Register.template';
 import resetPage from '../templates/Resetpw.template';
 import studyPage from '../templates/Study.template';
+import reportsPage from '../templates/Reports.template';
 
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
@@ -449,8 +450,8 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
         var varName = configs_heatmap[configItem].variable;
         var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
         const query = [{
-                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
-                          }];
+          $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
+        }];
         var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
         var dataPiece = {};
         dataPiece.text = configs_heatmap[configItem].text;
@@ -986,4 +987,22 @@ router.route('/api/v1/users/:uid/config/file')
       }
     });
   });
+
+router.route('/reports')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try { 
+      const { display_name, role, icon } = req.session;
+      return res.status(200).send(reportsPage({
+        uid: req.user,
+        name: display_name,
+        role, 
+        icon,
+      }));
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  });
+
 export default router;

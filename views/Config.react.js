@@ -628,8 +628,28 @@ class ConfigPage extends Component {
       [name]: value,
     });
   }
-  handleChangeFile = () => {
-    this.refs.config_file.submit();
+  handleChangeFile = (e) => {
+    e.preventDefault();
+    const file = e.target.files ? e.target.files[0] : '';
+    new Response(file).json().then(async json => {
+      const res = await window.fetch('/api/v1/users/' + this.props.user.uid + '/config/file', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(json)
+      });
+      if (res.status === 200) {
+        window.location = '/u/configure?u=success';
+      } else if (res.status === 400) {
+        window.location = '/u/configure?u=invalid';
+      } else {
+        window.location = '/u/configure?u=error';
+      }
+    }).catch(err => {
+      console.error(err.message);
+    });
   }
   changeDefaultConfig = (e, checked, index) => {
     this.updateUserPreferences(index, 'index');
@@ -711,9 +731,9 @@ class ConfigPage extends Component {
               position: 'fixed'
             }}
           >
-            <form ref='config_file' action={'/api/v1/users/' + this.props.user.uid + '/config/file'} method="post" encType="multipart/form-data">
+            <form>
               <input
-                accept='.csv'
+                accept='.json'
                 name='file'
                 id="raised-button-file"
                 multiple

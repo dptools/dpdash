@@ -57,9 +57,12 @@ into the database, instantiate DPdash, and run it.
 
 ### Define
 
-Begin by creating a file called `.env` in the `dpdash/singularity` directory. A sample `.env` file, called `.env.sample`, is provided for your convenience and demonstrates the correct format for defining variables. You may wish to copy its contents to `.env` before proceeding.
+Begin by creating a file called `.env` in the `dpdash/singularity` directory. A sample `.env` file, called `.env.sample`, is provided for your convenience and demonstrates the correct format for defining variables. You may simply copy this file to create your new `.env` file:
 
-As this file contains your custom configuration, it will not be committed to the repository.
+    cd dpdash/singularity
+    cp .env.sample .env
+
+As the `.env` file contains your custom configuration, it will not be committed to the repository.
 
 #### Required variables
 
@@ -216,7 +219,11 @@ in the remote server to be able to view the login page in a local web browser.
 
 ### Configure
 
-Add and enable at least one configuration from the left taskbar.
+Add and enable at least one configuration by selecting "Configure" from the left taskbar. 
+
+You may create a new configuration by clicking the "Add a configuration manually" button in the bottom-right corner of the Configuration page.
+
+Alternatively, to upload a configuration from a JSON file, you may use the "Uplaod configuration file" button in the bottom-right corner of the Configuration page. The JSON file you upload must match the [schema detailed here](https://github.com/PREDICT-DPACC/dpdash/wiki/Configuration-schema).
 
 
 ### Quit
@@ -267,6 +274,7 @@ Essentially, you will need to add the following section in a `server{}` block in
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
             proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
     }
 ```
 

@@ -11,7 +11,7 @@ const getConfigSchema = () => {
       label: yup.string().required(),
       variable: yup.string().required(),
       text: yup.boolean().required(),
-      range: yup.array().of(yup.number()).required(),
+      range: yup.array().of(yup.number()).length(2).required(),
     })
   );
 };

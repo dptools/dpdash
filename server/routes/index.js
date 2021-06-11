@@ -983,4 +983,39 @@ router.route('/reports')
     }
   });
 
+router.route('/api/v1/studies/:study/enrollment')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try { 
+      const metadoc = await mongoData.collection('metadata').findOne({
+        study: req.params.study,
+        role: 'metadata'
+      }, { _id: 0, subjects: 1, collection: 1 });
+      const { subjects, collection } = metadoc;
+      if (!metadoc) {
+        return res.status(404).send({ message: 'Study not found' });
+      } 
+      let enrollment = 0;
+      if (!req.query.start && !req.query.end) {
+        if (subjects && Array.isArray(subjects)) {
+          enrollment = subjects.length;
+        }
+      } else {
+        const allSubjects = await mongoData.collection(collection).find({}, { _id: 0, 'Consent': 1, 'Consent Date': 1 }).toArray();
+        const startDate = req.query.start ? new Date(req.query.start) : 0;
+        const endDate = req.query.end ? new Date(req.query.end) : Infinity;
+        const filteredByDate = allSubjects.filter(subject => {
+          const consentDateText = subject['Consent'] || subject['Consent Date'];
+          const consentDate = new Date(consentDateText);
+          return consentDate >= startDate && consentDate <= endDate;
+        });
+        enrollment = filteredByDate.length;
+      }
+      return res.status(200).send({ enrollment });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
+
 export default router;

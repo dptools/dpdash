@@ -27,10 +27,6 @@ supervisord -c /data/dpdash/configs/supervisord.conf
 # sleep 30 seconds
 sleep 30
 
-# vars for DPdash node app
-export DPDASH_UPLOADS=/data/dpdash/uploads
-export DPDASH_UPLOADS_CONFIG_SCHEMA=/data/dpdash/configs/dashboard/config.schema
-
 cd /sw/apps/dpdash
 
 echo "Starting dpdash..."

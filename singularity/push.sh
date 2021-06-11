@@ -16,9 +16,6 @@ export RABBITMQ_LOG_BASE=/data/dpdash/rabbitmq
 # vars for celery worker
 export dppy_config=/data/dpdash/configs/dppy.conf
 
-# vars for DPdash node app
-export DPDASH_UPLOADS=/data/dpdash/uploads
-export DPDASH_UPLOADS_CONFIG_SCHEMA=/data/dpdash/configs/dashboard/config.schema
 cd /sw/apps/dpdash
 
 node ./dist/utils/importer.js

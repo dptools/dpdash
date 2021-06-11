@@ -179,7 +179,7 @@ router.route('/u/configure')
       } else if (req.query.u == 'error') {
         message = 'Error occurred while uploading the configuration.';
       } else if (req.query.u == 'success') {
-        message = 'Configuratoin upload successful!';
+        message = 'Configuration upload successful!';
       }
       return res.status(200).send(configPage(req.user, req.session.display_name, req.session.icon, req.session.mail, req.session.role, message));
     } else {

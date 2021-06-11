@@ -6,7 +6,7 @@ const getConfigSchema = () => {
   return yup.array().of(
     yup.object().shape({
       analysis: yup.string().required(),
-      category: yup.string().required(),
+      category: yup.string(),
       color: yup.array().of(yup.string()).required(),
       label: yup.string().required(),
       variable: yup.string().required(),

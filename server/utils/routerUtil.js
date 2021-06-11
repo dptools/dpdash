@@ -1,5 +1,20 @@
+import * as yup from 'yup';
 import { createHash } from 'crypto';
 import { ObjectID } from 'mongodb';
+
+const getConfigSchema = () => {
+  return yup.array().of(
+    yup.object().shape({
+      analysis: yup.string().required(),
+      category: yup.string().required(),
+      color: yup.array().of(yup.string()).required(),
+      label: yup.string().required(),
+      variable: yup.string().required(),
+      text: yup.boolean().required(),
+      range: yup.array().of(yup.number()).required(),
+    })
+  );
+};
 
 const getConfigForUser = async ({ db, user, defaultConfig }) => {
   const foundUser = await db.collection('users').findOne(
@@ -111,4 +126,4 @@ const getDashboardState = async ({ db, study, subject, defaultConfig }) => {
   return dashboardState;
 };
 
-export { getConfigForUser, getDashboardState };
+export { getConfigSchema, getConfigForUser, getDashboardState };

@@ -1,11 +1,5 @@
 import { Router } from 'express';
 import { MongoClient, ObjectID } from 'mongodb';
-import { resolve } from 'path';
-import { readFileSync } from 'fs';
-import multer from 'multer';
-import colorbrewer from 'colorbrewer';
-import { validate } from 'jsonschema';
-import csv from 'csvtojson';
 import { connect } from 'amqplib/callback_api';
 import co from 'co';
 import { createHash } from 'crypto';
@@ -13,7 +7,7 @@ import uuidV4 from 'uuid/v4';
 import passport from 'passport';
 import { hash } from '../utils/crypto/hash';
 import { getMongoURI } from '../utils/mongoUtil';
-import { getConfigForUser, getDashboardState } from '../utils/routerUtil';
+import { getConfigSchema, getConfigForUser, getDashboardState } from '../utils/routerUtil';
 
 import LDAP from '../utils/passport/ldap';
 import LocalLogin from '../utils/passport/local-login';
@@ -36,9 +30,6 @@ import defaultStudyConfig from '../configs/defaultStudyConfig';
 import defaultUserConfig from '../configs/defaultUserConfig';
 
 const router = Router();
-
-const uploadPath = process.env.DPDASH_UPLOADS || '../uploads';
-const upload = multer({ dest: uploadPath }).single('file');
 
 const mongoURI = getMongoURI({ settings: config.database.mongo });
 
@@ -188,7 +179,7 @@ router.route('/u/configure')
       } else if (req.query.u == 'error') {
         message = 'Error occurred while uploading the configuration.';
       } else if (req.query.u == 'success') {
-        message = 'Configuratoin upload successful!';
+        message = 'Configuration upload successful!';
       }
       return res.status(200).send(configPage(req.user, req.session.display_name, req.session.icon, req.session.mail, req.session.role, message));
     } else {
@@ -922,68 +913,56 @@ router.route('/api/v1/users/:uid/preferences')
   });
 
 router.route('/api/v1/users/:uid/config/file')
-  .post(ensureUser, function (req, res) {
-    upload(req, res, function (err) {
-      if (err) {
-        console.log(err);
-        return res.redirect('/u/configure?u=error');
-      }
-      if (req.file) {
-        try {
-          var mimetype = req.file.mimetype;
-          if (mimetype != 'text/csv') {
-            return res.redirect('/u/configure?u=error');
-          }
-          var file_path = resolve(req.file.path);
-          var schema = JSON.parse(readFileSync('config.schema', 'utf8'));
-          csv().fromFile(file_path).then((data) => {
-            /* cast range to numbers and add colorbar */
-            data.forEach(function (d) {
-              if (d.range) {
-                d.range = d.range.split(';').map(Number);
-              }
-              if (!d.colorbar || !d.colorbar.trim()) {
-                d.colorbar = 'RdYlBu';
-              }
-            });
+  .post(ensureUser, async function (req, res) {
+    checkMongo();
+    if (req.body && req.body.config) {
+      try {
+        let data = req.body.config;       
+        const defaultColors = ['#4575b4', '#74add1', '#abd9e9', '#e0f3f8',
+        '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027'];
 
-            /* validate configuration file (JSON Schema) */
-            var validation = validate(data, schema);
-            if (validation.errors.length > 0) {
-              return res.redirect('/u/configure?u=invalid');
+        if (Array.isArray(data)) {
+          data.forEach(element => {
+            if (!element.color) {
+              element.color = defaultColors;
             }
-
-            /* add colorbrewer colors to each config item */
-            data.forEach(function (d) {
-              var colorbar = d.colorbar ? d.colorbar : 'RdYlBu';
-              if (colorbar == 'RdYlBu') {
-                d.color = ["#4575b4", "#74add1", "#abd9e9", "#e0f3f8",
-                  "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027"];
-              } else {
-                d.color = colorbrewer[colorbar][9];
-              }
-            });
-
-            var newConfig = {
-              owner: req.user,
-              config: data,
-              name: req.body.path,
-              type: 'matrix',
-              readers: [req.user],
-              created: (new Date()).toUTCString()
-            };
-            checkMongo();
-            mongoApp.collection('configs').insertOne(newConfig);
-            return res.redirect('/u/configure?u=success');
           });
-        } catch (err) {
-          console.log('Error occurred while uploading a configuration file.');
-          console.log(err);
-          return res.redirect('/u/configure?u=error');
+        } else {
+          return res.status(400).send();
         }
-      } else {
-        return res.redirect('/u/configure?u=error');
+
+        let schema = getConfigSchema();
+
+        const dataFitToSchema = schema.cast(data);
+        if (dataFitToSchema === null) {
+          return res.status(400).send();
+        } 
+        
+        await schema.validate(dataFitToSchema);
+
+        const newConfig = {
+          owner: req.user,
+          config: { 0: dataFitToSchema },
+          name: req.body.name || 'Untitled',
+          type: 'matrix',
+          readers: [req.user],
+          created: (new Date()).toUTCString()
+        };
+        await mongoApp.collection('configs').insertOne(newConfig);
+        return res.status(200).send();
+
+      } catch (err) {
+        if (err.name === 'ValidationError') {
+          return res.status(400).send();
+        } else {
+          console.log('Error occurred while uploading a configuration file.');
+          console.error(err);
+          return res.status(500).send();
+        }
       }
-    });
+    } else {
+      return res.status(500).send();
+    }
   });
+
 export default router;

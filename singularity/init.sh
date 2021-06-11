@@ -126,9 +126,8 @@ mkdir -p ${containerDataDir}/dpdash/mongodb/logs && mkdir ${containerDataDir}/dp
 echo '***************Initializing RABBITMQ Space***************'
 mkdir -p ${containerDataDir}/dpdash/rabbitmq && mkdir ${containerDataDir}/dpdash/celery
 
-## Initializing DPdash Upload Space
+## Initializing DPdash Config Space
 echo '***************Initializing DPdash Space*****************'
-mkdir -p ${containerDataDir}/dpdash/uploads
 cd ${DIR}
 cp -R ./configs/* ${containerDataDir}/dpdash/configs/dashboard/
 

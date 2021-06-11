@@ -216,7 +216,11 @@ in the remote server to be able to view the login page in a local web browser.
 
 ### Configure
 
-Add and enable at least one configuration from the left taskbar.
+Add and enable at least one configuration by selecting "Configure" from the left taskbar. 
+
+You may create a new configuration by clicking the "Add a configuration manually" button in the bottom-right corner of the Configuration page.
+
+Alternatively, to upload a configuration from a JSON file, you may use the "Uplaod configuration file" button in the bottom-right corner of the Configuration page. The JSON file you upload must match the [schema detailed here](https://github.com/PREDICT-DPACC/dpdash/wiki/Configuration-schema).
 
 
 ### Quit

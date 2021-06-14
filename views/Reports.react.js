@@ -2,7 +2,7 @@ import React from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import MultiSelect from 'react-select';
+import ReactSelect from 'react-select';
 import MultiSelectCreatable from 'react-select/lib/Creatable';
 import Button from '@material-ui/core/Button';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -226,7 +226,7 @@ class ReportsPage extends React.Component {
               )}
             </FormHelperText>
             {this.state.reportType !== 'category-line' && (
-              <MultiSelect
+              <ReactSelect
                 classes={classes}
                 styles={selectStyles}
                 name="studies"
@@ -250,7 +250,7 @@ class ReportsPage extends React.Component {
               />
             )}
             {this.state.reportType === 'category-line' && (
-              <MultiSelect
+              <ReactSelect
                 classes={classes}
                 styles={selectStyles}
                 name="studySingle"

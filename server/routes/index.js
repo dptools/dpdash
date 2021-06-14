@@ -7,7 +7,12 @@ import uuidV4 from 'uuid/v4';
 import passport from 'passport';
 import { hash } from '../utils/crypto/hash';
 import { getMongoURI } from '../utils/mongoUtil';
-import { getConfigSchema, getConfigForUser, getDashboardState } from '../utils/routerUtil';
+import {
+  getConfigSchema,
+  getConfigForUser,
+  getDashboardState,
+  filterSubjectsByConsentDate
+} from '../utils/routerUtil';
 
 import LDAP from '../utils/passport/ldap';
 import LocalLogin from '../utils/passport/local-login';
@@ -994,20 +999,18 @@ router.route('/api/v1/studies/:study/enrollment')
       const { subjects, collection } = metadoc;
       if (!metadoc) {
         return res.status(404).send({ message: 'Study not found' });
-      } 
+      }
       let enrollment = 0;
       if (!req.query.start && !req.query.end) {
         if (subjects && Array.isArray(subjects)) {
           enrollment = subjects.length;
         }
       } else {
-        const allSubjects = await mongoData.collection(collection).find({}, { _id: 0, 'Consent': 1, 'Consent Date': 1 }).toArray();
-        const startDate = req.query.start ? new Date(req.query.start) : 0;
-        const endDate = req.query.end ? new Date(req.query.end) : Infinity;
-        const filteredByDate = allSubjects.filter(subject => {
-          const consentDateText = subject['Consent'] || subject['Consent Date'];
-          const consentDate = new Date(consentDateText);
-          return consentDate >= startDate && consentDate <= endDate;
+        const filteredByDate = filterSubjectsByConsentDate({
+          db: mongoData,
+          collection,
+          start: req.query.start,
+          end: req.query.end,
         });
         enrollment = filteredByDate.length;
       }
@@ -1017,5 +1020,62 @@ router.route('/api/v1/studies/:study/enrollment')
       return res.status(500).send({ message: err.message });
     }
   })
+  .post(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { assessment, varName } = req.body;
+      if (!assessment || !varName) {
+        return res.status(400).send({ message: 'Bad request' });
+      }
+      const metadoc = await mongoData.collection('metadata').findOne({
+        study: req.params.study,
+        role: 'metadata'
+      }, { _id: 0, collection: 1 });
+      const { subjects, collection } = metadoc;
+      let matchingSubjectIDs = [];
+      if (!req.query.start && !req.query.end) {
+        matchingSubjectIDs = subjects.map(entry => entry.subject);
+      } else {
+        const filteredByDate = filterSubjectsByConsentDate({
+          db: mongoData,
+          collection,
+          start: req.query.start,
+          end: req.query.end,
+        });
+        matchingSubjectIDs = filteredByDate.map(entry => entry['Subject ID']);
+      }
+      let enrolledPerValue = { noData: 0 };
+      await Promise.all(matchingSubjectIDs.map(async subject => {
+        const assessmentCollection = await mongoData
+          .collection('toc')
+          .findOne({
+            study: req.params.study,
+            assessment,
+            subject,
+          }, { _id: 0, collection: 1 });
+        if (assessmentCollection !== null) {
+          const foundData = await mongoData
+            .collection(assessmentCollection.collection)
+            .findOne(
+              { [varName]: { $exists: true } },
+              { [varName]: 1 },
+            );
+          if (foundData !== null && (foundData[varName] === 0 || foundData[varName])) {
+            const valueForVar = foundData[varName];
+            if (Object.keys(enrolledPerValue).includes(valueForVar)) {
+              enrolledPerValue[valueForVar] += 1;
+            } else {
+              enrolledPerValue[valueForVar] = 1;
+            }
+          } else enrolledPerValue.noData += 1;
+        } else enrolledPerValue.noData += 1;
+        return Promise.resolve();
+      }))
+      return res.status(200).send({ enrolledPerValue });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  });
 
 export default router;

@@ -1061,7 +1061,7 @@ router.route('/api/v1/studies/:study/enrollment')
               { [varName]: 1 },
             );
           if (foundData !== null && (foundData[varName] === 0 || foundData[varName])) {
-            const valueForVar = foundData[varName];
+            const valueForVar = foundData[varName].toString();
             if (Object.keys(enrolledPerValue).includes(valueForVar)) {
               enrolledPerValue[valueForVar] += 1;
             } else {

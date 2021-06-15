@@ -1068,12 +1068,14 @@ router.route('/api/v1/studies/:study/enrollment')
             enrollmentsList.push({
               study: req.params.study,
               date: subject.consentDate,
+              varName,
               value: valueForVar,
             });
           } else {
             enrollmentsList.push({
               study: req.params.study,
               date: subject.consentDate,
+              varName,
               value: null,
             });
           }

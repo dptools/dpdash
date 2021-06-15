@@ -1031,27 +1031,30 @@ router.route('/api/v1/studies/:study/enrollment')
         study: req.params.study,
         role: 'metadata'
       }, { _id: 0, collection: 1 });
-      const { subjects, collection } = metadoc;
-      let matchingSubjectIDs = [];
+      const { collection } = metadoc;
+      let allSubjects = [];
       if (!req.query.start && !req.query.end) {
-        matchingSubjectIDs = subjects.map(entry => entry.subject);
+        allSubjects = await mongoData.collection(collection).find({}).toArray();
       } else {
-        const filteredByDate = filterSubjectsByConsentDate({
+        allSubjects = filterSubjectsByConsentDate({
           db: mongoData,
           collection,
           start: req.query.start,
           end: req.query.end,
         });
-        matchingSubjectIDs = filteredByDate.map(entry => entry['Subject ID']);
       }
-      let enrolledPerValue = { noData: 0 };
+      const matchingSubjectIDs = allSubjects.map(entry => ({
+        id: entry['Subject ID'].toString(),
+        consentDate: entry['Consent'] || entry['Consent Date'],
+      }));
+      let enrollmentsList = [];
       await Promise.all(matchingSubjectIDs.map(async subject => {
         const assessmentCollection = await mongoData
           .collection('toc')
           .findOne({
             study: req.params.study,
             assessment,
-            subject,
+            subject: subject.id,
           }, { _id: 0, collection: 1 });
         if (assessmentCollection !== null) {
           const foundData = await mongoData
@@ -1061,17 +1064,23 @@ router.route('/api/v1/studies/:study/enrollment')
               { [varName]: 1 },
             );
           if (foundData !== null && (foundData[varName] === 0 || foundData[varName])) {
-            const valueForVar = foundData[varName].toString();
-            if (Object.keys(enrolledPerValue).includes(valueForVar)) {
-              enrolledPerValue[valueForVar] += 1;
-            } else {
-              enrolledPerValue[valueForVar] = 1;
-            }
-          } else enrolledPerValue.noData += 1;
-        } else enrolledPerValue.noData += 1;
+            const valueForVar = foundData[varName];
+            enrollmentsList.push({
+              study: req.params.study,
+              date: subject.consentDate,
+              value: valueForVar,
+            });
+          } else {
+            enrollmentsList.push({
+              study: req.params.study,
+              date: subject.consentDate,
+              value: null,
+            });
+          }
+        } else { throw Error('Assessment not found'); }
         return Promise.resolve();
       }))
-      return res.status(200).send({ enrolledPerValue });
+      return res.status(200).send({ enrollmentsList });
     } catch (err) {
       console.error(err.message);
       return res.status(500).send({ message: err.message });

@@ -9,6 +9,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import Snackbar from '@material-ui/core/Snackbar';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
@@ -29,6 +30,7 @@ import {
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects, fetchStudies } from './fe-utils/fetchUtil';
+import { fetchDataForChart } from './fe-utils/reportsUtil';
 import getDefaultStyles from './fe-utils/styleUtil';
 
 const styles = theme => ({
@@ -46,6 +48,14 @@ const styles = theme => ({
     right: 4,
     bottom: 4,
     position: 'fixed'
+  },
+  submitButton: {
+    borderColor: '#5790bd',
+    paddingTop: '11px',
+    color: '#ffffff',
+    backgroundColor: '#5790bd',
+    marginLeft: '12px',
+    marginTop: '12px',
   },
   chip: {
     margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
@@ -75,13 +85,19 @@ class ReportsPage extends React.Component {
       totalDays: 0,
       mobileOpen: false,
       loading: true,
+      formDisabled: false,
+      error: '',
+      errorOpen: false,
+      title: '',
       variableOptions: [],
       reportType: 'bar',
       variableSingle: '',
+      assessmentSingle: '',
       variableMulti: [],
       studiesOptions: [],
       studies: [],
       studySingle: '',
+      chartData: {},
       targets: [],
     };
   }
@@ -123,7 +139,6 @@ class ReportsPage extends React.Component {
     });
   }
   handleMultiSelectChange = (name) => (choices) => {
-    console.log(choices);
     this.setState({
       [name]: choices.map(choice => choice.value),
     });
@@ -134,11 +149,47 @@ class ReportsPage extends React.Component {
       option.value.toLowerCase() === inputValue.toLowerCase()
     ))
   );
+  handleCloseError = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({ errorOpen: false });
+  };
   loadPreset = () => {
     console.log('load preset');
   }
   savePreset = () => {
     console.log('save preset');
+  }
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      this.setState({
+        formDisabled: true,
+      });
+      const formValues = { 
+        reportType: this.state.reportType,
+        varName: this.state.variableSingle,
+        assessment: this.state.assessmentSingle,
+        variables: this.state.variableMulti,
+        studies: this.state.studies,
+        studySingle: this.state.studySingle,  
+      };
+      const data = await fetchDataForChart(formValues);
+      this.setState({
+        formDisabled: false,
+        chartData: {
+          title: this.state.title,
+          data,
+        }
+      });
+    } catch (err) {
+      this.setState({
+        formDisabled: false,
+        error: err.message,
+        errorOpen: true,
+      });
+    }
   }
 
   render() {
@@ -173,7 +224,7 @@ class ReportsPage extends React.Component {
         <div
           className={`${classes.content} ${classes.contentPadded}`}
         >
-          <form>
+          <form onSubmit={this.handleSubmit}>
             <InputLabel id="reportType-label">Report type</InputLabel>
             <Select
               labelId="reportType-label"
@@ -182,6 +233,7 @@ class ReportsPage extends React.Component {
               onChange={this.handleFormChange}
               fullWidth
               required
+              disabled={this.state.formDisabled}
             >
               <MenuItem value="bar">Bar chart</MenuItem>
               <MenuItem value="study-line">Line chart (by study)</MenuItem>
@@ -225,6 +277,16 @@ class ReportsPage extends React.Component {
                 </>
               )}
             </FormHelperText>
+            <TextField
+              className={classes.textInput}
+              label="Title"
+              name="title"
+              value={this.state.title}
+              onChange={this.handleFormChange}
+              fullWidth
+              required
+              disabled={this.state.formDisabled}
+            />
             {this.state.reportType !== 'category-line' && (
               <ReactSelect
                 classes={classes}
@@ -247,6 +309,7 @@ class ReportsPage extends React.Component {
                 onChange={this.handleMultiSelectChange('studies')}
                 placeholder="Studies"
                 isMulti
+                isDisabled={this.state.formDisabled}
               />
             )}
             {this.state.reportType === 'category-line' && (
@@ -268,6 +331,19 @@ class ReportsPage extends React.Component {
                 value={this.state.studySingle === '' ? null : { label: this.state.studySingle, value: this.state.studySingle }}
                 onChange={this.handleSelectChange('studySingle')}
                 placeholder="Study"
+                isDisabled={this.state.formDisabled}
+              />
+            )}
+            { ['bar', 'study-line', 'category-line'].includes(this.state.reportType) && (
+              <TextField
+                className={classes.textInput}
+                label="Assessment"
+                name="assessmentSingle"
+                value={this.state.assessmentSingle}
+                onChange={this.handleFormChange}
+                fullWidth
+                required
+                disabled={this.state.formDisabled}
               />
             )}
             {['bar', 'study-line'].includes(this.state.reportType) && (
@@ -279,6 +355,7 @@ class ReportsPage extends React.Component {
                 onChange={this.handleFormChange}
                 fullWidth
                 required
+                disabled={this.state.formDisabled}
               />
             )}
             {this.state.reportType === 'category-line' && (
@@ -305,8 +382,17 @@ class ReportsPage extends React.Component {
                 isValidNewOption={this.isValidNewOption}
                 placeholder="Variable(s)"
                 isMulti
+                isDisabled={this.state.formDisabled}
               />
             )}
+            <Button
+              variant="outlined"
+              type="submit"
+              className={classes.submitButton}
+              disabled={this.state.formDisabled}
+            >
+              Submit
+            </Button>
           </form>
         </div>
         <div
@@ -333,6 +419,12 @@ class ReportsPage extends React.Component {
             </Tooltip>
           </Button>
         </div>
+        <Snackbar
+          open={this.state.errorOpen}
+          message={this.state.error}
+          autoHideDuration={4000}
+          onClose={this.handleCloseError}
+        />
       </div>
     );
   }

@@ -1079,7 +1079,7 @@ router.route('/api/v1/studies/:study/enrollment')
               value: null,
             });
           }
-        } else { throw Error('Assessment not found'); }
+        }
         return Promise.resolve();
       }))
       return res.status(200).send({ enrollmentsList });

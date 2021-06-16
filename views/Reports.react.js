@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
@@ -27,6 +27,7 @@ import {
   SingleValue,
   ValueContainer,
 } from './components/MultiSelect';
+import EnrollmentBarChart from './components/EnrollmentBarChart';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects, fetchStudies } from './fe-utils/fetchUtil';
@@ -74,6 +75,7 @@ const styles = theme => ({
 class ReportsPage extends React.Component {
   constructor(props) {
     super(props);
+    this.chartRef = createRef();
     this.state = {
       tab: 0,
       width: 0,
@@ -183,6 +185,7 @@ class ReportsPage extends React.Component {
           data,
         }
       });
+      this.chartRef.current.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       this.setState({
         formDisabled: false,
@@ -394,6 +397,13 @@ class ReportsPage extends React.Component {
               Submit
             </Button>
           </form>
+          {this.state.chartData && Object.keys(this.state.chartData).length > 1 && (
+            <div ref={this.chartRef}>
+              <EnrollmentBarChart 
+                chartData={this.state.chartData}
+              />
+            </div>
+          )}
         </div>
         <div
           className={classes.bottomRight}

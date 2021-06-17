@@ -12,7 +12,14 @@ import Select from '@material-ui/core/Select';
 import Snackbar from '@material-ui/core/Snackbar';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import HelpOutline from '@material-ui/icons/HelpOutline';
+import Clear from '@material-ui/icons/Clear';
 import Save from '@material-ui/icons/Save';
 import TuneIcon from '@material-ui/icons/Tune';
 import Header from './components/Header';
@@ -49,6 +56,19 @@ const styles = theme => ({
     right: 4,
     bottom: 4,
     position: 'fixed'
+  },
+  textButton: {
+    color: '#5790bd',
+    textTransform: 'none',
+  },
+  formLabelRow: {
+    display: 'flex',
+    alignItems: 'middle',
+    marginTop: '8px',
+    marginBottom: '8px',
+  },
+  formLabelCol: {
+    marginRight: '8px',
   },
   submitButton: {
     borderColor: '#5790bd',
@@ -100,6 +120,8 @@ class ReportsPage extends React.Component {
       studies: [],
       studySingle: '',
       chartData: {},
+      valueLabels: [],
+      labelInfoOpen: false,
       targets: [],
     };
   }
@@ -130,7 +152,21 @@ class ReportsPage extends React.Component {
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
+  clearForm = () => {
+    this.setState({
+      variableSingle: '',
+      assessmentSingle: '',
+      variableMulti: [],
+      studies: [],
+      studySingle: '',
+      valueLabels: [],
+    });
+  }
   handleFormChange = (e) => {
+    e.persist();
+    if (e.target.name === 'reportType') {
+      this.clearForm();
+    }
     this.setState({
       [e.target.name]: e.target.value,
     });
@@ -159,10 +195,41 @@ class ReportsPage extends React.Component {
   };
   loadPreset = () => {
     console.log('load preset');
-  }
+  };
   savePreset = () => {
     console.log('save preset');
-  }
+  };
+  addValueLabel = (e) => {
+    e.preventDefault();
+    this.setState(prevState => ({
+      valueLabels: [...prevState.valueLabels, {
+        value: '',
+        label: '',
+      }]
+    }));
+  };
+  removeValueLabel = (e, idx) => {
+    e.preventDefault();
+    this.setState(prevState => ({
+      valueLabels: prevState.valueLabels.filter((s, _idx) => _idx !== idx),
+    }));
+  };
+  handleValueLabelChange = (e, idx, field) => {
+    e.persist();
+    const valueToUse = e.target.value;
+    this.setState(prevState => ({
+      valueLabels: prevState.valueLabels.map((s, _idx) => {
+        if (_idx !== idx) return s;
+        return { ...s, [field]: valueToUse };
+      })
+    }));
+  };
+  handleOpenLabelInfo = () => {
+    this.setState({ labelInfoOpen: true });
+  };
+  handleCloseLabelInfo = () => {
+    this.setState({ labelInfoOpen: false });
+  };
   handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -175,7 +242,8 @@ class ReportsPage extends React.Component {
         assessment: this.state.assessmentSingle,
         variables: this.state.variableMulti,
         studies: this.state.studies,
-        studySingle: this.state.studySingle,  
+        studySingle: this.state.studySingle,
+        valueLabels: this.state.valueLabels,
       };
       const data = await fetchDataForChart(formValues);
       this.setState({
@@ -350,16 +418,97 @@ class ReportsPage extends React.Component {
               />
             )}
             {['bar', 'study-line'].includes(this.state.reportType) && (
-              <TextField
-                className={classes.textInput}
-                label="Variable"
-                name="variableSingle"
-                value={this.state.variableSingle}
-                onChange={this.handleFormChange}
-                fullWidth
-                required
-                disabled={this.state.formDisabled}
-              />
+              <>
+                <TextField
+                  className={classes.textInput}
+                  label="Variable"
+                  name="variableSingle"
+                  value={this.state.variableSingle}
+                  onChange={this.handleFormChange}
+                  fullWidth
+                  required
+                  disabled={this.state.formDisabled}
+                />
+                {this.state.valueLabels.length > 0 && 
+                  this.state.valueLabels.map((valueLabel, idx) => (
+                  <div key={idx} className={classes.formLabelRow}>
+                    <TextField
+                      label="Value"
+                      value={valueLabel?.value}
+                      onChange={(e) => this.handleValueLabelChange(e, idx, 'value')}
+                      disabled={this.state.formDisabled}
+                      className={classes.formLabelCol}
+                    />
+                    <TextField
+                      label="Label/Group"
+                      value={valueLabel?.label}
+                      onChange={(e) => this.handleValueLabelChange(e, idx, 'label')}
+                      disabled={this.state.formDisabled}
+                      className={classes.formLabelCol}
+                    />
+                    <Button
+                      variant="outlined"
+                      type="button"
+                      onClick={(e) => this.removeValueLabel(e, idx)}
+                    >
+                      <Clear />
+                    </Button>
+                    <br />
+                  </div>
+                ))}
+                <Button
+                  variant="text"
+                  type="button"
+                  className={classes.textButton}
+                  onClick={this.addValueLabel}
+                  disabled={this.state.formDisabled}
+                >
+                  + Add label/grouping(s) for variable value(s)
+                </Button>
+                <Button
+                  variant="text"
+                  type="button"
+                  onClick={this.handleOpenLabelInfo}
+                >
+                  <HelpOutline />
+                </Button>
+                <Dialog
+                  open={this.state.labelInfoOpen}
+                  onClose={this.handleCloseLabelInfo}
+                  aria-labelledby="labelinfo-dialog-title"
+                  aria-describedby="labelinfo-dialog-description"
+                >
+                  <DialogTitle id="labelinfo-dialog-title">
+                    Add label/grouping(s) for variable value(s)
+                  </DialogTitle>
+                  <DialogContent>
+                    <DialogContentText id="labelinfo-dialog-description">
+                      <p>
+                        Sometimes, the raw values for a variable do not give enough
+                        information on their own for the purposes of making charts.
+                      </p>
+                      <p>
+                        To remedy this, you may add labels for any possible raw value(s)
+                        of a variable by clicking the &ldquo;Add label/grouping(s) for
+                        variable value(s)&rdquo; button. You may group multiple values
+                        together by using the same label for multiple values (though the
+                        label must be identical, case-sensitive, for each value you want
+                        grouped together).
+                      </p>
+                      <p>
+                        If you do not add labels, the labels on the chart will simply be
+                        populated with the raw values from the original data.
+                      </p>
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={this.handleCloseLabelInfo} color="primary" autoFocus>
+                      Close
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+                <br />
+              </>
             )}
             {this.state.reportType === 'category-line' && (
               <MultiSelectCreatable

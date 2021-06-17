@@ -23,6 +23,7 @@ const fetchDataForChart = async ({
   variables,
   studies,
   studySingle,
+  valueLabels,
 }) => {
   let data = [];
   if (['bar', 'study-line'].includes(reportType)) {
@@ -35,7 +36,6 @@ const fetchDataForChart = async ({
       data.push(...statsForStudy.enrollmentsList);
       return Promise.resolve();
     }));
-    return data;
   } else if (reportType === 'category-line') { 
     await Promise.all(variables.map(async (variable) => {
       const body = {
@@ -46,8 +46,19 @@ const fetchDataForChart = async ({
       data.push(...statsForVariable.enrollmentsList);
       return Promise.resolve();
     }));
-    return data;
   } else throw Error('Report type not yet supported');
+  if (Array.isArray(valueLabels) && valueLabels.length > 0) {
+    data = data.map((entry) => {
+      let newEntry = entry;
+      valueLabels.forEach((valueLabel) => {
+        if (valueLabel.value.toString() === entry.value.toString()) {
+          newEntry = { ...entry, value: valueLabel.label };
+        }
+      })
+      return newEntry;
+    })
+  }
+  return data;
 };
 
 export { fetchDataForChart };

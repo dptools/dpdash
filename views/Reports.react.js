@@ -61,7 +61,7 @@ const styles = theme => ({
   },
   formLabelRow: {
     display: 'flex',
-    alignItems: 'middle',
+    alignItems: 'center',
     marginTop: '8px',
     marginBottom: '8px',
   },
@@ -213,9 +213,7 @@ class ReportsPage extends React.Component {
       credentials: 'same-origin',
     });
     const presetsJson = await presetsRes.json();
-    console.log(presetsJson);
     const { foundCharts } = presetsJson;
-    console.log(foundCharts);
     return foundCharts;
   };
   loadPreset = (preset) => {
@@ -228,6 +226,39 @@ class ReportsPage extends React.Component {
       valueLabels: preset.valueLabels,
     });
     this.handleCloseDialog('loadPresetOpen');
+  };
+  deletePreset = async (preset) => {
+    if (window.confirm(`Are you sure you want to delete the preset "${preset.presetName}"?`)) {
+      try { 
+        this.setState({
+          formDisabled: true,
+        });
+        const res = await window.fetch(`/api/v1/charts/${preset._id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin',
+        });
+        if (!res.ok) {
+          throw Error(res.statusText);
+        }
+        const presets = await this.fetchPresets();
+        this.setState({
+          error: 'Preset deleted successfully',
+          presets: presets !== null ? presets : [],
+          errorOpen: true,
+          formDisabled: false,
+        });
+        this.handleCloseDialog('loadPresetOpen');
+      } catch (err) {
+        this.setState({
+          error: err.message,
+          errorOpen: true,
+          formDisabled: false,
+        });
+      }
+    }
   };
   savePreset = async (e) => {
     e.preventDefault();
@@ -255,12 +286,13 @@ class ReportsPage extends React.Component {
       if (!res.ok) {
         throw Error(res.statusText);
       }
-      console.log('save preset');
+      const presets = await this.fetchPresets();
       this.setState({
         error: 'Preset saved successfully',
         errorOpen: true,
         presetFormDisabled: false,
         presetName: '',
+        presets: presets !== null ? presets : [],
       });
       this.handleCloseDialog('savePresetOpen');
     } catch (err) {
@@ -457,27 +489,29 @@ class ReportsPage extends React.Component {
                 {this.state.valueLabels.length > 0 && 
                   this.state.valueLabels.map((valueLabel, idx) => (
                   <div key={idx} className={classes.formLabelRow}>
+                    <Button
+                      variant="outlined"
+                      type="button"
+                      className={classes.formLabelCol}
+                      onClick={(e) => this.removeValueLabel(e, idx)}
+                    >
+                      <Clear />
+                    </Button>
                     <TextField
                       label="Value"
                       value={valueLabel?.value}
                       onChange={(e) => this.handleValueLabelChange(e, idx, 'value')}
                       disabled={this.state.formDisabled}
                       className={classes.formLabelCol}
+                      style={{ width: '33%' }}
                     />
                     <TextField
                       label="Label/Group"
                       value={valueLabel?.label}
                       onChange={(e) => this.handleValueLabelChange(e, idx, 'label')}
                       disabled={this.state.formDisabled}
-                      className={classes.formLabelCol}
+                      style={{ width: '100%' }}
                     />
-                    <Button
-                      variant="outlined"
-                      type="button"
-                      onClick={(e) => this.removeValueLabel(e, idx)}
-                    >
-                      <Clear />
-                    </Button>
                     <br />
                   </div>
                 ))}
@@ -613,6 +647,7 @@ class ReportsPage extends React.Component {
             presets={this.state.presets}
             disabled={this.state.formDisabled}
             loadPreset={this.loadPreset}
+            deletePreset={this.deletePreset}
             onClose={() => {
               this.handleCloseDialog('loadPresetOpen');
             }}

@@ -9,11 +9,13 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Delete from '@material-ui/icons/Delete';
 
 const LoadPresetsDialog = ({
   open,
   presets,
   loadPreset,
+  deletePreset,
   disabled,
   onClose,
 }) => {
@@ -32,8 +34,8 @@ const LoadPresetsDialog = ({
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell align="right">Name</TableCell>
-            <TableCell align="right">Actions</TableCell>
+            <TableCell>Name</TableCell>
+            <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -42,15 +44,24 @@ const LoadPresetsDialog = ({
               <TableCell component="th" scope="row">
                 <Button
                   type="button"
-                  variant="outline"
+                  color="primary"
                   disabled={disabled}
                   onClick={() => loadPreset(preset)}
                 >
                 Load
                 </Button>
               </TableCell>
-              <TableCell align="right">{preset.presetName}</TableCell>
-              <TableCell align="right">Delete</TableCell>
+              <TableCell>{preset.presetName}</TableCell>
+              <TableCell>
+                <Button
+                  type="button"
+                  variant="text"
+                  onClick={() => deletePreset(preset)}
+                  disabled={disabled}
+                >
+                  <Delete />
+                </Button>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

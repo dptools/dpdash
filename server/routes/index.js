@@ -1123,4 +1123,26 @@ router.route('/api/v1/charts')
     }
   });
 
+router.route('/api/v1/charts/:id')
+  .delete(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { user } = req;
+      const deletionRes = await mongoApp
+        .collection('charts')
+        .deleteOne({
+          _id: ObjectID(req.params.id),
+          user,
+        });
+      if (deletionRes.deletedCount > 0) {
+        return res.status(200).send();
+      } else {
+        return res.status(404).send({ message: 'Preset not found' });
+      }
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  });
+
 export default router;

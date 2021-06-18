@@ -1089,4 +1089,38 @@ router.route('/api/v1/studies/:study/enrollment')
     }
   });
 
+router.route('/api/v1/charts')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { user } = req;
+      const foundCharts = await mongoApp
+        .collection('charts')
+        .find({ 
+          user,
+        })
+        .toArray();
+      return res.status(200).send({ foundCharts });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
+  .post(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { body, user } = req;
+      await mongoApp
+        .collection('charts')
+        .insertOne({ 
+          ...body,
+          user,
+        });
+      return res.status(200).send();
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  });
+
 export default router;

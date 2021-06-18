@@ -12,11 +12,6 @@ import Select from '@material-ui/core/Select';
 import Snackbar from '@material-ui/core/Snackbar';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import HelpOutline from '@material-ui/icons/HelpOutline';
 import Clear from '@material-ui/icons/Clear';
@@ -34,7 +29,10 @@ import {
   SingleValue,
   ValueContainer,
 } from './components/MultiSelect';
-import EnrollmentBarChart from './components/EnrollmentBarChart';
+import EnrollmentBarChart from './components/Reports/EnrollmentBarChart';
+import SavePresetDialog from './components/Reports/SavePresetDialog';
+import LabelHelpDialog from './components/Reports/LabelHelpDialog';
+import LoadPresetsDialog from './components/Reports/LoadPresetsDialog';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects, fetchStudies } from './fe-utils/fetchUtil';
@@ -122,6 +120,11 @@ class ReportsPage extends React.Component {
       chartData: {},
       valueLabels: [],
       labelInfoOpen: false,
+      loadPresetOpen: false,
+      savePresetOpen: false,
+      presetFormDisabled: false,
+      presetName: '',
+      presets: [],
       targets: [],
     };
   }
@@ -132,11 +135,19 @@ class ReportsPage extends React.Component {
       const studies = await fetchStudies();
       this.setState({
         studiesOptions: studies.map(study => ({ label: study, value: study })),
+      });
+      const presets = await this.fetchPresets();
+      this.setState({
+        presets: presets !== null ? presets : [],
         loading: false,
-      })
+      });
     } catch (err) {
       console.error(err.message);
-      this.setState({ loading: false });
+      this.setState({
+        loading: false,
+        error: err.message,
+        errorOpen: true,
+       });
     }
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
@@ -193,11 +204,72 @@ class ReportsPage extends React.Component {
     }
     this.setState({ errorOpen: false });
   };
-  loadPreset = () => {
-    console.log('load preset');
+  fetchPresets = async () => {
+    const presetsRes = await window.fetch('/api/v1/charts', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin',
+    });
+    const presetsJson = await presetsRes.json();
+    console.log(presetsJson);
+    const { foundCharts } = presetsJson;
+    console.log(foundCharts);
+    return foundCharts;
   };
-  savePreset = () => {
-    console.log('save preset');
+  loadPreset = (preset) => {
+    this.setState({
+      title: preset.title,
+      reportType: preset.reportType,
+      variableSingle: preset.varName,
+      assessmentSingle: preset.assessment,
+      variableMulti: preset.variables,
+      valueLabels: preset.valueLabels,
+    });
+    this.handleCloseDialog('loadPresetOpen');
+  };
+  savePreset = async (e) => {
+    e.preventDefault();
+    try { 
+      this.setState({
+        presetFormDisabled: true,
+      });
+      const body = { 
+        presetName: this.state.presetName,
+        title: this.state.title,
+        reportType: this.state.reportType,
+        varName: this.state.variableSingle,
+        assessment: this.state.assessmentSingle,
+        variables: this.state.variableMulti,
+        valueLabels: this.state.valueLabels,
+      };
+      const res = await window.fetch('/api/v1/charts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) {
+        throw Error(res.statusText);
+      }
+      console.log('save preset');
+      this.setState({
+        error: 'Preset saved successfully',
+        errorOpen: true,
+        presetFormDisabled: false,
+        presetName: '',
+      });
+      this.handleCloseDialog('savePresetOpen');
+    } catch (err) {
+      this.setState({
+        error: err.message,
+        errorOpen: true,
+        presetFormDisabled: false,
+      });
+    }
   };
   addValueLabel = (e) => {
     e.preventDefault();
@@ -224,11 +296,11 @@ class ReportsPage extends React.Component {
       })
     }));
   };
-  handleOpenLabelInfo = () => {
-    this.setState({ labelInfoOpen: true });
+  handleOpenDialog = (dialogState) => {
+    this.setState({ [dialogState]: true });
   };
-  handleCloseLabelInfo = () => {
-    this.setState({ labelInfoOpen: false });
+  handleCloseDialog = (dialogState) => {
+    this.setState({ [dialogState]: false });
   };
   handleSubmit = async (e) => {
     e.preventDefault();
@@ -463,50 +535,19 @@ class ReportsPage extends React.Component {
                   onClick={this.addValueLabel}
                   disabled={this.state.formDisabled}
                 >
-                  + Add label/grouping(s) for variable value(s)
+                  + Add label/grouping for variable value
                 </Button>
                 <Button
                   variant="text"
                   type="button"
-                  onClick={this.handleOpenLabelInfo}
+                  onClick={() => this.handleOpenDialog('labelInfoOpen')}
                 >
                   <HelpOutline />
                 </Button>
-                <Dialog
+                <LabelHelpDialog
                   open={this.state.labelInfoOpen}
-                  onClose={this.handleCloseLabelInfo}
-                  aria-labelledby="labelinfo-dialog-title"
-                  aria-describedby="labelinfo-dialog-description"
-                >
-                  <DialogTitle id="labelinfo-dialog-title">
-                    Add label/grouping(s) for variable value(s)
-                  </DialogTitle>
-                  <DialogContent>
-                    <DialogContentText id="labelinfo-dialog-description">
-                      <p>
-                        Sometimes, the raw values for a variable do not give enough
-                        information on their own for the purposes of making charts.
-                      </p>
-                      <p>
-                        To remedy this, you may add labels for any possible raw value(s)
-                        of a variable by clicking the &ldquo;Add label/grouping(s) for
-                        variable value(s)&rdquo; button. You may group multiple values
-                        together by using the same label for multiple values (though the
-                        label must be identical, case-sensitive, for each value you want
-                        grouped together).
-                      </p>
-                      <p>
-                        If you do not add labels, the labels on the chart will simply be
-                        populated with the raw values from the original data.
-                      </p>
-                    </DialogContentText>
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={this.handleCloseLabelInfo} color="primary" autoFocus>
-                      Close
-                    </Button>
-                  </DialogActions>
-                </Dialog>
+                  onClose={() => this.handleCloseDialog('labelInfoOpen')}
+                />
                 <br />
               </>
             )}
@@ -557,26 +598,49 @@ class ReportsPage extends React.Component {
         <div
           className={classes.bottomRight}
         >
-          <Button
-            variant="fab"
-            color="secondary"
-            focusRipple
-            onClick={this.loadPreset}
-          >
-            <Tooltip title="Load preset">
+          <Tooltip title="Load preset">
+            <Button
+              variant="fab"
+              color="secondary"
+              focusRipple
+              onClick={() => this.handleOpenDialog('loadPresetOpen')}
+            >
               <TuneIcon />
-            </Tooltip>
-          </Button>
-          <Button
-            variant="fab"
-            color="secondary"
-            focusRipple
-            onClick={this.savePreset}
-          >
-            <Tooltip title="Save preset">
+            </Button>
+          </Tooltip>
+          <LoadPresetsDialog
+            open={this.state.loadPresetOpen}
+            presets={this.state.presets}
+            disabled={this.state.formDisabled}
+            loadPreset={this.loadPreset}
+            onClose={() => {
+              this.handleCloseDialog('loadPresetOpen');
+            }}
+          />
+          <Tooltip title="Save preset">
+            <Button
+              variant="fab"
+              color="secondary"
+              focusRipple
+              onClick={() => this.handleOpenDialog('savePresetOpen')}
+            >
               <Save />
-            </Tooltip>
-          </Button>
+            </Button>
+          </Tooltip>
+          <SavePresetDialog
+            open={this.state.savePresetOpen}
+            presetName={this.state.presetName}
+            savePreset={this.savePreset}
+            textInputClass={classes.textInput}
+            handleFormChange={this.handleFormChange}
+            disabled={this.state.presetFormDisabled}
+            onClose={() => {
+              this.handleCloseDialog('savePresetOpen');
+              this.setState({
+                presetName: '',
+              });
+            }}
+          />
         </div>
         <Snackbar
           open={this.state.errorOpen}

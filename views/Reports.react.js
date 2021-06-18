@@ -430,53 +430,6 @@ class ReportsPage extends React.Component {
               required
               disabled={this.state.formDisabled}
             />
-            {this.state.reportType !== 'category-line' && (
-              <ReactSelect
-                classes={classes}
-                styles={selectStyles}
-                name="studies"
-                options={this.state.studiesOptions}
-                components={{
-                  Control,
-                  Menu,
-                  MultiValue,
-                  NoOptionsMessage,
-                  Option,
-                  Placeholder,
-                  SingleValue,
-                  ValueContainer,
-                }}
-                value={this.state.studies.map(study => ({
-                  value: study, label: study,
-                }))}
-                onChange={this.handleMultiSelectChange('studies')}
-                placeholder="Studies"
-                isMulti
-                isDisabled={this.state.formDisabled}
-              />
-            )}
-            {this.state.reportType === 'category-line' && (
-              <ReactSelect
-                classes={classes}
-                styles={selectStyles}
-                name="studySingle"
-                options={this.state.studiesOptions}
-                components={{
-                  Control,
-                  Menu,
-                  MultiValue,
-                  NoOptionsMessage,
-                  Option,
-                  Placeholder,
-                  SingleValue,
-                  ValueContainer,
-                }}
-                value={this.state.studySingle === '' ? null : { label: this.state.studySingle, value: this.state.studySingle }}
-                onChange={this.handleSelectChange('studySingle')}
-                placeholder="Study"
-                isDisabled={this.state.formDisabled}
-              />
-            )}
             { ['bar', 'study-line', 'category-line'].includes(this.state.reportType) && (
               <TextField
                 className={classes.textInput}
@@ -575,6 +528,53 @@ class ReportsPage extends React.Component {
                 isValidNewOption={this.isValidNewOption}
                 placeholder="Variable(s)"
                 isMulti
+                isDisabled={this.state.formDisabled}
+              />
+            )}
+            {this.state.reportType !== 'category-line' && (
+              <ReactSelect
+                classes={classes}
+                styles={selectStyles}
+                name="studies"
+                options={this.state.studiesOptions}
+                components={{
+                  Control,
+                  Menu,
+                  MultiValue,
+                  NoOptionsMessage,
+                  Option,
+                  Placeholder,
+                  SingleValue,
+                  ValueContainer,
+                }}
+                value={this.state.studies.map(study => ({
+                  value: study, label: study,
+                }))}
+                onChange={this.handleMultiSelectChange('studies')}
+                placeholder="Studies"
+                isMulti
+                isDisabled={this.state.formDisabled}
+              />
+            )}
+            {this.state.reportType === 'category-line' && (
+              <ReactSelect
+                classes={classes}
+                styles={selectStyles}
+                name="studySingle"
+                options={this.state.studiesOptions}
+                components={{
+                  Control,
+                  Menu,
+                  MultiValue,
+                  NoOptionsMessage,
+                  Option,
+                  Placeholder,
+                  SingleValue,
+                  ValueContainer,
+                }}
+                value={this.state.studySingle === '' ? null : { label: this.state.studySingle, value: this.state.studySingle }}
+                onChange={this.handleSelectChange('studySingle')}
+                placeholder="Study"
                 isDisabled={this.state.formDisabled}
               />
             )}

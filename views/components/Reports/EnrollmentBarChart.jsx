@@ -38,16 +38,13 @@ const getChartDataPerStudy = ({ data, groupings }) => {
 
 const getGroupings = ({ data }) => {
   const uniqueGroupings = [...new Set(data.map((entry) => entry.value))];
-  const hue = Math.floor(Math.random() * 260);
   const colors = distinctColors({ 
     count: uniqueGroupings.length,
     lightMin: 20,
     lightMax: 90,
-    hueMin: hue,
-    hueMax: hue+100,
+    chromaMin: 20,
     chromaMax: 90,
   }).sort();
-  console.log(colors);
   return uniqueGroupings.sort().map((grouping, idx) => ({
     value: grouping,
     color: colors[idx],
@@ -64,21 +61,25 @@ class EnrollmentBarChart extends React.PureComponent {
   render() {
     const { chartData } = this.props;
     const { data, title } = chartData;
+    const groupings = getGroupings({ data });
     const chartDataPerStudy = getChartDataPerStudy({
       data,
-      groupings: getGroupings({ data }),
+      groupings,
     });
     return (
       <div
         style={{
-          textAlign: 'center', 
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
           fontFamily: '"Roboto", sans-serif' 
         }}
       >
         <h2>{title}</h2>
         <BarChart
           width={730}
-          height={500}
+          height={600}
           data={chartDataPerStudy}
           margin={{ top: 0, right: 30, left: 30, bottom: 20 }}
         >
@@ -90,8 +91,8 @@ class EnrollmentBarChart extends React.PureComponent {
             <Label value="Enrollment" offset={-10} angle={-90} position="insideLeft" />
           </YAxis>
           <Tooltip />
-          <Legend verticalAlign="top" height={36} />
-          {getGroupings({ data }).map((grouping) => (
+          <Legend verticalAlign="top" />
+          {groupings.map((grouping) => (
             <Bar
               dataKey={grouping.value}
               key={grouping.value}

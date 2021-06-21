@@ -1060,7 +1060,7 @@ router.route('/api/v1/studies/:study/enrollment')
           const foundData = await mongoData
             .collection(assessmentCollection.collection)
             .findOne(
-              { [varName]: { $exists: true } },
+              { [varName]: { $exists: true, $ne: '' } },
               { [varName]: 1 },
             );
           if (foundData !== null && (foundData[varName] === 0 || foundData[varName])) {

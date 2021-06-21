@@ -58,7 +58,8 @@ const fetchDataForChart = async ({
     data = data.map((entry) => {
       let newEntry = entry;
       valueLabels.forEach((valueLabel) => {
-        if (valueLabel.value.toString() === entry.value.toString()) {
+        const valueLabelValuesArray = valueLabel.value.toString().split(',');
+        if (valueLabelValuesArray.includes(entry.value.toString())) {
           newEntry = { ...entry, value: valueLabel.label };
         }
       })

@@ -29,11 +29,20 @@ const LabelHelpDialog = ({
           <p>
             To remedy this, you may add labels for any possible raw value
             of a variable by clicking the &ldquo;Add label/grouping for
-            variable value&rdquo; button. You may group multiple raw values
+            variable value&rdquo; button. 
+          </p>
+          <p>
+            <strong>Grouping:</strong> You may group multiple raw values
             together by entering them as a comma-separated list: for example,
             &ldquo;1,2,3&rdquo; under &ldquo;Value&rdquo; and then your grouping
             name under &ldquo;Label/Group&rdquo;. Ensure that there are no extra
             spaces as the raw values will be matched exactly to the database.
+          </p>
+          <p>
+            <strong>Ranges:</strong> For numeric values, you may also group
+            raw values together by range. To do this, enter the minimum and
+            maximum value separated by a single hyphen: for example,
+            &ldquo;1-3&rdquo; under &ldquo;Value&rdquo;.
           </p>
           <p>
             If you do not add labels, the labels on the chart will simply be

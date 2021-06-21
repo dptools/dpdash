@@ -110,7 +110,7 @@ class ReportsPage extends React.Component {
       errorOpen: false,
       title: '',
       variableOptions: [],
-      reportType: 'bar',
+      chartType: 'bar',
       variableSingle: '',
       assessmentSingle: '',
       variableMulti: [],
@@ -175,7 +175,7 @@ class ReportsPage extends React.Component {
   }
   handleFormChange = (e) => {
     e.persist();
-    if (e.target.name === 'reportType') {
+    if (e.target.name === 'chartType') {
       this.clearForm();
     }
     this.setState({
@@ -219,7 +219,7 @@ class ReportsPage extends React.Component {
   loadPreset = (preset) => {
     this.setState({
       title: preset.title,
-      reportType: preset.reportType,
+      chartType: preset.chartType,
       variableSingle: preset.varName,
       assessmentSingle: preset.assessment,
       variableMulti: preset.variables,
@@ -269,7 +269,7 @@ class ReportsPage extends React.Component {
       const body = { 
         presetName: this.state.presetName,
         title: this.state.title,
-        reportType: this.state.reportType,
+        chartType: this.state.chartType,
         varName: this.state.variableSingle,
         assessment: this.state.assessmentSingle,
         variables: this.state.variableMulti,
@@ -341,7 +341,7 @@ class ReportsPage extends React.Component {
         formDisabled: true,
       });
       const formValues = { 
-        reportType: this.state.reportType,
+        chartType: this.state.chartType,
         varName: this.state.variableSingle,
         assessment: this.state.assessmentSingle,
         variables: this.state.variableMulti,
@@ -400,11 +400,11 @@ class ReportsPage extends React.Component {
           className={`${classes.content} ${classes.contentPadded}`}
         >
           <form onSubmit={this.handleSubmit}>
-            <InputLabel id="reportType-label">Report type</InputLabel>
+            <InputLabel id="chartType-label">Report type</InputLabel>
             <Select
-              labelId="reportType-label"
-              name="reportType" 
-              value={this.state.reportType}
+              labelId="chartType-label"
+              name="chartType" 
+              value={this.state.chartType}
               onChange={this.handleFormChange}
               fullWidth
               required
@@ -417,35 +417,35 @@ class ReportsPage extends React.Component {
               <MenuItem value="demo-table">Demographics table</MenuItem>
             </Select>
             <FormHelperText>
-              {this.state.reportType === 'bar' && (
+              {this.state.chartType === 'bar' && (
                 <>
                   A bar chart with <strong>studies</strong> on the X-axis
                   and actual values for a <strong>single variable</strong> on the Y-axis,
                   shown as percentages of defined target values.
                 </>
               )}
-              {this.state.reportType === 'study-line' && (
+              {this.state.chartType === 'study-line' && (
                 <>
                   A line chart with <strong>time</strong> on the X-axis, values for
                   a <strong>single variable</strong> on the Y-axis, and colors
                   to indicate <strong>studies</strong>.
                 </>
               )}
-              {this.state.reportType === 'category-line' && (
+              {this.state.chartType === 'category-line' && (
                 <>
                   A line chart with <strong>time</strong> on the X-axis, values for
                   a <strong>single study</strong> on the Y-axis, and colors
                   to indicate <strong>variables</strong>.
                 </>
               )}
-              {this.state.reportType === 'table' && (
+              {this.state.chartType === 'table' && (
                 <>
                   A table with <strong>dates</strong> as columns,
                   and actual values for <strong>variables</strong> as rows, optionally
                   also including percentages of defined target values.
                 </>
               )}
-              {this.state.reportType === 'demo-table' && (
+              {this.state.chartType === 'demo-table' && (
                 <>
                   A preset table showing total recruitment by racial, ethnic, and
                   gender demographics.
@@ -462,7 +462,7 @@ class ReportsPage extends React.Component {
               required
               disabled={this.state.formDisabled}
             />
-            { ['bar', 'study-line', 'category-line'].includes(this.state.reportType) && (
+            { ['bar', 'study-line', 'category-line'].includes(this.state.chartType) && (
               <TextField
                 className={classes.textInput}
                 label="Assessment"
@@ -474,7 +474,7 @@ class ReportsPage extends React.Component {
                 disabled={this.state.formDisabled}
               />
             )}
-            {['bar', 'study-line'].includes(this.state.reportType) && (
+            {['bar', 'study-line'].includes(this.state.chartType) && (
               <>
                 <TextField
                   className={classes.textInput}
@@ -538,7 +538,7 @@ class ReportsPage extends React.Component {
                 <br />
               </>
             )}
-            {this.state.reportType === 'category-line' && (
+            {this.state.chartType === 'category-line' && (
               <MultiSelectCreatable
                 classes={classes}
                 styles={selectStyles}
@@ -565,7 +565,7 @@ class ReportsPage extends React.Component {
                 isDisabled={this.state.formDisabled}
               />
             )}
-            {this.state.reportType !== 'category-line' && (
+            {this.state.chartType !== 'category-line' && (
               <ReactSelect
                 classes={classes}
                 styles={selectStyles}
@@ -590,7 +590,7 @@ class ReportsPage extends React.Component {
                 isDisabled={this.state.formDisabled}
               />
             )}
-            {this.state.reportType === 'category-line' && (
+            {this.state.chartType === 'category-line' && (
               <ReactSelect
                 classes={classes}
                 styles={selectStyles}

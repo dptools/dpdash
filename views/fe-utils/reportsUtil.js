@@ -17,7 +17,7 @@ const queryApi = async ({
 }
 
 const fetchDataForChart = async ({ 
-  reportType,
+  chartType,
   varName,
   assessment,
   variables,
@@ -26,7 +26,7 @@ const fetchDataForChart = async ({
   valueLabels,
 }) => {
   let data = [];
-  if (['bar', 'study-line'].includes(reportType)) {
+  if (['bar', 'study-line'].includes(chartType)) {
     const body = {
       assessment,
       varName,
@@ -36,7 +36,7 @@ const fetchDataForChart = async ({
       data.push(...statsForStudy.enrollmentsList);
       return Promise.resolve();
     }));
-  } else if (reportType === 'category-line') { 
+  } else if (chartType === 'category-line') { 
     await Promise.all(variables.map(async (variable) => {
       const body = {
         assessment,

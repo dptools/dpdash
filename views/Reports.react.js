@@ -3,8 +3,10 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
 import Snackbar from '@material-ui/core/Snackbar';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import Save from '@material-ui/icons/Save';
 import TuneIcon from '@material-ui/icons/Tune';
@@ -67,9 +69,12 @@ const styles = theme => ({
   noOptionsMessage: {
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
   },
-  separator: {
-    marginTop: '8px',
-    marginBottom: '8px',
+  divider: {
+    marginTop: '20px',
+    marginBottom: '20px',
+  },
+  paragraph: {
+    color: 'rgba(0, 0, 0, 0.54)'
   },
 });
 
@@ -135,6 +140,7 @@ class ReportsPage extends React.Component {
       charts: prevState.charts.map((s, _idx) => {
         if (_idx !== idx) return s;
         return { 
+          title: '',
           variableSingle: '',
           assessmentSingle: '',
           variableMulti: [],
@@ -250,7 +256,7 @@ class ReportsPage extends React.Component {
       charts: [...prevState.charts, {
         title: '',
         variableOptions: [],
-        chartType: '',
+        chartType: 'none',
         variableSingle: '',
         assessmentSingle: '',
         variableMulti: [],
@@ -318,15 +324,20 @@ class ReportsPage extends React.Component {
         >
           <form onSubmit={this.handleSubmit}>
             {this.state.charts && this.state.charts.length === 0 && (
-              <p>
-                This report currently does not contain any charts. Add as many charts
-                as you wish by clicking the button below.
-              </p>
+              <Typography
+                className={classes.paragraph}
+                variant="body2"
+                component="p"
+              >
+                This report currently does not contain any charts. Add charts by 
+                clicking the button below.
+              </Typography>
             )}
             {this.state.charts && this.state.charts.map((chart, idx) => (
               <>
                 <ChartFormFields
                   chart={chart}
+                  chartIndex={idx}
                   key={`chart${idx}`}
                   classes={classes}
                   styles={selectStyles}
@@ -335,9 +346,12 @@ class ReportsPage extends React.Component {
                   handleOpenDialog={this.handleOpenDialog}
                   handleCloseDialog={this.handleCloseDialog}
                   labelInfoOpen={this.state.labelInfoOpen}
+                  removeChart={(e) => this.removeChart(e, idx)}
                   disabled={this.state.formDisabled}
                 />
-                <hr className={classes.separator} />
+                {idx < (this.state.charts.length - 1) && (
+                  <Divider className={classes.divider} />
+                )}
               </>
             ))}
             <Button

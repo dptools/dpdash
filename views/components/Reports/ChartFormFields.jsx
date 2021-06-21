@@ -5,6 +5,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
 import HelpOutline from '@material-ui/icons/HelpOutline';
 import Clear from '@material-ui/icons/Clear';
 import {
@@ -29,6 +30,7 @@ const isValidNewOption = (inputValue, selectValue, selectOptions) => !(
 
 const ChartFormFields = ({
   chart,
+  chartIndex,
   classes,
   styles,
   clearForm,
@@ -36,6 +38,7 @@ const ChartFormFields = ({
   handleOpenDialog,
   handleCloseDialog,
   labelInfoOpen,
+  removeChart,
   disabled,
 }) => { 
   const [labelsState, setLabelsState] = useState({
@@ -82,6 +85,9 @@ const ChartFormFields = ({
 
   return (
     <>
+      <Typography variant="subtitle1" align="center" gutterBottom>
+        {chart.title !== '' ? chart.title : `Chart ${chartIndex + 1}`} 
+      </Typography>
       <InputLabel id="chartType-label">Chart type</InputLabel>
       <Select
         labelId="chartType-label"
@@ -91,8 +97,8 @@ const ChartFormFields = ({
         fullWidth
         required
         disabled={disabled}
-        placeholder="Select a chart type..."
       >
+        <MenuItem value="none" disabled>Select a chart type...</MenuItem>
         <MenuItem value="bar">Bar chart</MenuItem>
         {/* Remove "disabled" prop from these when functional: */}
         <MenuItem value="study-line" disabled>Line chart (by study)</MenuItem>
@@ -100,7 +106,7 @@ const ChartFormFields = ({
         <MenuItem value="table" disabled>Milestones table</MenuItem>
         <MenuItem value="demo-table" disabled>Demographics table</MenuItem>
       </Select>
-      {chart.chartType !== '' && (
+      {chart.chartType !== 'none' && (
         <>
           <FormHelperText>
             {chart.chartType === 'bar' && (
@@ -253,6 +259,18 @@ const ChartFormFields = ({
           )}
         </>
       )}
+      <Button
+        type="button"
+        onClick={removeChart}
+        color="secondary"
+        variant="outlined"
+        className={classes.textInput}
+        fullWidth
+      >
+        <Clear /> Remove
+        {' '}
+        {chart.title !== '' ? chart.title : `chart ${chartIndex + 1}`}
+      </Button>
     </>
   );
 };

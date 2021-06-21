@@ -47,6 +47,13 @@ const fetchDataForChart = async ({
       return Promise.resolve();
     }));
   } else throw Error('Report type not yet supported');
+  data = data.map((entry) => {
+    let newEntry = entry;
+    if (entry.value === null) {
+      newEntry = { ...entry, value: 'No data' };
+    }
+    return newEntry;
+  });
   if (Array.isArray(valueLabels) && valueLabels.length > 0) {
     data = data.map((entry) => {
       let newEntry = entry;

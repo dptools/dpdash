@@ -1,42 +1,21 @@
-import React, { createRef } from 'react';
+import React from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import ReactSelect from 'react-select';
-import MultiSelectCreatable from 'react-select/lib/Creatable';
 import Button from '@material-ui/core/Button';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
 import Snackbar from '@material-ui/core/Snackbar';
-import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
-import HelpOutline from '@material-ui/icons/HelpOutline';
-import Clear from '@material-ui/icons/Clear';
 import Save from '@material-ui/icons/Save';
 import TuneIcon from '@material-ui/icons/Tune';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import {
-  Control,
-  Menu,
-  MultiValue,
-  NoOptionsMessage,
-  Option,
-  Placeholder,
-  SingleValue,
-  ValueContainer,
-} from './components/MultiSelect';
-import EnrollmentBarChart from './components/Reports/EnrollmentBarChart';
 import SavePresetDialog from './components/Reports/SavePresetDialog';
-import LabelHelpDialog from './components/Reports/LabelHelpDialog';
 import LoadPresetsDialog from './components/Reports/LoadPresetsDialog';
+import ChartFormFields from './components/Reports/ChartFormFields';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
-import { fetchSubjects, fetchStudies } from './fe-utils/fetchUtil';
-import { fetchDataForChart } from './fe-utils/reportsUtil';
+import { fetchSubjects } from './fe-utils/fetchUtil';
 import getDefaultStyles from './fe-utils/styleUtil';
 
 const styles = theme => ({
@@ -88,12 +67,15 @@ const styles = theme => ({
   noOptionsMessage: {
     padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
   },
+  separator: {
+    marginTop: '8px',
+    marginBottom: '8px',
+  },
 });
 
 class ReportsPage extends React.Component {
   constructor(props) {
     super(props);
-    this.chartRef = createRef();
     this.state = {
       tab: 0,
       width: 0,
@@ -108,34 +90,19 @@ class ReportsPage extends React.Component {
       formDisabled: false,
       error: '',
       errorOpen: false,
-      title: '',
-      variableOptions: [],
-      chartType: 'bar',
-      variableSingle: '',
-      assessmentSingle: '',
-      variableMulti: [],
-      studiesOptions: [],
-      studies: [],
-      studySingle: '',
-      chartData: {},
-      valueLabels: [],
+      charts: [],
       labelInfoOpen: false,
       loadPresetOpen: false,
       savePresetOpen: false,
       presetFormDisabled: false,
       presetName: '',
       presets: [],
-      targets: [],
     };
   }
   async componentDidMount() {
     try {
       const acl = await fetchSubjects();
       this.setState(getCounts({ acl }));
-      const studies = await fetchStudies();
-      this.setState({
-        studiesOptions: studies.map(study => ({ label: study, value: study })),
-      });
       const presets = await this.fetchPresets();
       this.setState({
         presets: presets !== null ? presets : [],
@@ -163,41 +130,19 @@ class ReportsPage extends React.Component {
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
-  clearForm = () => {
-    this.setState({
-      variableSingle: '',
-      assessmentSingle: '',
-      variableMulti: [],
-      studies: [],
-      studySingle: '',
-      valueLabels: [],
-    });
+  clearForm = (idx) => {
+    this.setState(prevState => ({
+      charts: prevState.charts.map((s, _idx) => {
+        if (_idx !== idx) return s;
+        return { 
+          variableSingle: '',
+          assessmentSingle: '',
+          variableMulti: [],
+          valueLabels: [],
+        };
+      })
+    }));
   }
-  handleFormChange = (e) => {
-    e.persist();
-    if (e.target.name === 'chartType') {
-      this.clearForm();
-    }
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
-  };
-  handleSelectChange = (name) => (choice) => {
-    this.setState({
-      [name]: choice.value,
-    });
-  }
-  handleMultiSelectChange = (name) => (choices) => {
-    this.setState({
-      [name]: choices.map(choice => choice.value),
-    });
-  };
-  isValidNewOption = (inputValue, selectValue, selectOptions) => !(
-    !inputValue ||
-    selectOptions.some(option => (
-      option.value.toLowerCase() === inputValue.toLowerCase()
-    ))
-  );
   handleCloseError = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -268,12 +213,7 @@ class ReportsPage extends React.Component {
       });
       const body = { 
         presetName: this.state.presetName,
-        title: this.state.title,
-        chartType: this.state.chartType,
-        varName: this.state.variableSingle,
-        assessment: this.state.assessmentSingle,
-        variables: this.state.variableMulti,
-        valueLabels: this.state.valueLabels,
+        charts: this.state.charts,
       };
       const res = await window.fetch('/api/v1/charts', {
         method: 'POST',
@@ -303,28 +243,34 @@ class ReportsPage extends React.Component {
       });
     }
   };
-  addValueLabel = (e) => {
+  addChart = (e) => {
     e.preventDefault();
+    console.log(e);
     this.setState(prevState => ({
-      valueLabels: [...prevState.valueLabels, {
-        value: '',
-        label: '',
+      charts: [...prevState.charts, {
+        title: '',
+        variableOptions: [],
+        chartType: '',
+        variableSingle: '',
+        assessmentSingle: '',
+        variableMulti: [],
+        chartData: {},
+        valueLabels: [],
       }]
     }));
+    console.log(this.state.charts);
   };
-  removeValueLabel = (e, idx) => {
+  removeChart = (e, idx) => {
     e.preventDefault();
     this.setState(prevState => ({
-      valueLabels: prevState.valueLabels.filter((s, _idx) => _idx !== idx),
+      charts: prevState.charts.filter((chart, _idx) => _idx !== idx),
     }));
   };
-  handleValueLabelChange = (e, idx, field) => {
-    e.persist();
-    const valueToUse = e.target.value;
+  handleChartChange = (idx, field, value) => {
     this.setState(prevState => ({
-      valueLabels: prevState.valueLabels.map((s, _idx) => {
+      charts: prevState.charts.map((s, _idx) => {
         if (_idx !== idx) return s;
-        return { ...s, [field]: valueToUse };
+        return { ...s, [field]: value };
       })
     }));
   };
@@ -336,35 +282,6 @@ class ReportsPage extends React.Component {
   };
   handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      this.setState({
-        formDisabled: true,
-      });
-      const formValues = { 
-        chartType: this.state.chartType,
-        varName: this.state.variableSingle,
-        assessment: this.state.assessmentSingle,
-        variables: this.state.variableMulti,
-        studies: this.state.studies,
-        studySingle: this.state.studySingle,
-        valueLabels: this.state.valueLabels,
-      };
-      const data = await fetchDataForChart(formValues);
-      this.setState({
-        formDisabled: false,
-        chartData: {
-          title: this.state.title,
-          data,
-        }
-      });
-      this.chartRef.current.scrollIntoView({ behavior: 'smooth' });
-    } catch (err) {
-      this.setState({
-        formDisabled: false,
-        error: err.message,
-        errorOpen: true,
-      });
-    }
   }
 
   render() {
@@ -400,235 +317,39 @@ class ReportsPage extends React.Component {
           className={`${classes.content} ${classes.contentPadded}`}
         >
           <form onSubmit={this.handleSubmit}>
-            <InputLabel id="chartType-label">Chart type</InputLabel>
-            <Select
-              labelId="chartType-label"
-              name="chartType" 
-              value={this.state.chartType}
-              onChange={this.handleFormChange}
-              fullWidth
-              required
-              disabled={this.state.formDisabled}
-            >
-              <MenuItem value="bar">Bar chart</MenuItem>
-              {/* Remove "disabled" prop from these when functional: */}
-              <MenuItem value="study-line" disabled>Line chart (by study)</MenuItem>
-              <MenuItem value="category-line" disabled>Line chart (by variable)</MenuItem>
-              <MenuItem value="table" disabled>Milestones table</MenuItem>
-              <MenuItem value="demo-table" disabled>Demographics table</MenuItem>
-            </Select>
-            <FormHelperText>
-              {this.state.chartType === 'bar' && (
-                <>
-                  A bar chart with <strong>studies</strong> on the X-axis
-                  and actual values for a <strong>single variable</strong> on the Y-axis,
-                  shown as percentages of defined target values.
-                </>
-              )}
-              {this.state.chartType === 'study-line' && (
-                <>
-                  A line chart with <strong>time</strong> on the X-axis, values for
-                  a <strong>single variable</strong> on the Y-axis, and colors
-                  to indicate <strong>studies</strong>.
-                </>
-              )}
-              {this.state.chartType === 'category-line' && (
-                <>
-                  A line chart with <strong>time</strong> on the X-axis, values for
-                  a <strong>single study</strong> on the Y-axis, and colors
-                  to indicate <strong>variables</strong>.
-                </>
-              )}
-              {this.state.chartType === 'table' && (
-                <>
-                  A table with <strong>dates</strong> as columns,
-                  and actual values for <strong>variables</strong> as rows, optionally
-                  also including percentages of defined target values.
-                </>
-              )}
-              {this.state.chartType === 'demo-table' && (
-                <>
-                  A preset table showing total recruitment by racial, ethnic, and
-                  gender demographics.
-                </>
-              )}
-            </FormHelperText>
-            <TextField
-              className={classes.textInput}
-              label="Title"
-              name="title"
-              value={this.state.title}
-              onChange={this.handleFormChange}
-              fullWidth
-              required
-              disabled={this.state.formDisabled}
-            />
-            { ['bar', 'study-line', 'category-line'].includes(this.state.chartType) && (
-              <TextField
-                className={classes.textInput}
-                label="Assessment"
-                name="assessmentSingle"
-                value={this.state.assessmentSingle}
-                onChange={this.handleFormChange}
-                fullWidth
-                required
-                disabled={this.state.formDisabled}
-              />
+            {this.state.charts && this.state.charts.length === 0 && (
+              <p>
+                This report currently does not contain any charts. Add as many charts
+                as you wish by clicking the button below.
+              </p>
             )}
-            {['bar', 'study-line'].includes(this.state.chartType) && (
+            {this.state.charts && this.state.charts.map((chart, idx) => (
               <>
-                <TextField
-                  className={classes.textInput}
-                  label="Variable"
-                  name="variableSingle"
-                  value={this.state.variableSingle}
-                  onChange={this.handleFormChange}
-                  fullWidth
-                  required
+                <ChartFormFields
+                  chart={chart}
+                  key={`chart${idx}`}
+                  classes={classes}
+                  styles={selectStyles}
+                  clearForm={() => this.clearForm(idx)}
+                  handleChartChange={({ field, value }) => this.handleChartChange(idx, field, value)}
+                  handleOpenDialog={this.handleOpenDialog}
+                  handleCloseDialog={this.handleCloseDialog}
+                  labelInfoOpen={this.state.labelInfoOpen}
                   disabled={this.state.formDisabled}
                 />
-                {this.state.valueLabels.length > 0 && 
-                  this.state.valueLabels.map((valueLabel, idx) => (
-                  <div key={idx} className={classes.formLabelRow}>
-                    <Button
-                      variant="outlined"
-                      type="button"
-                      className={classes.formLabelCol}
-                      onClick={(e) => this.removeValueLabel(e, idx)}
-                    >
-                      <Clear />
-                    </Button>
-                    <TextField
-                      label="Value"
-                      value={valueLabel?.value}
-                      onChange={(e) => this.handleValueLabelChange(e, idx, 'value')}
-                      disabled={this.state.formDisabled}
-                      className={classes.formLabelCol}
-                      style={{ width: '33%' }}
-                    />
-                    <TextField
-                      label="Label/Group"
-                      value={valueLabel?.label}
-                      onChange={(e) => this.handleValueLabelChange(e, idx, 'label')}
-                      disabled={this.state.formDisabled}
-                      style={{ width: '100%' }}
-                    />
-                    <br />
-                  </div>
-                ))}
-                <Button
-                  variant="text"
-                  type="button"
-                  className={classes.textButton}
-                  onClick={this.addValueLabel}
-                  disabled={this.state.formDisabled}
-                >
-                  + Add label/grouping for variable value
-                </Button>
-                <Button
-                  variant="text"
-                  type="button"
-                  onClick={() => this.handleOpenDialog('labelInfoOpen')}
-                >
-                  <HelpOutline />
-                </Button>
-                <LabelHelpDialog
-                  open={this.state.labelInfoOpen}
-                  onClose={() => this.handleCloseDialog('labelInfoOpen')}
-                />
-                <br />
+                <hr className={classes.separator} />
               </>
-            )}
-            {this.state.chartType === 'category-line' && (
-              <MultiSelectCreatable
-                classes={classes}
-                styles={selectStyles}
-                name="variableMulti"
-                options={this.state.variableOptions}
-                components={{
-                  Control,
-                  Menu,
-                  MultiValue,
-                  NoOptionsMessage,
-                  Option,
-                  Placeholder,
-                  SingleValue,
-                  ValueContainer,
-                }}
-                value={this.state.variableMulti.map(v => ({value: v, label: v }))}
-                onChange={this.handleMultiSelectChange('variableMulti')}
-                formatCreateLabel={(inputValue) => inputValue}
-                noOptionsMessage={() => 'Enter a variable name, then select it\
-                  from the dropdown or press enter'}
-                isValidNewOption={this.isValidNewOption}
-                placeholder="Variable(s)"
-                isMulti
-                isDisabled={this.state.formDisabled}
-              />
-            )}
-            {this.state.chartType !== 'category-line' && (
-              <ReactSelect
-                classes={classes}
-                styles={selectStyles}
-                name="studies"
-                options={this.state.studiesOptions}
-                components={{
-                  Control,
-                  Menu,
-                  MultiValue,
-                  NoOptionsMessage,
-                  Option,
-                  Placeholder,
-                  SingleValue,
-                  ValueContainer,
-                }}
-                value={this.state.studies.map(study => ({
-                  value: study, label: study,
-                }))}
-                onChange={this.handleMultiSelectChange('studies')}
-                placeholder="Studies"
-                isMulti
-                isDisabled={this.state.formDisabled}
-              />
-            )}
-            {this.state.chartType === 'category-line' && (
-              <ReactSelect
-                classes={classes}
-                styles={selectStyles}
-                name="studySingle"
-                options={this.state.studiesOptions}
-                components={{
-                  Control,
-                  Menu,
-                  MultiValue,
-                  NoOptionsMessage,
-                  Option,
-                  Placeholder,
-                  SingleValue,
-                  ValueContainer,
-                }}
-                value={this.state.studySingle === '' ? null : { label: this.state.studySingle, value: this.state.studySingle }}
-                onChange={this.handleSelectChange('studySingle')}
-                placeholder="Study"
-                isDisabled={this.state.formDisabled}
-              />
-            )}
+            ))}
             <Button
               variant="outlined"
-              type="submit"
+              type="button"
+              onClick={this.addChart}
               className={classes.submitButton}
               disabled={this.state.formDisabled}
             >
-              Submit
+              + Add a chart
             </Button>
           </form>
-          {this.state.chartData && Object.keys(this.state.chartData).length > 1 && (
-            <div ref={this.chartRef}>
-              <EnrollmentBarChart 
-                chartData={this.state.chartData}
-              />
-            </div>
-          )}
         </div>
         <div
           className={classes.bottomRight}

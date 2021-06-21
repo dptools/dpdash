@@ -400,7 +400,7 @@ class ReportsPage extends React.Component {
           className={`${classes.content} ${classes.contentPadded}`}
         >
           <form onSubmit={this.handleSubmit}>
-            <InputLabel id="chartType-label">Report type</InputLabel>
+            <InputLabel id="chartType-label">Chart type</InputLabel>
             <Select
               labelId="chartType-label"
               name="chartType" 
@@ -411,10 +411,11 @@ class ReportsPage extends React.Component {
               disabled={this.state.formDisabled}
             >
               <MenuItem value="bar">Bar chart</MenuItem>
-              <MenuItem value="study-line">Line chart (by study)</MenuItem>
-              <MenuItem value="category-line">Line chart (by variable)</MenuItem>
-              <MenuItem value="table">Milestones table</MenuItem>
-              <MenuItem value="demo-table">Demographics table</MenuItem>
+              {/* Remove "disabled" prop from these when functional: */}
+              <MenuItem value="study-line" disabled>Line chart (by study)</MenuItem>
+              <MenuItem value="category-line" disabled>Line chart (by variable)</MenuItem>
+              <MenuItem value="table" disabled>Milestones table</MenuItem>
+              <MenuItem value="demo-table" disabled>Demographics table</MenuItem>
             </Select>
             <FormHelperText>
               {this.state.chartType === 'bar' && (

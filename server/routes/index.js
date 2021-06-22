@@ -973,7 +973,7 @@ router.route('/api/v1/users/:uid/config/file')
     }
   });
 
-  router.route('/reports')
+router.route('/reports')
   .get(ensureAuthenticated, async (req, res) => {
     checkMongo();
     try { 
@@ -1162,12 +1162,12 @@ router.route('/api/v1/reports')
       const { user } = req;
       const reports = await mongoApp
         .collection('reports')
-        .find({ user }, {
-          _id: 1,
-          user: 1,
-          reportName: 1,
-          created: 1,
-        })
+        .find({
+          $or: [
+            { user },
+            { readers: user },
+          ],
+         }, { charts: 0 })
         .toArray();
       return res.status(200).send({ reports });
     } catch (err) {
@@ -1203,7 +1203,10 @@ router.route('/api/v1/reports/:id')
         .collection('reports')
         .findOne({
           _id: ObjectID(req.params.id),
-          user,
+          $or: [
+            { user },
+            { readers: user },
+          ],
         });
       if (report === null) {
         return res.status(404).send({ message: 'Report not found' });

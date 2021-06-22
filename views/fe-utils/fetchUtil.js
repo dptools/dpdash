@@ -1,5 +1,19 @@
-const fetchStudies = async () => {
+const fetchStudiesAdmin = async () => {
   const res = await window.fetch('/api/v1/search/studies', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'same-origin'
+  })
+  if (res.status !== 200) {
+    throw new Error(res.statusText);
+  }
+  return res.json();
+}
+
+const fetchStudies = async () => {
+  const res = await window.fetch('/api/v1/studies', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -66,4 +80,4 @@ const fetchUsernames = async () => {
   return res.json()
 }
 
-export { fetchStudies, fetchSubjects, fetchUsers, fetchUsernames };
+export { fetchStudies, fetchStudiesAdmin, fetchSubjects, fetchUsers, fetchUsernames };

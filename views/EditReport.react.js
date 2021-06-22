@@ -16,6 +16,7 @@ import ChartFormFields from './components/Reports/ChartFormFields';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects } from './fe-utils/fetchUtil';
+import { fetchReport } from './fe-utils/reportsUtil.js';
 import getDefaultStyles from './fe-utils/styleUtil';
 
 const styles = theme => ({
@@ -107,7 +108,7 @@ class EditReportPage extends React.Component {
       this.setState(getCounts({ acl }));
       const { mode, id } = this.props.report;
       if (mode === 'edit' && id) {
-        const { charts, reportName } = await this.fetchReport({ id });
+        const { charts, reportName } = await fetchReport({ id });
         this.setState({
           charts,
           reportName,
@@ -157,23 +158,6 @@ class EditReportPage extends React.Component {
       return;
     }
     this.setState({ errorOpen: false });
-  };
-  fetchReport = async ({ id }) => {
-    const res = await window.fetch(`/api/v1/reports/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-    });
-    if (!res.ok) {
-      throw Error(res.statusText);
-    }
-    const { report } = await res.json();
-    return {
-      charts: report.charts,
-      reportName: report.reportName,
-    };
   };
   saveReport = async (e) => {
     e.preventDefault();

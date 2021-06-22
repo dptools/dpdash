@@ -1,3 +1,21 @@
+const fetchReport = async ({ id }) => {
+  const res = await window.fetch(`/api/v1/reports/${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'same-origin',
+  });
+  if (!res.ok) {
+    throw Error(res.statusText);
+  }
+  const { report } = await res.json();
+  return {
+    charts: report.charts,
+    reportName: report.reportName,
+  };
+};
+
 const queryApi = async ({
   study,
   body,
@@ -92,4 +110,4 @@ const fetchDataForChart = async ({
   return data;
 };
 
-export { fetchDataForChart };
+export { fetchDataForChart, fetchReport };

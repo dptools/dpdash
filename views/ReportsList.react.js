@@ -13,6 +13,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import Add from '@material-ui/icons/Add';
 import Delete from '@material-ui/icons/Delete';
+import Edit from '@material-ui/icons/Edit';
+import Share from '@material-ui/icons/Share';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
@@ -183,7 +185,6 @@ class ReportsListPage extends React.Component {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell />
                     <TableCell>Name</TableCell>
                     <TableCell>Actions</TableCell>
                   </TableRow>
@@ -192,17 +193,26 @@ class ReportsListPage extends React.Component {
                   {this.state.reports && this.state.reports.map(report => (
                     <TableRow key={report._id}>
                       <TableCell component="th" scope="row">
+                        <a href={`/reports/${report._id}`}>
+                          {report.reportName}
+                        </a>
+                      </TableCell>
+                      <TableCell>
                         <Button
                           type="button"
-                          color="primary"
+                          variant="text"
                           disabled={this.state.formsDisabled}
                           href={`/reports/${report._id}/edit`}
                         >
-                          Edit
+                          <Edit />
                         </Button>
-                      </TableCell>
-                      <TableCell>{report.reportName}</TableCell>
-                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="text"
+                          disabled
+                        >
+                          <Share />
+                        </Button>
                         <Button
                           type="button"
                           variant="text"

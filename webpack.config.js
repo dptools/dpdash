@@ -19,6 +19,7 @@ module.exports = {
     graph: './views/Graph.render.react.js',
     reportsList: './views/ReportsList.render.react.js',
     editReport: './views/EditReport.render.react.js',
+    report: './views/Report.render.react.js',
   },
   module: {
     rules: [

@@ -31,6 +31,7 @@ import resetPage from '../templates/Resetpw.template';
 import studyPage from '../templates/Study.template';
 import reportsListPage from '../templates/ReportsList.template';
 import editReportPage from '../templates/EditReport.template';
+import viewReportPage from '../templates/Report.template';
 
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
@@ -988,6 +989,27 @@ router.route('/api/v1/users/:uid/config/file')
       return res.status(500).send({ message: err.message });
     }
   });
+
+router.route('/reports/:id')
+.get(ensureAuthenticated, async (req, res) => {
+  checkMongo();
+  try { 
+    const { display_name, role, icon } = req.session;
+    const user = {
+      uid: req.user,
+      name: display_name,
+      role, 
+      icon,
+    };
+    const report = {
+      id: req.params.id,
+    };
+    return res.status(200).send(viewReportPage({ user, report }));
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send({ message: err.message });
+  }
+});
 
 router.route('/reports/:id/edit')
 .get(ensureAuthenticated, async (req, res) => {

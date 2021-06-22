@@ -45,8 +45,9 @@ const styles = theme => ({
     marginTop: '64px',
     overflow: 'scroll',
   },
-  paragraph: {
-    color: 'rgba(0, 0, 0, 0.54)'
+  loading: {
+    color: 'rgba(0, 0, 0, 0.54)',
+    textAlign: 'center',
   },
   textInput: {
     marginTop: '8px',
@@ -91,6 +92,7 @@ class ViewReportPage extends React.Component {
       studiesOptions: [],
       studies: [],
       studySingle: '',
+      chartDataLoading: false,
       chartDataLoaded: false,
     };
   }
@@ -162,7 +164,10 @@ class ViewReportPage extends React.Component {
   showCharts = async (e) => {
     e.preventDefault();
     try {
-      this.setState({ formDisabled: true });
+      this.setState({
+        formDisabled: true,
+        chartDataLoading: true
+      });
       const charts = this.state.charts;
       await Promise.all(
         charts.map(async (chart, idx) => {
@@ -185,18 +190,21 @@ class ViewReportPage extends React.Component {
               if (_idx !== idx) return s;
               return { ...s, chartData };
             })
-          }));    
-        })
+          }));
+          return Promise.resolve();
+        }),
       );
       this.setState({
         chartDataLoaded: true,
         formDisabled: false,
+        chartDataLoading: false,
       });
     } catch (err) {
       this.setState({
         error: err.message,
         errorOpen: true,
         formDisabled: false,
+        chartDataLoading: false,
       });
     }  
   }
@@ -234,7 +242,7 @@ class ViewReportPage extends React.Component {
             className={`${classes.content} ${classes.contentPadded}`}
           >
             <Typography
-              className={classes.paragraph}
+              className={classes.loading}
               variant="body2"
               component="p"
             >
@@ -298,6 +306,15 @@ class ViewReportPage extends React.Component {
                     Generate report
                   </Button>
                 </form>
+              )}
+              {this.state.chartDataLoading && (
+                <Typography
+                  className={classes.loading}
+                  variant="body2"
+                  component="p"
+                >
+                  Loading...
+                </Typography>
               )}
               {this.state.chartDataLoaded && (
                 this.state.charts.map((chart) => (

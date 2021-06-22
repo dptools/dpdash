@@ -29,7 +29,8 @@ import mainPage from '../templates/Main.template';
 import registerPage from '../templates/Register.template';
 import resetPage from '../templates/Resetpw.template';
 import studyPage from '../templates/Study.template';
-import reportsPage from '../templates/Reports.template';
+import reportsListPage from '../templates/ReportsList.template';
+import editReportPage from '../templates/EditReport.template';
 
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
@@ -971,12 +972,12 @@ router.route('/api/v1/users/:uid/config/file')
     }
   });
 
-router.route('/reports')
+  router.route('/reports')
   .get(ensureAuthenticated, async (req, res) => {
     checkMongo();
     try { 
       const { display_name, role, icon } = req.session;
-      return res.status(200).send(reportsPage({
+      return res.status(200).send(reportsListPage({
         uid: req.user,
         name: display_name,
         role, 
@@ -987,6 +988,49 @@ router.route('/reports')
       return res.status(500).send({ message: err.message });
     }
   });
+
+router.route('/reports/:id/edit')
+.get(ensureAuthenticated, async (req, res) => {
+  checkMongo();
+  try { 
+    const { display_name, role, icon } = req.session;
+    const user = {
+      uid: req.user,
+      name: display_name,
+      role, 
+      icon,
+    };
+    const report = {
+      mode: 'edit',
+      id: req.params.id,
+    };
+    return res.status(200).send(editReportPage({ user, report }));
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send({ message: err.message });
+  }
+});
+
+router.route('/reports/new')
+.get(ensureAuthenticated, async (req, res) => {
+  checkMongo();
+  try { 
+    const { display_name, role, icon } = req.session;
+    const user = {
+      uid: req.user,
+      name: display_name,
+      role, 
+      icon,
+    };
+    const report = {
+      mode: 'create',
+    };
+    return res.status(200).send(editReportPage({ user, report }));
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send({ message: err.message });
+  }
+});
 
 router.route('/api/v1/studies/:study/enrollment')
   .get(ensureAuthenticated, async (req, res) => {
@@ -1089,18 +1133,21 @@ router.route('/api/v1/studies/:study/enrollment')
     }
   });
 
-router.route('/api/v1/charts')
+router.route('/api/v1/reports')
   .get(ensureAuthenticated, async (req, res) => {
     checkMongo();
     try {
       const { user } = req;
-      const foundCharts = await mongoApp
-        .collection('charts')
-        .find({ 
-          user,
+      const reports = await mongoApp
+        .collection('reports')
+        .find({ user }, {
+          _id: 1,
+          user: 1,
+          reportName: 1,
+          created: 1,
         })
         .toArray();
-      return res.status(200).send({ foundCharts });
+      return res.status(200).send({ reports });
     } catch (err) {
       console.error(err.message);
       return res.status(500).send({ message: err.message });
@@ -1111,10 +1158,12 @@ router.route('/api/v1/charts')
     try {
       const { body, user } = req;
       await mongoApp
-        .collection('charts')
+        .collection('reports')
         .insertOne({ 
           ...body,
           user,
+          readers: [user],
+          created: (new Date()).toUTCString(),
         });
       return res.status(200).send();
     } catch (err) {
@@ -1123,13 +1172,49 @@ router.route('/api/v1/charts')
     }
   });
 
-router.route('/api/v1/charts/:id')
+router.route('/api/v1/reports/:id')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { user } = req;
+      const report = await mongoApp
+        .collection('reports')
+        .findOne({
+          _id: ObjectID(req.params.id),
+          user,
+        });
+      return res.status(200).send({ report });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
+  .patch(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { body, user, params } = req;
+      await mongoApp
+        .collection('reports')
+        .findOneAndUpdate({
+          _id: ObjectID(params.id),
+          user,
+        }, {
+          $set: {
+            ...body,
+          }
+        });
+      return res.status(200).send();
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
   .delete(ensureAuthenticated, async (req, res) => {
     checkMongo();
     try {
       const { user } = req;
       const deletionRes = await mongoApp
-        .collection('charts')
+        .collection('reports')
         .deleteOne({
           _id: ObjectID(req.params.id),
           user,
@@ -1137,7 +1222,7 @@ router.route('/api/v1/charts/:id')
       if (deletionRes.deletedCount > 0) {
         return res.status(200).send();
       } else {
-        return res.status(404).send({ message: 'Preset not found' });
+        return res.status(404).send({ message: 'Report not found' });
       }
     } catch (err) {
       console.error(err.message);

@@ -42,7 +42,7 @@ const ChartFormFields = ({
   disabled,
 }) => { 
   const [labelsState, setLabelsState] = useState({
-    valueLabels: [],
+    valueLabels: chart.valueLabels || [],
   });
   const handleFormChange = (e) => {
     e.persist();
@@ -81,7 +81,7 @@ const ChartFormFields = ({
   };
   useEffect(() => {
     handleChartChange({ field: 'valueLabels', value: labelsState.valueLabels });
-  }, [labelsState]);
+  }, [labelsState.valueLabels]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-export default ({ uid, name, role, icon }) => {
+export default ({ user, report }) => {
   return `
 		<!DOCTYPE html>
 		<html>
@@ -8,14 +8,15 @@ export default ({ uid, name, role, icon }) => {
         <link rel="stylesheet" href="/css/admin.css" />
 				<title>Reports - DPdash</title>
 				<script>
-					window.USER = ${JSON.stringify({ uid, name, role, icon })}
+					window.USER = ${JSON.stringify(user)}
+          window.REPORT = ${JSON.stringify(report)}
 					window.SUBJECT = ${JSON.stringify(null)}
 					window.GRAPH = ${JSON.stringify(null)}
 				</script>
 			</head>
 			<body>
 				<div id="main"></div>
-				<script src="/js/reports.min.js"></script>
+				<script src="/js/editReport.min.js"></script>
 			</body>
 		</html>
 	`;

@@ -9,11 +9,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import Save from '@material-ui/icons/Save';
-import TuneIcon from '@material-ui/icons/Tune';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import SavePresetDialog from './components/Reports/SavePresetDialog';
-import LoadPresetsDialog from './components/Reports/LoadPresetsDialog';
+import SaveReportDialog from './components/Reports/SaveReportDialog';
 import ChartFormFields from './components/Reports/ChartFormFields';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
@@ -78,7 +76,7 @@ const styles = theme => ({
   },
 });
 
-class ReportsPage extends React.Component {
+class EditReportPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -97,22 +95,27 @@ class ReportsPage extends React.Component {
       errorOpen: false,
       charts: [],
       labelInfoOpen: false,
-      loadPresetOpen: false,
-      savePresetOpen: false,
-      presetFormDisabled: false,
-      presetName: '',
-      presets: [],
+      saveReportOpen: false,
+      report: {},
+      reportFormDisabled: false,
+      reportName: '',
     };
   }
   async componentDidMount() {
     try {
       const acl = await fetchSubjects();
       this.setState(getCounts({ acl }));
-      const presets = await this.fetchPresets();
+      const { mode, id } = this.props.report;
+      if (mode === 'edit' && id) {
+        const { charts, reportName } = await this.fetchReport({ id });
+        this.setState({
+          charts,
+          reportName,
+        });
+      }
       this.setState({
-        presets: presets !== null ? presets : [],
         loading: false,
-      });
+      })
     } catch (err) {
       console.error(err.message);
       this.setState({
@@ -155,74 +158,43 @@ class ReportsPage extends React.Component {
     }
     this.setState({ errorOpen: false });
   };
-  fetchPresets = async () => {
-    const presetsRes = await window.fetch('/api/v1/charts', {
+  fetchReport = async ({ id }) => {
+    const res = await window.fetch(`/api/v1/reports/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       },
       credentials: 'same-origin',
     });
-    const presetsJson = await presetsRes.json();
-    const { foundCharts } = presetsJson;
-    return foundCharts;
-  };
-  loadPreset = (preset) => {
-    this.setState({
-      title: preset.title,
-      chartType: preset.chartType,
-      variableSingle: preset.varName,
-      assessmentSingle: preset.assessment,
-      variableMulti: preset.variables,
-      valueLabels: preset.valueLabels,
-    });
-    this.handleCloseDialog('loadPresetOpen');
-  };
-  deletePreset = async (preset) => {
-    if (window.confirm(`Are you sure you want to delete the preset "${preset.presetName}"?`)) {
-      try { 
-        this.setState({
-          formDisabled: true,
-        });
-        const res = await window.fetch(`/api/v1/charts/${preset._id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          credentials: 'same-origin',
-        });
-        if (!res.ok) {
-          throw Error(res.statusText);
-        }
-        const presets = await this.fetchPresets();
-        this.setState({
-          error: 'Preset deleted successfully',
-          presets: presets !== null ? presets : [],
-          errorOpen: true,
-          formDisabled: false,
-        });
-        this.handleCloseDialog('loadPresetOpen');
-      } catch (err) {
-        this.setState({
-          error: err.message,
-          errorOpen: true,
-          formDisabled: false,
-        });
-      }
+    if (!res.ok) {
+      throw Error(res.statusText);
     }
+    const { report } = await res.json();
+    return {
+      charts: report.charts,
+      reportName: report.reportName,
+    };
   };
-  savePreset = async (e) => {
+  saveReport = async (e) => {
     e.preventDefault();
     try { 
       this.setState({
-        presetFormDisabled: true,
+        reportFormDisabled: true,
+        formDisabled: true,
       });
       const body = { 
-        presetName: this.state.presetName,
+        reportName: this.state.reportName,
         charts: this.state.charts,
       };
-      const res = await window.fetch('/api/v1/charts', {
-        method: 'POST',
+      let url = '/api/v1/reports';
+      let method = 'POST';
+      const { mode, id } = this.props.report;
+      if (mode === 'edit') {
+        method = 'PATCH';
+        url = `/api/v1/reports/${id}`;
+      }
+      const res = await window.fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json'
         },
@@ -232,26 +204,27 @@ class ReportsPage extends React.Component {
       if (!res.ok) {
         throw Error(res.statusText);
       }
-      const presets = await this.fetchPresets();
       this.setState({
-        error: 'Preset saved successfully',
+        error: 'Report saved successfully',
         errorOpen: true,
-        presetFormDisabled: false,
-        presetName: '',
-        presets: presets !== null ? presets : [],
+        formDisabled: false,
+        reportFormDisabled: false,
       });
-      this.handleCloseDialog('savePresetOpen');
+      if (mode !== 'edit') { 
+        this.setState({ reportName: '' });
+        this.handleCloseDialog('saveReportOpen');
+      }
     } catch (err) {
       this.setState({
         error: err.message,
         errorOpen: true,
-        presetFormDisabled: false,
+        formDisabled: false,
+        reportFormDisabled: false,
       });
     }
   };
   addChart = (e) => {
     e.preventDefault();
-    console.log(e);
     this.setState(prevState => ({
       charts: [...prevState.charts, {
         title: '',
@@ -264,7 +237,6 @@ class ReportsPage extends React.Component {
         valueLabels: [],
       }]
     }));
-    console.log(this.state.charts);
   };
   removeChart = (e, idx) => {
     e.preventDefault();
@@ -280,18 +252,21 @@ class ReportsPage extends React.Component {
       })
     }));
   };
+  handleReportNameChange = (e) => {
+    e.preventDefault();
+    this.setState({
+      reportName: e.target.value,
+    });
+  }
   handleOpenDialog = (dialogState) => {
     this.setState({ [dialogState]: true });
   };
   handleCloseDialog = (dialogState) => {
     this.setState({ [dialogState]: false });
   };
-  handleSubmit = async (e) => {
-    e.preventDefault();
-  }
 
   render() {
-    const { classes, theme, user } = this.props;
+    const { classes, theme, user, report } = this.props;
     const selectStyles = {
       input: base => ({
         ...base,
@@ -307,7 +282,7 @@ class ReportsPage extends React.Component {
       >
         <Header
           handleDrawerToggle={this.handleDrawerToggle}
-          title={'Reports'}
+          title={report.mode === 'edit' ? this.state.reportName : 'Create report'}
           isAccountPage={false}
         />
         <Sidebar
@@ -319,100 +294,98 @@ class ReportsPage extends React.Component {
           totalSubjects={this.state.totalSubjects}
           user={user}
         />
-        <div
-          className={`${classes.content} ${classes.contentPadded}`}
-        >
-          <form onSubmit={this.handleSubmit}>
-            {this.state.charts && this.state.charts.length === 0 && (
-              <Typography
-                className={classes.paragraph}
-                variant="body2"
-                component="p"
-              >
-                This report currently does not contain any charts. Add charts by 
-                clicking the button below.
-              </Typography>
-            )}
-            {this.state.charts && this.state.charts.map((chart, idx) => (
-              <>
-                <ChartFormFields
-                  chart={chart}
-                  chartIndex={idx}
-                  key={`chart${idx}`}
-                  classes={classes}
-                  styles={selectStyles}
-                  clearForm={() => this.clearForm(idx)}
-                  handleChartChange={({ field, value }) => this.handleChartChange(idx, field, value)}
-                  handleOpenDialog={this.handleOpenDialog}
-                  handleCloseDialog={this.handleCloseDialog}
-                  labelInfoOpen={this.state.labelInfoOpen}
-                  removeChart={(e) => this.removeChart(e, idx)}
-                  disabled={this.state.formDisabled}
-                />
-                {idx < (this.state.charts.length - 1) && (
-                  <Divider className={classes.divider} />
+        {this.state.loading && (
+          <div
+            className={`${classes.content} ${classes.contentPadded}`}
+          >
+            <Typography
+              className={classes.paragraph}
+              variant="body2"
+              component="p"
+            >
+              Loading...
+            </Typography>
+          </div>
+        )}
+        {!this.state.loading && ( 
+          <>
+            <div
+              className={`${classes.content} ${classes.contentPadded}`}
+            >
+              <form onSubmit={(e) => e.preventDefault()}>
+                {this.state.charts && this.state.charts.length === 0 && (
+                  <Typography
+                    className={classes.paragraph}
+                    variant="body2"
+                    component="p"
+                  >
+                    This report currently does not contain any charts. Add charts by 
+                    clicking the button below.
+                  </Typography>
                 )}
-              </>
-            ))}
-            <Button
-              variant="outlined"
-              type="button"
-              onClick={this.addChart}
-              className={classes.submitButton}
-              disabled={this.state.formDisabled}
+                {this.state.charts && this.state.charts.map((chart, idx) => (
+                  <>
+                    <ChartFormFields
+                      chart={chart}
+                      chartIndex={idx}
+                      key={`chart${idx}`}
+                      classes={classes}
+                      styles={selectStyles}
+                      clearForm={() => this.clearForm(idx)}
+                      handleChartChange={({ field, value }) => this.handleChartChange(idx, field, value)}
+                      handleOpenDialog={this.handleOpenDialog}
+                      handleCloseDialog={this.handleCloseDialog}
+                      labelInfoOpen={this.state.labelInfoOpen}
+                      removeChart={(e) => this.removeChart(e, idx)}
+                      disabled={this.state.formDisabled}
+                    />
+                    {idx < (this.state.charts.length - 1) && (
+                      <Divider className={classes.divider} />
+                    )}
+                  </>
+                ))}
+                <Button
+                  variant="outlined"
+                  type="button"
+                  onClick={this.addChart}
+                  className={classes.submitButton}
+                  disabled={this.state.formDisabled}
+                >
+                  + Add a chart
+                </Button>
+              </form>
+            </div>
+            <div
+              className={classes.bottomRight}
             >
-              + Add a chart
-            </Button>
-          </form>
-        </div>
-        <div
-          className={classes.bottomRight}
-        >
-          <Tooltip title="Load preset">
-            <Button
-              variant="fab"
-              color="secondary"
-              focusRipple
-              onClick={() => this.handleOpenDialog('loadPresetOpen')}
-            >
-              <TuneIcon />
-            </Button>
-          </Tooltip>
-          <LoadPresetsDialog
-            open={this.state.loadPresetOpen}
-            presets={this.state.presets}
-            disabled={this.state.formDisabled}
-            loadPreset={this.loadPreset}
-            deletePreset={this.deletePreset}
-            onClose={() => {
-              this.handleCloseDialog('loadPresetOpen');
-            }}
-          />
-          <Tooltip title="Save preset">
-            <Button
-              variant="fab"
-              color="secondary"
-              focusRipple
-              onClick={() => this.handleOpenDialog('savePresetOpen')}
-            >
-              <Save />
-            </Button>
-          </Tooltip>
-          <SavePresetDialog
-            open={this.state.savePresetOpen}
-            presetName={this.state.presetName}
-            savePreset={this.savePreset}
-            textInputClass={classes.textInput}
-            handleFormChange={this.handleFormChange}
-            disabled={this.state.presetFormDisabled}
-            onClose={() => {
-              this.handleCloseDialog('savePresetOpen');
-              this.setState({
-                presetName: '',
-              });
-            }}
-          />
-        </div>
+              <Tooltip title="Save report">
+                <Button
+                  variant="fab"
+                  color="secondary"
+                  focusRipple
+                  onClick={(e) => {
+                    if (report.mode === 'edit') {
+                      this.saveReport(e);
+                    } else {
+                      this.handleOpenDialog('saveReportOpen');
+                    }
+                  }}
+                >
+                  <Save />
+                </Button>
+              </Tooltip>
+              <SaveReportDialog
+                open={this.state.saveReportOpen}
+                reportName={this.state.reportName}
+                saveReport={this.saveReport}
+                textInputClass={classes.textInput}
+                handleFormChange={this.handleReportNameChange}
+                disabled={this.state.reportFormDisabled}
+                onClose={() => this.handleCloseDialog('saveReportOpen')}
+              />
+            </div>
+          </>
+        )}
         <Snackbar
           open={this.state.errorOpen}
           message={this.state.error}
@@ -425,10 +398,11 @@ class ReportsPage extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-  user: state.user
+  user: state.user,
+  report: state.report,
 });
 
 export default compose(
   withStyles(styles, { withTheme: true }),
   connect(mapStateToProps)
-)(ReportsPage);
+)(EditReportPage);

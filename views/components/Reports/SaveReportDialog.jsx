@@ -7,10 +7,10 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 
-const SavePresetDialog = ({
+const SaveReportDialog = ({
   open,
-  presetName,
-  savePreset,
+  reportName,
+  saveReport,
   textInputClass,
   handleFormChange,
   disabled,
@@ -20,29 +20,29 @@ const SavePresetDialog = ({
     <Dialog
     open={open}
     onClose={onClose}
-    aria-labelledby="savepreset-dialog-title"
-    aria-describedby="savepreset-dialog-description"
+    aria-labelledby="savereport-dialog-title"
+    aria-describedby="savereport-dialog-description"
   >
-    <DialogTitle id="savepreset-dialog-title">
-      Save preset
+    <DialogTitle id="savereport-dialog-title">
+      Save report
     </DialogTitle>
-    <form onSubmit={savePreset}>
+    <form onSubmit={saveReport}>
       <DialogContent>
-        <DialogContentText id="savepreset-dialog-description">
-          Save these chart settings as a preset?
+        <DialogContentText id="savereport-dialog-description">
+          Save these chart settings as a report?
           <TextField
             className={textInputClass}
             label="Name"
-            name="presetName"
-            value={presetName}
+            name="reportName"
+            value={reportName}
             onChange={handleFormChange}
             fullWidth
             required
             disabled={disabled}
           />
           <small>
-            Note: Study selection(s) will not be saved with this preset. This is because
-            not all users have access to all studies, so sharing a preset requires
+            Note: Study selection(s) will not be saved with this report. This is because
+            not all users have access to all studies, so sharing a report requires
             each user to choose which studies should appear in the report manually.
           </small>
         </DialogContentText>
@@ -51,7 +51,7 @@ const SavePresetDialog = ({
         <Button
           type="button"
           onClick={onClose}
-          variant="outline"
+          variant="outlined"
           disabled={disabled}
         >
           Close
@@ -70,4 +70,4 @@ const SavePresetDialog = ({
   )
 };
 
-export default SavePresetDialog;
+export default SaveReportDialog;

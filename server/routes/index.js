@@ -1205,6 +1205,9 @@ router.route('/api/v1/reports/:id')
           _id: ObjectID(req.params.id),
           user,
         });
+      if (report === null) {
+        return res.status(404).send({ message: 'Report not found' });
+      }
       return res.status(200).send({ report });
     } catch (err) {
       console.error(err.message);

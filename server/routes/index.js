@@ -990,7 +990,7 @@ router.route('/api/v1/users/:uid/config/file')
     }
   });
 
-router.route('/reports/:id')
+router.route('/reports/:id/view')
 .get(ensureAuthenticated, async (req, res) => {
   checkMongo();
   try { 

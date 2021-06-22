@@ -186,14 +186,14 @@ class ReportsListPage extends React.Component {
                 <TableHead>
                   <TableRow>
                     <TableCell>Name</TableCell>
-                    <TableCell>Actions</TableCell>
+                    <TableCell align="center">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {this.state.reports && this.state.reports.map(report => (
                     <TableRow key={report._id}>
-                      <TableCell component="th" scope="row">
-                        <a href={`/reports/${report._id}`}>
+                      <TableCell align="center" component="th" scope="row">
+                        <a href={`/reports/${report._id}/view`}>
                           {report.reportName}
                         </a>
                       </TableCell>

@@ -32,6 +32,9 @@ const styles = theme => ({
     bottom: 4,
     position: 'fixed'
   },
+  paragraph: {
+    color: 'rgba(0, 0, 0, 0.54)'
+  },
 });
 
 class ReportsListPage extends React.Component {

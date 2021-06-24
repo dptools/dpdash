@@ -1072,7 +1072,7 @@ router.route('/api/v1/studies/:study/enrollment')
           enrollment = subjects.length;
         }
       } else {
-        const filteredByDate = filterSubjectsByConsentDate({
+        const filteredByDate = await filterSubjectsByConsentDate({
           db: mongoData,
           collection,
           start: req.query.start,
@@ -1102,7 +1102,7 @@ router.route('/api/v1/studies/:study/enrollment')
       if (!req.query.start && !req.query.end) {
         allSubjects = await mongoData.collection(collection).find({}).toArray();
       } else {
-        allSubjects = filterSubjectsByConsentDate({
+        allSubjects = await filterSubjectsByConsentDate({
           db: mongoData,
           collection,
           start: req.query.start,

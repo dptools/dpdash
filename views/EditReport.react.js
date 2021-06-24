@@ -335,7 +335,7 @@ class EditReportPage extends React.Component {
                   className={classes.submitButton}
                   disabled={this.state.formDisabled}
                 >
-                  + Add a chart
+                  Add a chart
                 </Button>
               </form>
             </div>

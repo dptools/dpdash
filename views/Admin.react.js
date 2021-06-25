@@ -37,7 +37,7 @@ import { withStyles } from '@material-ui/core/styles';
 import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
-import { fetchSubjects, fetchStudies, fetchUsers } from './fe-utils/fetchUtil';
+import { fetchSubjects, fetchStudiesAdmin, fetchUsers } from './fe-utils/fetchUtil';
 
 const drawerWidth = 200;
 
@@ -274,7 +274,7 @@ class AdminPage extends Component {
         users,
         autocomplete: this.autocomplete({ users }),
       });
-      const studies = await fetchStudies();
+      const studies = await fetchStudiesAdmin();
       this.setState({
         studies: studies.map(suggestion => ({
           value: suggestion,

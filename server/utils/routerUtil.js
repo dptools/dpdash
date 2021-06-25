@@ -126,4 +126,16 @@ const getDashboardState = async ({ db, study, subject, defaultConfig }) => {
   return dashboardState;
 };
 
-export { getConfigSchema, getConfigForUser, getDashboardState };
+const filterSubjectsByConsentDate = async ({ db, collection, start, end }) => {
+  const allSubjects = await db.collection(collection).find({}).toArray();
+  const startDate = start ? new Date(start) : 0;
+  const endDate = end ? new Date(end) : Infinity;
+  const filteredByDate = allSubjects.filter(subject => {
+    const consentDateText = subject['Consent'] || subject['Consent Date'];
+    const consentDate = new Date(consentDateText);
+    return consentDate >= startDate && consentDate <= endDate;
+  });
+  return filteredByDate;
+}
+
+export { getConfigSchema, getConfigForUser, getDashboardState, filterSubjectsByConsentDate };

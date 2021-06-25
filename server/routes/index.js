@@ -7,7 +7,12 @@ import uuidV4 from 'uuid/v4';
 import passport from 'passport';
 import { hash } from '../utils/crypto/hash';
 import { getMongoURI } from '../utils/mongoUtil';
-import { getConfigSchema, getConfigForUser, getDashboardState } from '../utils/routerUtil';
+import {
+  getConfigSchema,
+  getConfigForUser,
+  getDashboardState,
+  filterSubjectsByConsentDate
+} from '../utils/routerUtil';
 
 import LDAP from '../utils/passport/ldap';
 import LocalLogin from '../utils/passport/local-login';
@@ -24,6 +29,9 @@ import mainPage from '../templates/Main.template';
 import registerPage from '../templates/Register.template';
 import resetPage from '../templates/Resetpw.template';
 import studyPage from '../templates/Study.template';
+import reportsListPage from '../templates/ReportsList.template';
+import editReportPage from '../templates/EditReport.template';
+import viewReportPage from '../templates/Report.template';
 
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
@@ -440,8 +448,8 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
         var varName = configs_heatmap[configItem].variable;
         var escapedVarName = encodeURIComponent(varName).replace(/\./g, '%2E');
         const query = [{
-                            $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
-                          }];
+          $project: { _id: 0, day: 1, [escapedVarName]: `$${varName}` }
+        }];
         var data = yield mongoData.collection(encrypted.toString()).aggregate(query).toArray();
         var dataPiece = {};
         dataPiece.text = configs_heatmap[configItem].text;
@@ -962,6 +970,291 @@ router.route('/api/v1/users/:uid/config/file')
       }
     } else {
       return res.status(500).send();
+    }
+  });
+
+router.route('/reports')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try { 
+      const { display_name, role, icon } = req.session;
+      return res.status(200).send(reportsListPage({
+        uid: req.user,
+        name: display_name,
+        role, 
+        icon,
+      }));
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  });
+
+router.route('/reports/:id/view')
+.get(ensureAuthenticated, async (req, res) => {
+  checkMongo();
+  try { 
+    const { display_name, role, icon } = req.session;
+    const user = {
+      uid: req.user,
+      name: display_name,
+      role, 
+      icon,
+    };
+    const report = {
+      id: req.params.id,
+    };
+    return res.status(200).send(viewReportPage({ user, report }));
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send({ message: err.message });
+  }
+});
+
+router.route('/reports/:id/edit')
+.get(ensureAuthenticated, async (req, res) => {
+  checkMongo();
+  try { 
+    const { display_name, role, icon } = req.session;
+    const user = {
+      uid: req.user,
+      name: display_name,
+      role, 
+      icon,
+    };
+    const report = {
+      mode: 'edit',
+      id: req.params.id,
+    };
+    return res.status(200).send(editReportPage({ user, report }));
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send({ message: err.message });
+  }
+});
+
+router.route('/reports/new')
+.get(ensureAuthenticated, async (req, res) => {
+  checkMongo();
+  try { 
+    const { display_name, role, icon } = req.session;
+    const user = {
+      uid: req.user,
+      name: display_name,
+      role, 
+      icon,
+    };
+    const report = {
+      mode: 'create',
+    };
+    return res.status(200).send(editReportPage({ user, report }));
+  } catch (err) {
+    console.error(err.message);
+    return res.status(500).send({ message: err.message });
+  }
+});
+
+router.route('/api/v1/studies/:study/enrollment')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try { 
+      const metadoc = await mongoData.collection('metadata').findOne({
+        study: req.params.study,
+        role: 'metadata'
+      }, { _id: 0, subjects: 1, collection: 1 });
+      const { subjects, collection } = metadoc;
+      if (!metadoc) {
+        return res.status(404).send({ message: 'Study not found' });
+      }
+      let enrollment = 0;
+      if (!req.query.start && !req.query.end) {
+        if (subjects && Array.isArray(subjects)) {
+          enrollment = subjects.length;
+        }
+      } else {
+        const filteredByDate = await filterSubjectsByConsentDate({
+          db: mongoData,
+          collection,
+          start: req.query.start,
+          end: req.query.end,
+        });
+        enrollment = filteredByDate.length;
+      }
+      return res.status(200).send({ enrollment });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
+  .post(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { assessment, varName } = req.body;
+      if (!assessment || !varName) {
+        return res.status(400).send({ message: 'Bad request' });
+      }
+      const metadoc = await mongoData.collection('metadata').findOne({
+        study: req.params.study,
+        role: 'metadata'
+      }, { _id: 0, collection: 1 });
+      const { collection } = metadoc;
+      let allSubjects = [];
+      if (!req.query.start && !req.query.end) {
+        allSubjects = await mongoData.collection(collection).find({}).toArray();
+      } else {
+        allSubjects = await filterSubjectsByConsentDate({
+          db: mongoData,
+          collection,
+          start: req.query.start,
+          end: req.query.end,
+        });
+      }
+      const matchingSubjectIDs = allSubjects.map(entry => ({
+        id: entry['Subject ID'].toString(),
+        consentDate: entry['Consent'] || entry['Consent Date'],
+      }));
+      let enrollmentsList = [];
+      await Promise.all(matchingSubjectIDs.map(async subject => {
+        const assessmentCollection = await mongoData
+          .collection('toc')
+          .findOne({
+            study: req.params.study,
+            assessment,
+            subject: subject.id,
+          }, { _id: 0, collection: 1 });
+        if (assessmentCollection !== null) {
+          const foundData = await mongoData
+            .collection(assessmentCollection.collection)
+            .findOne(
+              { [varName]: { $exists: true, $ne: '' } },
+              { [varName]: 1 },
+            );
+          if (foundData !== null && (foundData[varName] === 0 || foundData[varName])) {
+            const valueForVar = foundData[varName];
+            enrollmentsList.push({
+              study: req.params.study,
+              date: subject.consentDate,
+              varName,
+              value: valueForVar,
+            });
+          } else {
+            enrollmentsList.push({
+              study: req.params.study,
+              date: subject.consentDate,
+              varName,
+              value: null,
+            });
+          }
+        }
+        return Promise.resolve();
+      }))
+      return res.status(200).send({ enrollmentsList });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  });
+
+router.route('/api/v1/reports')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { user } = req;
+      const reports = await mongoApp
+        .collection('reports')
+        .find({
+          $or: [
+            { user },
+            { readers: user },
+          ],
+         }, { charts: 0 })
+        .toArray();
+      return res.status(200).send({ reports });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
+  .post(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { body, user } = req;
+      await mongoApp
+        .collection('reports')
+        .insertOne({ 
+          ...body,
+          user,
+          readers: [user],
+          created: (new Date()).toUTCString(),
+        });
+      return res.status(200).send();
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  });
+
+router.route('/api/v1/reports/:id')
+  .get(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { user } = req;
+      const report = await mongoApp
+        .collection('reports')
+        .findOne({
+          _id: ObjectID(req.params.id),
+          $or: [
+            { user },
+            { readers: user },
+          ],
+        });
+      if (report === null) {
+        return res.status(404).send({ message: 'Report not found' });
+      }
+      return res.status(200).send({ report });
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
+  .patch(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { body, user, params } = req;
+      await mongoApp
+        .collection('reports')
+        .findOneAndUpdate({
+          _id: ObjectID(params.id),
+          user,
+        }, {
+          $set: {
+            ...body,
+          }
+        });
+      return res.status(200).send();
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
+    }
+  })
+  .delete(ensureAuthenticated, async (req, res) => {
+    checkMongo();
+    try {
+      const { user } = req;
+      const deletionRes = await mongoApp
+        .collection('reports')
+        .deleteOne({
+          _id: ObjectID(req.params.id),
+          user,
+        });
+      if (deletionRes.deletedCount > 0) {
+        return res.status(200).send();
+      } else {
+        return res.status(404).send({ message: 'Report not found' });
+      }
+    } catch (err) {
+      console.error(err.message);
+      return res.status(500).send({ message: err.message });
     }
   });
 

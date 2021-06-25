@@ -9,6 +9,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
+import AssessmentIcon from '@material-ui/icons/Assessment';
 import Home from '@material-ui/icons/Home';
 import Person from '@material-ui/icons/Person';
 import ColorLens from '@material-ui/icons/ColorLens';
@@ -208,6 +209,17 @@ class DrawerComponent extends Component {
             <ListItemText primary="Configure" />
 
           </ListItem>
+          <ListItem
+            button={true}
+            component='a'
+            href="/reports"
+          >
+            <ListItemIcon>
+              <AssessmentIcon style={{ color: '#97C0CE' }} />
+            </ListItemIcon>
+            <ListItemText primary="Reports" />
+          </ListItem>
+
           {this.props.user.role == 'admin' ?
             <ListItem
               button={true}

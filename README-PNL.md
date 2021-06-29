@@ -296,6 +296,21 @@ ${state}/dpdash/configs/dashboard/basePathConfig.js: const basePathConfig = '/dp
 ```
 Where `/dpdash` is whatever your new path is. It should begin, but not end, with a `/`.
 
+Again, if you did not set this up during initialization, you must now launch the Singularity shell and run `npm run build`:
+
+```sh
+    singularity shell \
+    -B ${state}:/data \
+    -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+    -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
+    -B ${data}:/project_data \
+    ${DPDASH_IMG}
+
+    Singularity> cd /sw/apps/dpdash/
+    Singularity> npm run build
+```
+
 The command to test would now be `curl -L http://0.0.0.0:8000/dpdash`.
 
 For setting up a reverse proxy, the Nginx configuration would look like this:

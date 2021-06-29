@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack && npm run transpile",
+    "build": "webpack",
     "transpile": "npx babel ./server --out-dir dist",
     "start": "NODE_ENV=production ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
     "monitor": "./node_modules/pm2/bin/pm2 monit",

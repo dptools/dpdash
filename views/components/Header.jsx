@@ -8,6 +8,9 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import ColorLens from '@material-ui/icons/ColorLens';
 import Person from '@material-ui/icons/Person';
+import basePathConfig from '../../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
 
 const drawerWidth = 200;
 
@@ -54,7 +57,7 @@ const Header = ({
         onClick={handleDrawerToggle}
         className={classes.navIconHide}
       >
-        <img width='24px' height='24px' src='/img/favicon.png' />
+        <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
       </IconButton>
       <Typography
         variant="title"
@@ -65,14 +68,14 @@ const Header = ({
       </Typography>
       {!isAccountPage && (
         <IconButton
-        onClick={() => openNewWindow('/u')}
+        onClick={() => openNewWindow(`${basePath}/u`)}
         >
           <Person color='rgba(0,0,0,0.4)' />
         </IconButton>
       )}
       {isAccountPage && (
         <IconButton
-          onClick={() => openNewWindow('/u/configure')}
+          onClick={() => openNewWindow(`${basePath}/u/configure`)}
         >
           <ColorLens color='rgba(0,0,0,0.4)' />
         </IconButton>

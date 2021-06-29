@@ -18,6 +18,10 @@ import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects } from './fe-utils/fetchUtil';
 
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -81,7 +85,7 @@ class AccountPage extends Component {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
   fetchUserInfo = (uid) => {
-    return window.fetch('/api/v1/users/' + uid, {
+    return window.fetch(`${basePath}/api/v1/users/${uid}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -122,7 +126,7 @@ class AccountPage extends Component {
     user['mail'] = this.state.mail;
     user['icon'] = this.state.icon;
 
-    return window.fetch('/api/v1/users/' + uid, {
+    return window.fetch(`${basePath}/api/v1/users/${uid}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

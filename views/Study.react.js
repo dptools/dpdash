@@ -16,8 +16,11 @@ import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
 import { fetchSubjects } from './fe-utils/fetchUtil';
 import getCounts from './fe-utils/countUtil';
+import basePathConfig from '../server/configs/basePathConfig';
 
 const drawerWidth = 200;
+
+const basePath = basePathConfig || '';
 
 const styles = theme => ({
   root: {
@@ -157,7 +160,7 @@ class Study extends Component {
       let link = '/dashboard/' + matrixDataList[item].project + '/' + matrixDataList[item].subject
       matrixList.push(
         <div className="StudyView">
-          {completed ? <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={link} rel="noreferrer"> {matrixDataList[item].subject + ' (Complete)'}</a> : <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={link} rel="noreferrer"> {matrixDataList[item].subject}</a>}
+          {completed ? <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={`${basePath}${link}`} rel="noreferrer"> {matrixDataList[item].subject + ' (Complete)'}</a> : <a className="subjectID" style={{ fontFamily: '"Roboto", sans-serif', textDecoration: 'none', paddingBottom: '8px' }} target="_blank" href={`${basePath}${link}`} rel="noreferrer"> {matrixDataList[item].subject}</a>}
           <GraphFactory
             id="matrix"
             type="matrix"
@@ -191,7 +194,7 @@ class Study extends Component {
   fetchUserPreferences = (uid) => {
     let star = this.state.star;
     let complete = this.state.complete;
-    return fetch('/api/v1/users/' + uid + '/preferences', {
+    return fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'

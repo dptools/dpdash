@@ -1,3 +1,7 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default (message) => {
   var userState = {
     "message": message,
@@ -7,7 +11,7 @@ export default (message) => {
         <html>
             <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-                <link rel='stylesheet' href='/css/register.css' />
+                <link rel='stylesheet' href='${basePath}/css/register.css' />
                 <title>Reset Password - DPdash</title>
             </head>
                 <script>
@@ -17,7 +21,7 @@ export default (message) => {
                 </script>
             <body>
                 <div id = "main"></div>
-                <script src="/js/reset.min.js">
+                <script src="${basePath}/js/reset.min.js">
                 </script>
             </body>
         </html>

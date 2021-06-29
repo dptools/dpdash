@@ -38,8 +38,11 @@ import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects, fetchStudiesAdmin, fetchUsers } from './fe-utils/fetchUtil';
+import basePathConfig from '../server/configs/basePathConfig';
 
 const drawerWidth = 200;
+
+const basePath = basePathConfig || '';
 
 const memberMenu = [
   { value: 0, level: 'admin', text: 'System Admins' },
@@ -344,7 +347,8 @@ class AdminPage extends Component {
   }
   confirmDelete = () => {
     let index = this.state.deleteUser;
-    return window.fetch('/api/v1/users/' + this.state.users[index].uid + '/delete', {
+    const uid = this.state.users[index].uid;
+    return window.fetch(`${basePath}/api/v1/users/${uid}/delete`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -378,7 +382,7 @@ class AdminPage extends Component {
     this.updateBlockedUser(uid, block);
   }
   updateBlockedUser = (uid, block) => {
-    return window.fetch('/api/v1/users/' + uid + '/blocked', {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/blocked`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -429,7 +433,7 @@ class AdminPage extends Component {
     this.updateReset(uid, !reset, reset_key);
   }
   updateReset = (uid, force_reset, reset_key) => {
-    return window.fetch('/api/v1/users/' + uid + '/resetpw', {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/resetpw`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -506,7 +510,7 @@ class AdminPage extends Component {
         }
       })
     });
-    return window.fetch('/api/v1/users/' + uid + '/studies', {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/studies`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -525,7 +529,7 @@ class AdminPage extends Component {
     });
   }
   updateRole = (uid, role) => {
-    return window.fetch('/api/v1/users/' + uid + '/role', {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/role`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -579,7 +583,7 @@ class AdminPage extends Component {
               onClick={this.handleDrawerToggle}
               className={classes.navIconHide}
             >
-              <img width='24px' height='24px' src='/img/favicon.png' />
+              <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
             </IconButton>
             <div style={{ width: '100%' }}>
               <NoSsr>

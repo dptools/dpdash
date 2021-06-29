@@ -1,3 +1,7 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default (user, goal, id) => {
   var userState = {
     "uid": user,
@@ -18,7 +22,7 @@ export default (user, goal, id) => {
 			</head>
 			<body>
 				<div id="main"></div>
-				<script src="/js/editConfig.min.js"></script>
+				<script src="${basePath}/js/editConfig.min.js"></script>
 			</body>
 		</html>
 	`;

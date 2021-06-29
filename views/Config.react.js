@@ -51,6 +51,10 @@ import getCounts from './fe-utils/countUtil';
 import { fetchSubjects, fetchUsernames } from './fe-utils/fetchUtil';
 import openNewWindow from './fe-utils/windowUtil';
 
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -318,7 +322,7 @@ class ConfigPage extends Component {
     preference['sort'] = 'sort' in this.state.preferences ? this.state.preferences['sort'] : 0;
     preference = this.babyProofPreferences(preference);
 
-    return window.fetch('/api/v1/users/' + uid + '/preferences', {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -341,7 +345,7 @@ class ConfigPage extends Component {
     });
   }
   fetchPreferences = (uid) => {
-    return window.fetch('/api/v1/users/' + uid + '/preferences', {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -359,7 +363,7 @@ class ConfigPage extends Component {
     });
   }
   fetchConfigItem = (uid, _id) => {
-    return window.fetch('/api/v1/users/' + uid + '/configs/' + _id, {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/configs/${_id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -374,7 +378,7 @@ class ConfigPage extends Component {
     });
   }
   fetchConfigurations = (uid) => {
-    return window.fetch('/api/v1/users/' + uid + '/configs', {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/configs`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -393,7 +397,7 @@ class ConfigPage extends Component {
   }
   updateConfigurations = (configID, ownsConfig) => {
     if (ownsConfig) {
-      window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+      window.fetch(`${basePath}/api/v1/users/${this.props.user.uid}/configs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -406,7 +410,7 @@ class ConfigPage extends Component {
         return;
       });
     } else {
-      window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+      window.fetch(`${basePath}/api/v1/users/${this.props.user.uid}/configs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -472,7 +476,7 @@ class ConfigPage extends Component {
     newConfig['name'] = config['name'];
     newConfig['config'] = config['config'];
 
-    return window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+    return window.fetch(`${basePath}/api/v1/users/${this.props.user.uid}/configs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -546,11 +550,11 @@ class ConfigPage extends Component {
               >
                 <div style={{ float: 'right' }}>
                   {ownsConfig ? <IconButton
-                    onClick={() => openNewWindow('/u/configure?s=edit&id=' + configs[item]['_id'])}
+                    onClick={() => openNewWindow(`${basePath}/u/configure?s=edit&id=${configs[item]['_id']}`)}
                     iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
                     tooltipPosition='top-center'
                     tooltip="Edit"><Edit /></IconButton> : <IconButton
-                      onClick={() => openNewWindow('/u/configure?s=view&id=' + configs[item]['_id'])}
+                      onClick={() => openNewWindow(`${basePath}/u/configure?s=view&id=${configs[item]['_id']}`)}
                       iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
                       tooltipPosition='top-center'
                       tooltip="View"><FullView /></IconButton>
@@ -592,7 +596,7 @@ class ConfigPage extends Component {
     return cards;
   }
   shareWithUsers = () => {
-    return window.fetch('/api/v1/users/' + this.props.user.uid + '/configs', {
+    return window.fetch(`${basePath}/api/v1/users/${this.props.user.uid}/configs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -632,7 +636,7 @@ class ConfigPage extends Component {
     e.preventDefault();
     const file = e.target.files ? e.target.files[0] : '';
     new Response(file).json().then(async json => {
-      const res = await window.fetch('/api/v1/users/' + this.props.user.uid + '/config/file', {
+      const res = await window.fetch(`${basePath}/api/v1/users/${this.props.user.uid}/config/file`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -641,11 +645,11 @@ class ConfigPage extends Component {
         body: JSON.stringify(json)
       });
       if (res.status === 200) {
-        window.location = '/u/configure?u=success';
+        window.location = `${basePath}/u/configure?u=success`;
       } else if (res.status === 400) {
-        window.location = '/u/configure?u=invalid';
+        window.location = `${basePath}/u/configure?u=invalid`;
       } else {
-        window.location = '/u/configure?u=error';
+        window.location = `${basePath}/u/configure?u=error`;
       }
     }).catch(err => {
       console.error(err.message);
@@ -759,7 +763,7 @@ class ConfigPage extends Component {
             <Button
               variant="fab"
               color="secondary"
-              href='/u/configure?s=add'
+              href={`${basePath}/u/configure?s=add`}
               focusRipple
             >
               <Tooltip title="Add a configuration manually">

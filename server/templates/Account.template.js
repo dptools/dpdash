@@ -1,3 +1,7 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default (user, name, icon, mail, role) => {
   var userState = {
     "uid": user,
@@ -11,7 +15,7 @@ export default (user, name, icon, mail, role) => {
 		<html>
 			<head>
 				<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-                <link rel='stylesheet' href='/css/account.css' />
+                <link rel='stylesheet' href='${basePath}/css/account.css' />
 				<title>Account - DPdash</title>
 				<script>
 					window.USER = ${JSON.stringify(userState)}
@@ -21,7 +25,7 @@ export default (user, name, icon, mail, role) => {
 			</head>
 			<body>
 				<div id="main"></div>
-				<script src="/js/account.min.js"></script>
+				<script src="${basePath}/js/account.min.js"></script>
 			</body>
 		</html>
 	`;

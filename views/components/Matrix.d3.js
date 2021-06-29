@@ -2,6 +2,10 @@ import * as d3 from 'd3';
 import AbstractGraph from './AbstractGraph.d3';
 import { getColor } from '../../server/utils/invertColor';
 import { stringToDate } from '../../server/utils/dateConverter';
+import basePathConfig from '../../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 const margin = {
   top: 30,
   bottom: 20,
@@ -363,7 +367,7 @@ export default class Matrix extends AbstractGraph {
       .on("click", (d, i) => {
         let day = d.day
         let link = '/deepdive/' + this.props.study + '/' + this.props.subject + '/' + day
-        window.open(link, '_blank')
+        window.open(`${basePath}${link}`, '_blank')
       })
     this.xAxisTop.selectAll('path')
       .attr('stroke-opacity', 0)

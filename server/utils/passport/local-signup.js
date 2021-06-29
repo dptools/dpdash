@@ -4,14 +4,17 @@ import { MongoClient } from 'mongodb';
 import { hash } from '../crypto/hash';
 import { getMongoURI } from '../mongoUtil';
 import defaultUserConfig from '../../configs/defaultUserConfig';
+import basePathConfig from '../../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
 
 export default (req, res, next) => {
   passport.authenticate('local-signup', { session: true }, function (err, user, reqBody) {
     if (err) {
-      return res.redirect('/login?e=' + err);
+      return res.redirect(`${basePath}/login?e=${err}`);
     }
     if (user) {
-      return res.redirect('/signup?e=existingUser');
+      return res.redirect(`${basePath}/signup?e=existingUser`);
     }
     const password = reqBody.password;
     const username = reqBody.username;
@@ -22,7 +25,7 @@ export default (req, res, next) => {
     MongoClient.connect(mongoURI, config.database.mongo.server, function (err, client) {
       if (err) {
         console.error(err.message);
-        return res.redirect('/login?e=forbidden');
+        return res.redirect(`${basePath}/login?e=forbidden`);
       }
       const mongodb = client.db(config.database.mongo.appDB);
       const hashedPW = hash(password);
@@ -86,7 +89,7 @@ export default (req, res, next) => {
           req.session.mail = userinfo.value.mail;
           req.session.celery_tasks = [];
           req.session.icon = userinfo.value.icon;
-          return res.redirect('/');
+          return res.redirect(`${basePath}/`);
         });
     });
   })(req, res, next);

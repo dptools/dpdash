@@ -1,3 +1,7 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default (message) => {
   const userState = {
     "message": message,
@@ -8,7 +12,7 @@ export default (message) => {
 			<head>
 				<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 				<title>DPdash</title>
-				<link rel='stylesheet' href='/css/login.css' />
+				<link rel='stylesheet' href='${basePath}/css/login.css' />
 			</head>
             <script>
                 window.USER = ${JSON.stringify(userState)}
@@ -17,7 +21,7 @@ export default (message) => {
             </script>
 			<body>
 				<div id = "main"></div>
-				<script src="/js/login.min.js">
+				<script src="${basePath}/js/login.min.js">
 				</script>
 			</body>
 		</html>

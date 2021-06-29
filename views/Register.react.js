@@ -10,6 +10,10 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 class RegisterPage extends Component {
   constructor(props) {
     super(props);
@@ -149,7 +153,7 @@ class RegisterPage extends Component {
                   }}
                 >
                   <form
-                    action="/signup"
+                    action={`${basePath}/signup`}
                     method="post"
                     id="signupForm"
                   >
@@ -229,7 +233,7 @@ class RegisterPage extends Component {
                 style={{
                   width: '250px',
                   margin: '50px',
-                  backgroundImage: 'url("/img/dpdash.png")',
+                  backgroundImage: `url("${basePath}/img/dpdash.png")`,
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'center center'
@@ -246,7 +250,7 @@ class RegisterPage extends Component {
           >
             <Button
               color="primary"
-              onClick={() => this.openWindow('/login')}
+              onClick={() => this.openWindow(`${basePath}/login`)}
               style={{
                 paddingTop: '11px',
                 color: '#5790bd'

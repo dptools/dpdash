@@ -1,11 +1,15 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default ({ uid, name, role, icon }) => {
   return `
 		<!DOCTYPE html>
 		<html>
 			<head>
 				<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-        <link rel="stylesheet" href="/css/react-virtualized.css" />
-        <link rel="stylesheet" href="/css/admin.css" />
+        <link rel="stylesheet" href="${basePath}/css/react-virtualized.css" />
+        <link rel="stylesheet" href="${basePath}/css/admin.css" />
 				<title>Reports - DPdash</title>
 				<script>
 					window.USER = ${JSON.stringify({ uid, name, role, icon })}
@@ -15,7 +19,7 @@ export default ({ uid, name, role, icon }) => {
 			</head>
 			<body>
 				<div id="main"></div>
-				<script src="/js/reportsList.min.js"></script>
+				<script src="${basePath}/js/reportsList.min.js"></script>
 			</body>
 		</html>
 	`;

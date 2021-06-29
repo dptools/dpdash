@@ -18,6 +18,9 @@ import getCounts from './fe-utils/countUtil';
 import { fetchSubjects } from './fe-utils/fetchUtil';
 import { fetchReport } from './fe-utils/reportsUtil.js';
 import getDefaultStyles from './fe-utils/styleUtil';
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
 
 const styles = theme => ({
   ...getDefaultStyles(theme),
@@ -170,12 +173,12 @@ class EditReportPage extends React.Component {
         reportName: this.state.reportName,
         charts: this.state.charts,
       };
-      let url = '/api/v1/reports';
+      let url = `${basePath}/api/v1/reports`;
       let method = 'POST';
       const { mode, id } = this.props.report;
       if (mode === 'edit') {
         method = 'PATCH';
-        url = `/api/v1/reports/${id}`;
+        url = `${basePath}/api/v1/reports/${id}`;
       }
       const res = await window.fetch(url, {
         method,

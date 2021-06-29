@@ -1,3 +1,7 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default (subject, project, user, name, icon, mail, acl, matrixData, configs, celeryTasks) => {
   var userState = {
     "uid": user,
@@ -37,12 +41,12 @@ export default (subject, project, user, name, icon, mail, acl, matrixData, confi
 				Tile icon for Win8 (144x144 + tile color)
 				<meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
 				<meta name="msapplication-TileColor" content="#3372DF">-->
-				<link rel='stylesheet' href='/css/roboto.css'/>
-				<link rel="stylesheet" href="/css/material.min.css"/>
-				<link rel="stylesheet" href="/css/icon.css"/>
-				<link rel='stylesheet' href='/css/graph.css'/>
-				<link rel='stylesheet' href='/css/dialog-polyfill.css'/>
-				<script src="/js/material.js"></script>
+				<link rel='stylesheet' href='${basePath}/css/roboto.css'/>
+				<link rel="stylesheet" href="${basePath}/css/material.min.css"/>
+				<link rel="stylesheet" href="${basePath}/css/icon.css"/>
+				<link rel='stylesheet' href='${basePath}/css/graph.css'/>
+				<link rel='stylesheet' href='${basePath}/css/dialog-polyfill.css'/>
+				<script src="${basePath}/js/material.js"></script>
 				<script>
 					window.USER = ${JSON.stringify(userState)}
 					window.SUBJECT = ${JSON.stringify(subjectState)}
@@ -51,7 +55,7 @@ export default (subject, project, user, name, icon, mail, acl, matrixData, confi
 			</head>
 			<body>
 				<div id="graph"></div>
-				<script src="/js/graph.min.js">
+				<script src="${basePath}/js/graph.min.js">
 				</script>
 			</body>
 		</html>

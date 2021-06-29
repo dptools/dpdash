@@ -16,6 +16,10 @@ import ColorLens from '@material-ui/icons/ColorLens';
 import ExitToApp from '@material-ui/icons/ExitToApp';
 import Settings from '@material-ui/icons/Settings';
 
+import basePathConfig from '../../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 class DrawerComponent extends Component {
   constructor(props) {
     super(props);
@@ -49,7 +53,7 @@ class DrawerComponent extends Component {
               height: '18px'
             }}
           >
-            <img style={{ height: '100%' }} src='/img/dpdash.png' />
+            <img style={{ height: '100%' }} src={`${basePath}/img/dpdash.png`} />
           </div>
           <div
             style={{
@@ -179,7 +183,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href="/"
+            href={`${basePath}/`}
           >
             <ListItemIcon>
               <Home style={{ color: '#97C0CE' }} />
@@ -190,7 +194,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href="/u"
+            href={`${basePath}/u`}
           >
             <ListItemIcon>
               <Person style={{ color: '#97C0CE' }} />
@@ -201,7 +205,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href="/u/configure"
+            href={`${basePath}/u/configure`}
           >
             <ListItemIcon>
               <ColorLens style={{ color: '#97C0CE' }} />
@@ -212,7 +216,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href="/reports"
+            href={`${basePath}/reports`}
           >
             <ListItemIcon>
               <AssessmentIcon style={{ color: '#97C0CE' }} />
@@ -224,7 +228,7 @@ class DrawerComponent extends Component {
             <ListItem
               button={true}
               component='a'
-              href="/admin"
+              href={`${basePath}/admin`}
             >
               <ListItemIcon>
                 <Settings style={{ color: '#97C0CE' }} />
@@ -236,7 +240,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href="/logout"
+            href={`${basePath}/logout`}
           >
             <ListItemIcon>
               <ExitToApp style={{ color: '#97C0CE' }} />

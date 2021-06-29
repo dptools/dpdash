@@ -1,3 +1,7 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default (subject, project, user, name, icon, mail, acl, matrixData, configs, celeryTasks, role) => {
   var userState = {
     "uid": user,
@@ -38,7 +42,7 @@ export default (subject, project, user, name, icon, mail, acl, matrixData, confi
 				Tile icon for Win8 (144x144 + tile color)
 				<meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
 				<meta name="msapplication-TileColor" content="#3372DF">-->
-				<link rel='stylesheet' href='/css/graph.css'/>
+				<link rel='stylesheet' href='${basePath}/css/graph.css'/>
 				<script>
 					window.USER = ${JSON.stringify(userState)}
 					window.SUBJECT = ${JSON.stringify(subjectState)}
@@ -47,7 +51,7 @@ export default (subject, project, user, name, icon, mail, acl, matrixData, confi
 			</head>
 			<body>
 				<div id="graph"></div>
-				<script src="/js/graph.min.js">
+				<script src="${basePath}/js/graph.min.js">
 				</script>
 			</body>
 		</html>

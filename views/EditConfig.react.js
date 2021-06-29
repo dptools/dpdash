@@ -41,6 +41,10 @@ import classNames from 'classnames';
 
 import { fetchUsernames } from './fe-utils/fetchUtil';
 
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -325,7 +329,7 @@ class EditConfig extends Component {
     return block;
   }
   fetchConfigurations = (uid, config) => {
-    return window.fetch('/api/v1/users/' + uid + '/configs/' + config, {
+    return window.fetch(`${basePath}/api/v1/users/${uid}/configs/${config}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -708,7 +712,7 @@ class EditConfig extends Component {
       readers: newReaders,
       modified: (new Date()).toUTCString()
     };
-    return window.fetch('/api/v1/users/' + this.state.user.uid + '/configs', {
+    return window.fetch(`${basePath}/api/v1/users/${this.state.user.uid}/configs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -738,7 +742,7 @@ class EditConfig extends Component {
       readers: newReaders,
       created: this.state.created
     };
-    return window.fetch('/api/v1/users/' + this.state.user.uid + '/configs', {
+    return window.fetch(`${basePath}/api/v1/users/${this.state.user.uid}/configs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -797,7 +801,7 @@ class EditConfig extends Component {
         }}
       >
         <IconButton
-          href='/u/configure/'
+          href={`${basePath}/u/configure/`}
         >
           <Back
             color='#5F7B89'

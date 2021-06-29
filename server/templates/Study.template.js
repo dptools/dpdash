@@ -1,3 +1,7 @@
+import basePathConfig from '../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 export default (project, user, name, icon, role, acl, celeryTasks, matrixData, configurations) => {
   var userState = {
     "uid": user,
@@ -26,7 +30,7 @@ export default (project, user, name, icon, role, acl, celeryTasks, matrixData, c
                 <meta name="apple-mobile-web-app-status-bar-style" content="black">
                 <meta name="apple-mobile-web-app-title" content="Material Design Lite">
                 <link rel="apple-touch-icon-precomposed" href="images/ios-desktop.png">
-                <link rel="stylesheet" href="/css/study.css" />
+                <link rel="stylesheet" href="${basePath}/css/study.css" />
                 <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
                 <meta name="msapplication-TileColor" content="#3372DF">
                 <script>
@@ -37,7 +41,7 @@ export default (project, user, name, icon, role, acl, celeryTasks, matrixData, c
             </head>
             <body>
                 <div id="graph"></div>
-                <script src="/js/study.min.js">
+                <script src="${basePath}/js/study.min.js">
                 </script>
             </body>
         </html>

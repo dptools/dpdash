@@ -18,6 +18,7 @@ rabbitDist=${DPDASH_RABBIT_DIST:-25671}
 rabbitName=${DPDASH_RABBIT_NAME:-rabbit}
 rabbitPort=${DPDASH_RABBIT_PORT:-5671}
 supervisorId=${DPDASH_SUPERVISOR_ID:-supervisor}
+basePath=${DPDASH_BASE_PATH}
 
 if [ "$(ls -A $containerDataDir)" ]; then
     echo "$containerDataDir needs to both exist and be empty"
@@ -112,7 +113,8 @@ python ./configure.py \
 --rabbit-port $rabbitPort \
 --rabbit-pw $rabbitpw \
 --supervisor-id $supervisorId \
---app-secret $appsecret
+--app-secret $appsecret \
+--base-path $basePath
 
 ## Initializing supervisord Space
 echo '***************Initializing supervisord logdir***************'

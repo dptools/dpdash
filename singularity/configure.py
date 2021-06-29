@@ -36,6 +36,7 @@ def main():
 
     parser.add_argument('--dpdash-secret', help='DPdash session secret')
     parser.add_argument('--app-secret', help='App secret')
+    parser.add_argument('--base-path', help='Non-root base path', nargs='?', const='', default='')
 
     args = parser.parse_args()
 
@@ -44,6 +45,7 @@ def main():
     configure_dppy(args.rabbit_port, args.celery_path, args.ssl_client_key, args.ssl_client_cert, args.ssl_ca, args.config_dir, args.rabbit_pw, args.rabbit_host)
     configure_supervisord(args.supervisor_id, args.config_dir)
     configure_dpdash(args.ssl_ca, args.ssl_client_key, args.ssl_client_cert, args.dpdash_port, args.mongo_port, args.rabbit_port, args.mongo_pw, args.rabbit_pw, args.dpdash_secret, args.config_dir, args.data_dir, args.dpdash_path, args.rabbit_host, args.mongo_host, args.app_secret)
+    configure_base_path(args.base_path, args.config_dir)
 
 def export_file(file_path, content):
     try:
@@ -408,6 +410,16 @@ export default config;''' % {
     }
 
     return export_file(os.path.join(config_path, 'dashboard/config.js'), configuration)
+
+def configure_base_path(base_path, config_path):
+    base_path_config = '''const basePathConfig = '%(base_path)s';
+
+export default basePathConfig;
+    ''' % {
+        'base_path': base_path
+    }
+
+    return export_file(os.path.join(config_path, 'dashboard/basePathConfig.js'), base_path_config)
 
 if __name__ == '__main__':
     main()

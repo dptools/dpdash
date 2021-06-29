@@ -69,9 +69,8 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mo
     ## use latest version of npm
     npm install -g npm@latest
 
-    ## install and build DPdash
+    ## install DPdash dependencies
     npm install
-    npm run build
 
     ## install the DPPY DPdash file scanner/importer
     cd ..

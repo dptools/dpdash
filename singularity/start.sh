@@ -42,6 +42,7 @@ then
         -B ${DPDASH_DEV_DIR}:/sw/apps/dpdash \
         -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
         -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+        -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
         ${DPDASH_IMG}
     else
         singularity shell \
@@ -49,6 +50,7 @@ then
         -B ${data}:/project_data \
         -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
         -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+        -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
         ${DPDASH_IMG}
     fi
 else
@@ -61,6 +63,7 @@ else
         -B ${DPDASH_DEV_DIR}:/sw/apps/dpdash \
         -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
         -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+        -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
         ${DPDASH_IMG} \
         /sw/apps/dpdash/singularity/run.sh
     else
@@ -69,6 +72,7 @@ else
         -B ${data}:/project_data \
         -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
         -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+        -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
         ${DPDASH_IMG} \
         /sw/apps/dpdash/singularity/run.sh
     fi

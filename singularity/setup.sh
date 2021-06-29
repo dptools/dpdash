@@ -33,4 +33,11 @@ sleep 10 && /usr/lib/rabbitmq/bin/rabbitmqctl stop
 echo '***************Setting up CELERY***************'
 export dppy_config=/data/dpdash/configs/dppy.conf
 
+
+## Set up Celery Server
+echo '***************Building DPdash***************'
+echo 'Please wait, this may take upwards of 10-15 minutes to complete.'
+cd /sw/apps/dpdash
+npm run build
+
 echo '****************Set Up Complete****************'

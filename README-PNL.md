@@ -123,6 +123,7 @@ Launch a DPdash instance as follows:
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG} \
     /sw/apps/dpdash/singularity/run.sh
@@ -133,6 +134,7 @@ Alternatively, you can shell into the container and then execute further command
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG}
 
@@ -236,6 +238,7 @@ You can stop the DPdash instance with a Singularity command:
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG} \
     /sw/apps/dpdash/singularity/quit.sh
@@ -254,6 +257,7 @@ To be able to do that, define the [DPdash variables](https://github.com/PREDICT-
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG}
 

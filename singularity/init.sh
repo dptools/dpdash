@@ -84,7 +84,7 @@ echo '***************Generating Configs***************'
 cd ${containerDataDir}/scripts
 mkdir -p ${containerDataDir}/dpdash/configs \
 && mkdir -p ${containerDataDir}/dpdash/configs/dashboard \
-&& mkdir -p ${containerDataDir}/dpdash/dist
+&& mkdir -p ${containerDataDir}/dpdash/dist \
 && mkdir -p ${containerDataDir}/dpdash/webpack-build
 
 export mongopw=`openssl rand -base64 32 | tr -d "+=/"`

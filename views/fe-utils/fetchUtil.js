@@ -1,5 +1,9 @@
+import basePathConfig from '../../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 const fetchStudiesAdmin = async () => {
-  const res = await window.fetch('/api/v1/search/studies', {
+  const res = await window.fetch(`${basePath}/api/v1/search/studies`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -13,7 +17,7 @@ const fetchStudiesAdmin = async () => {
 }
 
 const fetchStudies = async () => {
-  const res = await window.fetch('/api/v1/studies', {
+  const res = await window.fetch(`${basePath}/api/v1/studies`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -27,7 +31,7 @@ const fetchStudies = async () => {
 }
 
 const fetchSubjects = async () => {
-  const userAccess = await window.fetch('/api/v1/studies', {
+  const userAccess = await window.fetch(`${basePath}/api/v1/studies`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -39,7 +43,7 @@ const fetchSubjects = async () => {
   }
   const studiesJson = await userAccess.json();
   const studies = studiesJson ? studiesJson : [];
-  const subjectsResponse = await window.fetch('/api/v1/subjects?q=' + JSON.stringify(studies), {
+  const subjectsResponse = await window.fetch(`${basePath}/api/v1/subjects?q=${JSON.stringify(studies)}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -53,7 +57,7 @@ const fetchSubjects = async () => {
 };
 
 const fetchUsers = async () => {
-  const res = await window.fetch('/api/v1/users', {
+  const res = await window.fetch(`${basePath}/api/v1/users`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -67,7 +71,7 @@ const fetchUsers = async () => {
 };
 
 const fetchUsernames = async () => {
-  const res = await window.fetch('/api/v1/search/users', {
+  const res = await window.fetch(`${basePath}/api/v1/search/users`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'

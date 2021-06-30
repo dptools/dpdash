@@ -26,6 +26,7 @@ Table of Contents
      * [Quit](#quit)
      * [Restart](#restart)
   * [Reverse proxy](#reverse-proxy)
+     * [From non-root URL](#from-non-root-url)
   * [Troubleshooting](#troubleshooting)
      * [Logs](#logs)
      * [Cookies](#cookies)
@@ -76,6 +77,7 @@ In your `.env` file, define the following required variables:
 
 If you wish to configure ports and other options for services (for example, if running a second DPdash instance on the same machine as another), you may define the following optional variables:
 
+> * **`DPDASH_BASE_PATH`**: Can be used to serve DPdash from a non-root URL (e.g. /dpdash)
 > * **`DPDASH_PORT`**: Can be used to change the port on which DPdash will run (default: 8000)
 > * **`DPDASH_SERVICE_HOST`**: Can be used to change the hostname on which services such as MongoDB and RabbitMQ will run (default: whatever your current `hostname` is)
 > * **`DPDASH_MONGO_PORT`**: Can be used to change the port on which MongoDB will run (default: 27017)
@@ -121,6 +123,7 @@ Launch a DPdash instance as follows:
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG} \
     /sw/apps/dpdash/singularity/run.sh
@@ -131,6 +134,7 @@ Alternatively, you can shell into the container and then execute further command
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG}
 
@@ -234,6 +238,7 @@ You can stop the DPdash instance with a Singularity command:
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG} \
     /sw/apps/dpdash/singularity/quit.sh
@@ -252,6 +257,7 @@ To be able to do that, define the [DPdash variables](https://github.com/PREDICT-
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG}
 
@@ -279,6 +285,46 @@ Essentially, you will need to add the following section in a `server{}` block in
 ```
 
 Eventually, you should be able to see DPdash login page in a web browser against your server hostname.
+
+### From non-root URL
+
+If you would like to serve your app from a non-root URL, such as `/dpdash`, you will need to have the `DPDASH_BASE_PATH` environment variable set [on initialization](#optional-variables).
+
+If you did not set this during initialization, you will need to modify the following file:
+```
+${state}/dpdash/configs/dashboard/basePathConfig.js: const basePathConfig = '/dpdash';
+```
+Where `/dpdash` is whatever your new path is. It should begin, but not end, with a `/`.
+
+Again, if you did not set this up during initialization, you must now launch the Singularity shell and run `npm run build`:
+
+```sh
+    singularity shell \
+    -B ${state}:/data \
+    -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
+    -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
+    -B ${data}:/project_data \
+    ${DPDASH_IMG}
+
+    Singularity> cd /sw/apps/dpdash/
+    Singularity> npm run build
+```
+
+The command to test would now be `curl -L http://0.0.0.0:8000/dpdash`.
+
+For setting up a reverse proxy, the Nginx configuration would look like this:
+
+```cfg
+    location /dpdash {
+            proxy_pass http://127.0.0.1:8000/dpdash;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
+    }
+```
 
 
 ## Troubleshooting

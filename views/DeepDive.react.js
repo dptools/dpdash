@@ -6,6 +6,10 @@ import { Column, Table } from 'react-virtualized'
 import * as _ from 'lodash'
 import 'whatwg-fetch'
 
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 class DeepDive extends Component {
   constructor(props) {
     super(props)
@@ -23,7 +27,7 @@ class DeepDive extends Component {
     }
   }
   fetchData = (study, subject, day) => {
-    return fetch('/api/v1/studies/' + study + '/subjects/' + subject + '/deepdive/' + day, {
+    return fetch(`${basePath}/api/v1/studies/${study}/subjects/${subject}/deepdive/${day}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'

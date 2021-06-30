@@ -1,10 +1,13 @@
 import config from '../../configs/config';
 import defaultUserConfig from '../../configs/defaultUserConfig';
+import basePathConfig from '../../configs/basePathConfig';
 
 import passport from 'passport';
 import { MongoClient }  from 'mongodb';
 
 import { getMongoURI } from '../mongoUtil';
+
+const basePath = basePathConfig || '';
 
 function getRealms(user) {
   if (user != null && user.realms) {
@@ -105,10 +108,10 @@ export default (req, res, next) => {
   });
   passport.authenticate('ldapauth', { session: true }, function (err, user, info) {
     if (err) {
-      return res.redirect('/login?e=' + err);
+      return res.redirect(`${basePath}/login?e=${err}`);
     }
     if (!user) {
-      return res.redirect('/login?e=forbidden');
+      return res.redirect(`${basePath}/login?e=forbidden`);
     }
     req.login(user, function (err) {
       if (err) {
@@ -118,7 +121,7 @@ export default (req, res, next) => {
         MongoClient.connect(mongoURI, config.database.mongo.server, function (err, client) {
           if (err) {
             console.error(err.message);
-            return res.redirect('/login?e=forbidden');
+            return res.redirect(`${basePath}/login?e=forbidden`);
           }
           const mongodb = client.db(config.database.mongo.appDB);
           var uid = user.uid;
@@ -196,7 +199,7 @@ export default (req, res, next) => {
                       req.session.mail = userMail;
                       req.session.celery_tasks = [];
                       req.session.icon = userIcon;
-                      return res.redirect('/');
+                      return res.redirect(`${basePath}/`);
                     });
                 });
 

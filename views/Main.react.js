@@ -32,6 +32,9 @@ import Sidebar from './components/Sidebar';
 import getAvatar from './fe-utils/avatarUtil';
 import { fetchSubjects } from './fe-utils/fetchUtil';
 
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
 const drawerWidth = 200;
 const styles = theme => ({
   root: {
@@ -260,7 +263,7 @@ class MainPage extends Component {
   fetchUserPreferences = (uid) => {
     let star = this.state.star;
     let complete = this.state.complete;
-    return fetch('/api/v1/users/' + uid + '/preferences', {
+    return fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -441,7 +444,7 @@ class MainPage extends Component {
     preference['star'] = star ? star : this.state.star;
     preference['complete'] = this.state.complete;
     preference['config'] = 'config' in this.state.preferences ? this.state.preferences['config'] : '';
-    return fetch('/api/v1/users/' + uid + '/preferences', {
+    return fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -460,7 +463,7 @@ class MainPage extends Component {
     preference['star'] = this.state.star;
     preference['complete'] = complete;
     preference['config'] = 'config' in this.state.preferences ? this.state.preferences['config'] : '';
-    return fetch('/api/v1/users/' + uid + '/preferences', {
+    return fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -578,10 +581,10 @@ class MainPage extends Component {
     });
   }
   getStudyCell = (data) => {
-    return <a style={{ textDecoration: 'none' }} href={'/dashboard/' + data.study}>{data.study}</a>
+    return <a style={{ textDecoration: 'none' }} href={`${basePath}/dashboard/${data.study}`}>{data.study}</a>
   };
   getSubjectCell = (data) => {
-    return <a style={{ textDecoration: 'none' }} href={'/dashboard/' + data.study + '/' + data.subject}>{data.subject}</a>
+    return <a style={{ textDecoration: 'none' }} href={`${basePath}/dashboard/${data.study}/${data.subject}`}>{data.subject}</a>
   }
   getSyncedCell = (data) => {
     var complete = this.state.complete;
@@ -614,7 +617,7 @@ class MainPage extends Component {
               onClick={this.handleDrawerToggle}
               className={classes.navIconHide}
             >
-              <img width='24px' height='24px' src='/img/favicon.png' />
+              <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
             </IconButton>
             <div style={{ width: '100%' }}>
               <NoSsr>

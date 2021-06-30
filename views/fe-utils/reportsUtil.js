@@ -1,5 +1,9 @@
+import basePathConfig from '../../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
+
 const fetchReport = async ({ id }) => {
-  const res = await window.fetch(`/api/v1/reports/${id}`, {
+  const res = await window.fetch(`${basePath}/api/v1/reports/${id}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -20,7 +24,7 @@ const queryApi = async ({
   study,
   body,
 }) => {
-  const enrollmentRes = await window.fetch(`/api/v1/studies/${study}/enrollment`, {
+  const enrollmentRes = await window.fetch(`${basePath}/api/v1/studies/${study}/enrollment`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

@@ -14,6 +14,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import Snackbar from '@material-ui/core/Snackbar';
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -118,7 +121,7 @@ class LoginPage extends React.Component {
                   paddingRight: '12px'
                 }}
               >
-                <form action="/login" method="post" id="loginForm">
+                <form action={`${basePath}/login`} method="post" id="loginForm">
                   <TextField
                     id='username'
                     name='username'
@@ -159,7 +162,7 @@ class LoginPage extends React.Component {
                 <br />
                 <Typography
                   component="a"
-                  href='/resetpw'
+                  href={`${basePath}/resetpw`}
                   style={{
                     textAlign: 'right',
                     width: '100%',
@@ -189,7 +192,7 @@ class LoginPage extends React.Component {
                 <br />
                 <Typography
                   component="a"
-                  href='/signup'
+                  href={`${basePath}/signup`}
                   style={{
                     textAlign: 'center',
                     width: '100%',
@@ -220,7 +223,7 @@ class LoginPage extends React.Component {
               style={{
                 width: '317px',
                 margin: '50px',
-                backgroundImage: 'url("/img/dpdash.png")',
+                backgroundImage: `url("${basePath}/img/dpdash.png")`,
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center center'

@@ -36,10 +36,13 @@ import viewReportPage from '../templates/Report.template';
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
 import defaultUserConfig from '../configs/defaultUserConfig';
+import basePathConfig from '../configs/basePathConfig';
 
 const router = Router();
 
 const mongoURI = getMongoURI({ settings: config.database.mongo });
+
+const basePath = basePathConfig || '';
 
 let mongoClient;
 let mongoApp;
@@ -80,7 +83,7 @@ connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
 //User authentication middleware
 function ensureAuthenticated(req, res, next) {
   if (!req.isAuthenticated()) {
-    return res.redirect('/logout');
+    return res.redirect(`${basePath}/logout`);
   }
   checkMongo();
   mongoApp.collection('users').findOne(
@@ -89,15 +92,15 @@ function ensureAuthenticated(req, res, next) {
     function (err, data) {
       if (err) {
         console.log(err);
-        return res.redirect('/logout?e=forbidden');
+        return res.redirect(`${basePath}/logout?e=forbidden`);
       } else if (!data || Object.keys(data).length === 0) {
-        return res.redirect('/logout?e=forbidden');
+        return res.redirect(`${basePath}/logout?e=forbidden`);
       } else if (('role' in data) && data['role'] === 'admin') {
         return next();
       } else if (('blocked' in data) && data['blocked'] == true) {
-        return res.redirect('/logout?e=forbidden');
+        return res.redirect(`${basePath}/logout?e=forbidden`);
       } else if (!('access' in data) || data.access.length == 0) {
-        return res.redirect('/logout?e=unauthorized');
+        return res.redirect(`${basePath}/logout?e=unauthorized`);
       } else {
         return next();
       }
@@ -106,7 +109,7 @@ function ensureAuthenticated(req, res, next) {
 //Admin privilege checking middleware
 function ensureAdmin(req, res, next) {
   if (!req.isAuthenticated()) {
-    return res.redirect('/logout');
+    return res.redirect(`${basePath}/logout`);
   }
   checkMongo();
   mongoApp.collection('users').findOne(
@@ -115,9 +118,9 @@ function ensureAdmin(req, res, next) {
     , function (err, data) {
       if (err) {
         console.log(err);
-        return res.redirect('/?e=forbidden');
+        return res.redirect(`${basePath}/?e=forbidden`);
       } else if (!data || Object.keys(data).length === 0) {
-        return res.redirect('/?e=forbidden');
+        return res.redirect(`${basePath}/?e=forbidden`);
       } else {
         return next();
       }
@@ -127,9 +130,9 @@ function ensureAdmin(req, res, next) {
 //Check if the information requested is for the user
 function ensureUser(req, res, next) {
   if (!req.isAuthenticated()) {
-    return res.redirect('/logout?e=forbidden');
+    return res.redirect(`${basePath}/logout?e=forbidden`);
   } else if (req.params.uid !== req.user) {
-    return res.redirect('/?e=forbidden');
+    return res.redirect(`${basePath}/?e=forbidden`);
   } else {
     return next();
   }
@@ -137,7 +140,7 @@ function ensureUser(req, res, next) {
 //Check user privilege for the study
 function ensurePermission(req, res, next) {
   if (!req.isAuthenticated()) {
-    return res.redirect('/logout');
+    return res.redirect(`${basePath}/logout`);
   }
   checkMongo();
   mongoApp.collection('users').findOne(
@@ -146,17 +149,17 @@ function ensurePermission(req, res, next) {
     function (err, data) {
       if (err) {
         console.log(err);
-        return res.redirect('/?e=forbidden');
+        return res.redirect(`${basePath}/?e=forbidden`);
       } else if (!data || Object.keys(data).length === 0) {
-        return res.redirect('/?e=forbidden');
+        return res.redirect(`${basePath}/?e=forbidden`);
       } else if (('role' in data) && data['role'] === 'admin') {
         return next();
       } else if (('blocked' in data) && data['blocked'] == true) {
-        return res.redirect('/logout?e=forbidden');
+        return res.redirect(`${basePath}/logout?e=forbidden`);
       } else if (!('access' in data) || data.access.length == 0) {
-        return res.redirect('/logout?e=unauthorized');
+        return res.redirect(`${basePath}/logout?e=unauthorized`);
       } else if (data.access.indexOf(req.params.study) < 0) {
-        return res.redirect('/?e=forbidden');
+        return res.redirect(`${basePath}/?e=forbidden`);
       } else {
         return next();
       }
@@ -224,20 +227,20 @@ router.route('/login')
     passport.authenticate('local-login', { session: true }, function (err, user) {
       if (err) {
         console.error(err);
-        return res.redirect('/login?e=' + err);
+        return res.redirect(`${basePath}/login?e=${err}`);
       }
       if (!user) {
         if (config.auth.useLDAP) {
           return LDAP(req, res, next);
         } else {
-          return res.redirect('/login');
+          return res.redirect(`${basePath}/login`);
         }
       }
       if (user.ldap) {
         if (config.auth.useLDAP) {
           return LDAP(req, res, next);
         } else {
-          return res.redirect('/login');
+          return res.redirect(`${basePath}/login`);
         }
       } else {
         return LocalLogin(req, res, next, user);
@@ -249,7 +252,7 @@ router.route('/login')
 router.route('/signup')
   .get(function (req, res) {
     if (config.auth.useLDAP) {
-      return res.redirect('/login?e=NA');
+      return res.redirect(`${basePath}/login?e=NA`);
     } else if (req.query.e === 'existingUser') {
       return res.send(registerPage('The username already exists. Please choose another.'));
     } else {
@@ -258,7 +261,7 @@ router.route('/signup')
   })
   .post(function (req, res, next) {
     if (config.auth.useLDAP) {
-      return res.redirect('/login');
+      return res.redirect(`${basePath}/login`);
     } else {
       return LocalSignup(req, res, next);
     }
@@ -269,9 +272,9 @@ router.get('/logout', function (req, res) {
   req.session.destroy();
   req.logout();
   if (req.query.e) {
-    return res.redirect('/login?e=' + req.query.e);
+    return res.redirect(`${basePath}/login?e=${req.query.e}`);
   } else {
-    return res.redirect('/login');
+    return res.redirect(`${basePath}/login`);
   }
 });
 
@@ -336,7 +339,7 @@ router.get('/dashboard/:study/:subject', ensurePermission, async function (req, 
 router.route('/resetpw')
   .get(function (req, res) {
     if (config.auth.useLDAP) {
-      return res.redirect('/login?e=NA');
+      return res.redirect(`${basePath}/login?e=NA`);
     } else {
       let message = '';
       if (req.query.e) {
@@ -355,7 +358,7 @@ router.route('/resetpw')
   })
   .post(function (req, res) {
     if (req.body.password !== req.body.confirmpw) {
-      return res.redirect('/resetpw?e=unmatched');
+      return res.redirect(`${basePath}/resetpw?e=unmatched`);
     } else {
       var hashedPW = hash(req.body.password);
       checkMongo();
@@ -366,11 +369,11 @@ router.route('/resetpw')
         function (err, doc) {
           if (err) {
             console.log(err);
-            return res.redirect('/resetpw?e=db');
+            return res.redirect(`${basePath}/resetpw?e=db`);
           } else if (!doc || doc['value'] === null) {
-            return res.redirect('/resetpw?e=nouser');
+            return res.redirect(`${basePath}/resetpw?e=nouser`);
           } else {
-            return res.redirect('/login?e=resetpw');
+            return res.redirect(`${basePath}/login?e=resetpw`);
           }
         });
     }
@@ -704,7 +707,7 @@ router.route('/api/v1/users/:uid/configs')
           } else {
             if ('insertedId' in doc) {
               var _id = doc['insertedId'];
-              var uri = '/u/configure?s=edit&id=' + _id;
+              var uri = `${basePath}/u/configure?s=edit&id=${_id}`;
               return res.status(201).send({ uri: uri });
             } else {
               return res.status(502).send({ message: 'fail' });

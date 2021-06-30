@@ -19,8 +19,12 @@ import { getMongoURI } from './utils/mongoUtil';
 
 import indexRouter from './routes/index';
 
-const localStrategy = Strategy;
 import config from './configs/config';
+import basePathConfig from './configs/basePathConfig';
+
+const localStrategy = Strategy;
+
+const basePath = basePathConfig || '';
 
 const app = express();
 
@@ -142,10 +146,10 @@ passport.use('local-signup', new localStrategy({
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/', indexRouter);
-app.use('/css', express.static(path.join(__dirname, '../public/css')));
-app.use('/js', express.static(path.join(__dirname, '../public/js')));
-app.use('/img', express.static(path.join(__dirname, '../public/img')));
+app.use(`${basePath}/`, indexRouter);
+app.use(`${basePath}/css`, express.static(path.join(__dirname, '../public/css')));
+app.use(`${basePath}/js`, express.static(path.join(__dirname, '../public/js')));
+app.use(`${basePath}/img`, express.static(path.join(__dirname, '../public/img')));
 //app.use('/users', usersRouter);
 
 /** error handlers setup */

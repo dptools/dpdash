@@ -41,10 +41,13 @@ import TableRow from '@material-ui/core/TableRow';
 import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects } from './fe-utils/fetchUtil';
+import basePathConfig from '../server/configs/basePathConfig';
 
 const drawerWidth = 200;
 
-const socketAddress = 'https://' + window.location.hostname + '/dashboard'
+const basePath = basePathConfig || '';
+
+const socketAddress = `https://${window.location.hostname}${basePath}/dashboard`;
 const socket = io(socketAddress, {
   requestTimeout: 1250,
   randomizationFactor: 0,
@@ -161,7 +164,7 @@ class Graph extends Component {
     }
   }
   fetchMetadata = (study, subject, day) => {
-    return fetch('/api/v1/studies/' + study + '/subjects/' + subject + '/deepdive/' + day, {
+    return fetch(`${basePath}/api/v1/studies/${study}/subjects/${subject}/deepdive/${day}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -197,7 +200,7 @@ class Graph extends Component {
     for (let i in acl) {
       let link = '/dashboard/' + acl[i]['study'] + '/' + acl[i]['subjects']
       listItem.push(
-        <ListItem href={link} target="_blank" primaryText={acl[i]['subjects']} secondaryText={acl[i]['study']} key={link} />
+        <ListItem href={`${basePath}${link}`} target="_blank" primaryText={acl[i]['subjects']} secondaryText={acl[i]['study']} key={link} />
       )
     }
     return listItem
@@ -268,7 +271,7 @@ class Graph extends Component {
       user: this.props.user,
       iconBase64: this.props.user.icon,
       searchList: this.props.user.acl,
-      socketIOSubjectRoom: '/resync/' + this.props.subject.project + '/' + this.props.subject.sid,
+      socketIOSubjectRoom: `${basePath}/resync/${this.props.subject.project}/${this.props.subject.sid}`,
       socketIOUserRoom: this.props.user.uid
     })
     this.setState({ configurations: this.props.user.configs })
@@ -410,7 +413,7 @@ class Graph extends Component {
               aria-label="Open drawer"
               onClick={this.handleDrawerToggle}
             >
-              <img width='24px' height='24px' src='/img/favicon.png' />
+              <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
             </IconButton>
             <Typography
               variant="title"

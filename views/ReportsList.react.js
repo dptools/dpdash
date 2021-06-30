@@ -23,6 +23,9 @@ import getAvatar from './fe-utils/avatarUtil';
 import getCounts from './fe-utils/countUtil';
 import { fetchSubjects, fetchUsernames } from './fe-utils/fetchUtil';
 import getDefaultStyles from './fe-utils/styleUtil';
+import basePathConfig from '../server/configs/basePathConfig';
+
+const basePath = basePathConfig || '';
 
 const styles = theme => ({
   ...getDefaultStyles(theme),
@@ -127,7 +130,7 @@ class ReportsListPage extends React.Component {
     this.setState({ errorOpen: false });
   }
   fetchReports = async () => {
-    const reportsRes = await window.fetch('/api/v1/reports', {
+    const reportsRes = await window.fetch(`${basePath}/api/v1/reports`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -147,7 +150,7 @@ class ReportsListPage extends React.Component {
         this.setState({
           formsDisabled: true,
         });
-        const res = await window.fetch(`/api/v1/reports/${report._id}`, {
+        const res = await window.fetch(`${basePath}/api/v1/reports/${report._id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'
@@ -200,7 +203,7 @@ class ReportsListPage extends React.Component {
       });
       const { readers, reportId } = this.state.shareState;
       const body = { readers };
-      const res = await window.fetch(`/api/v1/reports/${reportId}`, {
+      const res = await window.fetch(`${basePath}/api/v1/reports/${reportId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -286,7 +289,7 @@ class ReportsListPage extends React.Component {
                   {this.state.reports && this.state.reports.map(report => (
                     <TableRow key={report._id}>
                       <TableCell>
-                        <a href={`/reports/${report._id}/view`}>
+                        <a href={`${basePath}/reports/${report._id}/view`}>
                           {report.reportName}
                         </a>
                       </TableCell>
@@ -299,7 +302,7 @@ class ReportsListPage extends React.Component {
                               type="button"
                               variant="text"
                               disabled={this.state.formsDisabled}
-                              href={`/reports/${report._id}/edit`}
+                              href={`${basePath}/reports/${report._id}/edit`}
                             >
                               <Edit />
                             </Button>
@@ -346,7 +349,7 @@ class ReportsListPage extends React.Component {
                   variant="fab"
                   color="secondary"
                   focusRipple
-                  href="/reports/new"
+                  href={`${basePath}/reports/new`}
                 >
                   <Add />
                 </Button>

@@ -4,11 +4,14 @@ import { MongoClient } from 'mongodb';
 import { verifyHash } from '../crypto/hash';
 import { getMongoURI } from '../mongoUtil';
 import defaultUserConfig from '../../configs/defaultUserConfig';
+import basePathConfig from '../../configs/basePathConfig';
+
+const basePath = basePathConfig || '';
 
 export default (req, res, next, user) => {
   //validate submitted password
   if (!verifyHash(req.body.password, user.password)) {
-    return res.redirect('/login?e=forbidden');
+    return res.redirect(`${basePath}/login?e=forbidden`);
   }
   //passport local log-in serializer
   passport.serializeUser(function (user, done) {
@@ -26,7 +29,7 @@ export default (req, res, next, user) => {
       MongoClient.connect(mongoURI, config.database.mongo.server, function (err, client) {
         if (err) {
           console.error(err.message);
-          return res.redirect('/login?e=forbidden');
+          return res.redirect(`${basePath}/login?e=forbidden`);
         }
         const mongodb = client.db();
         var uid = user.uid;
@@ -77,7 +80,7 @@ export default (req, res, next, user) => {
                 req.session.mail = userinfo.value.mail;
                 req.session.celery_tasks = [];
                 req.session.icon = userinfo.value.icon;
-                return res.redirect('/');
+                return res.redirect(`${basePath}/`);
               });
           });
       });

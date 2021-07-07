@@ -374,3 +374,25 @@ See the [express-session docs](https://expressjs.com/en/resources/middleware/ses
 **Note**: The developers use a reverse proxy to serve the production DPdash instance, and thus we have set the following to `true` by default. If you do not use a reverse proxy and want stricter security settings, you may set it to `false` or remove it altogether:
 
     ${state}/dpdash/configs/dashboard/config.js: config.session.proxy = true;
+
+
+
+### Unmount
+
+If a DPdash instance is preventing unmounting of a directory, the first thing to do is to [quit](https://github.com/AMP-SCZ/dpdash/blob/pnl-devel/README-PNL.md#quit)
+that instance and associated processes. If you are still unable to unmount, follow the steps below to unmount successfully:
+
+    [root@rc-predict /]# umount -f /data1/predict1
+    umount: /data/predict: target is busy.
+            (In some cases useful info about processes that use
+             the device is found by lsof(8) or fuser(1))
+
+    [root@rc-predict /]# losetup -a
+    /dev/loop0: [0046]:687782509 (/data1/predict1/dpdash-ben-0611.sif), offset 49152, sizelimit 721276928
+
+
+    [root@rc-predict /]# fuser -c /dev/loop0
+    /dev/loop0:          95468m
+
+    [root@rc-predict /]# kill -9 95468
+    [root@rc-predict /]# umount -f /data1/predict1

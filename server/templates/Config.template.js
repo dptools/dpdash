@@ -1,4 +1,5 @@
 import basePathConfig from '../configs/basePathConfig';
+var serialize = require('serialize-javascript');
 
 const basePath = basePathConfig || '';
 
@@ -19,7 +20,7 @@ export default (user, name, icon, mail, role, message) => {
 				<title>Configurations - DPdash</title>
 				<link rel="stylesheet" href="${basePath}/css/config.css" />
 				<script>
-					window.USER = ${JSON.stringify(userState)}
+					window.USER = ${serialize(userState, {isJSON: true})}
                     window.SUBJECT = ${JSON.stringify(null)}
                     window.GRAPH = ${JSON.stringify(null)}
 				</script>

@@ -583,7 +583,7 @@ router.route('/api/v1/users/:uid')
         } else if (!user || Object.keys(user).length === 0) {
           return res.status(404).send({});
         } else {
-          return res.status(200).send(user);
+          return res.status(200).json(user);
         }
       });
   })

@@ -21,8 +21,8 @@ export default (user, name, icon, mail, role, message) => {
 				<link rel="stylesheet" href="${basePath}/css/config.css" />
 				<script>
 					window.USER = ${serialize(userState, {isJSON: true})}
-                    window.SUBJECT = ${JSON.stringify(null)}
-                    window.GRAPH = ${JSON.stringify(null)}
+                    window.SUBJECT = ${serialize(null, {isJSON: true})}
+                    window.GRAPH = ${serialize(null, {isJSON: true})}
 				</script>
 			</head>
 			<body>

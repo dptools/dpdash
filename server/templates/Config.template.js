@@ -1,5 +1,5 @@
 import basePathConfig from '../configs/basePathConfig';
-var serialize = require('serialize-javascript');
+const serialize = require('serialize-javascript');
 
 const basePath = basePathConfig || '';
 

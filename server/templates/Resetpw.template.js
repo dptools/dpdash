@@ -1,4 +1,5 @@
 import basePathConfig from '../configs/basePathConfig';
+const serialize = require('serialize-javascript');
 
 const basePath = basePathConfig || '';
 
@@ -15,9 +16,9 @@ export default (message) => {
                 <title>Reset Password - DPdash</title>
             </head>
                 <script>
-                    window.USER = ${JSON.stringify(userState)}
-                    window.SUBJECT = ${JSON.stringify(null)}
-                    window.GRAPH = ${JSON.stringify(null)}
+                    window.USER = ${serialize(userState, {isJSON: true})}
+                    window.SUBJECT = ${serialize(null, {isJSON: true})}
+                    window.GRAPH = ${serialize(null, {isJSON: true})}
                 </script>
             <body>
                 <div id = "main"></div>

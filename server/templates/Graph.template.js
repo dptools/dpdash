@@ -1,4 +1,5 @@
 import basePathConfig from '../configs/basePathConfig';
+const serialize = require('serialize-javascript');
 
 const basePath = basePathConfig || '';
 
@@ -44,9 +45,9 @@ export default (subject, project, user, name, icon, mail, acl, matrixData, confi
 				<meta name="msapplication-TileColor" content="#3372DF">-->
 				<link rel='stylesheet' href='${basePath}/css/graph.css'/>
 				<script>
-					window.USER = ${JSON.stringify(userState)}
-					window.SUBJECT = ${JSON.stringify(subjectState)}
-					window.GRAPH = ${JSON.stringify(graphState)}
+					window.USER = ${serialize(userState, {isJSON: true})}
+					window.SUBJECT = ${serialize(subjectState, {isJSON: true})}
+					window.GRAPH = ${serialize(graphState, {isJSON: true})}
 				</script>
 			</head>
 			<body>

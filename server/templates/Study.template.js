@@ -1,4 +1,5 @@
 import basePathConfig from '../configs/basePathConfig';
+const serialize = require('serialize-javascript');
 
 const basePath = basePathConfig || '';
 
@@ -34,9 +35,9 @@ export default (project, user, name, icon, role, acl, celeryTasks, matrixData, c
                 <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
                 <meta name="msapplication-TileColor" content="#3372DF">
                 <script>
-                    window.USER = ${JSON.stringify(userState)}
-                    window.SUBJECT = ${JSON.stringify(subjectState)}
-                    window.GRAPH = ${JSON.stringify(graphState)}
+                    window.USER = ${serialize(userState, {isJSON: true})}
+                    window.SUBJECT = ${serialize(subjectState, {isJSON: true})}
+                    window.GRAPH = ${serialize(graphState, {isJSON: true})}
                 </script>
             </head>
             <body>

@@ -1,4 +1,5 @@
 import basePathConfig from '../configs/basePathConfig';
+const serialize = require('serialize-javascript');
 
 const basePath = basePathConfig || '';
 
@@ -17,9 +18,9 @@ export default (study, subject, day) => {
 				<link rel='stylesheet' href='${basePath}/css/roboto.css'/>
                 <link rel='stylesheet' href='${basePath}/css/react-virtualized.css'/>
 				<script>
-				 	window.USER = ${JSON.stringify(null)}
-					window.SUBJECT = ${JSON.stringify(subjectState)}
-					window.GRAPH = ${JSON.stringify(null)}
+				 	window.USER = ${serialize(null, {isJSON: true})}
+					window.SUBJECT = ${serialize(subjectState, {isJSON: true})}
+					window.GRAPH = ${serialize(null, {isJSON: true})}
 				</script>
 			</head>
 			<body>

@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import winston from 'winston';
 import favicon from 'serve-favicon';
 import cookieParser from 'cookie-parser';
+import csrf from 'csurf'
 import expressSession from 'express-session';
 import MongoStore from 'connect-mongo';
 import { MongoClient } from 'mongodb';
@@ -72,6 +73,17 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(cookieParser(config.session.secret));
 app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+/* csrf proection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
+const csrfProtection = csrf({ cookie: true })
+const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
+app.get('/form', csrfProtection, function (req, res) {
+  res.render('send', { csrfToken: req.csrfToken() })
+})
+app.post('/process', parseForm, csrfProtection, function (req, res) {
+  res.send('Processing data ...')
+})
+
 app.set('view engine', 'html');
 app.use(methodOverride());
 

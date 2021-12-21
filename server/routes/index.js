@@ -477,7 +477,7 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
 });
 
 router.route('/api/v1/studies')
-  .get(function (req, res) {
+  .get(ensureAuthenticated, function (req, res) {
     checkMongo();
     mongoApp.collection('users').findOne(
       { uid: req.user },
@@ -511,7 +511,7 @@ router.get('/api/v1/search/studies', ensureAuthenticated, function (req, res) {
     });
 });
 
-router.get('/api/v1/subjects', function (req, res) {
+router.get('/api/v1/subjects', ensureAuthenticated, function (req, res) {
   checkMongo();
   mongoData.collection('metadata').aggregate([
     { $match: { study: { $in: JSON.parse(req.query.q) } } },

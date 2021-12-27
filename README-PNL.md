@@ -47,6 +47,7 @@ Advanced users are advised to build the image in their own machine:
 
     git clone https://github.com/PREDICT-DPACC/dpdash.git
     cd dpdash/singularity
+    SINGULARITY_DOCKER_USERNAME=*** SINGULARITY_DOCKER_PASSWORD=*** \
     singularity build dpdash.sif Singularity
 
 

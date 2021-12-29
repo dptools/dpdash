@@ -27,6 +27,9 @@ const localStrategy = Strategy;
 
 const basePath = basePathConfig || '';
 
+/* csrf protection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
+const csrfProtection = csrf({ cookie: true })
+const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
 const app = express();
 
 /** favicon setup */
@@ -74,9 +77,7 @@ app.use(cookieParser(config.session.secret));
 app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-/* csrf proection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
-const csrfProtection = csrf({ cookie: true })
-const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
+/* csrf protection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
 app.get('/form', csrfProtection, function (req, res) {
   res.render('send', { csrfToken: req.csrfToken() })
 })

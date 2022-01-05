@@ -153,9 +153,12 @@ class Study extends Component {
       let completed = (matrixDataList[item].project in this.state.complete && this.state.complete[matrixDataList[item].project].indexOf(matrixDataList[item].subject) > -1);
       if (!completed) {
         numOfDays = diffDates(consentDateObject, this.state.todayDateObject);
-        tempDateObj = new Date(this.state.todayDateObject.getTime())
       }
-      tempDateObj.setDate(tempDateObj.getDate() - daysToView);
+      
+      if (numOfDays > daysToView) {
+        tempDateObj = new Date(this.state.todayDateObject.getTime())
+        tempDateObj.setDate(tempDateObj.getDate() - daysToView);
+      }
 
       let link = '/dashboard/' + matrixDataList[item].project + '/' + matrixDataList[item].subject
       matrixList.push(
@@ -169,7 +172,7 @@ class Study extends Component {
             data={matrixDataList[item].matrixData}
             subject={matrixDataList[item].subject}
             study={matrixDataList[item].project}
-            consentDate={tempDateObj.toISOString().substring(0, 10)}
+            consentDate={ consentDateObject.getTime() ? tempDateObj.toISOString().substring(0, 10) : ' - - '}
             ref="matrix"
             configuration={this.state.configurations}
             startFromTheLastDay={this.state.startFromTheLastDay}

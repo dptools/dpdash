@@ -302,9 +302,9 @@ class Graph extends Component {
       tableItem.push(
         <TableRow key={i + dataItem['label']}>
           <CustomTableCell>{dataItem['label']}</CustomTableCell>
-          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].min) && isFinite(dataItem['stat'][0].min)) ? dataItem['stat'][0].min.toFixed(2) : 'N/A')}</CustomTableCell>
-          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].max) && isFinite(dataItem['stat'][0].max)) ? dataItem['stat'][0].max.toFixed(2) : 'N/A')}</CustomTableCell>
-          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].mean) && isFinite(dataItem['stat'][0].mean)) ? dataItem['stat'][0].mean.toFixed(2) : 'N/A')}</CustomTableCell>
+          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].min)) && isFinite(dataItem['stat'][0].min) ? dataItem['stat'][0].min.toFixed(2) : 'N/A')}</CustomTableCell>
+          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].max)) && isFinite(dataItem['stat'][0].max) ? dataItem['stat'][0].max.toFixed(2) : 'N/A')}</CustomTableCell>
+          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].mean)) && isFinite(dataItem['stat'][0].mean) ? dataItem['stat'][0].mean.toFixed(2) : 'N/A')}</CustomTableCell>
           <CustomTableCell id={'stat-missingdata-' + i} title={validData.length + '/' + this.state.maxDay}>{missingDataPercentage.toFixed(2) + ' (' + validData.length + '/' + this.state.maxDay + ')'}</CustomTableCell>
         </TableRow>
       )

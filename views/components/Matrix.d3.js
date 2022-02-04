@@ -13,7 +13,7 @@ const margin = {
   right: 30
 }
 
-const cellWidth=50;
+const cellWidth=60;
 
 export default class Matrix extends AbstractGraph {
   cleanData = (data, startDay, endDay) => {

@@ -425,7 +425,14 @@ function publisher(conn, ch, correlationId, args, replyTo) {
 router.get('/dashboard/:study', ensurePermission, function (req, res) {
   co(function* () {
     checkMongo();
-    var configs_heatmap = defaultStudyConfig['colormap'];
+    // couple StudyConfig and UserConfig
+    // var configs_heatmap = defaultStudyConfig['colormap'];
+    const defaultStudyConfig = yield getConfigForUser({
+      db: mongoApp,
+      user: req.user,
+      defaultConfig: defaultStudyConfig,
+    });
+    var configs_heatmap = defaultStudyConfig;
     var metadocReference = yield mongoData.collection('metadata').findOne({
       study: req.params.study,
       role: 'metadata'

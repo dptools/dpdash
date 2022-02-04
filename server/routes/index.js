@@ -425,7 +425,14 @@ function publisher(conn, ch, correlationId, args, replyTo) {
 router.get('/dashboard/:study', ensurePermission, function (req, res) {
   co(function* () {
     checkMongo();
-    var configs_heatmap = defaultStudyConfig['colormap'];
+    // couple StudyConfig and UserConfig
+    // var configs_heatmap = defaultStudyConfig['colormap'];
+    const defaultStudyConfig = yield getConfigForUser({
+      db: mongoApp,
+      user: req.user,
+      defaultConfig: defaultStudyConfig,
+    });
+    var configs_heatmap = defaultStudyConfig;
     var metadocReference = yield mongoData.collection('metadata').findOne({
       study: req.params.study,
       role: 'metadata'
@@ -477,7 +484,7 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
 });
 
 router.route('/api/v1/studies')
-  .get(function (req, res) {
+  .get(ensureAuthenticated, function (req, res) {
     checkMongo();
     mongoApp.collection('users').findOne(
       { uid: req.user },
@@ -491,7 +498,7 @@ router.route('/api/v1/studies')
         } else if (!('access' in data) || data.access.length == 0) {
           return res.status(404).send([]);
         } else {
-          return res.status(200).send(data.access.sort());
+          return res.status(200).json(data.access.sort());
         }
       });
   });
@@ -511,7 +518,7 @@ router.get('/api/v1/search/studies', ensureAuthenticated, function (req, res) {
     });
 });
 
-router.get('/api/v1/subjects', function (req, res) {
+router.get('/api/v1/subjects', ensureAuthenticated, function (req, res) {
   checkMongo();
   mongoData.collection('metadata').aggregate([
     { $match: { study: { $in: JSON.parse(req.query.q) } } },
@@ -524,7 +531,7 @@ router.get('/api/v1/subjects', function (req, res) {
     } else if (!subjects) {
       return res.status(502).send([]);
     } else {
-      return res.status(200).send(subjects);
+      return res.status(200).json(subjects);
     }
   });
 });
@@ -539,7 +546,7 @@ router.get('/api/v1/users', ensureAdmin, function (req, res) {
       } else if (users.length == 0) {
         return res.status(404).send([]);
       } else {
-        return res.status(200).send(users);
+        return res.status(200).json(users);
       }
     });
 });
@@ -583,7 +590,7 @@ router.route('/api/v1/users/:uid')
         } else if (!user || Object.keys(user).length === 0) {
           return res.status(404).send({});
         } else {
-          return res.status(200).send(user);
+          return res.status(200).json(user);
         }
       });
   })
@@ -631,7 +638,7 @@ router.route('/api/v1/users/:uid/configs')
       } else if (data.length == 0) {
         return res.status(404).send([]);
       } else {
-        return res.status(200).send(data);
+        return res.status(200).json(data);
       }
     });
   })
@@ -769,7 +776,7 @@ router.route('/api/v1/users/:uid/role')
         } else if (!data || Object.keys(data).length === 0) {
           return res.status(404).send(null);
         } else {
-          return res.status(200).send(data['uid']);
+          return res.status(200).json(data['uid']);
         }
       });
   })
@@ -806,7 +813,7 @@ router.route('/api/v1/users/:uid/blocked')
         } else if (!data || Object.keys(data).length === 0) {
           return res.status(404).send(null);
         } else {
-          return res.status(200).send(data['blocked']);
+          return res.status(200).json(data['blocked']);
         }
       });
   })
@@ -877,7 +884,7 @@ router.route('/api/v1/users/:uid/configs/:config_id')
         } else if (!data || Object.keys(data).length === 0) {
           return res.status(404).send({});
         } else {
-          return res.status(200).send(data);
+          return res.status(200).json(data);
         }
       });
   });
@@ -896,7 +903,7 @@ router.route('/api/v1/users/:uid/preferences')
         } else if (!data || Object.keys(data).length === 0) {
           return res.status(404).send({});
         } else {
-          return res.status(200).send(data['preferences']);
+          return res.status(200).json(data['preferences']);
         }
       });
   })

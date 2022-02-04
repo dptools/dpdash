@@ -12,6 +12,9 @@ const margin = {
   left: 10,
   right: 30
 }
+
+const cellWidth=60;
+
 export default class Matrix extends AbstractGraph {
   cleanData = (data, startDay, endDay) => {
     if (data.length > 0) {
@@ -67,10 +70,10 @@ export default class Matrix extends AbstractGraph {
           .filter((d) => {
             return (d.day >= this.startDayForFilter && d.day <= this.lastDayForFilter)
           })
-          .attr("x", (d, i) => { return (d.day - this.startDayForFilter) * this.cardSize })
+          .attr("x", (d, i) => { return (d.day - this.startDayForFilter) * cellWidth })
           .attr("y", (d, i) => { return type * this.cardSize })
           .attr("class", "Card hour")
-          .attr("width", this.cardSize)
+          .attr("width", cellWidth)
           .attr("height", this.cardSize)
           .style("fill", (d) => {
             if (d[data[type].variable] !== '' && d[data[type].variable] !== undefined) {
@@ -105,7 +108,7 @@ export default class Matrix extends AbstractGraph {
           card.enter().append("text")
             .filter((d) => { return (d.day >= this.startDayForFilter && d.day <= this.lastDayForFilter) })
             .text((d) => { return d[data[type].variable] })
-            .attr("x", (d, i) => { return (d.day - this.startDayForFilter) * this.cardSize + this.halfCardSize })
+            .attr("x", (d, i) => { return (d.day - this.startDayForFilter) * cellWidth + cellWidth/2 })
             .attr("y", (d, i) => { return type * this.cardSize + (this.cardSize * 3 / 4) })
             .attr("font-size", this.cardSize / 2)
             .style("fill", (d) => {
@@ -319,13 +322,13 @@ export default class Matrix extends AbstractGraph {
     let xAxisValuesTop = []
     let xAxisValuesBottom = []
     for (let xAxisItem = 0; xAxisItem < xAxisForDatesData.length; xAxisItem++) {
-      xAxisRange.push((xAxisItem + 1) * this.cardSize - this.halfCardSize)
+      xAxisRange.push((xAxisItem + 1) * cellWidth - cellWidth/2)
       xAxisValuesBottom.push(xAxisForDatesData[xAxisItem].day.toString())
       xAxisValuesTop.push(xAxisItem)
     }
 
-    this.xScaleLinearTop = d3.scaleLinear().range([this.halfCardSize, xAxisRange[xAxisRange.length - 1]]).domain([0, xAxisForDatesData.length - 1])
-    this.xScaleLinearBottom = d3.scaleLinear().range([this.halfCardSize, xAxisRange[xAxisRange.length - 1]]).domain([startDayForFilter, xAxisForDatesData[xAxisForDatesData.length - 1].day])
+    this.xScaleLinearTop = d3.scaleLinear().range([cellWidth/2, xAxisRange[xAxisRange.length - 1]]).domain([0, xAxisForDatesData.length - 1])
+    this.xScaleLinearBottom = d3.scaleLinear().range([cellWidth/2, xAxisRange[xAxisRange.length - 1]]).domain([startDayForFilter, xAxisForDatesData[xAxisForDatesData.length - 1].day])
     this.xAxisLinearTop = d3.axisTop(this.xScaleLinearTop)
       .ticks(xAxisForDatesData.length - 1)
       .tickValues(xAxisValuesTop)

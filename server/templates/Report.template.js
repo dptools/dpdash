@@ -1,4 +1,5 @@
 import basePathConfig from '../configs/basePathConfig';
+const serialize = require('serialize-javascript');
 
 const basePath = basePathConfig || '';
 
@@ -12,10 +13,10 @@ export default ({ user, report }) => {
         <link rel="stylesheet" href="${basePath}/css/admin.css" />
 				<title>Reports - DPdash</title>
 				<script>
-					window.USER = ${JSON.stringify(user)}
-          window.REPORT = ${JSON.stringify(report)}
-					window.SUBJECT = ${JSON.stringify(null)}
-					window.GRAPH = ${JSON.stringify(null)}
+					window.USER = ${serialize(user, {isJSON: true})}
+          window.REPORT = ${serialize(report, {isJSON: true})}
+					window.SUBJECT = ${serialize(null, {isJSON: true})}
+					window.GRAPH = ${serialize(null, {isJSON: true})}
 				</script>
 			</head>
 			<body>

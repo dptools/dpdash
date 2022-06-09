@@ -34,7 +34,7 @@ fi
 
 ## Transport script files
 mkdir -p ${containerDataDir}/scripts
-find ./ -type f -maxdepth 1 ! -name $DPDASH_IMG -exec cp -t ${containerDataDir}/scripts/ {} +
+cp $(find ./ -maxdepth 1 -type f ! -name `basename $DPDASH_IMG`) ${containerDataDir}/scripts/
 
 ## Get current working directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

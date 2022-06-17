@@ -4,12 +4,10 @@ This document outlines the set up necessary to run the application on a Mac comp
 
 
 ## Requirements
-  * [Completed all the steps up to the initialize step](./README-PNL.md#initialize)
 
+  * [Complete all the steps up to the initialize step](./README-PNL.md#initialize)
 
 # Install Dependencies
-
-
 
 The following are the external dependencies required to run dpdash.
 
@@ -46,15 +44,19 @@ brew install rabbitmq
 ```
 
 ## Prepare the Configs:
-- Copy the contents from the dashboard directory.
-- Create a directory called configs inside the server directory of the project.
-- Open the basePathConfig.js and replace it's contents with this.
+
+* Copy the contents from the dashboard directory.
+* Create a directory called configs inside the server directory of the project.
+* Open the basePathConfig.js and replace it's contents with this.
+
 ```js 
 const basePathConfig = '';
 
 export default basePathConfig;
 ```
-- Comment lines 32-35. It should look like this.
+
+* Comment lines 32-35. It should look like this.
+
 ```js
 config.database.mongo.server = {};
 config.database.mongo.server.ssl = false;
@@ -73,10 +75,12 @@ config.database.mongo.server.useNewUrlParser = true;
 ## Mongo User
 
 Copy the mongo.username and mongo.password values from the /server/configs/config.js file.
+
 ```js
 config.database.mongo.username = "dpdash";
 config.database.mongo.password = "Some Value"
 ```
+
 Start the mongo shell.
 
 ```sh
@@ -113,19 +117,27 @@ Then on your terminal add the username and password.
 ```sh
 sudo rabbitmqctl add_user dpdash password123
 ```
+
 Set the administrator tag to the user.
+
 ```sh
 sudo rabbitmqctl set_user_tags dpdash administrator
 ```
+
 Set permissions.
+
 ```sh
 sudo rabbitmqctl set_permissions -p / dpdash ".*" ".*" ".*"
 ```
+
 If you'd like a sanity check, rabbit can list the users.
+
 ```sh
 rabbitmqctl list_users --formatter=json
 ```
+
 it should look like this
+
 ```sh
 [
 {"user":"dpdash","tags":["administrator"]}
@@ -140,6 +152,7 @@ Almost there. To get the project to work do the following.
 ```sh
 npm i 
 ```
+
 When the depencies are installed you should be able to run the development environment
 
 ```sh
@@ -160,7 +173,7 @@ npm run build:dev
 
 ### Port is already in use
 It's a rare issue, but if it happens do the following.
+
 ```sh
 killall node && npm run start:dev
 ```
-

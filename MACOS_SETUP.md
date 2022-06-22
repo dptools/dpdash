@@ -156,17 +156,7 @@ npm i
 When the depencies are installed you should be able to run the development environment
 
 ```sh
-npm run start:dev
-```
-
-## Front end Feature development
-
-There are some additional steps for front end development.
-
-Start by minifying the files.
-
-```sh
-npm run build:dev
+npm run dev
 ```
 
 ## Troubleshooting
@@ -175,5 +165,5 @@ npm run build:dev
 It's a rare issue, but if it happens do the following.
 
 ```sh
-killall node && npm run start:dev
+killall node && npm run dev
 ```

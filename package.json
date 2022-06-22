@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "build": "webpack",
-    "build:dev": "webpack && npm run start:dev",
+    "build:watch": "webpack --watch",
     "transpile": "npx babel ./server --out-dir dist",
     "start": "NODE_ENV=production ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
-    "start:dev": "node_modules/nodemon/bin/nodemon.js  --exec babel-node server/bin/www.js",
+    "dev": "NODE_ENV=development npm-run-all --parallel serve:watch build:watch",
     "monitor": "./node_modules/pm2/bin/pm2 monit",
     "stop": "./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all",
     "logs": "./node_modules/pm2/bin/pm2 logs --lines 100",
     "restart": "NODE_ENV=production ./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all && ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
+    "serve:watch": "nodemon --ignore ./public --exec babel-node server/bin/www.js --watch \"./server\"",
     "node": "DEBUG=* node ./dist/bin/www.js"
   },
   "babel": {
@@ -88,11 +89,14 @@
     "@babel/register": "^7.13.16",
     "babel-loader": "^8.2.1",
     "babel-plugin-react-html-attrs": "^3.0.5",
+    "connect-livereload": "^0.6.1",
     "eslint": "^7.27.0",
     "eslint-plugin-react": "^7.24.0",
     "exports-loader": "^0.7.0",
     "imports-loader": "^0.8.0",
+    "livereload": "^0.9.3",
     "nodemon": "^2.0.16",
+    "npm-run-all": "^4.1.5",
     "webpack": "^5.35.1",
     "webpack-cli": "^4.6.0",
     "webpack-node-externals": "^3.0.0"

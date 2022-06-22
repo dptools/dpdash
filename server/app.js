@@ -16,6 +16,8 @@ import co from 'co';
 import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
 import noCache from 'nocache';
+import livereload from 'livereload'
+import connectLiveReload from 'connect-livereload'
 import { getMongoURI } from './utils/mongoUtil';
 
 import indexRouter from './routes/index';
@@ -32,6 +34,16 @@ const csrfProtection = csrf({ cookie: true })
 const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
 const app = express();
 
+if (process.env.NODE_ENV === 'development') {
+  const liveReloadServer = livereload.createServer();
+  liveReloadServer.watch(path.join(__dirname, '../public'));
+  liveReloadServer.server.once("connection", () => {
+    setTimeout(() => {
+      liveReloadServer.refresh("/");
+    }, 100);
+  });
+  app.use(connectLiveReload());
+}
 /** favicon setup */
 app.use(favicon(path.join(__dirname, '../public/img/favicon.png')));
 

@@ -1,10 +1,12 @@
 import React from 'react'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 
 import DeepDive from './DeepDive.react'
 import store from '../stores/store'
 
 const reduxStore = store()
+const container = document.getElementById('main')
+const root = createRoot(container)
 
-render(<Provider store={reduxStore}><DeepDive /></Provider>, document.getElementById('main'));
+root.render(<Provider store={reduxStore}><DeepDive /></Provider>)

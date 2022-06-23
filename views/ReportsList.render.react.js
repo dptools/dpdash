@@ -1,10 +1,11 @@
 import React from 'react'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
-
 import ReportsList from './ReportsList.react'
 import store from '../stores/store'
 
 const reduxStore = store()
+const container = document.getElementById('main')
+const root = createRoot(container)
 
-render(<Provider store={reduxStore}><ReportsList /></Provider>, document.getElementById('main'));
+root.render(<Provider store={reduxStore}><ReportsList /></Provider>)

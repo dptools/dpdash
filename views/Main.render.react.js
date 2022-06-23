@@ -1,10 +1,11 @@
-import React from 'react';
-import { render } from 'react-dom';
-import { Provider } from 'react-redux';
+import React from 'react'
+import { createRoot } from 'react-dom/client'
+import { Provider } from 'react-redux'
+import MainPage from './Main.react'
+import store from '../stores/store'
 
-import MainPage from './Main.react';
-import store from '../stores/store';
+const container = document.getElementById('main')
+const root = createRoot(container)
+const reduxStore = store()
 
-const reduxStore = store();
-
-render(<Provider store={reduxStore}><MainPage /></Provider>, document.getElementById('main'));
+root.render(<Provider store={reduxStore}><MainPage /></Provider>)

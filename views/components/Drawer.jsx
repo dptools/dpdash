@@ -17,10 +17,8 @@ import ExitToApp from '@material-ui/icons/ExitToApp';
 import Settings from '@material-ui/icons/Settings';
 import { ShowChart } from '@material-ui/icons';
 
-import basePathConfig from '../../server/configs/basePathConfig';
 import { dark_sky_blue } from '../constants/styles';
-
-const basePath = basePathConfig || '';
+import { routes } from '../routes/routes'
 
 class DrawerComponent extends Component {
   constructor(props) {
@@ -55,7 +53,7 @@ class DrawerComponent extends Component {
               height: '18px'
             }}
           >
-            <img style={{ height: '100%' }} src={`${basePath}/img/dpdash.png`} />
+            <img style={{ height: '100%' }} src={`${routes.basePath}/img/dpdash.png`} />
           </div>
           <div
             style={{
@@ -185,7 +183,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href={`${basePath}/`}
+            href={routes.home}
           >
             <ListItemIcon>
               <Home style={{ color: dark_sky_blue }} />
@@ -196,7 +194,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href={`${basePath}/u`}
+            href={routes.userAccount}
           >
             <ListItemIcon>
               <Person style={{ color: dark_sky_blue }} />
@@ -207,7 +205,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href={`${basePath}/u/configure`}
+            href={routes.configure}
           >
             <ListItemIcon>
               <ColorLens style={{ color: dark_sky_blue }} />
@@ -218,7 +216,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href={`${basePath}/charts`}
+            href={routes.charts}
           >
             <ListItemIcon>
               <ShowChart style={{ color: dark_sky_blue }} />
@@ -229,7 +227,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href={`${basePath}/reports`}
+            href={routes.reports}
           >
             <ListItemIcon>
               <AssessmentIcon style={{ color: dark_sky_blue }} />
@@ -241,7 +239,7 @@ class DrawerComponent extends Component {
             <ListItem
               button={true}
               component='a'
-              href={`${basePath}/admin`}
+              href={routes.admin}
             >
               <ListItemIcon>
                 <Settings style={{ color: dark_sky_blue }} />
@@ -253,7 +251,7 @@ class DrawerComponent extends Component {
           <ListItem
             button={true}
             component='a'
-            href={`${basePath}/logout`}
+            href={routes.logout}
           >
             <ListItemIcon>
               <ExitToApp style={{ color: dark_sky_blue }} />

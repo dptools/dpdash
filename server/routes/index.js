@@ -32,6 +32,7 @@ import studyPage from '../templates/Study.template';
 import reportsListPage from '../templates/ReportsList.template';
 import editReportPage from '../templates/EditReport.template';
 import viewReportPage from '../templates/Report.template';
+import chartsListPage from '../templates/Chart.template'
 
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
@@ -1265,6 +1266,18 @@ router.route('/api/v1/reports/:id')
     } catch (err) {
       console.error(err.message);
       return res.status(500).send({ message: err.message });
+    }
+  });
+  /*
+   * CHART  
+  */ 
+router.route('/charts')
+  .get(ensureAuthenticated, async (_, res) => {
+    try {
+      return res.status(200).send(chartsListPage())
+    } catch (err) {
+      console.error(err.message)
+      return res.status(500).send({ message: err.message })
     }
   });
 

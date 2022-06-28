@@ -13,4 +13,5 @@ export const routes = {
   reports: `${basePath}/reports`,
   admin: `${basePath}/admin`,
   logout: `${basePath}/logout`,
+  studyDetails: `${basePath}/study-details`
 }

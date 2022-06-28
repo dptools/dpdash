@@ -14,6 +14,11 @@ const getDefaultStyles = (theme) => ({
     backgroundColor: '#fefefe',
     padding: theme.spacing.unit * 3,
   },
+  contentPadded: {
+    padding: '12px',
+    marginTop: '64px',
+    overflow: 'scroll',
+  }
 });
 
 export default getDefaultStyles;

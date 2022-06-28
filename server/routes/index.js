@@ -13,6 +13,7 @@ import {
   getDashboardState,
   filterSubjectsByConsentDate
 } from '../utils/routerUtil';
+import { collections } from '../utils/mongoCollections'
 
 import LDAP from '../utils/passport/ldap';
 import LocalLogin from '../utils/passport/local-login';
@@ -34,6 +35,7 @@ import editReportPage from '../templates/EditReport.template';
 import viewReportPage from '../templates/Report.template';
 import chartsListPage from '../templates/Chart.template'
 import newChartPage from '../templates/NewChart.template'
+import studyDetailsPage from '../templates/StudyDetails.template'
 
 import config from '../configs/config';
 import defaultStudyConfig from '../configs/defaultStudyConfig';
@@ -1290,4 +1292,83 @@ router.route('/charts/new')
       return res.status(500).send({ message: err.message })
     }
 })
+
+/**
+ * Study Details
+ */
+router.route('/study-details')
+  .get(ensureAuthenticated, async (req, res) => {
+    try {
+      const { display_name, role, icon } = req.session;
+      return res.status(200).send(studyDetailsPage({
+        uid: req.user,
+        name: display_name,
+        role,
+        icon
+      }))
+    } catch (error) {
+      console.error(error.message)
+
+      return res.status(500).send({ message: err.message })
+    }
+  })
+
+router.route('/api/v1/study-details')
+  .get(ensureAuthenticated, async(req, res) => {
+    try {
+      const data = await mongoData
+        .collection(collections.studyDetails)
+        .find({ owner: req.user })
+        .toArray()
+
+      return res.status(200).json({ data })
+    } catch (error) {
+
+      return res.status(500).json({ message: error.message })
+    }
+  })
+  .post(ensureAuthenticated, async (req, res) => {
+    const { study, owner, targetEnrollment } = req.body
+    try {
+      const data = await mongoData
+        .collection(collections.studyDetails)
+        .findOneAndUpdate({ study },
+          { 
+            $set: {
+              study,
+              owner,
+              targetEnrollment,
+              updatedAt: new Date().toISOString()
+            }
+          },
+          {
+            upsert: true
+          }
+        )
+
+      return res.status(200).json({ data })
+    } catch (error) {
+
+      return res.status(500).json({ message: error.message})
+    }
+  })
+
+  router.route('/api/v1/study-details/:detailId')
+    .delete(ensureAuthenticated, async(req, res) =>{
+      const { detailId } = req.params;
+      try {
+        const deleted = await mongoData
+          .collection(collections.studyDetails)
+          .deleteOne({ _id: ObjectID(detailId) })
+
+        if (deleted.deletedCount > 0) {
+          return res.status(200).json({ data: deleted.deletedCount });
+        } else {
+          return res.status(404).json({ message: 'Study Details Not Found' });
+        }
+      } catch (error) {
+        return res.status(500).json({ message: error.message })
+      }
+  })
+
 export default router;

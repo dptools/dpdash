@@ -21,6 +21,7 @@ import connectLiveReload from 'connect-livereload'
 import { getMongoURI } from './utils/mongoUtil';
 
 import indexRouter from './routes/index';
+import chartsRouter from './routes/charts'
 
 import config from './configs/config';
 import basePathConfig from './configs/basePathConfig';
@@ -105,11 +106,16 @@ app.use(methodOverride());
 let mongodb;
 const mongoURI = getMongoURI({ settings: config.database.mongo });
 const mongodbPromise = co(function* () {
-  return yield MongoClient.connect(mongoURI, config.database.mongo.server);
-}).then(function (res) {
-  mongodb = res.db();
-  mongodb.collection('sessions').drop();
-  return res;
+
+  return yield MongoClient
+    .connect(mongoURI, config.database.mongo.server)})
+    .then(function (res) {
+      mongodb = res.db();
+      app.locals.appDb = res.db()
+      app.locals.dataDb = res.db(config.database.mongo.dataDB)
+      res.db().collection('sessions').drop();
+      
+      return res;
 });
 
 /** session store setup */
@@ -172,6 +178,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use(`${basePath}/`, indexRouter);
+app.use(`${basePath}/`, chartsRouter);
 app.use(`${basePath}/css`, express.static(path.join(__dirname, '../public/css')));
 app.use(`${basePath}/js`, express.static(path.join(__dirname, '../public/js')));
 app.use(`${basePath}/img`, express.static(path.join(__dirname, '../public/img')));

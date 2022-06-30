@@ -125,6 +125,19 @@ const deleteStudyDetails = async (id) => {
   return res.json()
 }
 
+const createChart = async (formValues) => {
+  const res = await window.fetch(`${routes.basePath}/api/v1/charts`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'same-origin',
+    body: JSON.stringify(formValues)
+  })
+  
+  return res.json()
+}
+
 export { 
   fetchStudies,
   fetchStudiesAdmin, 
@@ -133,5 +146,6 @@ export {
   fetchUsernames, 
   fetchStudyDetails, 
   deleteStudyDetails,
-  createStudyDetails
+  createStudyDetails,
+  createChart
 };

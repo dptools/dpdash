@@ -1,3 +1,4 @@
 export const collections = {
-  studyDetails: 'studyDetails'
+  studyDetails: 'studyDetails',
+  charts: 'charts'
 }

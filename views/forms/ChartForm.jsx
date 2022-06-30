@@ -1,8 +1,13 @@
 import React, { useState } from 'react'
+import { compose } from 'redux'
+import { connect } from 'react-redux'
+import { withStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 
 import Form from './Form'
 import BarChartFields from './BarChartFields'
+
+import { chartStyles } from '../styles/chart_styles'
 
 const ChartForm = ({ classes, handleSubmit }) => {
   const [formValues, setFormValues] = useState({
@@ -34,4 +39,12 @@ const ChartForm = ({ classes, handleSubmit }) => {
   )
 }
 
-export default ChartForm
+const styles = theme => ({
+  ...chartStyles(theme)
+})
+const mapStateToProps = (state) => ({
+  user: state.user
+})
+
+export default compose(withStyles(styles, { withTheme:true }), connect(mapStateToProps))(ChartForm)
+

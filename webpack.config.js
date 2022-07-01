@@ -23,6 +23,7 @@ module.exports = {
     chart: './views/Chart.render.react.js',
     newChart: './views/NewChart.render.react.js',
     studyDetails: './views/StudyDetails.render.react.js',
+    viewChart: './views/ViewChart.render.react.js',
   },
   module: {
     rules: [

@@ -5,10 +5,17 @@ import ChartForm from './forms/ChartForm'
 
 import { createChart } from './fe-utils/fetchUtil'
 
+import { routes } from './routes/routes'
+
 const NewChart = () => {
   const handleSubmit = async (e, formValues) => {
-    e.preventDefault()
-    await createChart(formValues)
+    try {
+      e.preventDefault()
+      const { data } = await createChart(formValues)
+      window.location.assign(routes.chart(data.chart_id))
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return (

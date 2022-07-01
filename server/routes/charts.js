@@ -6,6 +6,7 @@ import { userFromRequest } from '../utils/userFromRequestUtil';
 
 import chartsListPage from '../templates/Chart.template'
 import newChartPage from '../templates/NewChart.template'
+import viewChartPage from '../templates/ViewChart.template';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.route('/charts')
       return res.status(500).send({ message: err.message })
     }
   });
-  
+
 router.route('/charts/new')
   .get(ensureAuthenticated, async (req, res) => {
     try {
@@ -35,12 +36,27 @@ router.route('/charts/new')
     }
 })
 
+router.route('/charts/:chart_id')
+  .get(ensureAuthenticated, async(req,res) => {
+    try {
+      const { chart_id } = req.params
+      const user = userFromRequest(req)
+      const graph = { chart_id }
+
+      return res.status(200).send(viewChartPage(user, graph))
+    } catch (err) {
+      console.error(err.message)
+
+      return res.status(500).send({ message: err.message })
+    }
+  })
+
 router.route('/api/v1/charts')
   .post(ensureAuthenticated, async (req, res) => {
     try {
       const { fieldLabelValueMap, title, variable, assessment } = req.body
       const { dataDb } = req.app.locals
-      const { result } = await dataDb
+      const { insertedId } = await dataDb
         .collection(collections.charts)
         .insertOne({
           title, 
@@ -50,7 +66,7 @@ router.route('/api/v1/charts')
           fieldLabelValueMap 
         })
 
-      return res.status(200).json({ data: result })
+      return res.status(200).json({ data: { chart_id: insertedId }})
     } catch (error) {
       console.error(error)
 

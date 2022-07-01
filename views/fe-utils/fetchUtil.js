@@ -126,16 +126,18 @@ const deleteStudyDetails = async (id) => {
 }
 
 const createChart = async (formValues) => {
-  const res = await window.fetch(`${routes.basePath}/api/v1/charts`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'same-origin',
-    body: JSON.stringify(formValues)
-  })
-  
-  return res.json()
+    const res = await window.fetch(`${routes.basePath}/api/v1/charts`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(formValues)
+    })
+
+    if (res.status !== 200) return new Error(res.message)
+
+    return res.json()
 }
 
 export { 

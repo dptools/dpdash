@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { ObjectID } from 'mongodb';
 
 import ensureAuthenticated from '../utils/passport/ensure-authenticated';
 import { collections } from '../utils/mongoCollections'
@@ -7,6 +8,8 @@ import { userFromRequest } from '../utils/userFromRequestUtil';
 import chartsListPage from '../templates/Chart.template'
 import newChartPage from '../templates/NewChart.template'
 import viewChartPage from '../templates/ViewChart.template';
+
+import { handleNumberStringInput } from '../utils/inputHandlers'
 
 const router = Router();
 
@@ -39,9 +42,120 @@ router.route('/charts/new')
 router.route('/charts/:chart_id')
   .get(ensureAuthenticated, async(req,res) => {
     try {
+      let chartTitle;
+      const { dataDb, appDb } = req.app.locals
       const { chart_id } = req.params
+      const { access } =  await appDb
+        .collection(collections.users)
+        .findOne(
+          { uid: req.user },
+          { _id: 0, access: 1 }
+        )
+      const siteAndAssessmentSubjects = [
+        {
+          $match : { _id : new ObjectID(chart_id) }
+        },
+        {
+          $project : {
+            _id : 0.0,
+            assessment : 1.0,
+            variable : 1.0,
+            fieldLabelValueMap : 1.0,
+            title : 1.0
+          }
+        }, 
+        {
+          $lookup : {
+            from : 'toc',
+            localField : 'assessment',
+            foreignField : 'assessment',
+            as : 'tocList',
+              pipeline : [
+                {
+                  $match : {
+                    study : {
+                      $not : {
+                          $eq : 'files'
+                        },
+                      $in: access
+                    }
+                  }
+                },
+                {
+                  $project : {
+                    collection : 1.0,
+                    subject : 1.0,
+                    study : 1.0,
+                    _id : 0.0
+                  }
+                }
+              ]
+            }
+          }, 
+          {
+            $unwind : { path : '$tocList' }
+          }, 
+          {
+            $unwind : { path : '$fieldLabelValueMap' }
+          }
+      ]
+      const individualCountsList = []
+      const result = await dataDb.collection(collections.charts)
+        .aggregate(siteAndAssessmentSubjects)
+        .toArray()
+      for await (const dcmnt of result) {
+        const { 
+          fieldLabelValueMap: { 
+            value, 
+            label 
+          }, 
+          tocList: { 
+            collection, 
+            study 
+          }, 
+          variable, 
+          title 
+        } = dcmnt
+
+        if(!chartTitle) chartTitle = title
+        const subjectDocumentCount = [
+          {
+            $match : {
+              [variable] : handleNumberStringInput(value)
+            }
+          }, 
+          {
+            $group : {
+              _id : study,
+              count : { $sum : 1.0 }
+            }
+          }
+        ]
+        await dataDb
+          .collection(collection)
+          .aggregate(subjectDocumentCount)
+          .forEach(({ _id, count }) => individualCountsList.push({ siteName: _id, count, fieldLabel: label }));
+      }
+      
+      const data = Object
+        .values(individualCountsList
+        .reduce(function (currentSiteData, nextSiteData) {
+          currentSiteData[nextSiteData.fieldLabel] = currentSiteData[nextSiteData.fieldLabel] || [];
+          currentSiteData[nextSiteData.fieldLabel].push(nextSiteData);
+          return currentSiteData;
+        }, {}))
+        .map((groupedCounts) => 
+          Object
+          .values(groupedCounts
+            .reduce((currentSite, nextSite) => {
+              currentSite[nextSite.siteName] = currentSite[nextSite.siteName]
+              ? { ...nextSite, count: nextSite.count + currentSite[nextSite.siteName].count }
+              : nextSite;
+              return currentSite;
+            }, {}))
+        )
       const user = userFromRequest(req)
-      const graph = { chart_id }
+      const graph = { chart_id, data, title: chartTitle }
 
       return res.status(200).send(viewChartPage(user, graph))
     } catch (err) {

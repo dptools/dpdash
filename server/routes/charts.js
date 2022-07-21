@@ -140,7 +140,6 @@ router.route('/charts/:chart_id')
           .aggregate(subjectDocumentCount)
           .forEach(({ _id, count }) => individualCountsList.push({ siteName: _id, count, fieldLabel: label }));
       }
-
       const data = Object
         .values(individualCountsList
         .reduce(function (currentSiteData, nextSiteData) {
@@ -178,20 +177,22 @@ router.route('/charts/:chart_id')
         .aggregate(legendQuery)
         .toArray()
       const legend = fieldValues
-        .map(({fieldLabelValueMap: { label }}) => ({ 
+        .map(({fieldLabelValueMap: { label, color }}) => ({ 
           name: label, 
           symbol: { 
-            type: 'square' 
+            type: 'square',
+            fill: color
           }
         }))
-
+      const chartVariableColors = fieldValues.map(({ fieldLabelValueMap: { color }}) => color)
       const user = userFromRequest(req)
       const graph = { 
         chart_id, 
         data, 
         title: chartTitle, 
         description: chartDescription,
-        legend
+        legend,
+        chartVariableColors
       }
 
       return res.status(200).send(viewChartPage(user, graph))

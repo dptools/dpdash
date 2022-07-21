@@ -1,8 +1,11 @@
 import React from 'react'
-import Delete from '@material-ui/icons/Delete';
+import Delete from '@material-ui/icons/Delete'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography';
+import Typography from '@material-ui/core/Typography'
+import ColorPicker from '../components/ColorPicker'
+
+import { dark_sky_blue } from '../constants/styles'
 
 const BarChartFields = ({ 
   classes,
@@ -10,13 +13,13 @@ const BarChartFields = ({
   setFormValues,
 }) => {
   const { title } = formValues
-  
+
   const updateFormValues = (e,) => setFormValues({ ...formValues, [e.target.name]: e.target.value })
   const addValueAndLabelField = () => setFormValues(prevState => ({
     ...prevState,
     fieldLabelValueMap: [...prevState
       .fieldLabelValueMap,
-        {  value: '', label: '' }
+        {  value: '', label: '', color: dark_sky_blue  }
       ]
     }))
   const removeValueAndLabelField = (id) => setFormValues((prevState) => ({ 
@@ -100,10 +103,17 @@ const BarChartFields = ({
               value={field.label}
               required
             />
+            <ColorPicker 
+             classes={classes} 
+             onColorChange={handleValueAndLabelFieldUpdate} 
+             idx={idx}
+             color={field.color}
+            />
             <Button
               type='button'
               variant='text'
               onClick={() => removeValueAndLabelField(idx)}
+              className={classes.deleteContainer}
             >
               <Delete className={classes.icon} />
             </Button>

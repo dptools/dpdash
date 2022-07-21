@@ -49,6 +49,17 @@ const BarChartFields = ({
         fullWidth
       />
       <TextField
+        label='Description'
+        name='description'
+        multiline
+        rowsMax='4'
+        value={formValues.description}
+        onChange={updateFormValues}
+        className={classes.textInput}
+        fullWidth
+        required
+      />
+      <TextField
         className={classes.textInput}
         label='Assessment'
         name='assessment'

@@ -7,13 +7,13 @@ import AppLayout from './layouts/AppLayout'
 import BarGraph from './components/Graphs/BarGraph'
 
 const ViewChart = ({ graph }) => {
-  const { title } = graph
+  const { title, description } = graph
   return (
     <AppLayout
-      title={'Chart View'}
+      title={title.toUpperCase()}
     >
       <Typography variant='title' gutterBottom>
-        {title.toUpperCase()}
+        {description.toUpperCase()}
       </Typography>
       <BarGraph graph={graph} />
     </AppLayout>

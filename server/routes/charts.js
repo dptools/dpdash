@@ -43,6 +43,7 @@ router.route('/charts/:chart_id')
   .get(ensureAuthenticated, async(req,res) => {
     try {
       let chartTitle;
+      let chartDescription;
       const { dataDb, appDb } = req.app.locals
       const { chart_id } = req.params
       const { access } =  await appDb
@@ -61,7 +62,8 @@ router.route('/charts/:chart_id')
             assessment : 1.0,
             variable : 1.0,
             fieldLabelValueMap : 1.0,
-            title : 1.0
+            title : 1.0,
+            description: 1.0
           }
         }, 
         {
@@ -114,10 +116,12 @@ router.route('/charts/:chart_id')
             study 
           }, 
           variable, 
-          title 
+          title,
+          description
         } = dcmnt
 
-        if(!chartTitle) chartTitle = title
+        chartTitle ??= title
+        chartDescription ??= description
         const subjectDocumentCount = [
           {
             $match : {
@@ -155,7 +159,12 @@ router.route('/charts/:chart_id')
             }, {}))
         )
       const user = userFromRequest(req)
-      const graph = { chart_id, data, title: chartTitle }
+      const graph = { 
+        chart_id, 
+        data, 
+        title: chartTitle, 
+        description: chartDescription 
+      }
 
       return res.status(200).send(viewChartPage(user, graph))
     } catch (err) {
@@ -168,16 +177,23 @@ router.route('/charts/:chart_id')
 router.route('/api/v1/charts')
   .post(ensureAuthenticated, async (req, res) => {
     try {
-      const { fieldLabelValueMap, title, variable, assessment } = req.body
+      const { 
+        fieldLabelValueMap, 
+        title, 
+        variable, 
+        assessment, 
+        description 
+      } = req.body
       const { dataDb } = req.app.locals
       const { insertedId } = await dataDb
         .collection(collections.charts)
-        .insertOne({
-          title, 
-          variable, 
-          assessment, 
-          owner: req.user, 
-          fieldLabelValueMap 
+        .insertOne({ 
+          title,
+          variable,
+          assessment,
+          description,
+          fieldLabelValueMap,
+          owner: req.user
         })
 
       return res.status(200).json({ data: { chart_id: insertedId }})

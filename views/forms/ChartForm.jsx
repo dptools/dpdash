@@ -12,6 +12,7 @@ import { chartStyles } from '../styles/chart_styles'
 const ChartForm = ({ classes, handleSubmit }) => {
   const [formValues, setFormValues] = useState({
     title: '',
+    description: '',
     assessment: '',
     variable: '',
     fieldLabelValueMap: [

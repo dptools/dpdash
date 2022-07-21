@@ -38,13 +38,12 @@ const ChartList = () => {
       <TableHead>
         <TableRow>
           <TableCell align="center">Title</TableCell>
-            <TableCell align="center">Assessment</TableCell>
-            <TableCell align="center">Variable</TableCell>
+            <TableCell align="center">Description</TableCell>
             <TableCell align="center">Delete</TableCell>
           </TableRow>
       </TableHead>
       <TableBody>
-        {chartList.map(({title, assessment, variable, _id}) => (
+        {chartList.map(({title, description, _id}) => (
           <TableRow key={_id}>
             <TableCell align="center">
               <Button
@@ -57,10 +56,7 @@ const ChartList = () => {
               </Button>
             </TableCell>
             <TableCell align="center">
-              {assessment}
-            </TableCell>
-            <TableCell align="center">
-              {variable}
+              {description.toUpperCase()}
             </TableCell>
             <TableCell align="center">
               <Button

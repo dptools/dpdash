@@ -140,7 +140,7 @@ router.route('/charts/:chart_id')
           .aggregate(subjectDocumentCount)
           .forEach(({ _id, count }) => individualCountsList.push({ siteName: _id, count, fieldLabel: label }));
       }
-      
+
       const data = Object
         .values(individualCountsList
         .reduce(function (currentSiteData, nextSiteData) {
@@ -158,12 +158,40 @@ router.route('/charts/:chart_id')
               return currentSite;
             }, {}))
         )
+
+      const legendQuery = [
+        {
+          $match : { _id : new ObjectID(chart_id) }
+        },
+        {
+          $project : {
+            _id : 0.0,
+            fieldLabelValueMap : 1.0,
+          }
+        },
+        {
+          $unwind: { path: '$fieldLabelValueMap' }
+        }
+      ]
+      const fieldValues = await dataDb
+        .collection(collections.charts)
+        .aggregate(legendQuery)
+        .toArray()
+      const legend = fieldValues
+        .map(({fieldLabelValueMap: { label }}) => ({ 
+          name: label, 
+          symbol: { 
+            type: 'square' 
+          }
+        }))
+
       const user = userFromRequest(req)
       const graph = { 
         chart_id, 
         data, 
         title: chartTitle, 
-        description: chartDescription 
+        description: chartDescription,
+        legend
       }
 
       return res.status(200).send(viewChartPage(user, graph))

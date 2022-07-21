@@ -187,5 +187,41 @@ router.route('/api/v1/charts')
       return res.status(500).json({ message: error.message })
     }
   })
+  .get(ensureAuthenticated, async (req, res) => {
+    try {
+      const { dataDb } = req.app.locals
+      const chartList = await dataDb
+        .collection(collections.charts)
+        .find({ owner: req.user })
+        .toArray()
+
+      return res.status(200).json({ data: chartList })
+    } catch (error) {
+      console.error(error)
+
+      return res.status(500).json({ message: error.message })
+    }
+  })
+  
+  router.route('/api/v1/charts/:chart_id')
+    .delete(ensureAuthenticated, async (req, res) => {
+      try {
+        const { chart_id } = req.params
+        const { dataDb } = req.app.locals
+        const deletedChart = await dataDb
+          .collection(collections.charts)
+          .deleteOne({ _id: ObjectID(chart_id) })
+
+        if (deletedChart.deletedCount > 0) {
+          return res.status(200).json({ data: deletedChart.deletedCount });
+        } else {
+          return res.status(400).json({ message: 'Chart information not found' });
+        }
+      } catch (error) {
+        console.error(error)
+
+        return res.status(500).json({ message: error.message })
+      }
+    })
 
 export default router

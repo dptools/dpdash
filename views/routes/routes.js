@@ -16,3 +16,10 @@ export const routes = {
   studyDetails: `${basePath}/study-details`,
   chart: (chart_id) => `${basePath}/charts/${chart_id}`
 }
+
+export const defaultApiOptions = {    
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'same-origin'
+}

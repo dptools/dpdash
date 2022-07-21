@@ -70,3 +70,16 @@ export const chartStyles = (theme) => ({
     zIndex: '10'
   }
 })
+
+export const graphStyles = {
+  yAxis: {
+    axisLabel: {
+      padding: 35
+    },
+  },
+  xAxis: {
+    axisLabel: {
+      padding: 35
+    }
+  }
+}

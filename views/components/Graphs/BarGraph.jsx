@@ -9,6 +9,7 @@ import {
   VictoryLabel,
 } from 'victory';
 
+import { graphStyles } from '../../styles/chart_styles';
 
 const BarGraph = ({ graph }) => {
   return(
@@ -26,9 +27,13 @@ const BarGraph = ({ graph }) => {
         labelComponent={<VictoryLabel />}
       />
       <VictoryAxis
+        label='Site'
+        style={graphStyles.xAxis}
       />
       <VictoryAxis
+        label='Total(%)'
         dependentAxis
+        style={graphStyles.yAxis}
       />
       <VictoryStack colorScale={graph.chartVariableColors}>
         {graph.data.map((data, idx) => (

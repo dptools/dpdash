@@ -52,11 +52,11 @@ const ChartList = () => {
                 fullWidth
                 href={routes.chart(_id)}
               >
-                {title}
+                {title?.toUpperCase()}
               </Button>
             </TableCell>
             <TableCell align="center">
-              {description.toUpperCase()}
+              {description?.toUpperCase()}
             </TableCell>
             <TableCell align="center">
               <Button

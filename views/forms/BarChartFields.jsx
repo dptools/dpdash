@@ -11,6 +11,7 @@ const BarChartFields = ({
   classes,
   formValues,
   setFormValues,
+  user
 }) => {
   const { title } = formValues
 
@@ -19,7 +20,12 @@ const BarChartFields = ({
     ...prevState,
     fieldLabelValueMap: [...prevState
       .fieldLabelValueMap,
-        {  value: '', label: '', color: dark_sky_blue  }
+        {  
+          value: '', 
+          label: '', 
+          color: dark_sky_blue, 
+          targetValues: user.userAccess.map((site) => ({ site, value: '' }))
+        }
       ]
     }))
   const removeValueAndLabelField = (id) => setFormValues((prevState) => ({ 
@@ -36,6 +42,26 @@ const BarChartFields = ({
           : field
         )
       }))
+  const handleTargetValues = (e, id, tid) => {
+    setFormValues((prevState) => ({
+      ...prevState,
+      fieldLabelValueMap: prevState
+      .fieldLabelValueMap
+        .map((field, idx) => 
+          id === idx ? 
+            { 
+              ...field, 
+              targetValues: field.targetValues
+                .map((target, tidx) => 
+                  tid === tidx 
+                  ? { ...target, value: e.target.value } 
+                  : target
+                ) 
+            }
+          : field
+        )
+    }))
+  }
 
   return(
     <>
@@ -81,8 +107,8 @@ const BarChartFields = ({
         fullWidth
       />
       {
-        formValues.fieldLabelValueMap.length > 0 && 
         formValues.fieldLabelValueMap.map((field, idx) => (
+          <>
           <div key={idx} className={classes.formLabelRow}>
             <TextField
               label='Value'
@@ -118,6 +144,24 @@ const BarChartFields = ({
               <Delete className={classes.icon} />
             </Button>
           </div>
+          {field.targetValues.map((target, tidx) => (
+            <div key={idx+target.site+tidx} className={classes.formLabelRow}>
+              <Typography 
+                variant='subtitle1' 
+                gutterBottom={false} 
+                color='textSecondary' 
+                className={classes.targetValueContainer}
+              >
+                {target.site}:
+              </Typography>
+              <TextField 
+                name={target.site}
+                value={target.value}
+                onChange={(e) => handleTargetValues(e, idx, tidx)}
+              />
+            </div>
+          ))}
+          </>
         ))
       }
       <div className={classes.addLabelContainer}>

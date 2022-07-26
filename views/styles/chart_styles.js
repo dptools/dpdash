@@ -68,6 +68,10 @@ export const chartStyles = (theme) => ({
     borderRadius: '9px',
     boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
     zIndex: '10'
+  },
+  targetValueContainer: {
+    alignSelf: 'flex-end',
+    paddingRight: '2%'
   }
 })
 

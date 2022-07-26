@@ -10,14 +10,19 @@ import BarChartFields from './BarChartFields'
 import { chartStyles } from '../styles/chart_styles'
 import { dark_sky_blue } from '../constants/styles'
 
-const ChartForm = ({ classes, handleSubmit }) => {
+const ChartForm = ({ classes, handleSubmit, user }) => {
   const [formValues, setFormValues] = useState({
     title: '',
     description: '',
     assessment: '',
     variable: '',
     fieldLabelValueMap: [
-      { value: '', label: '', color: dark_sky_blue }
+      { 
+        value: '', 
+        label: '', 
+        color: dark_sky_blue,
+        targetValues: user.userAccess.map((site) => ({ site, value: '' }))
+      }
     ]
   })
 
@@ -27,6 +32,7 @@ const ChartForm = ({ classes, handleSubmit }) => {
         classes={classes} 
         formValues={formValues}
         setFormValues={setFormValues}
+        user={user}
       />
       <div className={classes.submitButtonContainer}>
         <Button

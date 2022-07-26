@@ -65,7 +65,8 @@ export default (req, res, next, user) => {
                   acl: 1,
                   role: 1,
                   icon: 1,
-                  mail: 1
+                  mail: 1,
+                  access: 1
                 },
                 returnOriginal: false,
                 upsert: true
@@ -80,6 +81,7 @@ export default (req, res, next, user) => {
                 req.session.mail = userinfo.value.mail;
                 req.session.celery_tasks = [];
                 req.session.icon = userinfo.value.icon;
+                req.session.userAccess = userinfo.value.access
                 return res.redirect(`${basePath}/`);
               });
           });

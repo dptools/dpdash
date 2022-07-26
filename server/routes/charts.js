@@ -9,7 +9,16 @@ import chartsListPage from '../templates/Chart.template'
 import newChartPage from '../templates/NewChart.template'
 import viewChartPage from '../templates/ViewChart.template';
 
-import { handleNumberStringInput } from '../utils/inputHandlers'
+import { 
+  legend, 
+  chartVariableColors,
+  groupTargetValuesByFieldValues,
+  chartDataAbstractor
+} from '../abstractors/chartsAbstractor'
+import { 
+  fieldValuesController,
+  graphDataController, 
+} from '../controllers/chartsController';
 
 const router = Router();
 
@@ -42,162 +51,29 @@ router.route('/charts/new')
 router.route('/charts/:chart_id')
   .get(ensureAuthenticated, async(req,res) => {
     try {
-      let chartTitle;
-      let chartDescription;
-      const { dataDb, appDb } = req.app.locals
+      const { dataDb } = req.app.locals
       const { chart_id } = req.params
-      const { access } =  await appDb
-        .collection(collections.users)
-        .findOne(
-          { uid: req.user },
-          { _id: 0, access: 1 }
-        )
-      const siteAndAssessmentSubjects = [
-        {
-          $match : { _id : new ObjectID(chart_id) }
-        },
-        {
-          $project : {
-            _id : 0.0,
-            assessment : 1.0,
-            variable : 1.0,
-            fieldLabelValueMap : 1.0,
-            title : 1.0,
-            description: 1.0
-          }
-        }, 
-        {
-          $lookup : {
-            from : 'toc',
-            localField : 'assessment',
-            foreignField : 'assessment',
-            as : 'tocList',
-              pipeline : [
-                {
-                  $match : {
-                    study : {
-                      $not : {
-                          $eq : 'files'
-                        },
-                      $in: access
-                    }
-                  }
-                },
-                {
-                  $project : {
-                    collection : 1.0,
-                    subject : 1.0,
-                    study : 1.0,
-                    _id : 0.0
-                  }
-                }
-              ]
-            }
-          }, 
-          {
-            $unwind : { path : '$tocList' }
-          }, 
-          {
-            $unwind : { path : '$fieldLabelValueMap' }
-          }
-      ]
-      const individualCountsList = []
-      const result = await dataDb.collection(collections.charts)
-        .aggregate(siteAndAssessmentSubjects)
-        .toArray()
-      for await (const dcmnt of result) {
-        const { 
-          fieldLabelValueMap: { 
-            value, 
-            label 
-          }, 
-          tocList: { 
-            collection, 
-            study 
-          }, 
-          variable, 
-          title,
-          description
-        } = dcmnt
-
-        chartTitle ??= title
-        chartDescription ??= description
-        const subjectDocumentCount = [
-          {
-            $match : {
-              [variable] : handleNumberStringInput(value)
-            }
-          }, 
-          {
-            $group : {
-              _id : study,
-              count : { $sum : 1.0 }
-            }
-          }
-        ]
-        await dataDb
-          .collection(collection)
-          .aggregate(subjectDocumentCount)
-          .forEach(({ _id, count }) => individualCountsList.push({ siteName: _id, count, fieldLabel: label }));
-      }
-      const data = Object
-        .values(individualCountsList
-        .reduce(function (currentSiteData, nextSiteData) {
-          currentSiteData[nextSiteData.fieldLabel] = currentSiteData[nextSiteData.fieldLabel] || [];
-          currentSiteData[nextSiteData.fieldLabel].push(nextSiteData);
-          return currentSiteData;
-        }, {}))
-        .map((groupedCounts) => 
-          Object
-          .values(groupedCounts
-            .reduce((currentSite, nextSite) => {
-              currentSite[nextSite.siteName] = currentSite[nextSite.siteName]
-              ? { ...nextSite, count: nextSite.count + currentSite[nextSite.siteName].count }
-              : nextSite;
-              return currentSite;
-            }, {}))
-        )
-
-      const legendQuery = [
-        {
-          $match : { _id : new ObjectID(chart_id) }
-        },
-        {
-          $project : {
-            _id : 0.0,
-            fieldLabelValueMap : 1.0,
-          }
-        },
-        {
-          $unwind: { path: '$fieldLabelValueMap' }
-        }
-      ]
-      const fieldValues = await dataDb
-        .collection(collections.charts)
-        .aggregate(legendQuery)
-        .toArray()
-      const legend = fieldValues
-        .map(({fieldLabelValueMap: { label, color }}) => ({ 
-          name: label, 
-          symbol: { 
-            type: 'square',
-            fill: color
-          }
-        }))
-      const chartVariableColors = fieldValues.map(({ fieldLabelValueMap: { color }}) => color)
+      const { userAccess } = req.session
+      const { 
+        individualCountsList, 
+        chartTitle, 
+        chartDescription 
+      } = await graphDataController(dataDb, userAccess, chart_id)
+      const fieldValues = await fieldValuesController(dataDb, chart_id)
       const user = userFromRequest(req)
       const graph = { 
         chart_id, 
-        data, 
+        data: chartDataAbstractor(individualCountsList), 
         title: chartTitle, 
         description: chartDescription,
-        legend,
-        chartVariableColors
+        legend: legend(fieldValues),
+        chartVariableColors: chartVariableColors(fieldValues),
+        targetValuesMap: groupTargetValuesByFieldValues(fieldValues)
       }
 
       return res.status(200).send(viewChartPage(user, graph))
     } catch (err) {
-      console.error(err.message)
+      console.error(err.stack)
 
       return res.status(500).send({ message: err.message })
     }
@@ -227,7 +103,7 @@ router.route('/api/v1/charts')
 
       return res.status(200).json({ data: { chart_id: insertedId }})
     } catch (error) {
-      console.error(error)
+      console.error(error.stack)
 
       return res.status(500).json({ message: error.message })
     }

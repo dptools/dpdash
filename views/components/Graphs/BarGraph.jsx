@@ -1,5 +1,5 @@
 import React from 'react'
-import { 
+import {
   VictoryBar,
   VictoryChart,
   VictoryAxis,
@@ -7,18 +7,15 @@ import {
   VictoryStack,
   VictoryLegend,
   VictoryLabel,
-  VictoryTooltip
-} from 'victory';
+} from 'victory'
 
-import { graphStyles } from '../../styles/chart_styles';
+import { graphStyles } from '../../styles/chart_styles'
 
 const BarGraph = ({ graph }) => {
-  const { targetValuesMap } = graph
-
-  return(
+  return (
     <VictoryChart
       domainPadding={20}
-      domain={{x: [0, 6]}}
+      domain={{ x: [0, 6] }}
       theme={VictoryTheme.material}
     >
       <VictoryLegend
@@ -29,29 +26,20 @@ const BarGraph = ({ graph }) => {
         y={20}
         labelComponent={<VictoryLabel />}
       />
-      <VictoryAxis
-        label='Site'
-        style={graphStyles.xAxis}
-      />
-      <VictoryAxis
-        label='Total(%)'
-        dependentAxis
-        style={graphStyles.yAxis}
-      />
-      <VictoryStack colorScale={graph.chartVariableColors}>
-        {graph.data.map((data, idx) => (
-          <VictoryBar 
+      <VictoryAxis label='Site' style={graphStyles.xAxis} />
+      <VictoryAxis label='Total' dependentAxis style={graphStyles.yAxis} />
+      <VictoryStack>
+        {Object.values(graph.data).map((data, idx) => (
+          <VictoryBar
             data={data}
-            x='siteName'
-            y='count' 
-            key={idx}
-            labels={({ datum: { count, fieldLabel, siteName } }) => `Current: ${count} \n Target: ${targetValuesMap[fieldLabel][siteName]?.value || 'N/A'}`}
-            labelComponent={
-              <VictoryTooltip 
-                constrainToVisibleArea 
-                style={{ fill: graph.chartVariableColors[idx] }}
-              />
-            }
+            x='study'
+            y='count'
+            key={data[idx].study + idx}
+            style={{
+              data: {
+                fill: ({ datum }) => datum.color,
+              },
+            }}
           />
         ))}
       </VictoryStack>

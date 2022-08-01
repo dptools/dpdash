@@ -1,4 +1,4 @@
-import { neutral_blue } from "../constants/styles"
+import { neutral_blue } from '../constants/styles'
 
 export const chartStyles = (theme) => ({
   textInput: {
@@ -78,12 +78,12 @@ export const chartStyles = (theme) => ({
 export const graphStyles = {
   yAxis: {
     axisLabel: {
-      padding: 35
+      padding: 50
     },
   },
   xAxis: {
     axisLabel: {
-      padding: 35
+      padding: 30
     }
   }
 }

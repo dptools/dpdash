@@ -10,6 +10,8 @@ import BarChartFields from './BarChartFields'
 import { chartStyles } from '../styles/chart_styles'
 import { dark_sky_blue } from '../constants/styles'
 
+import { targetValuesFields } from '../fe-utils/targetValuesUtil'
+
 const ChartForm = ({ classes, handleSubmit, user }) => {
   const [formValues, setFormValues] = useState({
     title: '',
@@ -17,19 +19,19 @@ const ChartForm = ({ classes, handleSubmit, user }) => {
     assessment: '',
     variable: '',
     fieldLabelValueMap: [
-      { 
-        value: '', 
-        label: '', 
+      {
+        value: '',
+        label: '',
         color: dark_sky_blue,
-        targetValues: user.userAccess.map((site) => ({ site, value: '' }))
-      }
-    ]
+        targetValues: targetValuesFields(user.userAccess),
+      },
+    ],
   })
 
   return (
     <Form handleSubmit={(e) => handleSubmit(e, formValues)}>
-      <BarChartFields 
-        classes={classes} 
+      <BarChartFields
+        classes={classes}
         formValues={formValues}
         setFormValues={setFormValues}
         user={user}
@@ -47,12 +49,14 @@ const ChartForm = ({ classes, handleSubmit, user }) => {
   )
 }
 
-const styles = theme => ({
-  ...chartStyles(theme)
+const styles = (theme) => ({
+  ...chartStyles(theme),
 })
 const mapStateToProps = (state) => ({
-  user: state.user
+  user: state.user,
 })
 
-export default compose(withStyles(styles, { withTheme:true }), connect(mapStateToProps))(ChartForm)
-
+export default compose(
+  withStyles(styles, { withTheme: true }),
+  connect(mapStateToProps)
+)(ChartForm)

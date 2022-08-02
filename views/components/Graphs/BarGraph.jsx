@@ -7,6 +7,7 @@ import {
   VictoryStack,
   VictoryLegend,
   VictoryLabel,
+  VictoryTooltip,
 } from 'victory'
 
 import { graphStyles } from '../../styles/chart_styles'
@@ -40,6 +41,15 @@ const BarGraph = ({ graph }) => {
                 fill: ({ datum }) => datum.color,
               },
             }}
+            labels={({ datum: { count, studyTarget } }) =>
+              `Current: ${count} \n Target: ${studyTarget}`
+            }
+            labelComponent={
+              <VictoryTooltip
+                constrainToVisibleArea
+                style={{ fill: ({ datum }) => datum.color }}
+              />
+            }
           />
         ))}
       </VictoryStack>

@@ -7,18 +7,19 @@ const postProcessData = (data) => {
 
   Object.entries(data).forEach((entry) => {
     const [key, count] = entry
-    const [study, label, color] = key.split('-')
+    const [study, valueLabel, color, studyTarget] = key.split('-')
     const newEntry = {
       color,
       count,
-      label,
+      valueLabel,
       study,
+      studyTarget,
     }
 
-    if (processedData[label]) {
-      processedData[label] = processedData[label].concat(newEntry)
+    if (processedData[valueLabel]) {
+      processedData[valueLabel] = processedData[valueLabel].concat(newEntry)
     } else {
-      processedData[label] = [newEntry]
+      processedData[valueLabel] = [newEntry]
     }
   })
 
@@ -39,19 +40,20 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     .toArray()
 
   for await (const subject of allSubjects) {
+    const { study } = subject
     const subjectDayData = await dataDb
       .collection(subject.collection)
       .find({})
       .toArray()
 
     chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
-      const { color, label, value } = fieldLabelValueMap
+      const { color, label, value, targetValues } = fieldLabelValueMap
       const hasValue = subjectDayData.some(
         (dayData) => dayData[chart.variable] == value
       )
 
       if (hasValue) {
-        const dataKey = `${subject.study}-${label}-${color}`
+        const dataKey = `${study}-${label}-${color}-${targetValues[study]}`
 
         if (data[dataKey]) {
           data[dataKey] += 1

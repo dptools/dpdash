@@ -36,7 +36,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     .find(
       {
         assessment: chart.assessment,
-        study: { $in: userAccess, $not: { $eq: 'files' } },
+        study: { $in: userAccess, $not: { $eq: ['files', 'combined'] } },
       },
       { projection: { collection: 1, study: 1, _id: 0 } }
     )

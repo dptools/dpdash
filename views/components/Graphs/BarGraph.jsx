@@ -41,8 +41,8 @@ const BarGraph = ({ graph }) => {
                 fill: ({ datum }) => datum.color,
               },
             }}
-            labels={({ datum: { count, studyTarget } }) =>
-              `Current: ${count} \n Target: ${studyTarget}`
+            labels={({ datum: { count, studyTarget, study } }) =>
+              `Study: ${study} \n Current: ${count} \n Target: ${studyTarget}`
             }
             labelComponent={
               <VictoryTooltip

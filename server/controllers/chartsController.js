@@ -34,7 +34,10 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
   const allSubjects = await dataDb
     .collection(collections.toc)
     .find(
-      { assessment: chart.assessment },
+      {
+        assessment: chart.assessment,
+        study: { $in: userAccess, $not: { $eq: 'files' } },
+      },
       { projection: { collection: 1, study: 1, _id: 0 } }
     )
     .toArray()

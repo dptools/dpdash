@@ -2,7 +2,7 @@ import { ObjectID } from 'mongodb'
 
 import { collections } from '../utils/mongoCollections'
 
-const postProcessData = (data) => {
+const postProcessData = (data, studyTotals) => {
   const processedData = {}
 
   Object.entries(data).forEach((entry) => {
@@ -23,11 +23,32 @@ const postProcessData = (data) => {
     }
   })
 
+  // need the largest horizontal section so that all sites are accounted for
+  const largestHorizontalSection = Object.values(processedData).sort(
+    (arr1, arr2) => arr2.length - arr1.length
+  )[0]
+
+  const notAvailableArray = largestHorizontalSection.map((studySection) => {
+    const totals = studyTotals[studySection.study]
+    const count = totals.targetTotal ? totals.targetTotal - totals.count : 0
+
+    return {
+      color: 'grey',
+      count,
+      valueLabel: 'N/A',
+      study: studySection.study,
+      studyTarget: '',
+    }
+  })
+
+  processedData['N/A'] = notAvailableArray
+
   return processedData
 }
 
 export const graphDataController = async (dataDb, userAccess, chart_id) => {
   const data = {}
+  const studyTotals = {}
   const chart = await dataDb
     .collection(collections.charts)
     .findOne({ _id: ObjectID(chart_id) })
@@ -42,6 +63,30 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     )
     .toArray()
 
+  chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
+    const { targetValues } = fieldLabelValueMap
+
+    Object.keys(targetValues).forEach((study) => {
+      const rawNewTargetValue = targetValues[study]
+      const newTargetValue = !!rawNewTargetValue
+        ? +rawNewTargetValue
+        : undefined
+
+      if (studyTotals[study]) {
+        if (!!studyTotals[study].targetTotal) {
+          studyTotals[study].targetTotal = !!newTargetValue
+            ? studyTotals[study].targetTotal + newTargetValue
+            : undefined
+        }
+      } else {
+        studyTotals[study] = {
+          count: 0,
+          targetTotal: newTargetValue,
+        }
+      }
+    })
+  })
+
   for await (const subject of allSubjects) {
     const { study } = subject
     const subjectDayData = await dataDb
@@ -51,24 +96,27 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
 
     chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
       const { color, label, value, targetValues } = fieldLabelValueMap
+      const targetValue = targetValues[study]
       const hasValue = subjectDayData.some(
         (dayData) => dayData[chart.variable] == value
       )
 
       if (hasValue) {
-        const dataKey = `${study}-${label}-${color}-${targetValues[study]}`
+        const dataKey = `${study}-${label}-${color}-${targetValue}`
 
         if (data[dataKey]) {
           data[dataKey] += 1
         } else {
           data[dataKey] = 1
         }
+        studyTotals[study].count += 1
       }
     })
   }
 
   return {
     chart,
-    data: postProcessData(data),
+    data: postProcessData(data, studyTotals),
+    studyTotals,
   }
 }

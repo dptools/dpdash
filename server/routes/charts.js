@@ -46,6 +46,7 @@ router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
     const {
       chart: { title, description, fieldLabelValueMap },
       data,
+      studyTotals,
     } = await graphDataController(dataDb, userAccess, chart_id)
     const user = userFromRequest(req)
     const graph = {
@@ -54,6 +55,7 @@ router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
       title: title,
       description: description,
       legend: legend(fieldLabelValueMap),
+      studyTotals,
     }
 
     return res.status(200).send(viewChartPage(user, graph))

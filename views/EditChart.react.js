@@ -1,50 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { compose } from 'redux'
 import { connect } from 'react-redux'
 import { withStyles } from '@material-ui/core/styles'
 
 import AppLayout from './layouts/AppLayout'
 import ChartForm from './forms/ChartForm'
-
-import { createChart } from './fe-utils/fetchUtil'
 import { chartStyles } from './styles/chart_styles'
-import { targetValuesFields } from './fe-utils/targetValuesUtil'
-
+import { editChart, getChart } from './fe-utils/fetchUtil'
 import { routes } from './routes/routes'
-import { dark_sky_blue } from './constants/styles'
 
-const initialValues = (user) => ({
-  title: '',
-  description: '',
-  assessment: '',
-  variable: '',
-  fieldLabelValueMap: [
-    {
-      value: '',
-      label: '',
-      color: dark_sky_blue,
-      targetValues: targetValuesFields(user.userAccess),
-    },
-  ],
-})
-
-const NewChart = ({ classes, user }) => {
+const EditChart = ({ classes, graph, user }) => {
+  const chartID = graph.chart_id
+  const [chart, setChart] = useState()
   const handleSubmit = async (e, formValues) => {
     try {
       e.preventDefault()
-      const { data } = await createChart(formValues)
-      window.location.assign(routes.chart(data.chart_id))
+      const { data } = await editChart(chartID, formValues)
+
+      if (data.ok === 1) window.location.assign(routes.chart(chartID))
     } catch (error) {
       console.error(error)
     }
   }
 
+  useEffect(() => {
+    getChart(chartID).then(({ data }) => setChart(data))
+  }, [chartID])
+
+  if (!chart) {
+    return null
+  }
+
   return (
-    <AppLayout title='Create chart'>
+    <AppLayout title='Edit chart'>
       <ChartForm
         classes={classes}
         handleSubmit={handleSubmit}
-        initialValues={initialValues(user)}
+        initialValues={chart}
         studies={user.userAccess}
       />
     </AppLayout>
@@ -54,11 +46,13 @@ const NewChart = ({ classes, user }) => {
 const styles = (theme) => ({
   ...chartStyles(theme),
 })
+
 const mapStateToProps = (state) => ({
+  graph: state.graph,
   user: state.user,
 })
 
 export default compose(
   withStyles(styles, { withTheme: true }),
   connect(mapStateToProps)
-)(NewChart)
+)(EditChart)

@@ -3,16 +3,13 @@ import Delete from '@material-ui/icons/Delete'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
 import ColorPicker from '../components/ColorPicker'
 
 import { dark_sky_blue } from '../constants/styles'
 
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 
-const BarChartFields = ({ classes, formValues, setFormValues, user }) => {
-  const { title } = formValues
-
+const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
   const updateFormValues = (e) =>
     setFormValues({ ...formValues, [e.target.name]: e.target.value })
   const addValueAndLabelField = () =>
@@ -24,7 +21,7 @@ const BarChartFields = ({ classes, formValues, setFormValues, user }) => {
           value: '',
           label: '',
           color: dark_sky_blue,
-          targetValues: targetValuesFields(user.userAccess),
+          targetValues: targetValuesFields(studies),
         },
       ],
     }))
@@ -58,9 +55,6 @@ const BarChartFields = ({ classes, formValues, setFormValues, user }) => {
 
   return (
     <>
-      <Typography variant='subtitle1' gutterBottom>
-        {title}
-      </Typography>
       <TextField
         className={classes.textInput}
         label='Title'

@@ -1,6 +1,6 @@
-import basePathConfig from '../../server/configs/basePathConfig';
-import { routes, defaultApiOptions } from '../routes/routes'
-const basePath = basePathConfig || '';
+import basePathConfig from '../../server/configs/basePathConfig'
+import { routes, defaultApiOptions, apiRoutes } from '../routes/routes'
+const basePath = basePathConfig || ''
 
 const fetchStudiesAdmin = async () => {
   const res = await window.fetch(`${basePath}/api/v1/search/studies`, {
@@ -8,9 +8,9 @@ const fetchStudiesAdmin = async () => {
     method: 'GET',
   })
   if (res.status !== 200) {
-    throw new Error(res.statusText);
+    throw new Error(res.statusText)
   }
-  return res.json();
+  return res.json()
 }
 
 const fetchStudies = async () => {
@@ -19,30 +19,30 @@ const fetchStudies = async () => {
     method: 'GET',
   })
   if (res.status !== 200) {
-    throw new Error(res.statusText);
+    throw new Error(res.statusText)
   }
-  return res.json();
+  return res.json()
 }
 
 const fetchSubjects = async () => {
   const userAccess = await window.fetch(`${basePath}/api/v1/studies`, {
     ...defaultApiOptions,
     method: 'GET',
-  });
+  })
   if (userAccess.status !== 200) {
-    throw new Error(userAccess.statusText);
+    throw new Error(userAccess.statusText)
   }
-  const studiesJson = await userAccess.json();
-  const studies = studiesJson ? studiesJson : [];
-  const subjectsResponse = await window.fetch(`${basePath}/api/v1/subjects?q=${JSON.stringify(studies)}`, {
+  const studiesJson = await userAccess.json()
+  const studies = studiesJson ? studiesJson : []
+  const subjectsResponse = await window.fetch(apiRoutes.subjects(studies), {
     ...defaultApiOptions,
     method: 'GET',
   })
   if (subjectsResponse.status !== 200) {
-    throw new Error(subjectsResponse.statusText);
+    throw new Error(subjectsResponse.statusText)
   }
-  return subjectsResponse.json();
-};
+  return subjectsResponse.json()
+}
 
 const fetchUsers = async () => {
   const res = await window.fetch(`${basePath}/api/v1/users`, {
@@ -50,24 +50,24 @@ const fetchUsers = async () => {
     method: 'GET',
   })
   if (res.status !== 200) {
-    throw new Error(res.statusText);
+    throw new Error(res.statusText)
   }
   return res.json()
-};
+}
 
 const fetchUsernames = async () => {
   const res = await window.fetch(`${basePath}/api/v1/search/users`, {
     defaultApiOptions,
     method: 'GET',
-  });
+  })
   if (res.status !== 200) {
-    throw new Error(res.statusText);
+    throw new Error(res.statusText)
   }
   return res.json()
 }
 
 const fetchStudyDetails = async () => {
-  const res = await window.fetch(`${routes.basePath}/api/v1/study-details`, {
+  const res = await window.fetch(apiRoutes.studyDetails, {
     ...defaultApiOptions,
     method: 'GET',
   })
@@ -76,10 +76,10 @@ const fetchStudyDetails = async () => {
 }
 
 const createStudyDetails = async (body) => {
-  const res = await window.fetch(`${routes.basePath}/api/v1/study-details`, {
+  const res = await window.fetch(apiRoutes.studyDetails, {
     ...defaultApiOptions,
     method: 'POST',
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   })
 
   if (res.status !== 200) return new Error(res.message)
@@ -88,7 +88,7 @@ const createStudyDetails = async (body) => {
 }
 
 const deleteStudyDetails = async (id) => {
-  const res = await window.fetch(`${routes.basePath}/api/v1/study-details/${id}`, {
+  const res = await window.fetch(apiRoutes.studyDetail(id), {
     ...defaultApiOptions,
     method: 'DELETE',
   })
@@ -99,19 +99,19 @@ const deleteStudyDetails = async (id) => {
 }
 
 const createChart = async (formValues) => {
-    const res = await window.fetch(`${routes.basePath}/api/v1/charts`, {
-      ...defaultApiOptions,
-      method: 'POST',
-      body: JSON.stringify(formValues)
-    })
+  const res = await window.fetch(apiRoutes.charts, {
+    ...defaultApiOptions,
+    method: 'POST',
+    body: JSON.stringify(formValues),
+  })
 
-    if (res.status !== 200) return new Error(res.message)
+  if (res.status !== 200) return new Error(res.message)
 
-    return res.json()
+  return res.json()
 }
 
 const getCharts = async () => {
-  const res = await window.fetch(`${routes.basePath}/api/v1/charts`, {
+  const res = await window.fetch(apiRoutes.charts, {
     ...defaultApiOptions,
     method: 'GET',
   })
@@ -122,7 +122,7 @@ const getCharts = async () => {
 }
 
 const deleteChart = async (id) => {
-  const res = await window.fetch(`${routes.basePath}/api/v1/charts/${id}`, {
+  const res = await window.fetch(apiRoutes.chart(id), {
     ...defaultApiOptions,
     method: 'DELETE',
   })
@@ -132,16 +132,41 @@ const deleteChart = async (id) => {
   return res.json()
 }
 
-export { 
+const editChart = async (id, formValues) => {
+  const res = await window.fetch(apiRoutes.chart(id), {
+    ...defaultApiOptions,
+    method: 'PUT',
+    body: JSON.stringify(formValues),
+  })
+
+  if (res.status !== 200) return new Error(res.message)
+
+  return res.json()
+}
+
+const getChart = async (id) => {
+  const res = await window.fetch(apiRoutes.chart(id), {
+    ...defaultApiOptions,
+    method: 'GET',
+  })
+
+  if (res.status !== 200) return new Error(res.message)
+
+  return res.json()
+}
+
+export {
   fetchStudies,
-  fetchStudiesAdmin, 
-  fetchSubjects, 
-  fetchUsers, 
-  fetchUsernames, 
-  fetchStudyDetails, 
+  fetchStudiesAdmin,
+  fetchSubjects,
+  fetchUsers,
+  fetchUsernames,
+  fetchStudyDetails,
   deleteStudyDetails,
   createStudyDetails,
   createChart,
   getCharts,
-  deleteChart
-};
+  deleteChart,
+  editChart,
+  getChart,
+}

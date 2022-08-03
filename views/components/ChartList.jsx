@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Button from '@material-ui/core/Button';
-import Delete from '@material-ui/icons/Delete';
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import Button from '@material-ui/core/Button'
+import Link from '@material-ui/core/Link'
+import Delete from '@material-ui/icons/Delete'
+import Edit from '@material-ui/icons/Edit'
 
 import { getCharts, deleteChart } from '../fe-utils/fetchUtil'
 
@@ -29,7 +31,7 @@ const ChartList = () => {
         })
       }
     } catch (error) {
-      console.error(error, "*****")
+      console.error(error, '*****')
     }
   }
 
@@ -37,31 +39,30 @@ const ChartList = () => {
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell align="center">Title</TableCell>
-            <TableCell align="center">Description</TableCell>
-            <TableCell align="center">Delete</TableCell>
-          </TableRow>
+          <TableCell align='center'>Title</TableCell>
+          <TableCell align='center'>Description</TableCell>
+          <TableCell align='center'>Edit</TableCell>
+          <TableCell align='center'>Delete</TableCell>
+        </TableRow>
       </TableHead>
       <TableBody>
-        {chartList.map(({title, description, _id}) => (
+        {chartList.map(({ title, description, _id }) => (
           <TableRow key={_id}>
-            <TableCell align="center">
-              <Button
-                type="button"
-                variant="text"
-                fullWidth
-                href={routes.chart(_id)}
-              >
+            <TableCell align='center'>
+              <Link color='textPrimary' href={routes.chart(_id)}>
                 {title?.toUpperCase()}
-              </Button>
+              </Link>
             </TableCell>
-            <TableCell align="center">
-              {description?.toUpperCase()}
+            <TableCell align='center'>{description?.toUpperCase()}</TableCell>
+            <TableCell align='center'>
+              <Link href={routes.editChart(_id)} color='textPrimary'>
+                <Edit />
+              </Link>
             </TableCell>
-            <TableCell align="center">
+            <TableCell align='center'>
               <Button
-                type="button"
-                variant="text"
+                type='button'
+                variant='text'
                 onClick={() => removeChart(_id)}
               >
                 <Delete />

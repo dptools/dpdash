@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import ColorPicker from '../components/ColorPicker'
 
-import { dark_sky_blue } from '../constants/styles'
+import { colors } from '../constants/styles'
 
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 
@@ -20,7 +20,7 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
         {
           value: '',
           label: '',
-          color: dark_sky_blue,
+          color: colors.dark_sky_blue,
           targetValues: targetValuesFields(studies),
         },
       ],

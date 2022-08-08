@@ -1,48 +1,45 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { compose } from 'redux';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { compose } from 'redux'
 
-import Typography from '@material-ui/core/Typography';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
+import Typography from '@material-ui/core/Typography'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import Divider from '@material-ui/core/Divider'
 
-import AssessmentIcon from '@material-ui/icons/Assessment';
-import Home from '@material-ui/icons/Home';
-import Person from '@material-ui/icons/Person';
-import ColorLens from '@material-ui/icons/ColorLens';
-import ExitToApp from '@material-ui/icons/ExitToApp';
-import Settings from '@material-ui/icons/Settings';
-import { ShowChart } from '@material-ui/icons';
+import AssessmentIcon from '@material-ui/icons/Assessment'
+import Home from '@material-ui/icons/Home'
+import Person from '@material-ui/icons/Person'
+import ColorLens from '@material-ui/icons/ColorLens'
+import ExitToApp from '@material-ui/icons/ExitToApp'
+import Settings from '@material-ui/icons/Settings'
+import { ShowChart } from '@material-ui/icons'
 import { Assignment } from '@material-ui/icons'
 
-import { dark_sky_blue } from '../constants/styles';
+import { colors } from '../constants/styles'
 import { routes } from '../routes/routes'
 
 class DrawerComponent extends Component {
   constructor(props) {
-    super(props);
-    this.state = {
-    };
+    super(props)
+    this.state = {}
   }
-  componentDidUpdate() {
-  }
+  componentDidUpdate() {}
   render() {
     return (
       <div>
         <div
           style={{
-            padding: '4px'
+            padding: '4px',
           }}
         >
           <div
             style={{
-              height: '12px'
+              height: '12px',
             }}
-          >
-          </div>
+          ></div>
           <div
             style={{
               display: 'flex',
@@ -51,17 +48,19 @@ class DrawerComponent extends Component {
               alignContent: 'center',
               alignItems: 'center',
               width: '100%',
-              height: '18px'
+              height: '18px',
             }}
           >
-            <img style={{ height: '100%' }} src={`${routes.basePath}/img/dpdash.png`} />
+            <img
+              style={{ height: '100%' }}
+              src={`${routes.basePath}/img/dpdash.png`}
+            />
           </div>
           <div
             style={{
-              height: '16px'
+              height: '16px',
             }}
-          >
-          </div>
+          ></div>
           <div
             style={{
               width: '100%',
@@ -69,35 +68,31 @@ class DrawerComponent extends Component {
               flexFlow: 'row wrap',
               justifyContent: 'center',
               alignContent: 'center',
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
             {this.props.avatar}
           </div>
           <div
             style={{
-              height: '8px'
+              height: '8px',
             }}
-          >
-          </div>
+          ></div>
           <div
             style={{
               width: '100%',
-              textAlign: 'center'
+              textAlign: 'center',
             }}
           >
-            <Typography
-              noWrap={true}
-            >
+            <Typography noWrap={true}>
               {this.props.name ? this.props.name : this.props.user.uid}
             </Typography>
           </div>
           <div
             style={{
-              height: '12px'
+              height: '12px',
             }}
-          >
-          </div>
+          ></div>
           <div
             style={{
               width: '100%',
@@ -107,7 +102,7 @@ class DrawerComponent extends Component {
               style={{
                 width: '100%',
                 padding: '4px',
-                textAlign: 'center'
+                textAlign: 'center',
               }}
             >
               <tr>
@@ -115,7 +110,7 @@ class DrawerComponent extends Component {
                   <Typography
                     noWrap={true}
                     style={{
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
                     }}
                   >
                     {this.props.totalStudies}
@@ -125,7 +120,7 @@ class DrawerComponent extends Component {
                   <Typography
                     noWrap={true}
                     style={{
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
                     }}
                   >
                     {this.props.totalSubjects}
@@ -135,7 +130,7 @@ class DrawerComponent extends Component {
                   <Typography
                     noWrap={true}
                     style={{
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
                     }}
                   >
                     {this.props.totalDays}
@@ -147,7 +142,7 @@ class DrawerComponent extends Component {
                   <Typography
                     noWrap={true}
                     style={{
-                      color: 'rgba(0, 0, 0, 0.75)'
+                      color: 'rgba(0, 0, 0, 0.75)',
                     }}
                   >
                     {'studies'}
@@ -157,7 +152,7 @@ class DrawerComponent extends Component {
                   <Typography
                     noWrap={true}
                     style={{
-                      color: 'rgba(0, 0, 0, 0.75)'
+                      color: 'rgba(0, 0, 0, 0.75)',
                     }}
                   >
                     {'subjects'}
@@ -167,7 +162,7 @@ class DrawerComponent extends Component {
                   <Typography
                     noWrap={true}
                     style={{
-                      color: 'rgba(0, 0, 0, 0.75)'
+                      color: 'rgba(0, 0, 0, 0.75)',
                     }}
                   >
                     {'days'}
@@ -178,107 +173,65 @@ class DrawerComponent extends Component {
           </div>
         </div>
         <Divider />
-        <List
-          dense={true}
-        >
-          <ListItem
-            button={true}
-            component='a'
-            href={routes.home}
-          >
+        <List dense={true}>
+          <ListItem button={true} component='a' href={routes.home}>
             <ListItemIcon>
-              <Home style={{ color: dark_sky_blue }} />
+              <Home style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Home" />
-
+            <ListItemText primary='Home' />
           </ListItem>
-          <ListItem
-            button={true}
-            component='a'
-            href={routes.userAccount}
-          >
+          <ListItem button={true} component='a' href={routes.userAccount}>
             <ListItemIcon>
-              <Person style={{ color: dark_sky_blue }} />
+              <Person style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Account" />
-
+            <ListItemText primary='Account' />
           </ListItem>
-          <ListItem
-            button={true}
-            component='a'
-            href={routes.configure}
-          >
+          <ListItem button={true} component='a' href={routes.configure}>
             <ListItemIcon>
-              <ColorLens style={{ color: dark_sky_blue }} />
+              <ColorLens style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Configure" />
+            <ListItemText primary='Configure' />
           </ListItem>
-          <ListItem
-            button={true}
-            component='a'
-            href={routes.studyDetails}
-          >
+          <ListItem button={true} component='a' href={routes.studyDetails}>
             <ListItemIcon>
-              <Assignment style={{ color: dark_sky_blue }} />
+              <Assignment style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Study Details" />
-            
+            <ListItemText primary='Study Details' />
           </ListItem>
-          <ListItem
-            button={true}
-            component='a'
-            href={routes.charts}
-          >
+          <ListItem button={true} component='a' href={routes.charts}>
             <ListItemIcon>
-              <ShowChart style={{ color: dark_sky_blue }} />
+              <ShowChart style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Charts" />
-            
+            <ListItemText primary='Charts' />
           </ListItem>
-          <ListItem
-            button={true}
-            component='a'
-            href={routes.reports}
-          >
+          <ListItem button={true} component='a' href={routes.reports}>
             <ListItemIcon>
-              <AssessmentIcon style={{ color: dark_sky_blue }} />
+              <AssessmentIcon style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Reports" />
+            <ListItemText primary='Reports' />
           </ListItem>
 
-          {this.props.user.role == 'admin' ?
-            <ListItem
-              button={true}
-              component='a'
-              href={routes.admin}
-            >
+          {this.props.user.role == 'admin' ? (
+            <ListItem button={true} component='a' href={routes.admin}>
               <ListItemIcon>
-                <Settings style={{ color: dark_sky_blue }} />
+                <Settings style={{ color: colors.dark_sky_blue }} />
               </ListItemIcon>
-              <ListItemText primary="Admin" />
-
-            </ListItem> :
-            null}
-          <ListItem
-            button={true}
-            component='a'
-            href={routes.logout}
-          >
+              <ListItemText primary='Admin' />
+            </ListItem>
+          ) : null}
+          <ListItem button={true} component='a' href={routes.logout}>
             <ListItemIcon>
-              <ExitToApp style={{ color: dark_sky_blue }} />
+              <ExitToApp style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Logout" />
-
+            <ListItemText primary='Logout' />
           </ListItem>
         </List>
       </div>
-    );
+    )
   }
 }
 const mapStateToProps = (state) => ({
-  user: state.user
-});
+  user: state.user,
+})
 
-export default compose(
-  connect(mapStateToProps)
-)(DrawerComponent);
+export default compose(connect(mapStateToProps))(DrawerComponent)

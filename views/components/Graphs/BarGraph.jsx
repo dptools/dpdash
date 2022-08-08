@@ -7,10 +7,11 @@ import {
   VictoryStack,
   VictoryLegend,
   VictoryLabel,
-  VictoryTooltip,
+  VictoryVoronoiContainer,
 } from 'victory'
 
 import { graphStyles } from '../../styles/chart_styles'
+import { colors } from '../../constants/styles'
 
 const BarGraph = ({ graph }) => {
   return (
@@ -18,6 +19,16 @@ const BarGraph = ({ graph }) => {
       domainPadding={20}
       domain={{ x: [0, 6] }}
       theme={VictoryTheme.material}
+      containerComponent={
+        <VictoryVoronoiContainer
+          labels={({ datum: { study, studyTarget, count, valueLabel } }) => {
+            const showToolTip = study && count
+            return valueLabel !== 'N/A' && showToolTip
+              ? `Site:${study} \n Current: ${count} \n Target: ${studyTarget}`
+              : null
+          }}
+        />
+      }
     >
       <VictoryLegend
         orientation='horizontal'
@@ -28,26 +39,32 @@ const BarGraph = ({ graph }) => {
         labelComponent={<VictoryLabel />}
       />
       <VictoryAxis label='Site' style={graphStyles.xAxis} />
-      <VictoryAxis label='Total' dependentAxis style={graphStyles.yAxis} />
+      <VictoryAxis
+        label='Total'
+        dependentAxis
+        style={graphStyles.yAxis}
+        tickFormat={(yAxisValue) => `${yAxisValue}%`}
+      />
       <VictoryStack>
         {Object.values(graph.data).map((data, idx) => (
           <VictoryBar
             data={data}
             x='study'
-            y='count'
+            y='percent'
             key={'bar' + idx}
             style={{
               data: {
                 fill: ({ datum }) => datum.color,
               },
             }}
-            labels={({ datum: { count, studyTarget, study } }) =>
-              `Study: ${study} \n Current: ${count} \n Target: ${studyTarget}`
+            labels={({ datum }) =>
+              !!datum?.percent ? `${datum.percent}%` : null
             }
             labelComponent={
-              <VictoryTooltip
-                constrainToVisibleArea
-                style={{ fill: ({ datum }) => datum.color }}
+              <VictoryLabel
+                dy={15}
+                labelPlacement='perpendicular'
+                style={{ fill: colors.anti_flash_white, fontSize: 8 }}
               />
             }
           />

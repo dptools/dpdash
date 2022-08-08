@@ -2,18 +2,23 @@ import { ObjectID } from 'mongodb'
 
 import { collections } from '../utils/mongoCollections'
 
+const studyCountsToPercentage = (studyCount, targetTotal) =>
+  (100 * +studyCount) / targetTotal
+
 const postProcessData = (data, studyTotals) => {
   const processedData = {}
-
   Object.entries(data).forEach((entry) => {
     const [key, count] = entry
     const [study, valueLabel, color, studyTarget] = key.split('-')
+    const totals = studyTotals[study].targetTotal || studyTotals[study].count
+    const percent = studyCountsToPercentage(count, totals)
     const newEntry = {
       color,
       count,
       valueLabel,
       study,
       studyTarget,
+      percent,
     }
 
     if (processedData[valueLabel]) {
@@ -38,6 +43,7 @@ const postProcessData = (data, studyTotals) => {
       valueLabel: 'N/A',
       study: studySection.study,
       studyTarget: '',
+      percent: studyCountsToPercentage(count, totals.targetTotal),
     }
   })
 

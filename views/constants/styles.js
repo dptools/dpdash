@@ -1,2 +1,5 @@
-export const dark_sky_blue = '#97C0CE'
-export const neutral_blue = '#5790BD'
+export const colors = {
+  dark_sky_blue: '#97C0CE',
+  neutral_blue: '#5790BD',
+  anti_flash_white: '#EDEFFA',
+}

@@ -11,7 +11,7 @@ import { chartStyles } from './styles/chart_styles'
 import { targetValuesFields } from './fe-utils/targetValuesUtil'
 
 import { routes } from './routes/routes'
-import { dark_sky_blue } from './constants/styles'
+import { colors } from './constants/styles'
 
 const initialValues = (user) => ({
   title: '',
@@ -22,7 +22,7 @@ const initialValues = (user) => ({
     {
       value: '',
       label: '',
-      color: dark_sky_blue,
+      color: colors.dark_sky_blue,
       targetValues: targetValuesFields(user.userAccess),
     },
   ],

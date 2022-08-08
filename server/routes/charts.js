@@ -189,4 +189,28 @@ router
       return res.status(500).json({ message: error.message })
     }
   })
+router
+  .route('/api/v1/charts/duplicate')
+  .post(ensureAuthenticated, async (req, res) => {
+    try {
+      const { dataDb } = req.app.locals
+      const { chart_id } = req.body
+      const sourceChart = await dataDb.collection(collections.charts).findOne(
+        {
+          _id: new ObjectID(chart_id),
+        },
+        { projection: { _id: 0 } }
+      )
+      const { insertedId } = await dataDb
+        .collection(collections.charts)
+        .insertOne({
+          ...sourceChart,
+          title: sourceChart.title + ' Duplicate',
+        })
+
+      return res.status(200).json({ data: insertedId })
+    } catch (error) {
+      return res.status(404).json({ message: 'Chart was not duplicated' })
+    }
+  })
 export default router

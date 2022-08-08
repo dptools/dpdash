@@ -22,6 +22,7 @@ export const routes = {
 export const apiRoutes = {
   chart: (chart_id) => `${apiPath}/charts/${chart_id}`,
   charts: `${apiPath}/charts`,
+  chartDuplicate: `${apiPath}/charts/duplicate`,
   subjects: (studies) => `${apiPath}/subjects?q=${JSON.stringify(studies)}`,
   studyDetail: (study_id) => `${apiPath}/study-details/${study_id}`,
   studyDetails: `${apiPath}/study-details`,

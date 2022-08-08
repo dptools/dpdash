@@ -135,7 +135,7 @@ const deleteChart = async (id) => {
 const editChart = async (id, formValues) => {
   const res = await window.fetch(apiRoutes.chart(id), {
     ...defaultApiOptions,
-    method: 'PUT',
+    method: 'PATCH',
     body: JSON.stringify(formValues),
   })
 
@@ -155,6 +155,17 @@ const getChart = async (id) => {
   return res.json()
 }
 
+const duplicateChart = async (chart_id) => {
+  const res = await window.fetch(apiRoutes.chartDuplicate, {
+    ...defaultApiOptions,
+    method: 'POST',
+    body: JSON.stringify({ chart_id }),
+  })
+  if (res.status !== 200) return new Error(res.message)
+
+  return res.json()
+}
+
 export {
   fetchStudies,
   fetchStudiesAdmin,
@@ -169,4 +180,5 @@ export {
   deleteChart,
   editChart,
   getChart,
+  duplicateChart,
 }

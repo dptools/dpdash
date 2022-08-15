@@ -5,57 +5,66 @@ import io from 'socket.io-client'
 import 'whatwg-fetch'
 import FileSaver from 'file-saver'
 
-import Button from '@material-ui/core/Button';
-import ListItem from '@material-ui/core/ListItem';
-import * as _ from 'lodash';
+import Button from '@material-ui/core/Button'
+import ListItem from '@material-ui/core/ListItem'
+import * as _ from 'lodash'
 
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import IconButton from '@material-ui/core/IconButton'
+import Typography from '@material-ui/core/Typography'
 
-import { compose } from 'redux';
-import { withStyles } from '@material-ui/core/styles';
-import DrawerComponent from './components/Drawer';
-import Drawer from '@material-ui/core/Drawer';
+import { compose } from 'redux'
+import { withStyles } from '@material-ui/core/styles'
+import DrawerComponent from './components/Drawer'
+import Drawer from '@material-ui/core/Drawer'
 
-import SaveIcon from '@material-ui/icons/Save';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import green from '@material-ui/core/colors/green';
-import CheckIcon from '@material-ui/icons/Check';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import Tooltip from '@material-ui/core/Tooltip';
-import classNames from 'classnames';
+import SaveIcon from '@material-ui/icons/Save'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import green from '@material-ui/core/colors/green'
+import CheckIcon from '@material-ui/icons/Check'
+import RefreshIcon from '@material-ui/icons/Refresh'
+import Tooltip from '@material-ui/core/Tooltip'
+import classNames from 'classnames'
 
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import Dialog from '@material-ui/core/Dialog';
-import Functions from '@material-ui/icons/Functions';
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import Dialog from '@material-ui/core/Dialog'
+import Functions from '@material-ui/icons/Functions'
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
 
-import getAvatar from './fe-utils/avatarUtil';
-import getCounts from './fe-utils/countUtil';
-import { fetchSubjects } from './fe-utils/fetchUtil';
-import basePathConfig from '../server/configs/basePathConfig';
+import SelectConfigurationForm from './components/SelectConfigurationForm'
 
-const drawerWidth = 200;
+import getAvatar from './fe-utils/avatarUtil'
+import getCounts from './fe-utils/countUtil'
+import {
+  fetchSubjects,
+  fetchConfigurations,
+  fetchPreferences,
+} from './fe-utils/fetchUtil'
+import { preparePreferences } from './fe-utils/preferencesUtil'
+import basePathConfig from '../server/configs/basePathConfig'
+import { routes, apiRoutes } from './routes/routes'
+import { graphPageStyles } from './styles/graph_page_styles'
 
-const basePath = basePathConfig || '';
+const drawerWidth = 200
 
-const socketAddress = `https://${window.location.hostname}${basePath}/dashboard`;
+const basePath = basePathConfig || ''
+
+const socketAddress = `https://${window.location.hostname}${basePath}/dashboard`
 const socket = io(socketAddress, {
   requestTimeout: 1250,
   randomizationFactor: 0,
   reconnectionDelay: 0,
-  autoConnect: false
+  autoConnect: false,
 })
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     flexGrow: 1,
     height: '100vh',
@@ -73,16 +82,15 @@ const styles = theme => ({
     },
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)'
+    color: 'rgba(0, 0, 0, 0.54)',
   },
-  navIconHide: {
-  },
+  navIconHide: {},
   drawerPaper: {
     width: drawerWidth,
     [theme.breakpoints.up('md')]: {
       position: 'relative',
     },
-    borderRight: '0px'
+    borderRight: '0px',
   },
   content: {
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
@@ -115,9 +123,10 @@ const styles = theme => ({
     marginTop: -12,
     marginLeft: -12,
   },
-});
+  ...graphPageStyles(theme),
+})
 
-const CustomTableCell = withStyles(theme => ({
+const CustomTableCell = withStyles((theme) => ({
   head: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
@@ -125,11 +134,11 @@ const CustomTableCell = withStyles(theme => ({
   body: {
     fontSize: 14,
   },
-}))(TableCell);
+}))(TableCell)
 
 class Graph extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       subject: {},
       graph: {},
@@ -147,10 +156,10 @@ class Graph extends Component {
       taskId: '',
       metadata: {},
       configurations: {
-        colormap: []
+        colormap: [],
       },
       data: {
-        matrix: {}
+        matrix: {},
       },
       mobileOpen: false,
       icon: '',
@@ -160,32 +169,43 @@ class Graph extends Component {
       loading: false,
       success: false,
       cardSize: 50,
-      openStat: false
+      openStat: false,
+      configurationsList: [],
+      preferences: {},
     }
   }
   fetchMetadata = (study, subject, day) => {
-    return fetch(`${basePath}/api/v1/studies/${study}/subjects/${subject}/deepdive/${day}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 201) {
-        return
+    return fetch(
+      `${basePath}/api/v1/studies/${study}/subjects/${subject}/deepdive/${day}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
       }
-      return response.json()
-    }).then((response) => {
-      this.setState({
-        data: response
+    )
+      .then((response) => {
+        if (response.status !== 201) {
+          return
+        }
+        return response.json()
       })
-    })
+      .then((response) => {
+        this.setState({
+          data: response,
+        })
+      })
   }
   filterList = (event) => {
     let updatedList = this.state.searchList
-    if (event.target.value !== "") {
+    if (event.target.value !== '') {
       updatedList = this.props.user.acl.filter(function (item) {
-        return (item['subjects'].toLowerCase().search(event.target.value.toLowerCase()) !== -1)
+        return (
+          item['subjects']
+            .toLowerCase()
+            .search(event.target.value.toLowerCase()) !== -1
+        )
       })
     } else {
       //reset the acl
@@ -200,7 +220,13 @@ class Graph extends Component {
     for (let i in acl) {
       let link = '/dashboard/' + acl[i]['study'] + '/' + acl[i]['subjects']
       listItem.push(
-        <ListItem href={`${basePath}${link}`} target="_blank" primaryText={acl[i]['subjects']} secondaryText={acl[i]['study']} key={link} />
+        <ListItem
+          href={`${basePath}${link}`}
+          target='_blank'
+          primaryText={acl[i]['subjects']}
+          secondaryText={acl[i]['study']}
+          key={link}
+        />
       )
     }
     return listItem
@@ -214,48 +240,71 @@ class Graph extends Component {
   handleResize = () => {
     this.setState({
       graphWidth: window.innerWidth,
-      graphHeight: window.innerHeight - 30
+      graphHeight: window.innerHeight - 30,
     })
   }
   resync = () => {
-    window.fetch(this.state.socketIOSubjectRoom, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 201) {
-        return
-      }
-      return response.json()
-    }).then((response) => {
-      this.setState({ taskId: response.correlationId, loading: true, success: false })
-    })
+    window
+      .fetch(this.state.socketIOSubjectRoom, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+      })
+      .then((response) => {
+        if (response.status !== 201) {
+          return
+        }
+        return response.json()
+      })
+      .then((response) => {
+        this.setState({
+          taskId: response.correlationId,
+          loading: true,
+          success: false,
+        })
+      })
   }
   closeStat = () => {
     this.setState({
       openStat: false,
-    });
+    })
   }
   openStat = () => {
     this.setState({
       openStat: true,
-    });
+    })
   }
-  componentDidUpdate() {
-  }
+  componentDidUpdate() {}
   // eslint-disable-next-line react/no-deprecated
   async componentWillMount() {
     try {
-      const acl = await fetchSubjects();
-      this.setState(getCounts({ acl }));
+      const [acl, preferences, configurations] = await Promise.all([
+        fetchSubjects(),
+        fetchPreferences(this.props.user.uid),
+        fetchConfigurations(this.props.user.uid),
+      ])
+      this.setState({
+        ...getCounts({ acl }),
+        preferences,
+        configurationsList: configurations,
+      })
     } catch (err) {
-      console.error(err.message);
+      console.error(err.message)
     }
     let maxDay = 1
-    for (let dataIndex = 0; dataIndex < this.props.graph.matrixData.length; dataIndex++) {
-      let maxObj = _.maxBy(this.props.graph.matrixData[dataIndex]['data'], function (o) { return o.day })
+    for (
+      let dataIndex = 0;
+      dataIndex < this.props.graph.matrixData.length;
+      dataIndex++
+    ) {
+      let maxObj = _.maxBy(
+        this.props.graph.matrixData[dataIndex]['data'],
+        function (o) {
+          return o.day
+        }
+      )
       if (maxObj == undefined) {
         continue
       }
@@ -272,7 +321,7 @@ class Graph extends Component {
       iconBase64: this.props.user.icon,
       searchList: this.props.user.acl,
       socketIOSubjectRoom: `${basePath}/resync/${this.props.subject.project}/${this.props.subject.sid}`,
-      socketIOUserRoom: this.props.user.uid
+      socketIOUserRoom: this.props.user.uid,
     })
     this.setState({ configurations: this.props.user.configs })
     if (!HTMLCanvasElement.prototype.toBlob) {
@@ -286,26 +335,62 @@ class Graph extends Component {
             arr[i] = binStr.charCodeAt(i)
           }
           callback(new Blob([arr], { type: type || 'image/png' }))
-        }
+        },
       })
     }
   }
   handleDrawerToggle = () => {
-    this.setState(state => ({ mobileOpen: !state.mobileOpen }));
+    this.setState((state) => ({ mobileOpen: !state.mobileOpen }))
   }
   generateStatItem(data) {
     let tableItem = []
     for (let i in data) {
       let dataItem = data[i]
-      let validData = _.filter(dataItem['data'], _.conforms({ [dataItem['variable']]: function (n) { return _.isNumber(n) } }))
-      let missingDataPercentage = 100 - (validData.length * 100 / this.state.maxDay)
+      let validData = _.filter(
+        dataItem['data'],
+        _.conforms({
+          [dataItem['variable']]: function (n) {
+            return _.isNumber(n)
+          },
+        })
+      )
+      let missingDataPercentage =
+        100 - (validData.length * 100) / this.state.maxDay
       tableItem.push(
         <TableRow key={i + dataItem['label']}>
           <CustomTableCell>{dataItem['label']}</CustomTableCell>
-          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].min)) && isFinite(dataItem['stat'][0].min) ? dataItem['stat'][0].min.toFixed(2) : 'N/A')}</CustomTableCell>
-          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].max)) && isFinite(dataItem['stat'][0].max) ? dataItem['stat'][0].max.toFixed(2) : 'N/A')}</CustomTableCell>
-          <CustomTableCell>{(dataItem['stat'].length > 0 && !isNaN(parseFloat(dataItem['stat'][0].mean)) && isFinite(dataItem['stat'][0].mean) ? dataItem['stat'][0].mean.toFixed(2) : 'N/A')}</CustomTableCell>
-          <CustomTableCell id={'stat-missingdata-' + i} title={validData.length + '/' + this.state.maxDay}>{missingDataPercentage.toFixed(2) + ' (' + validData.length + '/' + this.state.maxDay + ')'}</CustomTableCell>
+          <CustomTableCell>
+            {dataItem['stat'].length > 0 &&
+            !isNaN(parseFloat(dataItem['stat'][0].min)) &&
+            isFinite(dataItem['stat'][0].min)
+              ? dataItem['stat'][0].min.toFixed(2)
+              : 'N/A'}
+          </CustomTableCell>
+          <CustomTableCell>
+            {dataItem['stat'].length > 0 &&
+            !isNaN(parseFloat(dataItem['stat'][0].max)) &&
+            isFinite(dataItem['stat'][0].max)
+              ? dataItem['stat'][0].max.toFixed(2)
+              : 'N/A'}
+          </CustomTableCell>
+          <CustomTableCell>
+            {dataItem['stat'].length > 0 &&
+            !isNaN(parseFloat(dataItem['stat'][0].mean)) &&
+            isFinite(dataItem['stat'][0].mean)
+              ? dataItem['stat'][0].mean.toFixed(2)
+              : 'N/A'}
+          </CustomTableCell>
+          <CustomTableCell
+            id={'stat-missingdata-' + i}
+            title={validData.length + '/' + this.state.maxDay}
+          >
+            {missingDataPercentage.toFixed(2) +
+              ' (' +
+              validData.length +
+              '/' +
+              this.state.maxDay +
+              ')'}
+          </CustomTableCell>
         </TableRow>
       )
     }
@@ -314,24 +399,26 @@ class Graph extends Component {
   componentDidMount() {
     socket.open()
     this.setState({
-      avatar: getAvatar({ user: this.props.user })
+      avatar: getAvatar({ user: this.props.user }),
     })
     if (this.refs.matrix.graph === undefined) {
-      console.log('error');
+      console.log('error')
       return
     }
     let svgElement = this.refs.matrix.graph.el.lastChild
-    this.setState({
-      graphWidth: svgElement.getBBox().width + 20,
-      graphHeight: svgElement.getBBox().height,
-    },
+    this.setState(
+      {
+        graphWidth: svgElement.getBBox().width + 20,
+        graphHeight: svgElement.getBBox().height,
+      },
       () => {
         // Download set-up
 
         //svg conversion
         let updatedSvgElement = this.refs.matrix.graph.el.lastChild
-        let svgString = (new XMLSerializer()).serializeToString(updatedSvgElement)
-        let svgUrl = 'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString)
+        let svgString = new XMLSerializer().serializeToString(updatedSvgElement)
+        let svgUrl =
+          'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString)
 
         let canvas = this.refs.canvas
         canvas.width = updatedSvgElement.getBBox().width
@@ -342,7 +429,17 @@ class Graph extends Component {
         let ctx = canvas.getContext('2d')
 
         img.onload = () => {
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height)
+          ctx.drawImage(
+            img,
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          )
         }
         img.src = svgUrl
 
@@ -350,7 +447,7 @@ class Graph extends Component {
           svgLink: svgUrl,
           graphWidth: window.innerWidth,
           graphHeight: window.innerHeight - 30,
-          cardSize: 20
+          cardSize: 20,
         })
       }
     )
@@ -359,26 +456,26 @@ class Graph extends Component {
     window.addEventListener('resize', this.handleResize)
 
     /* Socket.io */
-    socket.on('PROCESSING', () => {
-    })
+    socket.on('PROCESSING', () => {})
 
-    socket.on('SUCCESS', message => {
+    socket.on('SUCCESS', (message) => {
       if (this.state.taskId === message.taskId) {
-        socket.disconnect();
-        this.setState({
-          loading: false,
-          success: true
-        },
+        socket.disconnect()
+        this.setState(
+          {
+            loading: false,
+            success: true,
+          },
           () => {
             setTimeout(() => {
               location.reload(true)
             }, 2000)
-          });
+          }
+        )
       }
     })
-    socket.on('ERROR', () => {
-    })
-    socket.on('CONFIG_UPDATED', message => {
+    socket.on('ERROR', () => {})
+    socket.on('CONFIG_UPDATED', (message) => {
       if (message.uid === this.state.user.uid) {
         //    location.reload(true)
       }
@@ -390,46 +487,87 @@ class Graph extends Component {
     socket.close()
     window.removeEventListener('resize', this.handleResize)
   }
+  updateUserPreferences = (configurationId) => {
+    const { uid } = this.props.user
+    const selectedUserPreference = preparePreferences(
+      configurationId,
+      this.state.preferences
+    )
 
+    return window
+      .fetch(apiRoutes.preferences(uid), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          preferences: selectedUserPreference,
+        }),
+      })
+      .then((res) => {
+        if (res.status === 201) {
+          window.location.replace(
+            routes.subjectView(
+              this.state.subject.project,
+              this.state.subject.sid
+            )
+          )
+        }
+      })
+  }
   render() {
-    const { loading, success } = this.state;
-    const { classes, theme } = this.props;
+    const { loading, success } = this.state
+    const { classes, theme } = this.props
     const buttonClassname = classNames({
       [classes.buttonSuccess]: success,
-    });
+    })
     return (
-      <div
-        className={classes.root}
-      >
+      <div className={classes.root}>
         <AppBar className={classes.appBar}>
           <Toolbar
             variant='dense'
             style={{
-              paddingLeft: '16px'
+              paddingLeft: '16px',
             }}
           >
             <IconButton
-              color="rgba(0, 0, 0, 0.54)"
-              aria-label="Open drawer"
+              color='rgba(0, 0, 0, 0.54)'
+              aria-label='Open drawer'
               onClick={this.handleDrawerToggle}
             >
-              <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
+              <img
+                width='24px'
+                height='24px'
+                src={`${basePath}/img/favicon.png`}
+              />
             </IconButton>
             <Typography
-              variant="title"
-              color="inherit"
+              variant='title'
+              color='inherit'
               style={{
                 color: 'rgba(0,0,0,0.4)',
                 fontSize: '18px',
                 letterSpacing: '1.25px',
-                flexGrow: 1
+                flexGrow: 1,
               }}
             >
               {this.state.subject.sid + ' - ' + this.state.subject.project}
             </Typography>
+            <div className={classes.configDropDownContainer}>
+              <Typography className={classes.dropDownText}>
+                Configuration Settings
+              </Typography>
+              <SelectConfigurationForm
+                configurations={this.state.configurationsList}
+                onChange={this.updateUserPreferences}
+                currentPreference={this.state.preferences}
+                classes={classes}
+              />
+            </div>
             <IconButton
-              color="rgba(0, 0, 0, 0.54)"
-              aria-label="Open Stat"
+              color='rgba(0, 0, 0, 0.54)'
+              aria-label='Open Stat'
               onClick={this.openStat}
             >
               <Functions />
@@ -437,7 +575,7 @@ class Graph extends Component {
           </Toolbar>
         </AppBar>
         <Drawer
-          variant="temporary"
+          variant='temporary'
           anchor={theme.direction === 'rtl' ? 'right' : 'left'}
           open={this.state.mobileOpen}
           onClose={this.handleDrawerToggle}
@@ -462,13 +600,13 @@ class Graph extends Component {
           style={{
             padding: '12px',
             marginTop: '48px',
-            overflowY: 'scroll'
+            overflowY: 'scroll',
           }}
         >
-          <div className="Matrix">
+          <div className='Matrix'>
             <GraphFactory
-              id="matrix"
-              type="matrix"
+              id='matrix'
+              type='matrix'
               width={this.state.graphWidth}
               height={this.state.graphHeight}
               data={this.props.graph.matrixData}
@@ -476,7 +614,7 @@ class Graph extends Component {
               study={this.state.subject.project}
               subject={this.state.subject.sid}
               consentDate={this.props.graph.consentDate}
-              ref="matrix"
+              ref='matrix'
               configuration={this.props.graph.configurations}
               startFromTheLastDay={this.state.startFromTheLastDay}
               startDay={this.state.startDay}
@@ -489,35 +627,37 @@ class Graph extends Component {
             style={{
               right: 10,
               bottom: 10,
-              position: 'fixed'
+              position: 'fixed',
             }}
           >
             <Button
-              variant="fab"
+              variant='fab'
               onClick={this.downloadPng}
-              id="downloadPng"
-              ref="downloadPng"
+              id='downloadPng'
+              ref='downloadPng'
               focusRipple={true}
               style={{
-                marginBottom: '6px'
+                marginBottom: '6px',
               }}
             >
-              <Tooltip title="Download as PNG">
+              <Tooltip title='Download as PNG'>
                 <SaveIcon />
               </Tooltip>
             </Button>
             <div>
               <Button
-                variant="fab"
-                color="secondary"
+                variant='fab'
+                color='secondary'
                 className={buttonClassname}
                 onClick={this.resync}
               >
-                <Tooltip title="Resync with the File System">
+                <Tooltip title='Resync with the File System'>
                   {success ? <CheckIcon /> : <RefreshIcon />}
                 </Tooltip>
               </Button>
-              {loading && <CircularProgress size={68} className={classes.fabProgress} />}
+              {loading && (
+                <CircularProgress size={68} className={classes.fabProgress} />
+              )}
             </div>
           </div>
         </div>
@@ -528,13 +668,11 @@ class Graph extends Component {
         >
           <DialogContent
             style={{
-              padding: '0'
+              padding: '0',
             }}
           >
-            <Table
-            >
-              <TableHead
-              >
+            <Table>
+              <TableHead>
                 <TableRow>
                   <CustomTableCell> Label </CustomTableCell>
                   <CustomTableCell> Min </CustomTableCell>
@@ -543,32 +681,30 @@ class Graph extends Component {
                   <CustomTableCell> Missing % </CustomTableCell>
                 </TableRow>
               </TableHead>
-              <TableBody
-              >
+              <TableBody>
                 {this.generateStatItem(this.props.graph.matrixData)}
               </TableBody>
             </Table>
           </DialogContent>
           <DialogActions>
-            <Button
-              color="secondary"
-              onClick={this.closeStat}
-            >Close</Button>
+            <Button color='secondary' onClick={this.closeStat}>
+              Close
+            </Button>
           </DialogActions>
         </Dialog>
-        <canvas ref="canvas" style={{ display: 'none' }}></canvas>
+        <canvas ref='canvas' style={{ display: 'none' }}></canvas>
       </div>
-    );
+    )
   }
 }
 
 const mapStateToProps = (state) => ({
   graph: state.graph,
   user: state.user,
-  subject: state.subject
+  subject: state.subject,
 })
 
 export default compose(
   withStyles(styles, { withTheme: true }),
   connect(mapStateToProps)
-)(Graph);
+)(Graph)

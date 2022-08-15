@@ -161,6 +161,29 @@ const duplicateChart = async (chart_id) => {
     method: 'POST',
     body: JSON.stringify({ chart_id }),
   })
+
+  if (res.status !== 200) return new Error(res.message)
+
+  return res.json()
+}
+
+const fetchConfigurations = async (uid) => {
+  const res = await window.fetch(apiRoutes.configs(uid), {
+    defaultApiOptions,
+    method: 'GET',
+  })
+
+  if (res.status !== 200) return new Error(res.message)
+
+  return res.json()
+}
+
+const fetchPreferences = async (uid) => {
+  const res = await window.fetch(apiRoutes.preferences(uid), {
+    defaultApiOptions,
+    method: 'GET',
+  })
+
   if (res.status !== 200) return new Error(res.message)
 
   return res.json()
@@ -181,4 +204,6 @@ export {
   editChart,
   getChart,
   duplicateChart,
+  fetchConfigurations,
+  fetchPreferences,
 }

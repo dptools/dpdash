@@ -114,9 +114,8 @@ router
       const { dataDb } = req.app.locals
       const chartList = await dataDb
         .collection(collections.charts)
-        .find({ owner: req.user })
+        .find({ $or: [{ owner: req.user }, { sharedWith: req.user }] })
         .toArray()
-
       return res.status(200).json({ data: chartList })
     } catch (error) {
       console.error(error)
@@ -189,6 +188,7 @@ router
       return res.status(500).json({ message: error.message })
     }
   })
+
 router
   .route('/api/v1/charts/duplicate')
   .post(ensureAuthenticated, async (req, res) => {
@@ -213,4 +213,30 @@ router
       return res.status(404).json({ message: 'Chart was not duplicated' })
     }
   })
+
+router
+  .route('/api/v1/charts/:chart_id/share')
+  .post(ensureAuthenticated, async (req, res) => {
+    try {
+      const { chart_id } = req.params
+      const { dataDb } = req.app.locals
+      const { sharedWith } = req.body
+      const { result } = await dataDb.collection(collections.charts).updateOne(
+        { _id: new ObjectID(chart_id) },
+        {
+          $set: {
+            sharedWith,
+            updatedAt: new Date().toISOString(),
+          },
+        }
+      )
+
+      return result.ok === 1
+        ? res.status(200).json({ data: result })
+        : res.status(404).json({ message: 'Chart could not be shared' })
+    } catch (error) {
+      return res.status(404).json({ message: 'Chart could not be shared' })
+    }
+  })
+
 export default router

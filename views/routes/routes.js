@@ -31,6 +31,7 @@ export const apiRoutes = {
   preferences: (uid) => `${apiPath}/users/${uid}/preferences`,
   searchStudies: `${apiPath}/search/studies`,
   subject: `${apiPath}/subjects`,
+  shareChart: (chart_id) => `${apiPath}/charts/${chart_id}/share`,
 }
 
 export const defaultApiOptions = {

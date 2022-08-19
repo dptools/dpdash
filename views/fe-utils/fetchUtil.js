@@ -169,7 +169,7 @@ const duplicateChart = async (chart_id) => {
 
 const fetchConfigurations = async (uid) => {
   const res = await window.fetch(apiRoutes.configs(uid), {
-    defaultApiOptions,
+    ...defaultApiOptions,
     method: 'GET',
   })
 
@@ -180,10 +180,21 @@ const fetchConfigurations = async (uid) => {
 
 const fetchPreferences = async (uid) => {
   const res = await window.fetch(apiRoutes.preferences(uid), {
-    defaultApiOptions,
+    ...defaultApiOptions,
     method: 'GET',
   })
 
+  if (res.status !== 200) return new Error(res.message)
+
+  return res.json()
+}
+
+const shareChart = async (chart_id, sharedWith) => {
+  const res = await window.fetch(apiRoutes.shareChart(chart_id), {
+    ...defaultApiOptions,
+    method: 'POST',
+    body: JSON.stringify({ sharedWith }),
+  })
   if (res.status !== 200) return new Error(res.message)
 
   return res.json()
@@ -206,4 +217,5 @@ export {
   duplicateChart,
   fetchConfigurations,
   fetchPreferences,
+  shareChart,
 }

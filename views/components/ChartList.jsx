@@ -9,90 +9,78 @@ import Button from '@material-ui/core/Button'
 import Link from '@material-ui/core/Link'
 import Delete from '@material-ui/icons/Delete'
 import Edit from '@material-ui/icons/Edit'
+import Share from '@material-ui/icons/Share'
 import PlaylistAdd from '@material-ui/icons/PlaylistAdd'
-
-import { getCharts, deleteChart, duplicateChart } from '../fe-utils/fetchUtil'
 
 import { routes } from '../routes/routes'
 
-const ChartList = () => {
-  const [chartList, setChartList] = useState([])
-
-  useEffect(() => {
-    getCharts().then((res) => setChartList(res.data))
-  }, [])
-
-  const removeChart = async (id) => {
-    try {
-      const deleted = await deleteChart(id)
-
-      if (deleted.data > 0) {
-        await getCharts().then(({ data }) => {
-          setChartList(data)
-        })
-      }
-    } catch (error) {}
-  }
-  const onDuplicateChart = async (id) => {
-    try {
-      const duplicated = await duplicateChart(id)
-      if (duplicated?.data) {
-        await getCharts().then(({ data }) => {
-          setChartList(data)
-        })
-      }
-    } catch (error) {
-      console.error(error, '*****')
-    }
-  }
-
+const ChartList = ({
+  handleShareChart,
+  chartList,
+  removeChart,
+  onDuplicateChart,
+}) => {
   return (
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell align='center'>Title</TableCell>
-          <TableCell align='center'>Description</TableCell>
-          <TableCell align='center'>Duplicate</TableCell>
-          <TableCell align='center'>Edit</TableCell>
-          <TableCell align='center'>Delete</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {chartList.map(({ title, description, _id }) => (
-          <TableRow key={_id}>
-            <TableCell align='center'>
-              <Link color='textPrimary' href={routes.chart(_id)}>
-                {title?.toUpperCase()}
-              </Link>
-            </TableCell>
-            <TableCell align='center'>{description?.toUpperCase()}</TableCell>
-            <TableCell align='center'>
-              <Button
-                type='button'
-                variant='text'
-                onClick={() => onDuplicateChart(_id)}
-              >
-                <PlaylistAdd />
-              </Button>
-            </TableCell>
-            <TableCell align='center'>
-              <Link href={routes.editChart(_id)} color='textPrimary'>
-                <Edit />
-              </Link>
-            </TableCell>
-            <TableCell align='center'>
-              <Button
-                type='button'
-                variant='text'
-                onClick={() => removeChart(_id)}
-              >
-                <Delete />
-              </Button>
-            </TableCell>
+    <>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell align='center'>Title</TableCell>
+            <TableCell align='center'>Description</TableCell>
+            <TableCell align='center'>Duplicate</TableCell>
+            <TableCell align='center'>Edit</TableCell>
+            <TableCell align='center'>Share</TableCell>
+            <TableCell align='center'>Delete</TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHead>
+        <TableBody>
+          {chartList.map((chart) => (
+            <TableRow key={chart._id}>
+              <TableCell align='center'>
+                <Link color='textPrimary' href={routes.chart(chart._id)}>
+                  {chart.title?.toUpperCase()}
+                </Link>
+              </TableCell>
+              <TableCell align='center'>
+                {chart.description?.toUpperCase()}
+              </TableCell>
+              <TableCell align='center'>
+                <Button
+                  type='button'
+                  variant='text'
+                  onClick={() => onDuplicateChart(chart._id)}
+                >
+                  <PlaylistAdd />
+                </Button>
+              </TableCell>
+              <TableCell align='center'>
+                <Link href={routes.editChart(chart._id)} color='textPrimary'>
+                  <Edit />
+                </Link>
+              </TableCell>
+              <TableCell align='center'>
+                <Button
+                  type='button'
+                  variant='text'
+                  onClick={() => handleShareChart(chart)}
+                >
+                  <Share />
+                </Button>
+              </TableCell>
+              <TableCell align='center'>
+                <Button
+                  type='button'
+                  variant='text'
+                  onClick={() => removeChart(chart._id)}
+                >
+                  <Delete />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </>
   )
 }
 

@@ -73,6 +73,26 @@ export const chartStyles = (theme) => ({
     alignSelf: 'flex-end',
     paddingRight: '2%',
   },
+  dialogTitle: {
+    backgroundColor: colors.black,
+  },
+  dialogTypography: {
+    color: colors.white,
+  },
+  dialogContent: {
+    padding: '24px',
+    overflowY: 'visible',
+  },
+  dialogCancelButton: {
+    color: colors.neutral_blue,
+  },
+  dialogShareButton: {
+    borderColor: colors.neutral_blue,
+    paddingTop: '11px',
+    color: colors.white,
+    backgroundColor: colors.neutral_blue,
+    marginLeft: '12px',
+  },
 })
 
 export const graphStyles = {

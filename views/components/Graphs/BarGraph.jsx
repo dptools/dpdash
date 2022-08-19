@@ -23,7 +23,8 @@ const BarGraph = ({ graph }) => {
         <VictoryVoronoiContainer
           labels={({ datum: { study, studyTarget, count, valueLabel } }) => {
             const showToolTip = study && count
-            return valueLabel !== 'N/A' && showToolTip
+            const notTotals = study !== 'Totals'
+            return valueLabel !== 'N/A' && showToolTip && notTotals
               ? `Site:${study} \n Current: ${count} \n Target: ${studyTarget}`
               : null
           }}

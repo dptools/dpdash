@@ -2,6 +2,8 @@ import { ObjectID } from 'mongodb'
 
 import { collections } from '../utils/mongoCollections'
 
+const Totals = 'Totals'
+
 const studyCountsToPercentage = (studyCount, targetTotal) =>
   (100 * +studyCount) / targetTotal
 
@@ -48,13 +50,22 @@ const postProcessData = (data, studyTotals) => {
   })
 
   processedData['N/A'] = notAvailableArray
-
+  Object.keys(processedData).forEach((key) => {
+    processedData[key].sort(function (studyA, studyB) {
+      return studyA.study === Totals ? -1 : studyB.study === Totals ? 1 : 0
+    })
+  })
   return processedData
 }
 
 export const graphDataController = async (dataDb, userAccess, chart_id) => {
   const data = {}
-  const studyTotals = {}
+  const studyTotals = {
+    [Totals]: {
+      count: 0,
+      targetTotal: undefined,
+    },
+  }
   const chart = await dataDb
     .collection(collections.charts)
     .findOne({ _id: ObjectID(chart_id) })
@@ -109,13 +120,20 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
 
       if (hasValue) {
         const dataKey = `${study}-${label}-${color}-${targetValue}`
+        const totalsDataKey = `${Totals}-${label}-${color}-undefined`
 
         if (data[dataKey]) {
           data[dataKey] += 1
         } else {
           data[dataKey] = 1
         }
+        if (data[totalsDataKey]) {
+          data[totalsDataKey] += 1
+        } else {
+          data[totalsDataKey] = 1
+        }
         studyTotals[study].count += 1
+        studyTotals[Totals].count += 1
       }
     })
   }

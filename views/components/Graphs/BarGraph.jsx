@@ -13,6 +13,7 @@ import {
 import { graphStyles } from '../../styles/chart_styles'
 import { colors } from '../../../constants/styles'
 
+const NOT_AVAILABLE = 'N/A'
 const TOTALS_STUDY = 'Totals'
 
 const BarGraph = ({ graph }) => {
@@ -24,8 +25,12 @@ const BarGraph = ({ graph }) => {
       containerComponent={
         <VictoryVoronoiContainer
           labels={({ datum: { study, studyTarget, count, valueLabel } }) => {
-            const showToolTip = study && count && study !== TOTALS_STUDY
-            return valueLabel !== 'N/A' && showToolTip
+            const showToolTip =
+              study &&
+              count &&
+              study !== TOTALS_STUDY &&
+              valueLabel !== NOT_AVAILABLE
+            return showToolTip
               ? `Site:${study} \n Current: ${count} \n Target: ${studyTarget}`
               : null
           }}
@@ -33,16 +38,16 @@ const BarGraph = ({ graph }) => {
       }
     >
       <VictoryLegend
-        orientation='horizontal'
+        orientation="horizontal"
         gutter={20}
         data={graph.legend}
         x={150}
         y={20}
         labelComponent={<VictoryLabel />}
       />
-      <VictoryAxis label='Site' style={graphStyles.xAxis} />
+      <VictoryAxis label="Site" style={graphStyles.xAxis} />
       <VictoryAxis
-        label='Total'
+        label="Total"
         dependentAxis
         style={graphStyles.yAxis}
         tickFormat={(yAxisValue) => `${yAxisValue}%`}
@@ -51,8 +56,8 @@ const BarGraph = ({ graph }) => {
         {Object.values(graph.data).map((data, idx) => (
           <VictoryBar
             data={data}
-            x='study'
-            y='percent'
+            x="study"
+            y="percent"
             key={'bar' + idx}
             style={{
               data: {
@@ -65,7 +70,7 @@ const BarGraph = ({ graph }) => {
             labelComponent={
               <VictoryLabel
                 dy={15}
-                labelPlacement='perpendicular'
+                labelPlacement="perpendicular"
                 style={{ fill: colors.anti_flash_white, fontSize: 8 }}
               />
             }

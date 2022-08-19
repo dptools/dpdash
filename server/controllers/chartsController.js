@@ -3,6 +3,8 @@ import { ObjectID } from 'mongodb'
 import { collections } from '../utils/mongoCollections'
 
 const TOTALS_STUDY = 'Totals'
+const STUDIES_TO_OMIT = ['files', 'combined']
+
 const studyCountsToPercentage = (studyCount, targetTotal) =>
   (100 * +studyCount) / targetTotal
 
@@ -75,7 +77,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     .find(
       {
         assessment: chart.assessment,
-        study: { $in: userAccess, $nin: ['files', 'combined'] },
+        study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
       },
       { projection: { collection: 1, study: 1, _id: 0 } }
     )
@@ -102,6 +104,11 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
           targetTotal: newTargetValue,
         }
       }
+
+      if (!!newTargetValue && !!studyTotals[TOTALS_STUDY].targetTotal)
+        studyTotals[TOTALS_STUDY].targetTotal += newTargetValue
+      else if (!!newTargetValue)
+        studyTotals[TOTALS_STUDY].targetTotal = newTargetValue
     })
   })
 

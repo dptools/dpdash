@@ -161,7 +161,7 @@ router
       return res.status(500).json({ message: error.message })
     }
   })
-  .put(ensureAuthenticated, async (req, res) => {
+  .patch(ensureAuthenticated, async (req, res) => {
     try {
       const { dataDb } = req.app.locals
       const { chart_id } = req.params

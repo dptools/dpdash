@@ -58,7 +58,7 @@ const BarGraph = ({ graph }) => {
               },
             }}
             labels={({ datum }) =>
-              !!datum?.percent ? `${datum.percent}%` : null
+              !!datum?.percent ? `${datum.percent.toFixed(0)}%` : null
             }
             labelComponent={
               <VictoryLabel

@@ -4,6 +4,8 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import ColorPicker from '../components/ColorPicker'
+import Checkbox from '@material-ui/core/Checkbox'
+import InputLabel from '@material-ui/core/InputLabel'
 
 import { colors } from '../../constants/styles'
 
@@ -11,7 +13,11 @@ import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 
 const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
   const updateFormValues = (e) =>
-    setFormValues({ ...formValues, [e.target.name]: e.target.value })
+    setFormValues({
+      ...formValues,
+      [e.target.name]:
+        e.target.type !== 'checkbox' ? e.target.value : e.target.checked,
+    })
   const addValueAndLabelField = () =>
     setFormValues((prevState) => ({
       ...prevState,
@@ -94,7 +100,17 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
         fullWidth
       />
       <div className={classes.formLabelRow}>
-        <br />
+        <InputLabel htmlFor='public_checkbox' className={classes.publicText}>
+          Public
+        </InputLabel>
+        <Checkbox
+          checked={formValues.public}
+          onChange={updateFormValues}
+          name='public'
+          color='default'
+          id='public_checkbox'
+          aria-label
+        />
       </div>
       {formValues.fieldLabelValueMap.map((field, idx) => (
         <>

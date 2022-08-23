@@ -97,6 +97,9 @@ export const chartStyles = (theme) => ({
     pointerEvents: 'none',
     color: colors.disabled_gray,
   },
+  publicText: {
+    alignSelf: 'center',
+  },
 })
 
 export const graphStyles = {

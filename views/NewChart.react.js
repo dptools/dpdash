@@ -26,17 +26,14 @@ const initialValues = (user) => ({
       targetValues: targetValuesFields(user.userAccess),
     },
   ],
+  public: false,
 })
 
 const NewChart = ({ classes, user }) => {
   const handleSubmit = async (e, formValues) => {
-    try {
-      e.preventDefault()
-      const { data } = await createChart(formValues)
-      window.location.assign(routes.chart(data.chart_id))
-    } catch (error) {
-      console.error(error)
-    }
+    e.preventDefault()
+    const { data } = await createChart(formValues)
+    window.location.assign(routes.chart(data.chart_id))
   }
 
   return (

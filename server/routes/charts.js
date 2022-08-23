@@ -98,8 +98,14 @@ router
   .route('/api/v1/charts')
   .post(ensureAuthenticated, async (req, res) => {
     try {
-      const { fieldLabelValueMap, title, variable, assessment, description } =
-        req.body
+      const {
+        fieldLabelValueMap,
+        title,
+        variable,
+        assessment,
+        description,
+        public: isPublic,
+      } = req.body
       const { dataDb } = req.app.locals
       const { insertedId } = await dataDb
         .collection(collections.charts)
@@ -109,6 +115,7 @@ router
           assessment,
           description,
           fieldLabelValueMap,
+          public: isPublic,
           owner: req.user,
         })
 
@@ -124,7 +131,13 @@ router
       const { dataDb } = req.app.locals
       const chartList = await dataDb
         .collection(collections.charts)
-        .find({ $or: [{ owner: req.user }, { sharedWith: req.user }] })
+        .find({
+          $or: [
+            { owner: req.user },
+            { sharedWith: req.user },
+            { public: true },
+          ],
+        })
         .toArray()
       return res.status(200).json({ data: chartList })
     } catch (error) {
@@ -178,8 +191,14 @@ router
     try {
       const { dataDb } = req.app.locals
       const { chart_id } = req.params
-      const { title, variable, assessment, description, fieldLabelValueMap } =
-        req.body
+      const {
+        title,
+        variable,
+        assessment,
+        description,
+        fieldLabelValueMap,
+        public: isPublic,
+      } = req.body
       const { result } = await dataDb.collection(collections.charts).updateOne(
         { _id: new ObjectID(chart_id) },
         {
@@ -189,6 +208,7 @@ router
             assessment,
             description,
             fieldLabelValueMap,
+            public: isPublic,
             updatedAt: new Date().toISOString(),
           },
         }

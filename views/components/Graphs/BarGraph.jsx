@@ -68,6 +68,37 @@ const BarGraph = ({ graph }) => {
                 style={{ fill: colors.anti_flash_white, fontSize: 8 }}
               />
             }
+            events={[
+              {
+                target: 'data',
+                eventHandlers: {
+                  onMouseOver: () => {
+                    return [
+                      {
+                        mutation: (props) => {
+                          return {
+                            style: {
+                              ...props.style,
+                              stroke: colors.black,
+                              strokeWidth: 1,
+                            },
+                          }
+                        },
+                      },
+                    ]
+                  },
+                  onMouseOut: () => {
+                    return [
+                      {
+                        mutation: () => {
+                          return null
+                        },
+                      },
+                    ]
+                  },
+                },
+              },
+            ]}
           />
         ))}
       </VictoryStack>

@@ -11,7 +11,7 @@ import { chartStyles } from './styles/chart_styles'
 import { targetValuesFields } from './fe-utils/targetValuesUtil'
 
 import { routes } from './routes/routes'
-import { colors } from './constants/styles'
+import { colors } from '../constants/styles'
 
 const initialValues = (user) => ({
   title: '',

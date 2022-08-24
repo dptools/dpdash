@@ -1,6 +1,7 @@
 import { ObjectID } from 'mongodb'
 
 import { collections } from '../utils/mongoCollections'
+import { TOTALS_STUDY } from '../../constants'
 
 const studyCountsToPercentage = (studyCount, targetTotal) =>
   (100 * +studyCount) / targetTotal
@@ -48,13 +49,24 @@ const postProcessData = (data, studyTotals) => {
   })
 
   processedData['N/A'] = notAvailableArray
-
+  Object.keys(processedData).forEach((key) => {
+    processedData[key].sort(function (studyA, studyB) {
+      if (studyA.study === TOTALS_STUDY) return -1
+      if (studyB.study === TOTALS_STUDY) return 1
+      else return 0
+    })
+  })
   return processedData
 }
 
 export const graphDataController = async (dataDb, userAccess, chart_id) => {
   const data = {}
-  const studyTotals = {}
+  const studyTotals = {
+    [TOTALS_STUDY]: {
+      count: 0,
+      targetTotal: undefined,
+    },
+  }
   const chart = await dataDb
     .collection(collections.charts)
     .findOne({ _id: ObjectID(chart_id) })
@@ -63,7 +75,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     .find(
       {
         assessment: chart.assessment,
-        study: { $in: userAccess, $not: { $eq: ['files', 'combined'] } },
+        study: { $in: userAccess, $nin: ['files', 'combined'] },
       },
       { projection: { collection: 1, study: 1, _id: 0 } }
     )
@@ -109,13 +121,20 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
 
       if (hasValue) {
         const dataKey = `${study}-${label}-${color}-${targetValue}`
+        const totalsDataKey = `${TOTALS_STUDY}-${label}-${color}-undefined`
 
         if (data[dataKey]) {
           data[dataKey] += 1
         } else {
           data[dataKey] = 1
         }
+        if (data[totalsDataKey]) {
+          data[totalsDataKey] += 1
+        } else {
+          data[totalsDataKey] = 1
+        }
         studyTotals[study].count += 1
+        studyTotals[TOTALS_STUDY].count += 1
       }
     })
   }

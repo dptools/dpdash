@@ -11,7 +11,8 @@ import {
 } from 'victory'
 
 import { graphStyles } from '../../styles/chart_styles'
-import { colors } from '../../constants/styles'
+import { colors } from '../../../constants/styles'
+import { TOTALS_STUDY } from '../../../constants'
 
 const BarGraph = ({ graph }) => {
   return (
@@ -22,7 +23,7 @@ const BarGraph = ({ graph }) => {
       containerComponent={
         <VictoryVoronoiContainer
           labels={({ datum: { study, studyTarget, count, valueLabel } }) => {
-            const showToolTip = study && count
+            const showToolTip = study && count && study !== TOTALS_STUDY
             return valueLabel !== 'N/A' && showToolTip
               ? `Site:${study} \n Current: ${count} \n Target: ${studyTarget}`
               : null

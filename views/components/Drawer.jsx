@@ -18,7 +18,7 @@ import Settings from '@material-ui/icons/Settings'
 import { ShowChart } from '@material-ui/icons'
 import { Assignment } from '@material-ui/icons'
 
-import { colors } from '../constants/styles'
+import { colors } from '../../constants/styles'
 import { routes } from '../routes/routes'
 
 class DrawerComponent extends Component {

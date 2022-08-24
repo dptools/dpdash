@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import ColorPicker from '../components/ColorPicker'
 
-import { colors } from '../constants/styles'
+import { colors } from '../../constants/styles'
 
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 

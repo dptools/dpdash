@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -19,6 +19,8 @@ const ChartList = ({
   chartList,
   removeChart,
   onDuplicateChart,
+  user,
+  classes,
 }) => {
   return (
     <>
@@ -34,50 +36,58 @@ const ChartList = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {chartList.map((chart) => (
-            <TableRow key={chart._id}>
-              <TableCell align='center'>
-                <Link color='textPrimary' href={routes.chart(chart._id)}>
-                  {chart.title?.toUpperCase()}
-                </Link>
-              </TableCell>
-              <TableCell align='center'>
-                {chart.description?.toUpperCase()}
-              </TableCell>
-              <TableCell align='center'>
-                <Button
-                  type='button'
-                  variant='text'
-                  onClick={() => onDuplicateChart(chart._id)}
-                >
-                  <PlaylistAdd />
-                </Button>
-              </TableCell>
-              <TableCell align='center'>
-                <Link href={routes.editChart(chart._id)} color='textPrimary'>
-                  <Edit />
-                </Link>
-              </TableCell>
-              <TableCell align='center'>
-                <Button
-                  type='button'
-                  variant='text'
-                  onClick={() => handleShareChart(chart)}
-                >
-                  <Share />
-                </Button>
-              </TableCell>
-              <TableCell align='center'>
-                <Button
-                  type='button'
-                  variant='text'
-                  onClick={() => removeChart(chart._id)}
-                >
-                  <Delete />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {chartList.map((chart) => {
+            const isEditDisabled = user.uid !== chart.owner
+
+            return (
+              <TableRow key={chart._id}>
+                <TableCell align='center'>
+                  <Link color='textPrimary' href={routes.chart(chart._id)}>
+                    {chart.title?.toUpperCase()}
+                  </Link>
+                </TableCell>
+                <TableCell align='center'>
+                  {chart.description?.toUpperCase()}
+                </TableCell>
+                <TableCell align='center'>
+                  <Button
+                    type='button'
+                    variant='text'
+                    onClick={() => onDuplicateChart(chart._id)}
+                  >
+                    <PlaylistAdd />
+                  </Button>
+                </TableCell>
+                <TableCell align='center'>
+                  <Link
+                    href={isEditDisabled ? '' : routes.editChart(chart._id)}
+                    color='textPrimary'
+                    className={isEditDisabled ? classes.disable : ''}
+                  >
+                    <Edit />
+                  </Link>
+                </TableCell>
+                <TableCell align='center'>
+                  <Button
+                    type='button'
+                    variant='text'
+                    onClick={() => handleShareChart(chart)}
+                  >
+                    <Share />
+                  </Button>
+                </TableCell>
+                <TableCell align='center'>
+                  <Button
+                    type='button'
+                    variant='text'
+                    onClick={() => removeChart(chart._id)}
+                  >
+                    <Delete />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </>

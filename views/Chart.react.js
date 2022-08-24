@@ -80,6 +80,8 @@ const Charts = ({ user, classes }) => {
         chartList={chartList}
         removeChart={removeChart}
         onDuplicateChart={onDuplicateChart}
+        user={user}
+        classes={classes}
       />
       {!!chartToShare._id && (
         <ShareChart

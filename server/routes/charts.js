@@ -12,6 +12,7 @@ import editChartPage from '../templates/EditChart.template'
 
 import { legend } from '../helpers/chartsHelpers'
 import { graphDataController } from '../controllers/chartsController'
+import { routes } from '../utils/routes'
 
 const router = Router()
 
@@ -71,9 +72,18 @@ router
   .route('/charts/:chart_id/edit')
   .get(ensureAuthenticated, async (req, res) => {
     try {
+      const { chart_id } = req.params
+      const { dataDb } = req.app.locals
+      const chart = await dataDb.collection(collections.charts).findOne({
+        _id: ObjectID(chart_id),
+        owner: req.user,
+      })
+
+      if (!chart) return res.redirect(routes.charts)
+
       const user = userFromRequest(req)
       const graph = {
-        chart_id: req.params.chart_id,
+        chart_id,
       }
 
       return res.status(200).send(editChartPage(user, graph))
@@ -151,9 +161,12 @@ router
       const chart = await dataDb
         .collection(collections.charts)
         .findOne(
-          { _id: new ObjectID(req.params.chart_id) },
+          { _id: new ObjectID(req.params.chart_id), owner: req.user },
           { projection: { _id: 0 } }
         )
+
+      if (!chart) return res.redirect(routes.charts)
+
       return res.status(200).json({ data: chart })
     } catch (error) {
       console.error(error)

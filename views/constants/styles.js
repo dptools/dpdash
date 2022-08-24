@@ -4,4 +4,5 @@ export const colors = {
   anti_flash_white: '#EDEFFA',
   white: '#ffffff',
   black: 'rgba(0,0,0,0.7)',
+  disabled_gray: '#ccc',
 }

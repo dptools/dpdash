@@ -93,6 +93,10 @@ export const chartStyles = (theme) => ({
     backgroundColor: colors.neutral_blue,
     marginLeft: '12px',
   },
+  disable: {
+    pointerEvents: 'none',
+    color: colors.disabled_gray,
+  },
 })
 
 export const graphStyles = {

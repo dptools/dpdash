@@ -27,29 +27,31 @@ const BarGraph = ({ graph }) => {
       containerComponent={
         <VictoryVoronoiContainer
           labels={({ datum: { study, studyTarget, count, valueLabel } }) => {
-            const showToolTip =
-              study &&
-              count &&
-              study !== TOTALS_STUDY &&
-              valueLabel !== NOT_AVAILABLE
-            return showToolTip
-              ? `${study} target: ${
-                  graph.studyTotals[study].targetTotal
-                } (100%) \n ${study} current: ${
-                  graph.studyTotals[study].count
-                } (${toolTipPercent(
-                  graph.studyTotals[study].count,
-                  graph.studyTotals[study].targetTotal
-                )}%)\n ${valueLabel} target: ${studyTarget} (${toolTipPercent(
-                  +studyTarget,
-                  graph.studyTotals[study].targetTotal
-                )}%) \n ${valueLabel} current: ${count} (${toolTipPercent(
-                  count,
-                  graph.studyTotals[study].targetTotal
-                )}%)`
-              : null
+            if (graph.studyTotals[study]) {
+              const { targetTotal, count: studyTotalCount } =
+                graph.studyTotals[study]
+              const showToolTip =
+                study &&
+                count &&
+                study !== TOTALS_STUDY &&
+                valueLabel !== NOT_AVAILABLE
+              return showToolTip
+                ? `${study} target: ${targetTotal} (100%)\n${study} current: ${studyTotalCount} (${toolTipPercent(
+                    studyTotalCount,
+                    targetTotal
+                  )}%)\n${valueLabel} target: ${studyTarget} (${toolTipPercent(
+                    studyTarget,
+                    targetTotal
+                  )}%)\n${valueLabel} current: ${count} (${toolTipPercent(
+                    count,
+                    targetTotal
+                  )}%)`
+                : null
+            }
           }}
-          labelComponent={<VictoryTooltip style={{ fontSize: 7 }} />}
+          labelComponent={
+            <VictoryTooltip style={{ fontSize: 7, textAnchor: 'start' }} />
+          }
         />
       }
     >

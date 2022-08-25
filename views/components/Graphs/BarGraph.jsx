@@ -8,10 +8,12 @@ import {
   VictoryLegend,
   VictoryLabel,
   VictoryVoronoiContainer,
+  VictoryTooltip,
 } from 'victory'
 
-import { graphStyles } from '../../styles/chart_styles'
 import { colors } from '../../../constants/styles'
+import { graphStyles } from '../../styles/chart_styles'
+import { toolTipPercent } from '../../fe-utils/tooltipUtil'
 
 const NOT_AVAILABLE = 'N/A'
 const TOTALS_STUDY = 'Totals'
@@ -25,15 +27,27 @@ const BarGraph = ({ graph }) => {
       containerComponent={
         <VictoryVoronoiContainer
           labels={({ datum: { study, studyTarget, count, valueLabel } }) => {
+            const { targetTotal, count: studyTotalCount } =
+              graph.studyTotals[study]
             const showToolTip =
               study &&
               count &&
               study !== TOTALS_STUDY &&
               valueLabel !== NOT_AVAILABLE
             return showToolTip
-              ? `Site:${study} \n Current: ${count} \n Target: ${studyTarget}`
+              ? `${study} target: ${targetTotal} (100%) \n ${study} current: ${studyTotalCount} (${toolTipPercent(
+                  studyTotalCount,
+                  targetTotal
+                )}%)\n ${valueLabel} target: ${studyTarget} (${toolTipPercent(
+                  +studyTarget,
+                  targetTotal
+                )}%) \n ${valueLabel} current: ${count} (${toolTipPercent(
+                  count,
+                  targetTotal
+                )}%)`
               : null
           }}
+          labelComponent={<VictoryTooltip style={{ fontSize: 7 }} />}
         />
       }
     >

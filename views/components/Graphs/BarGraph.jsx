@@ -12,7 +12,8 @@ import {
 
 import { graphStyles } from '../../styles/chart_styles'
 import { colors } from '../../../constants/styles'
-import { TOTALS_STUDY } from '../../../constants'
+
+const TOTALS_STUDY = 'Totals'
 
 const BarGraph = ({ graph }) => {
   return (

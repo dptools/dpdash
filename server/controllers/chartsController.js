@@ -1,8 +1,8 @@
 import { ObjectID } from 'mongodb'
 
 import { collections } from '../utils/mongoCollections'
-import { TOTALS_STUDY } from '../../constants'
 
+const TOTALS_STUDY = 'Totals'
 const studyCountsToPercentage = (studyCount, targetTotal) =>
   (100 * +studyCount) / targetTotal
 

@@ -238,7 +238,8 @@ router
         .collection(collections.charts)
         .insertOne({
           ...sourceChart,
-          title: sourceChart.title + ' Duplicate',
+          owner: req.user,
+          sharedWith: [],
         })
 
       return res.status(200).json({ data: insertedId })

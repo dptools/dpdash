@@ -12,7 +12,11 @@ const postProcessData = (data, studyTotals) => {
   const processedData = {}
   Object.entries(data).forEach((entry) => {
     const [key, count] = entry
-    const [study, valueLabel, color, studyTarget] = key.split('-')
+    const [study, valueLabel, color, rawStudyTarget] = key.split('-')
+    const studyTarget =
+      study === TOTALS_STUDY
+        ? studyTotals[TOTALS_STUDY].targetTotal
+        : rawStudyTarget
     const totals = studyTotals[study].targetTotal || studyTotals[study].count
     const percent = studyCountsToPercentage(count, totals)
     const newEntry = {
@@ -20,7 +24,7 @@ const postProcessData = (data, studyTotals) => {
       count,
       valueLabel,
       study,
-      studyTarget,
+      studyTarget: studyTarget === 'undefined' ? undefined : studyTarget,
       percent,
     }
 
@@ -66,7 +70,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
   const studyTotals = {
     [TOTALS_STUDY]: {
       count: 0,
-      targetTotal: undefined,
+      targetTotal: 0,
     },
   }
   const chart = await dataDb
@@ -93,7 +97,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
         : undefined
 
       if (studyTotals[study]) {
-        if (!!studyTotals[study].targetTotal) {
+        if (studyTotals[study].targetTotal !== undefined) {
           studyTotals[study].targetTotal = !!newTargetValue
             ? studyTotals[study].targetTotal + newTargetValue
             : undefined
@@ -105,7 +109,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
         }
       }
 
-      if (!!studyTotals[TOTALS_STUDY].targetTotal) {
+      if (studyTotals[TOTALS_STUDY].targetTotal !== undefined) {
         studyTotals[TOTALS_STUDY].targetTotal = !!newTargetValue
           ? studyTotals[TOTALS_STUDY].targetTotal + newTargetValue
           : undefined

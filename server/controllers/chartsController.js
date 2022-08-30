@@ -105,10 +105,11 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
         }
       }
 
-      if (!!newTargetValue && !!studyTotals[TOTALS_STUDY].targetTotal)
-        studyTotals[TOTALS_STUDY].targetTotal += newTargetValue
-      else if (!!newTargetValue)
-        studyTotals[TOTALS_STUDY].targetTotal = newTargetValue
+      if (!!studyTotals[TOTALS_STUDY].targetTotal) {
+        studyTotals[TOTALS_STUDY].targetTotal = !!newTargetValue
+          ? studyTotals[TOTALS_STUDY].targetTotal + newTargetValue
+          : undefined
+      }
     })
   })
 

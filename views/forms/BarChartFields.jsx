@@ -63,18 +63,18 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
     <>
       <TextField
         className={classes.textInput}
-        label='Title'
-        name='title'
+        label="Title"
+        name="title"
         onChange={updateFormValues}
         value={formValues.title}
         required
         fullWidth
       />
       <TextField
-        label='Description'
-        name='description'
+        label="Description"
+        name="description"
         multiline
-        rowsMax='4'
+        rowsMax="4"
         value={formValues.description}
         onChange={updateFormValues}
         className={classes.textInput}
@@ -83,16 +83,16 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
       />
       <TextField
         className={classes.textInput}
-        label='Assessment'
-        name='assessment'
+        label="Assessment"
+        name="assessment"
         onChange={updateFormValues}
         value={formValues.assessment}
         required
         fullWidth
       />
       <TextField
-        label='Variable Name'
-        name='variable'
+        label="Variable Name"
+        name="variable"
         className={classes.textInput}
         onChange={updateFormValues}
         value={formValues.variable}
@@ -113,11 +113,11 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
         />
       </div>
       {formValues.fieldLabelValueMap.map((field, idx) => (
-        <>
-          <div key={'field' + idx} className={classes.formLabelRow}>
+        <React.Fragment key={idx}>
+          <div className={classes.formLabelRow}>
             <TextField
-              label='Value'
-              name='value'
+              label="Value"
+              name="value"
               onChange={(e) => handleValueAndLabelFieldUpdate(e, idx)}
               className={`
                 ${classes.formLabelCol} 
@@ -127,8 +127,8 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
               required
             />
             <TextField
-              label='Label'
-              name='label'
+              label="Label"
+              name="label"
               className={classes.variableListInput}
               onChange={(e) => handleValueAndLabelFieldUpdate(e, idx)}
               value={field.label}
@@ -141,8 +141,8 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
               color={field.color}
             />
             <Button
-              type='button'
-              variant='text'
+              type="button"
+              variant="text"
               onClick={() => removeValueAndLabelField(idx)}
               className={classes.deleteContainer}
             >
@@ -150,16 +150,16 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
             </Button>
           </div>
           <div className={classes.formLabelRow}>
-            <Typography variant='h6' color='textSecondary'>
+            <Typography variant="h6" color="textSecondary">
               Targets
             </Typography>
           </div>
           {Object.keys(field.targetValues).map((study) => (
             <div key={idx + study} className={classes.formLabelRow}>
               <Typography
-                variant='subtitle1'
+                variant="subtitle1"
                 gutterBottom={false}
-                color='textSecondary'
+                color="textSecondary"
                 className={classes.targetValueContainer}
               >
                 {study}:
@@ -174,12 +174,12 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
           <div className={classes.formLabelRow}>
             <br />
           </div>
-        </>
+        </React.Fragment>
       ))}
       <div className={classes.addLabelContainer}>
         <Button
-          variant='text'
-          type='button'
+          variant="text"
+          type="button"
           className={classes.textButton}
           onClick={addValueAndLabelField}
         >

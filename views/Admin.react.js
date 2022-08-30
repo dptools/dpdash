@@ -567,29 +567,31 @@ class AdminPage extends Component {
     };
     const { classes } = this.props;
     return (
-      <div
-        className={classes.root}
-      >
+      <div className={classes.root}>
         <AppBar className={classes.appBar}>
           <Toolbar
-            variant='dense'
+            variant="dense"
             style={{
-              paddingLeft: '16px'
+              paddingLeft: '16px',
             }}
           >
             <IconButton
-              color="rgba(0, 0, 0, 0.54)"
+              color="default"
               aria-label="Open drawer"
               onClick={this.handleDrawerToggle}
               className={classes.navIconHide}
             >
-              <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
+              <img
+                width="24px"
+                height="24px"
+                src={`${basePath}/img/favicon.png`}
+              />
             </IconButton>
             <div style={{ width: '100%' }}>
               <NoSsr>
                 <Select
                   classes={classes}
-                  placeholder='Search users'
+                  placeholder="Search users"
                   value={this.state.search}
                   onChange={this.handleSearch}
                   options={this.state.autocomplete}
@@ -617,9 +619,13 @@ class AdminPage extends Component {
             marginTop: '48px',
           }}
         >
-          {this.state.users ?
+          {this.state.users ? (
             <Table
-              width={this.state.width < 960 ? this.state.width : this.state.width - drawerWidth}
+              width={
+                this.state.width < 960
+                  ? this.state.width
+                  : this.state.width - drawerWidth
+              }
               height={this.state.height}
               headerHeight={48}
               headerStyle={{
@@ -628,26 +634,31 @@ class AdminPage extends Component {
                 height: '48px',
                 color: 'rgba(0, 0, 0, 0.54)',
                 fontWeight: '500',
-                fontSize: '0.75rem'
+                fontSize: '0.75rem',
               }}
               rowStyle={{
                 fontFamily: '"Roboto", sans-serif',
                 height: '40px',
                 fontSize: '0.8125rem',
                 fontWeight: '400',
-                color: 'rgba(0, 0, 0, 0.87)'
+                color: 'rgba(0, 0, 0, 0.87)',
               }}
               rowHeight={48}
-              rowCount={this.state.search_array.length > 0 ? this.state.search_array.length : this.state.users.length}
-              rowGetter={({ index }) => this.state.users.filter((row) => {
-                var key = row.uid;
-                var filter = this.state.search_array;
-                if (filter.length > 0 && filter.indexOf(key) === -1) {
-                  return false;
-                } else {
-                  return true;
-                }
-              })[index]
+              rowCount={
+                this.state.search_array.length > 0
+                  ? this.state.search_array.length
+                  : this.state.users.length
+              }
+              rowGetter={({ index }) =>
+                this.state.users.filter((row) => {
+                  var key = row.uid
+                  var filter = this.state.search_array
+                  if (filter.length > 0 && filter.indexOf(key) === -1) {
+                    return false
+                  } else {
+                    return true
+                  }
+                })[index]
               }
               rowClassName={this.rowClassName}
               sort={this.sort}
@@ -655,45 +666,60 @@ class AdminPage extends Component {
               sortDirection={this.state.sortDirection}
             >
               <Column
-                label='Username'
-                dataKey='uid'
+                label="Username"
+                dataKey="uid"
                 width={this.state.width / 6}
               />
               <Column
                 width={this.state.width / 6}
-                label='Name'
-                dataKey='display_name'
+                label="Name"
+                dataKey="display_name"
               />
               <Column
-                label='Email'
-                dataKey='mail'
+                label="Email"
+                dataKey="mail"
                 width={this.state.width / 6}
               />
               <Column
-                label='Role'
-                dataKey='role'
+                label="Role"
+                dataKey="role"
                 width={this.state.width / 6}
               />
               <Column
-                label='Access'
-                cellRenderer={(cellData) => (<Settings style={{ color: 'rgba(0, 0, 0, 0.54)' }} onClick={() => this.openAccess(cellData)}></Settings>)}
-                dataKey='access'
+                label="Access"
+                cellRenderer={(cellData) => (
+                  <Settings
+                    style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                    onClick={() => this.openAccess(cellData)}
+                  ></Settings>
+                )}
+                dataKey="access"
                 width={this.state.width / 6}
               />
               <Column
-                label='Reset Password'
-                cellRenderer={(cellData) => (<Checkbox checked={cellData['rowData']['force_reset_pw']} onClick={() => this.resetPassword(cellData)}></Checkbox>)}
-                dataKey='force_reset_pw'
+                label="Reset Password"
+                cellRenderer={(cellData) => (
+                  <Checkbox
+                    checked={cellData['rowData']['force_reset_pw']}
+                    onClick={() => this.resetPassword(cellData)}
+                  ></Checkbox>
+                )}
+                dataKey="force_reset_pw"
                 width={this.state.width / 6}
               />
               <Column
-                label='Inactive'
-                cellRenderer={(cellData) => (<Checkbox checked={cellData['rowData']['blocked']} onClick={() => this.blockUser(cellData)}></Checkbox>)}
-                dataKey='blocked'
+                label="Inactive"
+                cellRenderer={(cellData) => (
+                  <Checkbox
+                    checked={cellData['rowData']['blocked']}
+                    onClick={() => this.blockUser(cellData)}
+                  ></Checkbox>
+                )}
+                dataKey="blocked"
                 width={this.state.width / 6}
               />
               <Column
-                label='Delete'
+                label="Delete"
                 cellRenderer={(cellData) => (
                   <IconButton
                     color="secondary"
@@ -705,7 +731,8 @@ class AdminPage extends Component {
                 )}
                 width={this.state.width / 6}
               />
-            </Table> : null}
+            </Table>
+          ) : null}
         </div>
         <Dialog
           modal={false}
@@ -719,17 +746,19 @@ class AdminPage extends Component {
               backgroundColor: 'rgba(0,0,0,0.7)',
             }}
           >
-            <Typography variant="headline" style={{ color: 'white' }}>Edit user privilege</Typography>
+            <Typography variant="headline" style={{ color: 'white' }}>
+              Edit user privilege
+            </Typography>
           </DialogTitle>
           <DialogContent
             style={{
               padding: '24px',
-              overflowY: 'visible'
+              overflowY: 'visible',
             }}
           >
             <Subheader
               style={{
-                padding: '0px'
+                padding: '0px',
               }}
             >
               Membership Level
@@ -745,12 +774,12 @@ class AdminPage extends Component {
             &nbsp;
             <div
               style={{
-                borderBottom: '1px solid #d3d3d3'
+                borderBottom: '1px solid #d3d3d3',
               }}
             >
               <Subheader
                 style={{
-                  padding: '0px'
+                  padding: '0px',
                 }}
               >
                 Viewable Studies
@@ -769,17 +798,17 @@ class AdminPage extends Component {
             </div>
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={this.closeAccess}
-            >Cancel</Button>
+            <Button onClick={this.closeAccess}>Cancel</Button>
             <Button
               color="primary"
               keyboardFocused={true}
               onClick={this.modifyACL}
-            >Submit</Button>
+            >
+              Submit
+            </Button>
           </DialogActions>
         </Dialog>
-        { this.state.users && this.state.deleteUser != -1 ?
+        {this.state.users && this.state.deleteUser != -1 ? (
           <Dialog
             modal={false}
             open={this.state.openDelete}
@@ -788,23 +817,28 @@ class AdminPage extends Component {
           >
             <DialogTitle
               style={{
-                backgroundColor: 'rgba(0,0,0,0.7)'
+                backgroundColor: 'rgba(0,0,0,0.7)',
               }}
             >
-              <Typography style={{ color: 'white' }}>Delete user {this.state.users[this.state.deleteUser].display_name} (uid: {this.state.users[this.state.deleteUser].uid})?</Typography>
+              <Typography style={{ color: 'white' }}>
+                Delete user{' '}
+                {this.state.users[this.state.deleteUser].display_name} (uid:{' '}
+                {this.state.users[this.state.deleteUser].uid})?
+              </Typography>
             </DialogTitle>
             <DialogActions>
-              <Button
-                onClick={this.closeDelete}
-              >Cancel</Button>
+              <Button onClick={this.closeDelete}>Cancel</Button>
               <Button
                 color="primary"
                 keyboardFocused={true}
                 onClick={this.confirmDelete}
-              >Delete</Button>
+              >
+                Delete
+              </Button>
             </DialogActions>
-          </Dialog> : null}
-        { this.state.users ?
+          </Dialog>
+        ) : null}
+        {this.state.users ? (
           <Dialog
             modal={false}
             open={this.state.openReset}
@@ -812,24 +846,34 @@ class AdminPage extends Component {
           >
             <DialogTitle
               style={{
-                backgroundColor: 'rgba(0,0,0,0.7)'
+                backgroundColor: 'rgba(0,0,0,0.7)',
               }}
             >
-              <Typography variant="headline" style={{ color: 'white' }}>Reset user password</Typography>
+              <Typography variant="headline" style={{ color: 'white' }}>
+                Reset user password
+              </Typography>
             </DialogTitle>
             <DialogContent>
               <Subheader
                 style={{
-                  padding: '0px'
+                  padding: '0px',
                 }}
               >
-                {this.state.users[this.state.resetUser] ? 'Reset key for user: ' + this.state.users[this.state.resetUser]['uid'] : ''}
+                {this.state.users[this.state.resetUser]
+                  ? 'Reset key for user: ' +
+                    this.state.users[this.state.resetUser]['uid']
+                  : ''}
               </Subheader>
-              <p>{this.state.users[this.state.resetUser]['reset_key'] ? this.state.users[this.state.resetUser]['reset_key'] : ''}</p>
+              <p>
+                {this.state.users[this.state.resetUser]['reset_key']
+                  ? this.state.users[this.state.resetUser]['reset_key']
+                  : ''}
+              </p>
             </DialogContent>
-          </Dialog> : null}
+          </Dialog>
+        ) : null}
       </div>
-    );
+    )
   }
 }
 

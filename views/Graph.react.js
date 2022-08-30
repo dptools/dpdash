@@ -526,27 +526,27 @@ class Graph extends Component {
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
           <Toolbar
-            variant='dense'
+            variant="dense"
             style={{
               paddingLeft: '16px',
             }}
           >
             <IconButton
-              color='rgba(0, 0, 0, 0.54)'
-              aria-label='Open drawer'
+              color="default"
+              aria-label="Open drawer"
               onClick={this.handleDrawerToggle}
             >
               <img
-                width='24px'
-                height='24px'
+                width="24px"
+                height="24px"
                 src={`${basePath}/img/favicon.png`}
               />
             </IconButton>
             <Typography
-              variant='title'
-              color='inherit'
+              variant="title"
+              color="inherit"
               style={{
-                color: 'rgba(0,0,0,0.4)',
+                color: 'default',
                 fontSize: '18px',
                 letterSpacing: '1.25px',
                 flexGrow: 1,
@@ -566,8 +566,8 @@ class Graph extends Component {
               />
             </div>
             <IconButton
-              color='rgba(0, 0, 0, 0.54)'
-              aria-label='Open Stat'
+              color="default"
+              aria-label="Open Stat"
               onClick={this.openStat}
             >
               <Functions />
@@ -575,7 +575,7 @@ class Graph extends Component {
           </Toolbar>
         </AppBar>
         <Drawer
-          variant='temporary'
+          variant="temporary"
           anchor={theme.direction === 'rtl' ? 'right' : 'left'}
           open={this.state.mobileOpen}
           onClose={this.handleDrawerToggle}
@@ -603,10 +603,10 @@ class Graph extends Component {
             overflowY: 'scroll',
           }}
         >
-          <div className='Matrix'>
+          <div className="Matrix">
             <GraphFactory
-              id='matrix'
-              type='matrix'
+              id="matrix"
+              type="matrix"
               width={this.state.graphWidth}
               height={this.state.graphHeight}
               data={this.props.graph.matrixData}
@@ -614,7 +614,7 @@ class Graph extends Component {
               study={this.state.subject.project}
               subject={this.state.subject.sid}
               consentDate={this.props.graph.consentDate}
-              ref='matrix'
+              ref="matrix"
               configuration={this.props.graph.configurations}
               startFromTheLastDay={this.state.startFromTheLastDay}
               startDay={this.state.startDay}
@@ -631,27 +631,27 @@ class Graph extends Component {
             }}
           >
             <Button
-              variant='fab'
+              variant="fab"
               onClick={this.downloadPng}
-              id='downloadPng'
-              ref='downloadPng'
+              id="downloadPng"
+              ref="downloadPng"
               focusRipple={true}
               style={{
                 marginBottom: '6px',
               }}
             >
-              <Tooltip title='Download as PNG'>
+              <Tooltip title="Download as PNG">
                 <SaveIcon />
               </Tooltip>
             </Button>
             <div>
               <Button
-                variant='fab'
-                color='secondary'
+                variant="fab"
+                color="secondary"
                 className={buttonClassname}
                 onClick={this.resync}
               >
-                <Tooltip title='Resync with the File System'>
+                <Tooltip title="Resync with the File System">
                   {success ? <CheckIcon /> : <RefreshIcon />}
                 </Tooltip>
               </Button>
@@ -687,12 +687,12 @@ class Graph extends Component {
             </Table>
           </DialogContent>
           <DialogActions>
-            <Button color='secondary' onClick={this.closeStat}>
+            <Button color="secondary" onClick={this.closeStat}>
               Close
             </Button>
           </DialogActions>
         </Dialog>
-        <canvas ref='canvas' style={{ display: 'none' }}></canvas>
+        <canvas ref="canvas" style={{ display: 'none' }}></canvas>
       </div>
     )
   }

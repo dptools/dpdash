@@ -606,24 +606,28 @@ class MainPage extends Component {
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
           <Toolbar
-            variant='dense'
+            variant="dense"
             style={{
-              paddingLeft: '16px'
+              paddingLeft: '16px',
             }}
           >
             <IconButton
-              color="rgba(0, 0, 0, 0.54)"
+              color="default"
               aria-label="Open drawer"
               onClick={this.handleDrawerToggle}
               className={classes.navIconHide}
             >
-              <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
+              <img
+                width="24px"
+                height="24px"
+                src={`${basePath}/img/favicon.png`}
+              />
             </IconButton>
             <div style={{ width: '100%' }}>
               <NoSsr>
                 <Select
                   classes={classes}
-                  placeholder='Search a study or subject'
+                  placeholder="Search a study or subject"
                   value={this.state.search}
                   onChange={this.handleSearch}
                   options={autocomplete}
@@ -653,9 +657,13 @@ class MainPage extends Component {
               marginTop: '48px',
             }}
           >
-            {this.state.acl.length > 0 ?
+            {this.state.acl.length > 0 ? (
               <Table
-                width={this.state.width < 960 ? this.state.width : this.state.width - drawerWidth}
+                width={
+                  this.state.width < 960
+                    ? this.state.width
+                    : this.state.width - drawerWidth
+                }
                 height={this.state.height}
                 headerHeight={48}
                 headerStyle={{
@@ -664,26 +672,31 @@ class MainPage extends Component {
                   height: '48px',
                   color: 'rgba(0, 0, 0, 0.54)',
                   fontWeight: '500',
-                  fontSize: '0.75rem'
+                  fontSize: '0.75rem',
                 }}
                 rowStyle={{
                   fontFamily: '"Roboto", sans-serif',
                   height: '40px',
                   fontSize: '0.8125rem',
                   fontWeight: '400',
-                  color: 'rgba(0, 0, 0, 0.87)'
+                  color: 'rgba(0, 0, 0, 0.87)',
                 }}
                 rowHeight={48}
-                rowCount={this.state.search_array.length > 0 ? this.state.search_array.length : this.state.acl.length}
-                rowGetter={({ index }) => this.state.acl.filter((row) => {
-                  var key = row.study + row.subject;
-                  var filter = this.state.search_array;
-                  if (filter.length > 0 && filter.indexOf(key) === -1) {
-                    return false;
-                  } else {
-                    return true;
-                  }
-                })[index]
+                rowCount={
+                  this.state.search_array.length > 0
+                    ? this.state.search_array.length
+                    : this.state.acl.length
+                }
+                rowGetter={({ index }) =>
+                  this.state.acl.filter((row) => {
+                    var key = row.study + row.subject
+                    var filter = this.state.search_array
+                    if (filter.length > 0 && filter.indexOf(key) === -1) {
+                      return false
+                    } else {
+                      return true
+                    }
+                  })[index]
                 }
                 rowClassName={this.rowClassName}
                 sort={this.sort}
@@ -691,56 +704,66 @@ class MainPage extends Component {
                 sortDirection={this.state.sortDirection}
               >
                 <Column
-                  label='Subject'
-                  dataKey='subject'
+                  label="Subject"
+                  dataKey="subject"
                   width={this.state.width / 5}
                   cellRenderer={({ rowData }) => this.getSubjectCell(rowData)}
                 />
                 <Column
-                  label='Study'
-                  dataKey='study'
+                  label="Study"
+                  dataKey="study"
                   width={this.state.width / 5}
                   cellRenderer={({ rowData }) => this.getStudyCell(rowData)}
                 />
                 <Column
-                  label='Last Synced'
-                  dataKey='synced'
-                  cellRenderer={({ rowData }) => this.getSyncedCell(rowData, 'synced')}
+                  label="Last Synced"
+                  dataKey="synced"
+                  cellRenderer={({ rowData }) =>
+                    this.getSyncedCell(rowData, 'synced')
+                  }
                   width={this.state.width / 5}
                 />
                 <Column
-                  label='Complete'
+                  label="Complete"
                   cellRenderer={(cellData) => (
                     <Checkbox
                       className={classes.td}
                       icon={<CheckBoxOutlineBlankIcon />}
                       checkedIcon={
-                        <CheckBoxIcon style={{ color: 'rgba(0, 0, 0, 0.54)' }} />
+                        <CheckBoxIcon
+                          style={{ color: 'rgba(0, 0, 0, 0.54)' }}
+                        />
                       }
                       disableRipple={true}
-                      checked={this.checkComplete(this.state.complete, cellData)}
-                      onChange={(e, checked) => this.handleComplete(e, checked, cellData)}
-                    />)
-                  }
+                      checked={this.checkComplete(
+                        this.state.complete,
+                        cellData
+                      )}
+                      onChange={(e, checked) =>
+                        this.handleComplete(e, checked, cellData)
+                      }
+                    />
+                  )}
                   width={this.state.width / 5}
                 />
                 <Column
-                  label='Star'
+                  label="Star"
                   cellRenderer={(cellData) => (
                     <Checkbox
                       className={classes.td}
                       disableRipple={true}
                       icon={<StarBorder />}
-                      checkedIcon={
-                        <Star style={{ color: '#FFB80A' }} />
-                      }
+                      checkedIcon={<Star style={{ color: '#FFB80A' }} />}
                       checked={this.checkStar(this.state.star, cellData)}
-                      onChange={(e, checked) => this.handleStar(e, checked, cellData)}
-                    />)
-                  }
+                      onChange={(e, checked) =>
+                        this.handleStar(e, checked, cellData)
+                      }
+                    />
+                  )}
                   width={this.state.width / 5}
                 />
-              </Table> : null}
+              </Table>
+            ) : null}
           </div>
         </main>
       </div>

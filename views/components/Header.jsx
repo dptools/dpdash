@@ -39,50 +39,33 @@ const styles = theme => ({
   }
 });
 
-const Header = ({
-  classes,
-  handleDrawerToggle,
-  isAccountPage,
-  title,
-}) => (
-  <AppBar
-    className={classes.appBar}
-  >
-    <Toolbar
-      style={{ paddingLeft: '16px' }}
-    >
+const Header = ({ classes, handleDrawerToggle, isAccountPage, title }) => (
+  <AppBar className={classes.appBar}>
+    <Toolbar style={{ paddingLeft: '16px' }}>
       <IconButton
-        color="rgba(0, 0, 0, 0.54)"
+        color="default"
         aria-label="Open drawer"
         onClick={handleDrawerToggle}
         className={classes.navIconHide}
       >
-        <img width='24px' height='24px' src={`${basePath}/img/favicon.png`} />
+        <img width="24px" height="24px" src={`${basePath}/img/favicon.png`} />
       </IconButton>
-      <Typography
-        variant="title"
-        color="inherit"
-        className={classes.title}
-      >
+      <Typography variant="title" color="inherit" className={classes.title}>
         {title}
       </Typography>
       {!isAccountPage && (
-        <IconButton
-        onClick={() => openNewWindow(`${basePath}/u`)}
-        >
-          <Person color='rgba(0,0,0,0.4)' />
+        <IconButton onClick={() => openNewWindow(`${basePath}/u`)}>
+          <Person color="primary" />
         </IconButton>
       )}
       {isAccountPage && (
-        <IconButton
-          onClick={() => openNewWindow(`${basePath}/u/configure`)}
-        >
-          <ColorLens color='rgba(0,0,0,0.4)' />
+        <IconButton onClick={() => openNewWindow(`${basePath}/u/configure`)}>
+          <ColorLens color="primary" />
         </IconButton>
       )}
     </Toolbar>
   </AppBar>
-);
+)
 
 
 export default compose(

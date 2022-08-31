@@ -7,8 +7,8 @@ import {
   VictoryStack,
   VictoryLegend,
   VictoryLabel,
-  VictoryVoronoiContainer,
   VictoryTooltip,
+  VictoryZoomContainer,
 } from 'victory'
 
 import { colors } from '../../../constants/styles'
@@ -17,41 +17,25 @@ import { toolTipPercent } from '../../fe-utils/tooltipUtil'
 
 const NOT_AVAILABLE = 'N/A'
 const TOTALS_STUDY = 'Totals'
+const DEFAULT_ZOOM = 6
+
 
 const BarGraph = ({ graph }) => {
+  const siteDataPerChartValue = Object.values(graph.data)
+  const numSitesPerValue = siteDataPerChartValue.map((value) => value.length)
+  const numSites = Math.max(...numSitesPerValue)
+  const initialZoom = Math.min(numSites, DEFAULT_ZOOM)
+
   return (
     <VictoryChart
-      domainPadding={20}
-      domain={{ x: [0, 6] }}
+      domainPadding={10}
+      domain={{ x: [0, numSites], y: [0, 100] }}
       theme={VictoryTheme.material}
       containerComponent={
-        <VictoryVoronoiContainer
-          labels={({ datum: { study, studyTarget, count, valueLabel } }) => {
-            if (graph.studyTotals[study]) {
-              const { targetTotal, count: studyTotalCount } =
-                graph.studyTotals[study]
-              const showToolTip =
-                study &&
-                count &&
-                study !== TOTALS_STUDY &&
-                valueLabel !== NOT_AVAILABLE
-              return showToolTip
-                ? `${study} target: ${targetTotal} (100%)\n${study} current: ${studyTotalCount} (${toolTipPercent(
-                    studyTotalCount,
-                    targetTotal
-                  )}%)\n${valueLabel} target: ${studyTarget} (${toolTipPercent(
-                    studyTarget,
-                    targetTotal
-                  )}%)\n${valueLabel} current: ${count} (${toolTipPercent(
-                    count,
-                    targetTotal
-                  )}%)`
-                : null
-            }
-          }}
-          labelComponent={
-            <VictoryTooltip style={{ fontSize: 7, textAnchor: 'start' }} />
-          }
+        <VictoryZoomContainer
+          allowZoom={false}
+          allowPan={numSites > initialZoom}
+          zoomDomain={{ x: [0, initialZoom + 0.5] }}
         />
       }
     >
@@ -71,12 +55,12 @@ const BarGraph = ({ graph }) => {
         tickFormat={(yAxisValue) => `${yAxisValue}%`}
       />
       <VictoryStack>
-        {Object.values(graph.data).map((data, idx) => (
+        {siteDataPerChartValue.map((data, idx) => (
           <VictoryBar
             data={data}
             x="study"
             y="percent"
-            key={'bar' + idx}
+            key={idx}
             style={{
               data: {
                 fill: ({ datum }) => datum.color,

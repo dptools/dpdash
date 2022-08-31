@@ -36,9 +36,10 @@ const postProcessData = (data, studyTotals) => {
   })
 
   // need the largest horizontal section so that all sites are accounted for
-  const largestHorizontalSection = Object.values(processedData).sort(
-    (arr1, arr2) => arr2.length - arr1.length
-  )[0]
+  const largestHorizontalSection =
+    Object.values(processedData).sort(
+      (arr1, arr2) => arr2.length - arr1.length
+    )[0] || []
 
   const notAvailableArray = largestHorizontalSection.map((studySection) => {
     const totals = studyTotals[studySection.study]
@@ -54,7 +55,10 @@ const postProcessData = (data, studyTotals) => {
     }
   })
 
-  processedData['N/A'] = notAvailableArray
+  if (notAvailableArray.length) {
+    processedData['N/A'] = notAvailableArray
+  }
+
   Object.keys(processedData).forEach((key) => {
     processedData[key].sort(function (studyA, studyB) {
       if (studyA.study === TOTALS_STUDY) return -1
@@ -62,6 +66,7 @@ const postProcessData = (data, studyTotals) => {
       else return 0
     })
   })
+
   return processedData
 }
 

@@ -13,6 +13,7 @@ import {
 
 import { colors } from '../../../constants/styles'
 import { graphStyles } from '../../styles/chart_styles'
+import { routes } from '../../routes/routes'
 import { toolTipPercent } from '../../fe-utils/tooltipUtil'
 
 const NOT_AVAILABLE = 'N/A'
@@ -70,6 +71,15 @@ const BarGraph = ({ graph }) => {
   const numSitesPerValue = siteDataPerChartValue.map((value) => value.length)
   const numSites = Math.max(...numSitesPerValue)
   const initialZoom = Math.min(numSites, DEFAULT_ZOOM)
+
+  if (!siteDataPerChartValue.length) {
+    return (
+      <>
+        <p>This chart has no data to display.</p>
+        <a href={routes.editChart(graph.chart_id)}>Edit chart</a>
+      </>
+    )
+  }
 
   return (
     <VictoryChart

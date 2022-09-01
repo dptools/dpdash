@@ -138,6 +138,13 @@ const BarGraph = ({ graph }) => {
                             text: tooltipText(graph, props.datum),
                           })
 
+                          if (
+                            props.datum.study === TOTALS_STUDY ||
+                            props.datum.valueLabel === NOT_AVAILABLE
+                          ) {
+                            return props
+                          }
+
                           return {
                             ...props,
                             style: {

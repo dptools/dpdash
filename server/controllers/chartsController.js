@@ -59,11 +59,18 @@ const postProcessData = (data, studyTotals) => {
     processedData['N/A'] = notAvailableArray
   }
 
+  // sort all processedData values in alphabetical order
+  // with Totals first
   Object.keys(processedData).forEach((key) => {
     processedData[key].sort(function (studyA, studyB) {
-      if (studyA.study === TOTALS_STUDY) return -1
-      if (studyB.study === TOTALS_STUDY) return 1
-      else return 0
+      if (studyA.study === TOTALS_STUDY) {
+        return -1
+      }
+      if (studyB.study === TOTALS_STUDY) {
+        return 1
+      }
+
+      return studyA.study > studyB.study ? 1 : -1
     })
   })
 
@@ -135,11 +142,10 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
       const hasValue = subjectDayData.some(
         (dayData) => dayData[chart.variable] == value
       )
+      const dataKey = `${study}-${label}-${color}-${targetValue}`
+      const totalsDataKey = `${TOTALS_STUDY}-${label}-${color}-undefined`
 
       if (hasValue) {
-        const dataKey = `${study}-${label}-${color}-${targetValue}`
-        const totalsDataKey = `${TOTALS_STUDY}-${label}-${color}-undefined`
-
         if (data[dataKey]) {
           data[dataKey] += 1
         } else {
@@ -152,6 +158,10 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
         }
         studyTotals[study].count += 1
         studyTotals[TOTALS_STUDY].count += 1
+      } else {
+        if (!data[dataKey]) {
+          data[dataKey] = 0
+        }
       }
     })
   }

@@ -86,6 +86,8 @@ const BarGraph = ({ graph }) => {
       domainPadding={10}
       domain={{ x: [0, numSites], y: [0, 100] }}
       theme={VictoryTheme.material}
+      height={400}
+      width={600}
       containerComponent={
         <VictoryZoomContainer
           allowZoom={false}

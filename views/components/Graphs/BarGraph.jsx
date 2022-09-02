@@ -18,7 +18,7 @@ import { toolTipPercent } from '../../fe-utils/tooltipUtil'
 
 const NOT_AVAILABLE = 'N/A'
 const TOTALS_STUDY = 'Totals'
-const DEFAULT_ZOOM = 6
+const DEFAULT_ZOOM = 10
 
 const tooltipText = (graph, datum) => {
   const { study, studyTarget, count, valueLabel } = datum
@@ -68,8 +68,9 @@ const LabelWithTooltip = ({ hoverData, ...props }) => {
 const BarGraph = ({ graph }) => {
   const [hoverData, setHoverData] = React.useState()
   const siteDataPerChartValue = Object.values(graph.data)
-  const numSitesPerValue = siteDataPerChartValue.map((value) => value.length)
-  const numSites = Math.max(...numSitesPerValue)
+  const numSites = siteDataPerChartValue.length
+    ? siteDataPerChartValue[0].length
+    : 0
   const initialZoom = Math.min(numSites, DEFAULT_ZOOM)
 
   if (!siteDataPerChartValue.length) {

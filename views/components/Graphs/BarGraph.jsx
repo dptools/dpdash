@@ -52,7 +52,7 @@ const LabelWithTooltip = ({ hoverData, ...props }) => {
     !!hoverData &&
     hoverData.group === props.datum._group &&
     hoverData.stack === props.datum._stack &&
-    hoverData.text
+    !!hoverData.text
 
   return (
     <g>

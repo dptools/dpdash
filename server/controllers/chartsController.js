@@ -13,11 +13,12 @@ const postProcessData = (data, studyTotals) => {
   Object.entries(data).forEach((entry) => {
     const [key, count] = entry
     const [study, valueLabel, color, rawStudyTarget] = key.split('-')
+    const totalsForStudy = studyTotals[study]
     const studyTarget =
       study === TOTALS_STUDY
         ? studyTotals[TOTALS_STUDY].targetTotal
         : rawStudyTarget
-    const totals = studyTotals[study].targetTotal || studyTotals[study].count
+    const totals = totalsForStudy.targetTotal || totalsForStudy.count
     const percent = studyCountsToPercentage(count, totals)
     const newEntry = {
       color,
@@ -42,8 +43,10 @@ const postProcessData = (data, studyTotals) => {
     )[0] || []
 
   const notAvailableArray = largestHorizontalSection.map((studySection) => {
-    const totals = studyTotals[studySection.study]
-    const count = totals.targetTotal ? totals.targetTotal - totals.count : 0
+    const studySectionTotals = studyTotals[studySection.study]
+    const count = studySectionTotals.targetTotal
+      ? studySectionTotals.targetTotal - studySectionTotals.count
+      : 0
 
     return {
       color: 'grey',
@@ -51,7 +54,10 @@ const postProcessData = (data, studyTotals) => {
       valueLabel: 'N/A',
       study: studySection.study,
       studyTarget: '',
-      percent: studyCountsToPercentage(count, totals.targetTotal),
+      percent: studyCountsToPercentage(
+        count,
+        studySectionTotals.targetTotal ?? studySectionTotals.count
+      ),
     }
   })
 
@@ -151,12 +157,21 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
         } else {
           data[dataKey] = 1
         }
+
         if (data[totalsDataKey]) {
           data[totalsDataKey] += 1
         } else {
           data[totalsDataKey] = 1
         }
-        studyTotals[study].count += 1
+
+        if (studyTotals[study]) {
+          studyTotals[study].count += 1
+        } else {
+          studyTotals[study] = {
+            count: 1,
+            targetValue,
+          }
+        }
         studyTotals[TOTALS_STUDY].count += 1
       } else {
         if (!data[dataKey]) {

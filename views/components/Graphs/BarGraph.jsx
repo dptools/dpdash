@@ -24,19 +24,25 @@ const tooltipText = (graph, datum) => {
   const { study, studyTarget, count, valueLabel } = datum
   if (graph.studyTotals[study]) {
     const { targetTotal, count: studyTotalCount } = graph.studyTotals[study]
+    const totalCount = targetTotal || studyTotalCount
     const showToolTip =
       study && count && study !== TOTALS_STUDY && valueLabel !== NOT_AVAILABLE
     return showToolTip
-      ? `${study} target: ${targetTotal} (100%)\n${study} current: ${studyTotalCount} (${toolTipPercent(
+      ? `${study} target: ${
+          targetTotal || NOT_AVAILABLE
+        } (100%)\n${study} current: ${
+          studyTotalCount || NOT_AVAILABLE
+        } (${toolTipPercent(
           studyTotalCount,
-          targetTotal
-        )}%)\n${valueLabel} target: ${studyTarget} (${toolTipPercent(
+          totalCount
+        )}%)\n${valueLabel} target: ${
+          studyTarget || NOT_AVAILABLE
+        } (${toolTipPercent(
           studyTarget,
-          targetTotal
-        )}%)\n${valueLabel} current: ${count} (${toolTipPercent(
-          count,
-          targetTotal
-        )}%)`
+          totalCount
+        )}%)\n${valueLabel} current: ${
+          count || NOT_AVAILABLE
+        } (${toolTipPercent(count, totalCount)}%)`
       : null
   }
 }

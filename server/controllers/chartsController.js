@@ -5,8 +5,13 @@ import { collections } from '../utils/mongoCollections'
 const TOTALS_STUDY = 'Totals'
 const STUDIES_TO_OMIT = ['files', 'combined']
 
-const studyCountsToPercentage = (studyCount, targetTotal) =>
-  (100 * +studyCount) / targetTotal
+const studyCountsToPercentage = (studyCount, targetTotal) => {
+  if (!targetTotal || Number.isNaN(+studyCount) || Number.isNaN(+targetTotal)) {
+    return 0
+  }
+
+  return (+studyCount / +targetTotal) * 100
+}
 
 const postProcessData = (data, studyTotals) => {
   const processedData = {}

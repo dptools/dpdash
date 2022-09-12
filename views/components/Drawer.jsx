@@ -176,56 +176,56 @@ class DrawerComponent extends Component {
         </div>
         <Divider />
         <List dense={true}>
-          <ListItem button={true} component="a" href={routes.home}>
+          <ListItem button={true} component='a' href={routes.home}>
             <ListItemIcon>
               <Home style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Home" />
+            <ListItemText primary='Home' />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.userAccount}>
+          <ListItem button={true} component='a' href={routes.userAccount}>
             <ListItemIcon>
               <Person style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Account" />
+            <ListItemText primary='Account' />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.configure}>
+          <ListItem button={true} component='a' href={routes.configure}>
             <ListItemIcon>
               <ColorLens style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Configure" />
+            <ListItemText primary='Configure' />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.studyDetails}>
+          <ListItem button={true} component='a' href={routes.studyDetails}>
             <ListItemIcon>
               <Assignment style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Study Details" />
+            <ListItemText primary='Study Details' />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.charts}>
+          <ListItem button={true} component='a' href={routes.charts}>
             <ListItemIcon>
               <ShowChart style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Charts" />
+            <ListItemText primary='Charts' />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.reports}>
+          <ListItem button={true} component='a' href={routes.reports}>
             <ListItemIcon>
               <AssessmentIcon style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Reports" />
+            <ListItemText primary='Reports' />
           </ListItem>
 
           {this.props.user.role == 'admin' ? (
-            <ListItem button={true} component="a" href={routes.admin}>
+            <ListItem button={true} component='a' href={routes.admin}>
               <ListItemIcon>
                 <Settings style={{ color: colors.dark_sky_blue }} />
               </ListItemIcon>
-              <ListItemText primary="Admin" />
+              <ListItemText primary='Admin' />
             </ListItem>
           ) : null}
-          <ListItem button={true} component="a" href={routes.logout}>
+          <ListItem button={true} component='a' href={routes.logout}>
             <ListItemIcon>
               <ExitToApp style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
-            <ListItemText primary="Logout" />
+            <ListItemText primary='Logout' />
           </ListItem>
         </List>
       </div>

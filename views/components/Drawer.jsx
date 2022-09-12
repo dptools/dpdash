@@ -182,6 +182,12 @@ class DrawerComponent extends Component {
             </ListItemIcon>
             <ListItemText primary='Home' />
           </ListItem>
+          <ListItem button={true} component='a' href={routes.charts}>
+            <ListItemIcon>
+              <ShowChart style={{ color: colors.dark_sky_blue }} />
+            </ListItemIcon>
+            <ListItemText primary='Charts' />
+          </ListItem>
           <ListItem button={true} component='a' href={routes.userAccount}>
             <ListItemIcon>
               <Person style={{ color: colors.dark_sky_blue }} />
@@ -199,12 +205,6 @@ class DrawerComponent extends Component {
               <Assignment style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
             <ListItemText primary='Study Details' />
-          </ListItem>
-          <ListItem button={true} component='a' href={routes.charts}>
-            <ListItemIcon>
-              <ShowChart style={{ color: colors.dark_sky_blue }} />
-            </ListItemIcon>
-            <ListItemText primary='Charts' />
           </ListItem>
           <ListItem button={true} component='a' href={routes.reports}>
             <ListItemIcon>

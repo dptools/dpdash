@@ -200,13 +200,6 @@ class DrawerComponent extends Component {
             </ListItemIcon>
             <ListItemText primary="Configure" />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.reports}>
-            <ListItemIcon>
-              <AssessmentIcon style={{ color: colors.dark_sky_blue }} />
-            </ListItemIcon>
-            <ListItemText primary="Reports" />
-          </ListItem>
-
           {this.props.user.role == 'admin' ? (
             <ListItem button={true} component="a" href={routes.admin}>
               <ListItemIcon>

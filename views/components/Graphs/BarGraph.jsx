@@ -1,85 +1,33 @@
 import React from 'react'
 import {
-  VictoryBar,
-  VictoryChart,
-  VictoryAxis,
-  VictoryTheme,
-  VictoryStack,
-  VictoryLegend,
-  VictoryLabel,
-  VictoryTooltip,
-  VictoryZoomContainer,
-} from 'victory'
+  BarChart,
+  Bar,
+  Label,
+  LabelList,
+  Legend,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from 'recharts'
 
-import { colors } from '../../../constants/styles'
-import { graphStyles } from '../../styles/chart_styles'
 import { routes } from '../../routes/routes'
-import { toolTipPercent } from '../../fe-utils/tooltipUtil'
 
-const NOT_AVAILABLE = 'N/A'
 const TOTALS_STUDY = 'Totals'
-const DEFAULT_ZOOM = 10
-
-const tooltipText = (graph, datum) => {
-  const { study, studyTarget, count, valueLabel } = datum
-  if (graph.studyTotals[study]) {
-    const { targetTotal, count: studyTotalCount } = graph.studyTotals[study]
-    const totalCount = targetTotal || studyTotalCount
-    const showToolTip =
-      study && count && study !== TOTALS_STUDY && valueLabel !== NOT_AVAILABLE
-    return showToolTip
-      ? `${study} target: ${
-          targetTotal || NOT_AVAILABLE
-        } (100%)\n${study} current: ${
-          studyTotalCount || NOT_AVAILABLE
-        } (${toolTipPercent(
-          studyTotalCount,
-          totalCount
-        )}%)\n${valueLabel} target: ${
-          studyTarget || NOT_AVAILABLE
-        } (${toolTipPercent(
-          studyTarget,
-          totalCount
-        )}%)\n${valueLabel} current: ${
-          count || NOT_AVAILABLE
-        } (${toolTipPercent(count, totalCount)}%)`
-      : null
-  }
-}
-
-const LabelWithTooltip = ({ hoverData, ...props }) => {
-  const isTooltipActive =
-    !!hoverData &&
-    hoverData.group === props.datum._group &&
-    hoverData.stack === props.datum._stack &&
-    !!hoverData.text
-
-  return (
-    <g>
-      <VictoryLabel
-        {...props}
-        dy={15}
-        style={{ fill: colors.anti_flash_white, fontSize: 7 }}
-      />
-      <VictoryTooltip
-        {...props}
-        text={hoverData?.text}
-        active={isTooltipActive}
-        style={{ fontSize: 7, textAnchor: 'start', padding: 5 }}
-      />
-    </g>
-  )
-}
 
 const BarGraph = ({ graph }) => {
-  const [hoverData, setHoverData] = React.useState()
-  const siteDataPerChartValue = Object.values(graph.data)
-  const numSites = siteDataPerChartValue.length
-    ? siteDataPerChartValue[0].length
-    : 0
-  const initialZoom = Math.min(numSites, DEFAULT_ZOOM)
+  const siteData = graph.dataBySite.sort((siteNameA, siteNameB) => {
+    if (siteNameA.name === TOTALS_STUDY) {
+      return -1
+    }
+    if (siteNameB.name === TOTALS_STUDY) {
+      return 1
+    }
 
-  if (!siteDataPerChartValue.length) {
+    return siteNameA.name > siteNameB.name ? 1 : -1
+  })
+
+  if (!siteData.length) {
     return (
       <>
         <p>This chart has no data to display.</p>
@@ -89,100 +37,52 @@ const BarGraph = ({ graph }) => {
   }
 
   return (
-    <VictoryChart
-      domainPadding={10}
-      domain={{ x: [0, numSites], y: [0, 100] }}
-      theme={VictoryTheme.material}
-      height={400}
-      width={600}
-      containerComponent={
-        <VictoryZoomContainer
-          allowZoom={false}
-          allowPan={numSites > initialZoom}
-          zoomDomain={{ x: [0, initialZoom + 0.5] }}
+    <ResponsiveContainer width="100%" height={500}>
+      <BarChart width={600} height={400} data={siteData}>
+        <Legend
+          verticalAlign="top"
+          height={50}
+          margin={{ top: 0, left: 0, right: 0, bottom: 20 }}
         />
-      }
-    >
-      <VictoryLegend
-        orientation="horizontal"
-        gutter={20}
-        data={graph.legend}
-        x={125}
-        y={20}
-        labelComponent={<VictoryLabel />}
-      />
-      <VictoryAxis label="Site" style={graphStyles.xAxis} />
-      <VictoryAxis
-        label="Total"
-        dependentAxis
-        style={graphStyles.yAxis}
-        tickFormat={(yAxisValue) => `${yAxisValue}%`}
-      />
-      <VictoryStack labelComponent={<LabelWithTooltip hoverData={hoverData} />}>
-        {siteDataPerChartValue.map((data, idx) => (
-          <VictoryBar
-            data={data}
-            x="study"
-            y="percent"
-            key={idx}
-            style={{
-              data: {
-                fill: ({ datum }) => datum.color,
-              },
-            }}
-            labels={({ datum }) =>
-              !!datum?.percent ? `${datum.percent.toFixed(0)}%` : null
-            }
-            events={[
-              {
-                target: 'data',
-                eventHandlers: {
-                  onMouseOver: () => {
-                    return [
-                      {
-                        mutation: (props) => {
-                          setHoverData({
-                            group: props.datum._group,
-                            stack: props.datum._stack,
-                            text: tooltipText(graph, props.datum),
-                          })
+        <XAxis dataKey="name" height={100}>
+          <Label value="Study" />
+        </XAxis>
+        <YAxis width={80}>
+          <Label value="Percent" angle={-90} />
+        </YAxis>
+        <Tooltip
+          formatter={(value, name, props) => {
+            const { payload } = props
 
-                          if (
-                            props.datum.study === TOTALS_STUDY ||
-                            props.datum.valueLabel === NOT_AVAILABLE
-                          ) {
-                            return props
-                          }
+            return `${payload.counts[name]} (${value.toFixed(0)}%)`
+          }}
+        />
+        {graph.labels.map((label) => {
+          return (
+            <Bar
+              key={label.name}
+              dataKey={`percentages[${label.name}]`}
+              name={label.name}
+              id={label.name}
+              stackId="a"
+              maxBarSize={80}
+              fill={label.color}
+            >
+              <LabelList
+                valueAccessor={(entry) => {
+                  const percent = entry.percentages[label.name]
 
-                          return {
-                            ...props,
-                            style: {
-                              ...props.style,
-                              stroke: colors.black,
-                              strokeWidth: 1,
-                            },
-                          }
-                        },
-                      },
-                    ]
-                  },
-                  onMouseOut: () => {
-                    setHoverData(undefined)
-                    return [
-                      {
-                        mutation: () => {
-                          return null
-                        },
-                      },
-                    ]
-                  },
-                },
-              },
-            ]}
-          />
-        ))}
-      </VictoryStack>
-    </VictoryChart>
+                  if (percent && percent > 0) {
+                    return `${percent.toFixed(0)}%`
+                  }
+                }}
+                fill="white"
+              />
+            </Bar>
+          )
+        })}
+      </BarChart>
+    </ResponsiveContainer>
   )
 }
 

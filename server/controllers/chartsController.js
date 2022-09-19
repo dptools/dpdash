@@ -4,7 +4,6 @@ import { collections } from '../utils/mongoCollections'
 
 const TOTALS_STUDY = 'Totals'
 const STUDIES_TO_OMIT = ['files', 'combined']
-
 const studyCountsToPercentage = (studyCount, targetTotal) => {
   if (!targetTotal || Number.isNaN(+studyCount) || Number.isNaN(+targetTotal)) {
     return 0
@@ -14,82 +13,70 @@ const studyCountsToPercentage = (studyCount, targetTotal) => {
 }
 
 const postProcessData = (data, studyTotals) => {
-  const processedData = {}
-  Object.entries(data).forEach((entry) => {
-    const [key, count] = entry
-    const [study, valueLabel, color, rawStudyTarget] = key.split('-')
+  const processedDataBySite = new Map()
+
+  for (const [key, count] of data) {
+    const [study, valueLabel] = key.split('-')
     const totalsForStudy = studyTotals[study]
-    const studyTarget =
-      study === TOTALS_STUDY
-        ? studyTotals[TOTALS_STUDY].targetTotal
-        : rawStudyTarget
     const totals = totalsForStudy.targetTotal || totalsForStudy.count
     const percent = studyCountsToPercentage(count, totals)
-    const newEntry = {
-      color,
-      count,
-      valueLabel,
-      study,
-      studyTarget: studyTarget === 'undefined' ? undefined : studyTarget,
-      percent,
-    }
+    const existingEntriesForStudy = processedDataBySite.get(study)
 
-    if (processedData[valueLabel]) {
-      processedData[valueLabel] = processedData[valueLabel].concat(newEntry)
+    if (existingEntriesForStudy) {
+      processedDataBySite.set(study, {
+        ...existingEntriesForStudy,
+        counts: {
+          ...existingEntriesForStudy.counts,
+          [valueLabel]: count,
+        },
+        percentages: {
+          ...existingEntriesForStudy.percentages,
+          [valueLabel]: percent,
+        },
+      })
     } else {
-      processedData[valueLabel] = [newEntry]
+      processedDataBySite.set(study, {
+        name: study,
+        counts: {
+          [valueLabel]: count,
+        },
+        totalsForStudy,
+        percentages: {
+          [valueLabel]: percent,
+        },
+      })
     }
-  })
+  }
 
-  // need the largest horizontal section so that all sites are accounted for
-  const largestHorizontalSection =
-    Object.values(processedData).sort(
-      (arr1, arr2) => arr2.length - arr1.length
-    )[0] || []
-
-  const notAvailableArray = largestHorizontalSection.map((studySection) => {
-    const studySectionTotals = studyTotals[studySection.study]
+  for (const [study, values] of processedDataBySite) {
+    const studySectionTotals = studyTotals[study]
     const count = studySectionTotals.targetTotal
       ? studySectionTotals.targetTotal - studySectionTotals.count
       : 0
-
-    return {
-      color: 'grey',
+    const percent = studyCountsToPercentage(
       count,
-      valueLabel: 'N/A',
-      study: studySection.study,
-      studyTarget: '',
-      percent: studyCountsToPercentage(
-        count,
-        studySectionTotals.targetTotal ?? studySectionTotals.count
-      ),
-    }
-  })
+      studySectionTotals.targetTotal ?? studySectionTotals.count
+    )
 
-  if (notAvailableArray.length) {
-    processedData['N/A'] = notAvailableArray
+    processedDataBySite.set(study, {
+      ...values,
+      counts: {
+        ...values.counts,
+        'N/A': count,
+      },
+      percentages: {
+        ...values.percentages,
+        'N/A': percent,
+      },
+    })
   }
 
-  // sort all processedData values in alphabetical order
-  // with Totals first
-  Object.keys(processedData).forEach((key) => {
-    processedData[key].sort(function (studyA, studyB) {
-      if (studyA.study === TOTALS_STUDY) {
-        return -1
-      }
-      if (studyB.study === TOTALS_STUDY) {
-        return 1
-      }
-
-      return studyA.study > studyB.study ? 1 : -1
-    })
-  })
-
-  return processedData
+  return processedDataBySite
 }
 
 export const graphDataController = async (dataDb, userAccess, chart_id) => {
-  const data = {}
+  const labelMap = new Map()
+  const data = new Map()
   const studyTotals = {
     [TOTALS_STUDY]: {
       count: 0,
@@ -153,20 +140,24 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
       const hasValue = subjectDayData.some(
         (dayData) => dayData[chart.variable] == value
       )
-      const dataKey = `${study}-${label}-${color}-${targetValue}`
-      const totalsDataKey = `${TOTALS_STUDY}-${label}-${color}-undefined`
+      const dataKey = `${study}-${label}`
+      const totalsDataKey = `${TOTALS_STUDY}-${label}`
+      labelMap.set(label, { name: label, color })
 
       if (hasValue) {
-        if (data[dataKey]) {
-          data[dataKey] += 1
+        const existingData = data.get(dataKey)
+        const existingTotalsData = data.get(totalsDataKey)
+
+        if (existingData) {
+          data.set(dataKey, existingData + 1)
         } else {
-          data[dataKey] = 1
+          data.set(dataKey, 1)
         }
 
-        if (data[totalsDataKey]) {
-          data[totalsDataKey] += 1
+        if (existingTotalsData) {
+          data.set(totalsDataKey, existingTotalsData + 1)
         } else {
-          data[totalsDataKey] = 1
+          data.set(totalsDataKey, 1)
         }
 
         if (studyTotals[study]) {
@@ -179,16 +170,20 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
         }
         studyTotals[TOTALS_STUDY].count += 1
       } else {
-        if (!data[dataKey]) {
-          data[dataKey] = 0
+        if (!data.get(dataKey)) {
+          data.set(dataKey, 0)
         }
       }
     })
   }
+  labelMap.set('N/A', { name: 'N/A', color: '#808080' })
+
+  const dataBySite = postProcessData(data, studyTotals)
 
   return {
     chart,
-    data: postProcessData(data, studyTotals),
+    dataBySite: Array.from(dataBySite.values()),
+    labels: Array.from(labelMap.values()),
     studyTotals,
   }
 }

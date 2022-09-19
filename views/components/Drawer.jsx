@@ -200,12 +200,6 @@ class DrawerComponent extends Component {
             </ListItemIcon>
             <ListItemText primary="Configure" />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.studyDetails}>
-            <ListItemIcon>
-              <Assignment style={{ color: colors.dark_sky_blue }} />
-            </ListItemIcon>
-            <ListItemText primary="Study Details" />
-          </ListItem>
           <ListItem button={true} component="a" href={routes.reports}>
             <ListItemIcon>
               <AssessmentIcon style={{ color: colors.dark_sky_blue }} />

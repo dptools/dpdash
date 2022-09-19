@@ -128,8 +128,8 @@ router
   })
   .get(ensureAuthenticated, async (req, res) => {
     try {
-      const { dataDb } = req.app.locals
-      const chartList = await dataDb
+      const { dataDb, appDb } = req.app.locals
+      const charts = await dataDb
         .collection(collections.charts)
         .find({
           $or: [
@@ -139,6 +139,18 @@ router
           ],
         })
         .toArray()
+      const chartList = await Promise.all(
+        charts.map(async (chart) => {
+          const { owner } = chart
+          if (owner !== req.user) {
+            const chartOwner = await appDb
+              .collection(collections.users)
+              .findOne({ uid: owner }, { projection: { _id: 0, icon: 1 } })
+            chart.icon = chartOwner.icon
+            return chart
+          } else return chart
+        })
+      )
       return res.status(200).json({ data: chartList })
     } catch (error) {
       console.error(error)

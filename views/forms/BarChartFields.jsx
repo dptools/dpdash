@@ -8,7 +8,6 @@ import Checkbox from '@material-ui/core/Checkbox'
 import InputLabel from '@material-ui/core/InputLabel'
 
 import { colors } from '../../constants/styles'
-
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 
 const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
@@ -100,15 +99,15 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
         fullWidth
       />
       <div className={classes.formLabelRow}>
-        <InputLabel htmlFor='public_checkbox' className={classes.publicText}>
+        <InputLabel htmlFor="public_checkbox" className={classes.publicText}>
           Public
         </InputLabel>
         <Checkbox
           checked={formValues.public}
           onChange={updateFormValues}
-          name='public'
-          color='default'
-          id='public_checkbox'
+          name="public"
+          color="default"
+          id="public_checkbox"
           aria-label
         />
       </div>

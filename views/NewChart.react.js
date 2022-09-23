@@ -37,7 +37,7 @@ const NewChart = ({ classes, user }) => {
   }
 
   return (
-    <AppLayout title='Create chart'>
+    <AppLayout title="Create chart">
       <ChartForm
         classes={classes}
         handleSubmit={handleSubmit}

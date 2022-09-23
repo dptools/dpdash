@@ -13,6 +13,7 @@ import editChartPage from '../templates/EditChart.template'
 import { legend } from '../helpers/chartsHelpers'
 import { graphDataController } from '../controllers/chartsController'
 import { routes } from '../utils/routes'
+import { defaultTargetValueMap } from '../utils/defaultTargetValueMap'
 
 const router = Router()
 
@@ -193,6 +194,17 @@ router
         )
 
       if (!chart) return res.redirect(routes.charts)
+
+      const { userAccess } = req.session
+      const targetValuesMap = defaultTargetValueMap(userAccess)
+      chart.fieldLabelValueMap = chart.fieldLabelValueMap.map((fieldValue) => {
+        const updateTargetValues = {
+          ...targetValuesMap,
+          ...fieldValue.targetValues,
+        }
+        fieldValue.targetValues = updateTargetValues
+        return fieldValue
+      })
 
       return res.status(200).json({ data: chart })
     } catch (error) {

@@ -188,17 +188,17 @@ class DrawerComponent extends Component {
             </ListItemIcon>
             <ListItemText primary="Charts" />
           </ListItem>
-          <ListItem button={true} component="a" href={routes.userAccount}>
-            <ListItemIcon>
-              <Person style={{ color: colors.dark_sky_blue }} />
-            </ListItemIcon>
-            <ListItemText primary="Account" />
-          </ListItem>
           <ListItem button={true} component="a" href={routes.configure}>
             <ListItemIcon>
               <ColorLens style={{ color: colors.dark_sky_blue }} />
             </ListItemIcon>
             <ListItemText primary="Configure" />
+          </ListItem>
+          <ListItem button={true} component="a" href={routes.userAccount}>
+            <ListItemIcon>
+              <Person style={{ color: colors.dark_sky_blue }} />
+            </ListItemIcon>
+            <ListItemText primary="Account" />
           </ListItem>
           {this.props.user.role == 'admin' ? (
             <ListItem button={true} component="a" href={routes.admin}>

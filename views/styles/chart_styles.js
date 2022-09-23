@@ -101,16 +101,3 @@ export const chartStyles = (theme) => ({
     alignSelf: 'center',
   },
 })
-
-export const graphStyles = {
-  yAxis: {
-    axisLabel: {
-      padding: 50,
-    },
-  },
-  xAxis: {
-    axisLabel: {
-      padding: 30,
-    },
-  },
-}

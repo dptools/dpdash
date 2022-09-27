@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import ColorPicker from '../components/ColorPicker'
 import Checkbox from '@material-ui/core/Checkbox'
 import InputLabel from '@material-ui/core/InputLabel'
+import Tooltip from '@material-ui/core/Tooltip'
 
 import { colors } from '../../constants/styles'
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
@@ -114,17 +115,21 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
       {formValues.fieldLabelValueMap.map((field, idx) => (
         <React.Fragment key={idx}>
           <div className={classes.formLabelRow}>
-            <TextField
-              label="Value"
-              name="value"
-              onChange={(e) => handleValueAndLabelFieldUpdate(e, idx)}
-              className={`
+            <Tooltip
+              disableFocusListener
+              title="Leave blank to count empty values"
+            >
+              <TextField
+                label="Value"
+                name="value"
+                onChange={(e) => handleValueAndLabelFieldUpdate(e, idx)}
+                className={`
                 ${classes.formLabelCol} 
                 ${classes.variableListInput}
               `}
-              value={field.value}
-              required
-            />
+                value={field.value}
+              />
+            </Tooltip>
             <TextField
               label="Label"
               name="label"

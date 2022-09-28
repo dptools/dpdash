@@ -100,4 +100,22 @@ export const chartStyles = (theme) => ({
   publicText: {
     alignSelf: 'center',
   },
+  colorPickerSwatchBox: {
+    display: 'flex',
+    padding: '12px',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  colorPickerSwatch: {
+    width: '24px',
+    height: '24px',
+    margin: '4px',
+    border: 'none',
+    padding: 0,
+    borderRadius: '4px',
+    cursor: 'pointer',
+    outline: 'none',
+    WebkitAppearance: 'none',
+    outlineOffset: 'none',
+  },
 })

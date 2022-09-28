@@ -6,4 +6,26 @@ export const colors = {
   black: 'rgba(0,0,0,0.7)',
   disabled_gray: '#ccc',
   configWhite: '#fefefe',
+  lemon_curry: '#cd9323',
+  new_car: '#1a53d8',
+  big_dip_ruby: '#9a2151',
+  deep_green: '#0d6416',
+  smokey_topaz: '#8d2808',
+  gold: '#FFD700',
+  alloy_orange: '#B95E00',
+  iguana_green: '#7AAA7B',
+  deep_saffron: '#F89235',
 }
+
+export const presetColors = [
+  colors.dark_sky_blue,
+  colors.gold,
+  colors.alloy_orange,
+  colors.iguana_green,
+  colors.deep_saffron,
+  colors.new_car,
+  colors.lemon_curry,
+  colors.big_dip_ruby,
+  colors.deep_green,
+  colors.smokey_topaz,
+]

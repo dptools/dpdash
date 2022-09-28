@@ -8,7 +8,8 @@ import Checkbox from '@material-ui/core/Checkbox'
 import InputLabel from '@material-ui/core/InputLabel'
 import Tooltip from '@material-ui/core/Tooltip'
 
-import { colors } from '../../constants/styles'
+import { colors, presetColors } from '../../constants/styles'
+
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 
 const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
@@ -58,6 +59,13 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
       }),
     }))
   }
+  const handleColorChange = (color, id) =>
+    setFormValues((prevState) => ({
+      ...prevState,
+      fieldLabelValueMap: prevState.fieldLabelValueMap.map((field, idx) =>
+        id === idx ? { ...field, color } : field
+      ),
+    }))
 
   return (
     <>
@@ -140,9 +148,10 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
             />
             <ColorPicker
               classes={classes}
-              onColorChange={handleValueAndLabelFieldUpdate}
+              handleColorChange={handleColorChange}
               idx={idx}
               color={field.color}
+              presetColors={presetColors}
             />
             <Button
               type="button"

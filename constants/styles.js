@@ -5,4 +5,5 @@ export const colors = {
   white: '#ffffff',
   black: 'rgba(0,0,0,0.7)',
   disabled_gray: '#ccc',
+  configWhite: '#fefefe',
 }

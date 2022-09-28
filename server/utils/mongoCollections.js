@@ -2,5 +2,6 @@ export const collections = {
   studyDetails: 'studyDetails',
   charts: 'charts',
   toc: 'toc',
-  users: 'users'
+  users: 'users',
+  configs: 'configs',
 }

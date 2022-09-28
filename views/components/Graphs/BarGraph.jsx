@@ -10,6 +10,7 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts'
+import { formatAsPercentage } from '../../fe-utils/formatAsPercentageUtil'
 
 import { routes } from '../../routes/routes'
 
@@ -54,7 +55,7 @@ const BarGraph = ({ graph }) => {
           formatter={(value, name, props) => {
             const { payload } = props
 
-            return `${payload.counts[name]} (${value.toFixed(0)}%)`
+            return `${payload.counts[name]} (${formatAsPercentage(value)})`
           }}
         />
         {graph.labels.map((label) => {

@@ -7,6 +7,7 @@ import {
   Table,
   Paper,
 } from '@material-ui/core'
+import { formatAsPercentage } from '../../fe-utils/formatAsPercentageUtil'
 
 const GraphTable = ({ graph }) => {
   if (!graph) return null
@@ -43,7 +44,7 @@ const GraphTable = ({ graph }) => {
                       align="center"
                       style={{ color: fieldLabel.color }}
                     >
-                      {site.percentages[fieldLabel.name].toFixed(0)}%
+                      {formatAsPercentage(site.percentages[fieldLabel.name])}
                     </TableCell>
                   </React.Fragment>
                 ))}
@@ -58,7 +59,7 @@ const GraphTable = ({ graph }) => {
                   {totalsSite.counts[fieldLabel.name]}
                 </TableCell>
                 <TableCell align="center">
-                  {totalsSite.percentages[fieldLabel.name].toFixed(0)}%
+                  {formatAsPercentage(totalsSite.percentages[fieldLabel.name])}
                 </TableCell>
               </React.Fragment>
             ))}

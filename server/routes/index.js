@@ -757,9 +757,13 @@ router
         {
           $lookup: {
             from: 'users',
-            localField: 'owner',
-            foreignField: 'uid',
+            let: { owner: '$owner' },
             pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$$owner', '$uid'] },
+                },
+              },
               {
                 $project: {
                   icon: 1,

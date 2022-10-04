@@ -1,4 +1,4 @@
-import { colors } from '../../constants/styles'
+import { colors } from '../../constants'
 
 export const chartStyles = (theme) => ({
   textInput: {
@@ -117,5 +117,30 @@ export const chartStyles = (theme) => ({
     outline: 'none',
     WebkitAppearance: 'none',
     outlineOffset: 'none',
+  },
+  tooltipContainer: {
+    width: '200px',
+    padding: '14px 14px 7px 14px ',
+    background: colors.transparentWhite,
+  },
+  tooltipHeaderRow: {
+    display: 'flex',
+    width: '100%',
+    paddingBottom: '4px',
+    borderBottom: 'solid gray 0.5px',
+  },
+  tooltipContentRow: {
+    display: 'flex',
+    width: '100%',
+    paddingTop: '4px',
+    paddingBottom: '4px',
+  },
+  tooltipLabelColumn: {
+    display: 'flex',
+    flex: '2',
+  },
+  tooltipValueColumn: {
+    display: 'flex',
+    flex: '3',
   },
 })

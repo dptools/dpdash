@@ -10,13 +10,13 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts'
-import { formatAsPercentage } from '../../fe-utils/formatAsPercentageUtil'
+import BarGraphTooltip from './BarGraphTooltip'
 
 import { routes } from '../../routes/routes'
 
 const TOTALS_STUDY = 'Totals'
 
-const BarGraph = ({ graph }) => {
+const BarGraph = ({ graph, classes }) => {
   const siteData = graph.dataBySite.sort((siteNameA, siteNameB) => {
     if (siteNameA.name === TOTALS_STUDY) {
       return -1
@@ -52,11 +52,12 @@ const BarGraph = ({ graph }) => {
           <Label value="Percent" angle={-90} />
         </YAxis>
         <Tooltip
-          formatter={(value, name, props) => {
-            const { payload } = props
-
-            return `${payload.counts[name]} (${formatAsPercentage(value)})`
-          }}
+          content={
+            <BarGraphTooltip
+              studyTotals={graph.studyTotals}
+              classes={classes}
+            />
+          }
         />
         {graph.labels.map((label) => {
           return (

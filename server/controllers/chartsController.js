@@ -16,7 +16,7 @@ const postProcessData = (data, studyTotals) => {
   const processedDataBySite = new Map()
 
   for (const [key, count] of data) {
-    const [study, valueLabel] = key.split('-')
+    const [study, valueLabel, targetValue] = key.split('-')
     const totalsForStudy = studyTotals[study]
     const totals = totalsForStudy.targetTotal || totalsForStudy.count
     const percent = studyCountsToPercentage(count, totals)
@@ -33,6 +33,10 @@ const postProcessData = (data, studyTotals) => {
           ...existingEntriesForStudy.percentages,
           [valueLabel]: percent,
         },
+        targets: {
+          ...existingEntriesForStudy.targets,
+          [valueLabel]: targetValue,
+        },
       })
     } else {
       processedDataBySite.set(study, {
@@ -43,6 +47,9 @@ const postProcessData = (data, studyTotals) => {
         totalsForStudy,
         percentages: {
           [valueLabel]: percent,
+        },
+        targets: {
+          [valueLabel]: targetValue,
         },
       })
     }
@@ -140,7 +147,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
       const hasValue = subjectDayData.some(
         (dayData) => dayData[chart.variable] == value
       )
-      const dataKey = `${study}-${label}`
+      const dataKey = `${study}-${label}-${targetValue}`
       const totalsDataKey = `${TOTALS_STUDY}-${label}`
       labelMap.set(label, { name: label, color })
 

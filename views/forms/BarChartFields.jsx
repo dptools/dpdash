@@ -8,7 +8,7 @@ import Checkbox from '@material-ui/core/Checkbox'
 import InputLabel from '@material-ui/core/InputLabel'
 import Tooltip from '@material-ui/core/Tooltip'
 
-import { colors, presetColors } from '../../constants/styles'
+import { colors, presetColors } from '../../constants'
 
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 

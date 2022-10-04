@@ -1,5 +1,5 @@
 import { emphasize } from '@material-ui/core/styles/colorManipulator'
-import { colors } from '../../constants/styles'
+import { colors } from '../../constants'
 
 export const configStyles = (theme) => ({
   root: {

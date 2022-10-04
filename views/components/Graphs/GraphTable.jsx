@@ -7,7 +7,7 @@ import {
   Table,
   Paper,
 } from '@material-ui/core'
-import { formatAsPercentage } from '../../fe-utils/formatAsPercentageUtil'
+import { formatAsPercentage } from '../../fe-utils/helpers'
 
 const GraphTable = ({ graph }) => {
   if (!graph) return null

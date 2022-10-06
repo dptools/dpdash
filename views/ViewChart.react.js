@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core'
 import { chartStyles } from './styles/chart_styles'
 import AppLayout from './layouts/AppLayout'
 import BarGraph from './components/Graphs/BarGraph'
-import GraphTable from './components/Graphs/GraphTable'
+import GraphTable from './components/GraphTable'
 
 const ViewChart = ({ graph, classes }) => {
   const { title, description } = graph

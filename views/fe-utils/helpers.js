@@ -1,4 +1,4 @@
-import { N_A } from '../../constants'
+import { N_A, TOTAL_LABEL } from '../../constants'
 
 export const formatAsPercentage = (value = 0) => value.toFixed(0) + '%'
 
@@ -13,6 +13,11 @@ export const studyCountsToPercentage = (studyCount, targetTotal) => {
 }
 
 export const formatSiteData = (studyCounts, studyTargets, studyPercentage) =>
-  `${studyCounts} / ${formatTooltipTargets(studyTargets)} (${formatAsPercentage(
-    studyPercentage
-  )})`
+  !!studyTargets
+    ? `${studyCounts} / ${formatTooltipTargets(
+        studyTargets
+      )} (${formatAsPercentage(studyPercentage)})`
+    : `${studyCounts} / (${formatAsPercentage(studyPercentage)})`
+
+export const graphTableColumns = (columns) =>
+  columns.filter((column) => column.name !== N_A).concat({ name: TOTAL_LABEL })

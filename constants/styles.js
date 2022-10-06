@@ -16,6 +16,7 @@ export const colors = {
   iguana_green: '#7AAA7B',
   deep_saffron: '#F89235',
   transparentWhite: 'rgba(255, 255, 255, 0.9)',
+  columbia_blue: '#c0d9e1',
 }
 
 export const presetColors = [

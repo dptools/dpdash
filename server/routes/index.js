@@ -767,14 +767,16 @@ router
               {
                 $project: {
                   icon: 1,
+                  uid: 1,
+                  name: '$display_name',
                   _id: 0,
                 },
               },
             ],
-            as: 'icon',
+            as: 'ownerUser',
           },
         },
-        { $unwind: '$icon' },
+        { $unwind: '$ownerUser' },
       ])
       .toArray()
     return res.status(200).json(data)

@@ -60,7 +60,4 @@ export const configStyles = (theme) => ({
   divider: {
     height: theme.spacing.unit * 2,
   },
-  configIcon: {
-    height: '60px',
-  },
 })

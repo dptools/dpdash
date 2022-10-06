@@ -44,6 +44,7 @@ import Typography from '@material-ui/core/Typography'
 
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
+import ConfigCardAvatar from './components/Config/ConfigCardAvatar'
 
 import getAvatar from './fe-utils/avatarUtil'
 import getCounts from './fe-utils/countUtil'
@@ -465,6 +466,7 @@ class ConfigPage extends Component {
         }
       })
   }
+
   generateCards = (configs, preference) => {
     let cards = []
     if (configs && configs.length > 0) {
@@ -487,15 +489,10 @@ class ConfigPage extends Component {
               title={configs[item]['owner']}
               subheader={updated}
               avatar={
-                configs[item]?.icon?.icon ? (
-                  <img
-                    src={configs[item].icon.icon}
-                    alt=""
-                    className={this.props.classes.configIcon}
-                  />
-                ) : (
-                  this.state.avatar
-                )
+                <ConfigCardAvatar
+                  config={configs[item]}
+                  currentUser={this.props.user}
+                />
               }
               action={
                 <IconButton

@@ -56,14 +56,15 @@ const postProcessData = (data, studyTotals) => {
   }
 
   for (const [study, values] of processedDataBySite) {
-    const studySectionTotals = studyTotals[study]
-    const count = studySectionTotals.targetTotal
-      ? studySectionTotals.targetTotal - studySectionTotals.count
-      : 0
-    const percent = studyCountsToPercentage(
-      count,
-      studySectionTotals.targetTotal ?? studySectionTotals.count
+    const { targetTotal, count: currentSiteCount } = studyTotals[study]
+    const isTargetGreaterThanCount =
+      targetTotal && targetTotal > currentSiteCount
+    const count = isTargetGreaterThanCount ? targetTotal - currentSiteCount : 0
+    const studySectionTargetValue = calculateStudySectionTargetValue(
+      targetTotal,
+      currentSiteCount
     )
+    const percent = studyCountsToPercentage(count, studySectionTargetValue)
 
     processedDataBySite.set(study, {
       ...values,
@@ -193,4 +194,18 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     labels: Array.from(labelMap.values()),
     studyTotals,
   }
+}
+
+function calculateStudySectionTargetValue(
+  studySectionTotalTarget,
+  studySectionTotalCount
+) {
+  if (
+    !!studySectionTotalTarget &&
+    studySectionTotalTarget > studySectionTotalCount
+  ) {
+    return studySectionTotalTarget
+  }
+
+  return studySectionTotalCount || 0
 }

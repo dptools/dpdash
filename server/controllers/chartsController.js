@@ -145,14 +145,16 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
       const { color, label, value, targetValues } = fieldLabelValueMap
       const targetValue = targetValues[study]
-      const hasValue = subjectDayData.some(
-        (dayData) => dayData[chart.variable] == value
-      )
+      const isVariableValueEmpty = value === ''
+      const shouldCountSubject = isVariableValueEmpty
+        ? subjectDayData.every((day) => day[chart.variable] === value)
+        : subjectDayData.some((dayData) => dayData[chart.variable] == value)
+
       const dataKey = `${study}-${label}-${targetValue}`
       const totalsDataKey = `${TOTALS_STUDY}-${label}`
       labelMap.set(label, { name: label, color })
 
-      if (hasValue) {
+      if (shouldCountSubject) {
         const existingData = data.get(dataKey)
         const existingTotalsData = data.get(totalsDataKey)
 

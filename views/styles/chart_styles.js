@@ -142,5 +142,6 @@ export const chartStyles = (theme) => ({
   tooltipValueColumn: {
     display: 'flex',
     flex: '3',
+    justifyContent: 'center',
   },
 })

@@ -1,10 +1,9 @@
 import { N_A, TOTAL_LABEL } from '../../constants'
-import { studyCountsToPercentage, formatSiteData } from './helpers'
+import { formatTooltipData } from './helpers'
 
 export const siteTooltipContent = (siteData, siteTotals) => {
   const { count, targetTotal } = siteTotals
   const tooltipData = []
-  const siteTotalPercent = studyCountsToPercentage(count, targetTotal)
 
   siteData
     .filter(({ name }) => name !== N_A)
@@ -13,13 +12,8 @@ export const siteTooltipContent = (siteData, siteTotals) => {
         const {
           counts: { [valueName]: siteCount },
           targets: { [valueName]: siteTarget },
-          percentages: { [valueName]: sitePercentage },
         } = payload
-        const valueColumn = formatSiteData(
-          siteCount,
-          siteTarget,
-          sitePercentage
-        )
+        const valueColumn = formatTooltipData(siteCount, siteTarget)
         const rowValue = { labelColumn: valueName, valueColumn }
         tooltipData.push(rowValue)
       }
@@ -27,7 +21,7 @@ export const siteTooltipContent = (siteData, siteTotals) => {
 
   tooltipData.push({
     labelColumn: TOTAL_LABEL,
-    valueColumn: formatSiteData(count, targetTotal, siteTotalPercent),
+    valueColumn: formatTooltipData(count, targetTotal),
   })
 
   return tooltipData

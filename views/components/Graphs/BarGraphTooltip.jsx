@@ -11,7 +11,7 @@ const BarGraphTooltip = ({ classes, active, payload, label, studyTotals }) => {
     <div className={classes.tooltipContainer}>
       <div className={classes.tooltipHeaderRow}>
         <div className={classes.tooltipLabelColumn}>{label}</div>
-        <div className={classes.tooltipValueColumn}>Value / Target (%)</div>
+        <div className={classes.tooltipValueColumn}>Value / Target</div>
       </div>
       {siteTooltipContent(payload, studyTotals[label]).map(
         ({ labelColumn, valueColumn }) => {

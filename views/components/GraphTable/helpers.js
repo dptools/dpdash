@@ -1,5 +1,8 @@
-import { TOTAL_LABEL, TOTALS } from '../../../constants'
-import { studyCountsToPercentage } from '../../fe-utils/helpers'
+import { TOTAL_LABEL, TOTALS, N_A } from '../../../constants'
+import {
+  studyCountsToPercentage,
+  formatAsPercentage,
+} from '../../fe-utils/helpers'
 
 export const graphTableRowDataBySite = (dataBySite) => {
   return dataBySite
@@ -20,3 +23,13 @@ const sortAllSitesBeforeTotalsSite = (siteA, siteB) => {
   if (siteA.name === TOTALS) return -1
   if (siteB.name === TOTALS) return -1
 }
+
+export const formatSiteData = (studyCounts, studyTargets, studyPercentage) =>
+  !!studyTargets
+    ? `${studyCounts} / ${studyTargets} (${formatAsPercentage(
+        studyPercentage
+      )})`
+    : `${studyCounts} / (${formatAsPercentage(studyPercentage)})`
+
+export const graphTableColumns = (columns) =>
+  columns.filter((column) => column.name !== N_A).concat({ name: TOTAL_LABEL })

@@ -7,8 +7,11 @@ import {
   Table,
   Paper,
 } from '@material-ui/core'
-import { formatSiteData, graphTableColumns } from '../../fe-utils/helpers'
-import { graphTableRowDataBySite } from './helpers'
+import {
+  graphTableRowDataBySite,
+  formatSiteData,
+  graphTableColumns,
+} from './helpers'
 
 const GraphTable = ({ graph }) => {
   if (!graph) return null

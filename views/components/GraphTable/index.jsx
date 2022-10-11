@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core'
 import {
   graphTableRowDataBySite,
-  formatSiteData,
+  formatGraphTableCellData,
   graphTableColumns,
 } from './helpers'
 
@@ -42,7 +42,6 @@ const GraphTable = ({ graph }) => {
                   const {
                     counts: { [columnLabel]: siteCount },
                     targets: { [columnLabel]: siteTarget },
-                    percentages: { [columnLabel]: sitePercentage },
                   } = site
                   return (
                     <TableCell
@@ -50,7 +49,7 @@ const GraphTable = ({ graph }) => {
                       style={{ color }}
                       key={columnLabel}
                     >
-                      {formatSiteData(siteCount, siteTarget, sitePercentage)}
+                      {formatGraphTableCellData(siteCount, siteTarget)}
                     </TableCell>
                   )
                 })}

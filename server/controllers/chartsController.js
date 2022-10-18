@@ -14,6 +14,7 @@ const studyCountsToPercentage = (studyCount, targetTotal) => {
 
 const postProcessData = (data, studyTotals) => {
   const processedDataBySite = new Map()
+  const totalsValueTargets = {}
 
   for (const [key, count] of data) {
     const [study, valueLabel, targetValue] = key.split('-')
@@ -21,6 +22,22 @@ const postProcessData = (data, studyTotals) => {
     const totals = totalsForStudy.targetTotal || totalsForStudy.count
     const percent = studyCountsToPercentage(count, totals)
     const existingEntriesForStudy = processedDataBySite.get(study)
+    const hasTargetValue = !!targetValue && study !== TOTALS_STUDY
+    const isTargetValueMissing = !targetValue && study !== TOTALS_STUDY
+
+    if (hasTargetValue) {
+      totalsValueTargets[valueLabel] = calculateTotalsTargetValue(
+        totalsValueTargets[valueLabel],
+        targetValue
+      )
+    }
+
+    if (isTargetValueMissing) {
+      totalsValueTargets[valueLabel] = calculateTotalsTargetValue(
+        totalsValueTargets[valueLabel],
+        totalsForStudy.count
+      )
+    }
 
     if (existingEntriesForStudy) {
       processedDataBySite.set(study, {
@@ -78,6 +95,12 @@ const postProcessData = (data, studyTotals) => {
       },
     })
   }
+
+  const processedTotals = processedDataBySite.get(TOTALS_STUDY)
+  processedDataBySite.set(TOTALS_STUDY, {
+    ...processedTotals,
+    targets: totalsValueTargets,
+  })
 
   return processedDataBySite
 }
@@ -211,3 +234,8 @@ function calculateStudySectionTargetValue(
 
   return studySectionTotalCount || 0
 }
+
+const calculateTotalsTargetValue = (currentTargetCount, nextTargetCount) =>
+  !!currentTargetCount
+    ? +currentTargetCount + +nextTargetCount
+    : +nextTargetCount

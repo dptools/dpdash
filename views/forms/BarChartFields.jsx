@@ -82,7 +82,7 @@ const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
         label="Description"
         name="description"
         multiline
-        rowsMax="4"
+        rowsMax={4}
         value={formValues.description}
         onChange={updateFormValues}
         className={classes.textInput}

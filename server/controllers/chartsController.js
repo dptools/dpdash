@@ -4,6 +4,7 @@ import { collections } from '../utils/mongoCollections'
 
 const TOTALS_STUDY = 'Totals'
 const STUDIES_TO_OMIT = ['files', 'combined']
+const N_A = 'N/A'
 const studyCountsToPercentage = (studyCount, targetTotal) => {
   if (!targetTotal || Number.isNaN(+studyCount) || Number.isNaN(+targetTotal)) {
     return 0
@@ -87,11 +88,11 @@ const postProcessData = (data, studyTotals) => {
       ...values,
       counts: {
         ...values.counts,
-        'N/A': count,
+        [N_A]: count,
       },
       percentages: {
         ...values.percentages,
-        'N/A': percent,
+        [N_A]: percent,
       },
     })
   }
@@ -209,9 +210,12 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
       }
     })
   }
-  labelMap.set('N/A', { name: 'N/A', color: '#808080' })
 
   const dataBySite = postProcessData(data, studyTotals)
+
+  if (isAnyTargetIncluded(studyTotals)) {
+    labelMap.set(N_A, { name: N_A, color: '#808080' })
+  }
 
   return {
     chart,
@@ -239,3 +243,9 @@ const calculateTotalsTargetValue = (currentTargetCount, nextTargetCount) =>
   !!currentTargetCount
     ? +currentTargetCount + +nextTargetCount
     : +nextTargetCount
+
+function isAnyTargetIncluded(studyTotals) {
+  return Object.keys(studyTotals)
+    .filter((site) => site !== TOTALS_STUDY)
+    .some((site) => studyTotals[site]?.targetTotal !== undefined)
+}

@@ -15,7 +15,7 @@ const ViewChart = ({ graph, classes }) => {
     <AppLayout title={title}>
       {description && (
         <Typography variant="body1" gutterBottom>
-          {description}
+          <pre style={{ fontFamily: 'inherit' }}>{description}</pre>
         </Typography>
       )}
 

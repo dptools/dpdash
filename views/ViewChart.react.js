@@ -12,10 +12,13 @@ import GraphTable from './components/GraphTable'
 const ViewChart = ({ graph, classes }) => {
   const { title, description } = graph
   return (
-    <AppLayout title={title?.toUpperCase()}>
-      <Typography variant="title" gutterBottom>
-        {description?.toUpperCase()}
-      </Typography>
+    <AppLayout title={title}>
+      {description && (
+        <Typography variant="body1" gutterBottom>
+          {description}
+        </Typography>
+      )}
+
       <BarGraph graph={graph} classes={classes} />
       <GraphTable graph={graph} />
     </AppLayout>

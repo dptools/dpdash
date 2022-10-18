@@ -26,12 +26,11 @@ const ChartList = ({
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell align='center'>Title</TableCell>
-            <TableCell align='center'>Description</TableCell>
-            <TableCell align='center'>Duplicate</TableCell>
-            <TableCell align='center'>Edit</TableCell>
-            <TableCell align='center'>Share</TableCell>
-            <TableCell align='center'>Delete</TableCell>
+            <TableCell>Chart</TableCell>
+            <TableCell align="center">Duplicate</TableCell>
+            <TableCell align="center">Edit</TableCell>
+            <TableCell align="center">Share</TableCell>
+            <TableCell align="center">Delete</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -40,24 +39,21 @@ const ChartList = ({
 
             return (
               <TableRow key={chart._id}>
-                <TableCell align='center'>
-                  <Link color='textPrimary' href={routes.chart(chart._id)}>
-                    {chart.title?.toUpperCase()}
+                <TableCell>
+                  <Link color="textPrimary" href={routes.chart(chart._id)}>
+                    {chart.title}
                   </Link>
                 </TableCell>
-                <TableCell align='center'>
-                  {chart.description?.toUpperCase()}
-                </TableCell>
-                <TableCell align='center'>
+                <TableCell align="center">
                   <Button
-                    type='button'
-                    variant='text'
+                    type="button"
+                    variant="text"
                     onClick={() => onDuplicateChart(chart._id)}
                   >
                     <PlaylistAdd />
                   </Button>
                 </TableCell>
-                <TableCell align='center'>
+                <TableCell align="center">
                   <Link
                     href={userIsOwner ? routes.editChart(chart._id) : '#'}
                     color="textPrimary"
@@ -66,16 +62,16 @@ const ChartList = ({
                     <Edit />
                   </Link>
                 </TableCell>
-                <TableCell align='center'>
+                <TableCell align="center">
                   <Button
-                    type='button'
-                    variant='text'
+                    type="button"
+                    variant="text"
                     onClick={() => handleShareChart(chart)}
                   >
                     <Share />
                   </Button>
                 </TableCell>
-                <TableCell align='center'>
+                <TableCell align="center">
                   <Button
                     className={userIsOwner ? '' : classes.disable}
                     disabled={!userIsOwner}

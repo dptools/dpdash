@@ -276,6 +276,7 @@ router
           ...sourceChart,
           title: `${sourceChart.title} (copy)`,
           owner: req.user,
+          public: false,
           sharedWith: [],
         })
 

@@ -1,5 +1,4 @@
 import React from 'react'
-
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
@@ -37,7 +36,7 @@ const ChartList = ({
         </TableHead>
         <TableBody>
           {chartList.map((chart) => {
-            const isEditDisabled = user.uid !== chart.owner
+            const userIsOwner = user.uid === chart.owner
 
             return (
               <TableRow key={chart._id}>
@@ -60,9 +59,9 @@ const ChartList = ({
                 </TableCell>
                 <TableCell align='center'>
                   <Link
-                    href={isEditDisabled ? '' : routes.editChart(chart._id)}
-                    color='textPrimary'
-                    className={isEditDisabled ? classes.disable : ''}
+                    href={userIsOwner ? routes.editChart(chart._id) : '#'}
+                    color="textPrimary"
+                    className={userIsOwner ? '' : classes.disable}
                   >
                     <Edit />
                   </Link>
@@ -78,8 +77,10 @@ const ChartList = ({
                 </TableCell>
                 <TableCell align='center'>
                   <Button
-                    type='button'
-                    variant='text'
+                    className={userIsOwner ? '' : classes.disable}
+                    disabled={!userIsOwner}
+                    type="button"
+                    variant="text"
                     onClick={() => removeChart(chart._id)}
                   >
                     <Delete />

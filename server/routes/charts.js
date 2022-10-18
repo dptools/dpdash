@@ -168,6 +168,16 @@ router
     try {
       const { chart_id } = req.params
       const { dataDb } = req.app.locals
+      const chart = await dataDb
+        .collection(collections.charts)
+        .findOne({ _id: new ObjectID(chart_id) })
+
+      if (chart.owner !== req.user) {
+        return res
+          .status(422)
+          .json({ message: 'Only the owner can delete a chart' })
+      }
+
       const deletedChart = await dataDb
         .collection(collections.charts)
         .deleteOne({ _id: ObjectID(chart_id) })

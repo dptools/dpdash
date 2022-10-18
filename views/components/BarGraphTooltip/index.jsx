@@ -1,6 +1,6 @@
 import React from 'react'
 import { TOTAL_LABEL } from '../../../constants'
-import { siteTooltipContent } from '../../fe-utils/siteTooltipContent'
+import { isTargetShown, siteTooltipContent } from './helpers'
 
 const BarGraphTooltip = ({ classes, active, payload, label, studyTotals }) => {
   if (!active || !payload?.length) {
@@ -11,7 +11,9 @@ const BarGraphTooltip = ({ classes, active, payload, label, studyTotals }) => {
     <div className={classes.tooltipContainer}>
       <div className={classes.tooltipHeaderRow}>
         <div className={classes.tooltipLabelColumn}>{label}</div>
-        <div className={classes.tooltipValueColumn}>Value / Target</div>
+        <div className={classes.tooltipValueColumn}>
+          {isTargetShown(payload) ? 'Value / Target' : 'Value'}
+        </div>
       </div>
       {siteTooltipContent(payload, studyTotals[label]).map(
         ({ labelColumn, valueColumn }) => {

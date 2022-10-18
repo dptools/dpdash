@@ -10,7 +10,7 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts'
-import BarGraphTooltip from './BarGraphTooltip'
+import BarGraphTooltip from '../BarGraphTooltip'
 
 import { routes } from '../../routes/routes'
 

@@ -1,5 +1,13 @@
-import { N_A, TOTAL_LABEL } from '../../constants'
-import { formatTooltipData } from './helpers'
+import { N_A, TOTAL_LABEL } from '../../../constants'
+
+const formatTooltipData = (studyCounts = 0, studyTargets) =>
+  !!studyTargets ? `${studyCounts} / ${studyTargets}` : `${studyCounts}`
+
+export const isTargetShown = (chartPayload) =>
+  chartPayload.some(
+    ({ name: siteName, payload: sitePayload }) =>
+      !!sitePayload.targets[siteName]
+  )
 
 export const siteTooltipContent = (siteData, siteTotals) => {
   const { count, targetTotal } = siteTotals

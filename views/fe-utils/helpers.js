@@ -7,6 +7,3 @@ export const studyCountsToPercentage = (studyCount, targetTotal) => {
 
   return (+studyCount / +targetTotal) * 100
 }
-
-export const formatTooltipData = (studyCounts = 0, studyTargets) =>
-  !!studyTargets ? `${studyCounts} / ${studyTargets}` : `${studyCounts}`

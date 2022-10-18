@@ -274,6 +274,7 @@ router
         .collection(collections.charts)
         .insertOne({
           ...sourceChart,
+          title: `${sourceChart.title} (copy)`,
           owner: req.user,
           sharedWith: [],
         })

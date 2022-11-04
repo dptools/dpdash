@@ -341,8 +341,8 @@ config.database.mongo.server.sslCA = ca;
 config.database.mongo.server.sslCert = cert;
 config.database.mongo.server.sslKey = key;
 config.database.mongo.server.sslValidate = false;
-config.database.mongo.server.reconnectTries = 1;
 config.database.mongo.server.useNewUrlParser = true;
+config.database.mongo.server.useUnifiedTopology = true;
 
 config.database.acl = {};
 config.database.acl.json = "%(acl_path)s";

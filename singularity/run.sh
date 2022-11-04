@@ -25,7 +25,7 @@ echo "Starting superivsord..."
 supervisord -c /data/dpdash/configs/supervisord.conf
 
 # sleep 30 seconds
-sleep 30
+sleep 100
 
 cd /sw/apps/dpdash
 

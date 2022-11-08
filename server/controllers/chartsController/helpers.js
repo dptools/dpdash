@@ -68,7 +68,7 @@ export const totalStudyTargetValue = (
     : undefined
 }
 
-export const generateStudyTargetTotals = (chart) => {
+export const generateStudyTargetTotals = (chart, allowedStudies) => {
   const studyTotals = {
     [TOTALS_STUDY]: {
       count: 0,
@@ -78,7 +78,7 @@ export const generateStudyTargetTotals = (chart) => {
   chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
     const { targetValues } = fieldLabelValueMap
 
-    Object.keys(targetValues).forEach((study) => {
+    allowedStudies.forEach((study) => {
       const rawNewTargetValue = targetValues[study]
       const newTargetValue = !!rawNewTargetValue
         ? +rawNewTargetValue
@@ -123,7 +123,12 @@ export const processData = ({
   }
 }
 
-export const processTotals = ({ shouldCountSubject, studyTotals, study }) => {
+export const processTotals = ({
+  shouldCountSubject,
+  studyTotals,
+  study,
+  targetValue,
+}) => {
   if (shouldCountSubject) {
     if (studyTotals[study]) {
       studyTotals[study].count += 1
@@ -149,7 +154,8 @@ export const postProcessData = (data, studyTotals) => {
     const existingEntriesForStudy = processedDataBySite.get(study)
     const targetValueAsNumber = +targetValue
     const targetValueIsNan = Number.isNaN(targetValueAsNumber)
-    const hasTargetValue = !!targetValue && study !== TOTALS_STUDY
+    const hasTargetValue =
+      !!targetValue && !targetValueIsNan && study !== TOTALS_STUDY
     const isTargetValueMissing = !targetValue && study !== TOTALS_STUDY
 
     if (hasTargetValue) {

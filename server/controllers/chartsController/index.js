@@ -30,7 +30,10 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     )
     .toArray()
 
-  const studyTotals = generateStudyTargetTotals(chart)
+  const allowedStudies = userAccess.filter(
+    (study) => !STUDIES_TO_OMIT.includes(study)
+  )
+  const studyTotals = generateStudyTargetTotals(chart, allowedStudies)
 
   for await (const subject of allSubjects) {
     const { study } = subject
@@ -51,7 +54,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
 
       labelMap.set(label, { name: label, color })
       processData({ shouldCountSubject, dataMap, dataKey, totalsDataKey })
-      processTotals({ shouldCountSubject, studyTotals, study })
+      processTotals({ shouldCountSubject, studyTotals, study, targetValue })
     })
   }
 

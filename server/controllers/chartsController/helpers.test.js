@@ -106,6 +106,7 @@ describe('chartsController - helpers', () => {
   describe(helpers.generateStudyTargetTotals, () => {
     it('generates a study targets object for all sites and the totals site', () => {
       const targetValues = { MA: '10', NY: '50', Foo: '4' }
+      const allowedStudies = ['MA', 'NY', 'Foo']
       const chart = createChart({
         fieldLabelValueMap: [
           createFieldLabelValue({
@@ -121,11 +122,38 @@ describe('chartsController - helpers', () => {
         ],
       })
 
-      expect(helpers.generateStudyTargetTotals(chart)).toEqual({
+      expect(helpers.generateStudyTargetTotals(chart, allowedStudies)).toEqual({
         MA: { count: 0, targetTotal: 20 },
         NY: { count: 0, targetTotal: 100 },
         Foo: { count: 0, targetTotal: 8 },
         Totals: { count: 0, targetTotal: 128 },
+      })
+    })
+
+    it('totals site will have an undefined targetTotal when a site does not have a target value', () => {
+      const targetValues = { MA: '10', NY: '50', Foo: '4' }
+      const allowedStudies = ['MA', 'NY', 'Foo', 'Bar']
+      const chart = createChart({
+        fieldLabelValueMap: [
+          createFieldLabelValue({
+            value: 'valueA',
+            label: 'labelA',
+            targetValues,
+          }),
+          createFieldLabelValue({
+            value: 'valueB',
+            label: 'labelB',
+            targetValues,
+          }),
+        ],
+      })
+
+      expect(helpers.generateStudyTargetTotals(chart, allowedStudies)).toEqual({
+        MA: { count: 0, targetTotal: 20 },
+        NY: { count: 0, targetTotal: 100 },
+        Foo: { count: 0, targetTotal: 8 },
+        Bar: { count: 0, targetTotal: undefined },
+        Totals: { count: 0, targetTotal: undefined },
       })
     })
   })
@@ -226,6 +254,155 @@ describe('chartsController - helpers', () => {
           },
           targets: { female: 40, male: 25 },
           totalsForStudy: { count: 50, targetTotal: 70 },
+        },
+      })
+    })
+
+    it('builds an object with graph data per site when there are only counts and no targets', () => {
+      const studyTotals = {
+        MA: { count: 10, targetTotal: undefined },
+        NY: { count: 35, targetTotal: undefined },
+        Foo: { count: 5, targetTotal: undefined },
+        Bar: { count: 0, targetTotal: undefined },
+        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: undefined },
+      }
+      const data = new Map([
+        ['MA-male-undefined', 5],
+        ['MA-female-undefined', 5],
+        ['NY-male-undefined', 10],
+        ['NY-female-undefined', 25],
+        ['Foo-male-undefined', 5],
+        ['Foo-female-undefined', 0],
+        ['Bar-male-undefined', 0],
+        ['Bar-female-undefined', 0],
+        [`${helpers.TOTALS_STUDY}-male`, 20],
+        [`${helpers.TOTALS_STUDY}-female`, 30],
+      ])
+      const postProcessedData = helpers.postProcessData(data, studyTotals)
+
+      expect(Object.fromEntries(postProcessedData)).toEqual({
+        MA: {
+          counts: { 'N/A': 0, female: 5, male: 5 },
+          name: 'MA',
+          percentages: {
+            'N/A': 0,
+            female: 50,
+            male: 50,
+          },
+          targets: { female: undefined, male: undefined },
+          totalsForStudy: { count: 10, targetTotal: undefined },
+        },
+        NY: {
+          counts: { 'N/A': 0, female: 25, male: 10 },
+          name: 'NY',
+          percentages: {
+            'N/A': 0,
+            female: 71.42857142857143,
+            male: 28.57142857142857,
+          },
+          targets: { female: undefined, male: undefined },
+          totalsForStudy: { count: 35, targetTotal: undefined },
+        },
+        Foo: {
+          counts: { 'N/A': 0, female: 0, male: 5 },
+          name: 'Foo',
+          percentages: { 'N/A': 0, female: 0, male: 100 },
+          targets: { female: undefined, male: undefined },
+          totalsForStudy: { count: 5, targetTotal: undefined },
+        },
+        Bar: {
+          name: 'Bar',
+          counts: { male: 0, female: 0, 'N/A': 0 },
+          totalsForStudy: { count: 0, targetTotal: undefined },
+          percentages: { male: 0, female: 0, 'N/A': 0 },
+          targets: { male: undefined, female: undefined },
+        },
+        Totals: {
+          counts: { 'N/A': 0, female: 30, male: 20 },
+          name: 'Totals',
+          percentages: {
+            'N/A': 0,
+            female: 60,
+            male: 40,
+          },
+          targets: {},
+          totalsForStudy: { count: 50, targetTotal: undefined },
+        },
+      })
+    })
+  })
+
+  describe(helpers.processTotals, () => {
+    it('creates a new site on studyTotals with a count and targetValue property', () => {
+      const studyTotals = {
+        [helpers.TOTALS_STUDY]: {
+          count: 0,
+          targetTotal: 0,
+        },
+      }
+      const totalsToProcess = {
+        shouldCountSubject: true,
+        studyTotals,
+        study: 'Foo',
+        targetValue: 2,
+      }
+      helpers.processTotals(totalsToProcess)
+
+      expect(studyTotals).toEqual({
+        Foo: { count: 1, targetValue: 2 },
+        [helpers.TOTALS_STUDY]: {
+          count: 1,
+          targetTotal: 0,
+        },
+      })
+    })
+
+    it("adds to a site's studyTotals count if subject should be counted", () => {
+      const studyTotals = {
+        Foo: { count: 1, targetValue: 2 },
+        [helpers.TOTALS_STUDY]: {
+          count: 1,
+          targetTotal: 0,
+        },
+      }
+      const totalsToProcess = {
+        shouldCountSubject: true,
+        studyTotals,
+        study: 'Foo',
+        targetValue: 2,
+      }
+      helpers.processTotals(totalsToProcess)
+
+      expect(studyTotals).toEqual({
+        Foo: { count: 2, targetValue: 2 },
+        [helpers.TOTALS_STUDY]: {
+          count: 2,
+          targetTotal: 0,
+        },
+      })
+    })
+
+    it("does not add to a site's count if subject is not to be counted", () => {
+      const studyTotals = {
+        Foo: { count: 1, targetValue: 2 },
+        [helpers.TOTALS_STUDY]: {
+          count: 1,
+          targetTotal: 0,
+        },
+      }
+      const totalsToProcess = {
+        shouldCountSubject: false,
+        studyTotals,
+        study: 'Foo',
+        targetValue: 2,
+      }
+      helpers.processTotals(totalsToProcess)
+
+      expect(studyTotals).toEqual({
+        Foo: { count: 1, targetValue: 2 },
+        [helpers.TOTALS_STUDY]: {
+          count: 1,
+          targetTotal: 0,
         },
       })
     })

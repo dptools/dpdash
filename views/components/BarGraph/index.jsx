@@ -12,21 +12,12 @@ import {
 } from 'recharts'
 import BarGraphTooltip from '../BarGraphTooltip'
 
+import { sortDataBySite, sanitizeSiteData } from './helpers'
+
 import { routes } from '../../routes/routes'
 
-const TOTALS_STUDY = 'Totals'
-
 const BarGraph = ({ graph, classes }) => {
-  const siteData = graph.dataBySite.sort((siteNameA, siteNameB) => {
-    if (siteNameA.name === TOTALS_STUDY) {
-      return -1
-    }
-    if (siteNameB.name === TOTALS_STUDY) {
-      return 1
-    }
-
-    return siteNameA.name > siteNameB.name ? 1 : -1
-  })
+  const siteData = sortDataBySite(graph.dataBySite)
 
   if (!siteData.length) {
     return (
@@ -39,7 +30,7 @@ const BarGraph = ({ graph, classes }) => {
 
   return (
     <ResponsiveContainer width="100%" height={500}>
-      <BarChart width={600} height={400} data={siteData}>
+      <BarChart width={600} height={400} data={sanitizeSiteData(siteData)}>
         <Legend
           verticalAlign="top"
           height={50}

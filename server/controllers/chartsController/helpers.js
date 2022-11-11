@@ -85,10 +85,13 @@ export const generateStudyTargetTotals = (chart, allowedStudies) => {
         : undefined
 
       studyTotals[study] = studyTargetTotal(studyTotals[study], newTargetValue)
-      studyTotals[TOTALS_STUDY].targetTotal = totalStudyTargetValue(
-        studyTotals[TOTALS_STUDY].targetTotal,
-        newTargetValue
-      )
+
+      if (targetValues.hasOwnProperty(study)) {
+        studyTotals[TOTALS_STUDY].targetTotal = totalStudyTargetValue(
+          studyTotals[TOTALS_STUDY].targetTotal,
+          newTargetValue
+        )
+      }
     })
   })
 

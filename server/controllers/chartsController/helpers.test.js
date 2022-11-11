@@ -130,7 +130,33 @@ describe('chartsController - helpers', () => {
       })
     })
 
-    it('totals site will have an undefined targetTotal when a site does not have a target value', () => {
+    it('generates a study targets with undefined if a known site does not include a target', () => {
+      const targetValues = { MA: '10', NY: '50', Foo: '' }
+      const allowedStudies = ['MA', 'NY', 'Foo']
+      const chart = createChart({
+        fieldLabelValueMap: [
+          createFieldLabelValue({
+            value: 'valueA',
+            label: 'labelA',
+            targetValues,
+          }),
+          createFieldLabelValue({
+            value: 'valueB',
+            label: 'labelB',
+            targetValues,
+          }),
+        ],
+      })
+
+      expect(helpers.generateStudyTargetTotals(chart, allowedStudies)).toEqual({
+        MA: { count: 0, targetTotal: 20 },
+        NY: { count: 0, targetTotal: 100 },
+        Foo: { count: 0, targetTotal: undefined },
+        Totals: { count: 0, targetTotal: undefined },
+      })
+    })
+
+    it('does not update totals data with new empty sites', () => {
       const targetValues = { MA: '10', NY: '50', Foo: '4' }
       const allowedStudies = ['MA', 'NY', 'Foo', 'Bar']
       const chart = createChart({
@@ -152,6 +178,33 @@ describe('chartsController - helpers', () => {
         MA: { count: 0, targetTotal: 20 },
         NY: { count: 0, targetTotal: 100 },
         Foo: { count: 0, targetTotal: 8 },
+        Bar: { count: 0, targetTotal: undefined },
+        Totals: { count: 0, targetTotal: 128 },
+      })
+    })
+
+    it('generates a study targets with undefined if a known site does not include a target and a new site is available', () => {
+      const targetValues = { MA: '10', NY: '50', Foo: '' }
+      const allowedStudies = ['MA', 'NY', 'Foo', 'Bar']
+      const chart = createChart({
+        fieldLabelValueMap: [
+          createFieldLabelValue({
+            value: 'valueA',
+            label: 'labelA',
+            targetValues,
+          }),
+          createFieldLabelValue({
+            value: 'valueB',
+            label: 'labelB',
+            targetValues,
+          }),
+        ],
+      })
+
+      expect(helpers.generateStudyTargetTotals(chart, allowedStudies)).toEqual({
+        MA: { count: 0, targetTotal: 20 },
+        NY: { count: 0, targetTotal: 100 },
+        Foo: { count: 0, targetTotal: undefined },
         Bar: { count: 0, targetTotal: undefined },
         Totals: { count: 0, targetTotal: undefined },
       })

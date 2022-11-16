@@ -118,6 +118,8 @@ systemLog:
    destination: file
    path: "%(mongo_path)s/logs/mongodb.log"
    logAppend: true
+setParameter:
+   diagnosticDataCollectionEnabled: false
 ''' % { 
         'mongo_port' : mongo_port,
         'mongo_path' : mongo_path,

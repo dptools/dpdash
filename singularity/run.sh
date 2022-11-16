@@ -24,7 +24,7 @@ export dppy_config=/data/dpdash/configs/dppy.conf
 echo "Starting superivsord..."
 supervisord -c /data/dpdash/configs/supervisord.conf
 
-# sleep 30 seconds
+# sleep 100 seconds
 sleep 100
 
 cd /sw/apps/dpdash

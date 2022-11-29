@@ -36,6 +36,7 @@ then
     echo "Starting Singularity shell..."
     if [ $devmode = true ]
     then
+        mkdir -p ${DPDASH_DEV_DIR}/dist
         singularity shell \
         -B ${state}:/data \
         -B ${data}:/project_data \

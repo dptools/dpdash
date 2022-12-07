@@ -156,7 +156,7 @@ class DrawerComponent extends Component {
                         color: 'rgba(0, 0, 0, 0.75)',
                       }}
                     >
-                      {'subjects'}
+                      {'participants'}
                     </Typography>
                   </td>
                   <td style={{ width: '30%' }}>

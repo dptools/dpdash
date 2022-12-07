@@ -1,42 +1,42 @@
-import React, { Component } from 'react';
-import { compose } from 'redux';
-import { connect } from 'react-redux';
-import 'whatwg-fetch';
-import Select from 'react-select';
-import classNames from 'classnames';
-import _ from "lodash";
-import { Column, Table } from 'react-virtualized';
-import moment from 'moment';
-import update from 'immutability-helper';
+import React, { Component } from 'react'
+import { compose } from 'redux'
+import { connect } from 'react-redux'
+import 'whatwg-fetch'
+import Select from 'react-select'
+import classNames from 'classnames'
+import _ from 'lodash'
+import { Column, Table } from 'react-virtualized'
+import moment from 'moment'
+import update from 'immutability-helper'
 
-import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import TextField from '@material-ui/core/TextField';
-import NoSsr from '@material-ui/core/NoSsr';
-import { emphasize } from '@material-ui/core/styles/colorManipulator';
-import Paper from '@material-ui/core/Paper';
-import MenuItem from '@material-ui/core/MenuItem';
-import Chip from '@material-ui/core/Chip';
-import Checkbox from '@material-ui/core/Checkbox';
+import { withStyles } from '@material-ui/core/styles'
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import IconButton from '@material-ui/core/IconButton'
+import TextField from '@material-ui/core/TextField'
+import NoSsr from '@material-ui/core/NoSsr'
+import { emphasize } from '@material-ui/core/styles/colorManipulator'
+import Paper from '@material-ui/core/Paper'
+import MenuItem from '@material-ui/core/MenuItem'
+import Chip from '@material-ui/core/Chip'
+import Checkbox from '@material-ui/core/Checkbox'
 
-import StarBorder from '@material-ui/icons/StarBorder';
-import Star from '@material-ui/icons/Star';
-import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import SearchIcon from '@material-ui/icons/Search';
+import StarBorder from '@material-ui/icons/StarBorder'
+import Star from '@material-ui/icons/Star'
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
+import CheckBoxIcon from '@material-ui/icons/CheckBox'
+import SearchIcon from '@material-ui/icons/Search'
 
-import Sidebar from './components/Sidebar';
-import getAvatar from './fe-utils/avatarUtil';
-import { fetchSubjects } from './fe-utils/fetchUtil';
+import Sidebar from './components/Sidebar'
+import getAvatar from './fe-utils/avatarUtil'
+import { fetchSubjects } from './fe-utils/fetchUtil'
 
-import basePathConfig from '../server/configs/basePathConfig';
+import basePathConfig from '../server/configs/basePathConfig'
 
-const basePath = basePathConfig || '';
-const drawerWidth = 200;
-const styles = theme => ({
+const basePath = basePathConfig || ''
+const drawerWidth = 200
+const styles = (theme) => ({
   root: {
     flexGrow: 1,
     height: '100vh',
@@ -54,7 +54,7 @@ const styles = theme => ({
     },
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)'
+    color: 'rgba(0, 0, 0, 0.54)',
   },
   navIconHide: {
     [theme.breakpoints.up('md')]: {
@@ -82,8 +82,10 @@ const styles = theme => ({
   },
   chipFocused: {
     backgroundColor: emphasize(
-      theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
-      0.08,
+      theme.palette.type === 'light'
+        ? theme.palette.grey[300]
+        : theme.palette.grey[700],
+      0.08
     ),
   },
   noOptionsMessage: {
@@ -100,9 +102,9 @@ const styles = theme => ({
   paper: {
     marginTop: theme.spacing.unit,
     position: 'absolute',
-    width: '100%'
+    width: '100%',
   },
-});
+})
 
 function NoOptionsMessage(props) {
   return (
@@ -113,10 +115,10 @@ function NoOptionsMessage(props) {
     >
       {props.children}
     </Typography>
-  );
+  )
 }
 function inputComponent({ inputRef, ...props }) {
-  return <div ref={inputRef} {...props} />;
+  return <div ref={inputRef} {...props} />
 }
 function Control(props) {
   return (
@@ -130,14 +132,14 @@ function Control(props) {
           children: props.children,
           ...props.innerProps,
         },
-        disableUnderline: true
+        disableUnderline: true,
       }}
       {...props.selectProps.textFieldProps}
     />
-  );
+  )
 }
 function Option(props) {
-  var index = props.children.indexOf(' ');
+  var index = props.children.indexOf(' ')
   return (
     <MenuItem
       buttonRef={props.innerRef}
@@ -148,20 +150,15 @@ function Option(props) {
       }}
       {...props.innerProps}
     >
-      <Typography
-        color='textPrimary'
-      >
+      <Typography color="textPrimary">
         {props.children.substr(0, index)}
       </Typography>
-            &nbsp;
-      <Typography
-        color="textSecondary"
-        noWrap={true}
-      >
+      &nbsp;
+      <Typography color="textSecondary" noWrap={true}>
         {props.children.substr(index)}
       </Typography>
     </MenuItem>
-  );
+  )
 }
 function Placeholder(props) {
   return (
@@ -172,63 +169,68 @@ function Placeholder(props) {
     >
       {props.children}
     </Typography>
-  );
+  )
 }
 function SingleValue(props) {
   return (
-    <Typography className={props.selectProps.classes.singleValue} {...props.innerProps}>
+    <Typography
+      className={props.selectProps.classes.singleValue}
+      {...props.innerProps}
+    >
       {props.children}
     </Typography>
-  );
+  )
 }
 function ValueContainer(props) {
-  return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
+  return (
+    <div className={props.selectProps.classes.valueContainer}>
+      {props.children}
+    </div>
+  )
 }
 function MultiValue(props) {
   return (
     <Chip
       tabIndex={-1}
-      label={
-        props.children
-      }
+      label={props.children}
       className={classNames(props.selectProps.classes.chip, {
         [props.selectProps.classes.chipFocused]: props.isFocused,
       })}
-      onDelete={event => {
-        props.removeProps.onClick();
-        props.removeProps.onMouseDown(event);
+      onDelete={(event) => {
+        props.removeProps.onClick()
+        props.removeProps.onMouseDown(event)
       }}
     />
-  );
+  )
 }
 function Menu(props) {
   return (
-    <Paper square className={props.selectProps.classes.paper} {...props.innerProps}>
+    <Paper
+      square
+      className={props.selectProps.classes.paper}
+      {...props.innerProps}
+    >
       {props.children}
     </Paper>
-  );
+  )
 }
 function DropdownIndicator() {
-  return (
-    <SearchIcon color='disabled' />
-  );
+  return <SearchIcon color="disabled" />
 }
 const indicatorSeparatorStyle = {
-  display: 'none'
-};
+  display: 'none',
+}
 
 const IndicatorSeparator = ({ innerProps }) => {
-  return (
-    <span style={indicatorSeparatorStyle} {...innerProps} />
-  );
-};
+  return <span style={indicatorSeparatorStyle} {...innerProps} />
+}
 
-var autocomplete = [];
-var default_acl = [];
+var autocomplete = []
+var default_acl = []
 
 class MainPage extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       acl: [],
       default_acl: [],
@@ -247,249 +249,256 @@ class MainPage extends Component {
       sortDirection: 'ASC',
       preferences: {},
       star: {},
-      complete: {}
-    };
+      complete: {},
+    }
   }
-  componentDidUpdate() {
-  }
+  componentDidUpdate() {}
   componentDidMount() {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight,
-      avatar: getAvatar({ user: this.props.user })
-    });
+      avatar: getAvatar({ user: this.props.user }),
+    })
     window.addEventListener('resize', this.handleResize)
   }
   fetchUserPreferences = (uid) => {
-    let star = this.state.star;
-    let complete = this.state.complete;
+    let star = this.state.star
+    let complete = this.state.complete
     return fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      credentials: 'same-origin'
-    }).then((response) => {
-      if (response.status !== 200) {
+      credentials: 'same-origin',
+    })
+      .then((response) => {
+        if (response.status !== 200) {
+          return
+        }
+        return response.json()
+      })
+      .then((response) => {
+        if (response) {
+          star = 'star' in response ? response['star'] : star
+          complete = 'complete' in response ? response['complete'] : complete
+        }
+        this.setState({
+          star: star,
+          complete: complete,
+          preferences: response,
+        })
         return
-      }
-      return response.json()
-    }).then((response) => {
-      if (response) {
-        star = 'star' in response ? response['star'] : star;
-        complete = 'complete' in response ? response['complete'] : complete;
-      }
-      this.setState({
-        star: star,
-        complete: complete,
-        preferences: response
-      });
-      return;
-    });
+      })
   }
   handleComplete = (e, checked, cellData) => {
-    var study = cellData['rowData']['study'];
-    var subject = cellData['rowData']['subject'];
+    var study = cellData['rowData']['study']
+    var subject = cellData['rowData']['subject']
     if (checked == true) {
-      this.complete(study, subject);
+      this.complete(study, subject)
     } else {
-      this.incomplete(study, subject);
+      this.incomplete(study, subject)
     }
   }
   handleStar = (e, checked, cellData) => {
-    var study = cellData['rowData']['study'];
-    var subject = cellData['rowData']['subject'];
+    var study = cellData['rowData']['study']
+    var subject = cellData['rowData']['subject']
     if (checked == true) {
-      this.favorite(study, subject);
+      this.favorite(study, subject)
     } else {
-      this.unfavorite(study, subject);
+      this.unfavorite(study, subject)
     }
   }
   favorite = (study, subject) => {
-    const newState = this.state.star;
+    const newState = this.state.star
     if (study in newState) {
-      let subjectIndex = newState[study].indexOf(subject);
+      let subjectIndex = newState[study].indexOf(subject)
       if (subjectIndex == -1) {
         let updated = update(this.state.star, {
           [study]: {
-            $push: [subject]
-          }
-        });
-        this.setState({ star: updated });
-        this.updateUserStars(updated);
-        this.starAcl(this.state.default_acl, updated);
+            $push: [subject],
+          },
+        })
+        this.setState({ star: updated })
+        this.updateUserStars(updated)
+        this.starAcl(this.state.default_acl, updated)
       } else {
         //already favorited
       }
     } else {
       let updated = update(this.state.star, {
         [study]: {
-          $set: [subject]
-        }
-      });
-      this.updateUserStars(updated);
+          $set: [subject],
+        },
+      })
+      this.updateUserStars(updated)
       this.setState({
         star: updated,
-      });
-      this.starAcl(this.state.default_acl, updated);
+      })
+      this.starAcl(this.state.default_acl, updated)
     }
   }
   unfavorite = (study, subject) => {
-    const newState = this.state.star;
+    const newState = this.state.star
     if (study in newState) {
-      let subjectIndex = newState[study].indexOf(subject);
+      let subjectIndex = newState[study].indexOf(subject)
       if (subjectIndex > -1) {
         let updated = update(this.state.star, {
           [study]: {
-            $splice: [[subjectIndex, 1]]
-          }
-        });
-        this.updateUserStars(updated);
+            $splice: [[subjectIndex, 1]],
+          },
+        })
+        this.updateUserStars(updated)
         this.setState({
           star: updated,
-        });
-        this.starAcl(this.state.default_acl, updated);
+        })
+        this.starAcl(this.state.default_acl, updated)
       }
     }
   }
   complete = (study, subject) => {
-    const newState = this.state.complete;
+    const newState = this.state.complete
     if (study in newState) {
-      let subjectIndex = newState[study].indexOf(subject);
+      let subjectIndex = newState[study].indexOf(subject)
       if (subjectIndex == -1) {
         let updated = update(this.state.complete, {
           [study]: {
-            $push: [subject]
-          }
-        });
-        this.setState({ complete: updated });
-        this.updateUserComplete(updated);
+            $push: [subject],
+          },
+        })
+        this.setState({ complete: updated })
+        this.updateUserComplete(updated)
       } else {
         //already favorited
       }
     } else {
       let updated = update(this.state.complete, {
         [study]: {
-          $set: [subject]
-        }
-      });
-      this.updateUserComplete(updated);
+          $set: [subject],
+        },
+      })
+      this.updateUserComplete(updated)
       this.setState({
         complete: updated,
-      });
+      })
     }
   }
   incomplete = (study, subject) => {
-    const newState = this.state.complete;
+    const newState = this.state.complete
     if (study in newState) {
-      let subjectIndex = newState[study].indexOf(subject);
+      let subjectIndex = newState[study].indexOf(subject)
       if (subjectIndex > -1) {
         let updated = update(this.state.complete, {
           [study]: {
-            $splice: [[subjectIndex, 1]]
-          }
-        });
-        this.updateUserComplete(updated);
+            $splice: [[subjectIndex, 1]],
+          },
+        })
+        this.updateUserComplete(updated)
         this.setState({
           complete: updated,
-        });
+        })
       }
     }
   }
   starAcl = (default_acl, stars) => {
-    var starred_acl = [];
-    var unstarred_acl = [];
+    var starred_acl = []
+    var unstarred_acl = []
     for (var i = 0; i < default_acl.length; i++) {
-      var study = default_acl[i]['study'];
-      var subject = default_acl[i]['subject'];
+      var study = default_acl[i]['study']
+      var subject = default_acl[i]['subject']
       if (study in stars && stars[study].indexOf(subject) > -1) {
-        starred_acl.push(default_acl[i]);
+        starred_acl.push(default_acl[i])
       } else {
-        unstarred_acl.push(default_acl[i]);
+        unstarred_acl.push(default_acl[i])
       }
     }
     this.setState({
-      acl: starred_acl.concat(unstarred_acl)
-    });
+      acl: starred_acl.concat(unstarred_acl),
+    })
   }
   checkComplete = (complete, cellData) => {
-    var study = (cellData['rowData']['study'] in this.state.complete);
+    var study = cellData['rowData']['study'] in this.state.complete
     if (study) {
-      var subject = this.state.complete[cellData['rowData']['study']].indexOf(cellData['rowData']['subject']);
+      var subject = this.state.complete[cellData['rowData']['study']].indexOf(
+        cellData['rowData']['subject']
+      )
       if (subject > -1) {
-        return true;
+        return true
       } else {
-        return false;
+        return false
       }
     } else {
-      return false;
+      return false
     }
   }
   checkStar = (star, cellData) => {
-    var study = (cellData['rowData']['study'] in this.state.star);
+    var study = cellData['rowData']['study'] in this.state.star
     if (study) {
-      var subject = this.state.star[cellData['rowData']['study']].indexOf(cellData['rowData']['subject']);
+      var subject = this.state.star[cellData['rowData']['study']].indexOf(
+        cellData['rowData']['subject']
+      )
       if (subject > -1) {
-        return true;
+        return true
       } else {
-        return false;
+        return false
       }
     } else {
-      return false;
+      return false
     }
   }
   updateUserStars = (star) => {
-    let uid = this.props.user.uid;
-    let preference = {};
-    preference['star'] = star ? star : this.state.star;
-    preference['complete'] = this.state.complete;
-    preference['config'] = 'config' in this.state.preferences ? this.state.preferences['config'] : '';
+    let uid = this.props.user.uid
+    let preference = {}
+    preference['star'] = star ? star : this.state.star
+    preference['complete'] = this.state.complete
+    preference['config'] =
+      'config' in this.state.preferences ? this.state.preferences['config'] : ''
     return fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       credentials: 'same-origin',
       body: JSON.stringify({
-        preferences: preference
-      })
+        preferences: preference,
+      }),
     }).then(() => {
-      return;
-    });
+      return
+    })
   }
   updateUserComplete = (complete) => {
-    let uid = this.props.user.uid;
-    let preference = {};
-    preference['star'] = this.state.star;
-    preference['complete'] = complete;
-    preference['config'] = 'config' in this.state.preferences ? this.state.preferences['config'] : '';
+    let uid = this.props.user.uid
+    let preference = {}
+    preference['star'] = this.state.star
+    preference['complete'] = complete
+    preference['config'] =
+      'config' in this.state.preferences ? this.state.preferences['config'] : ''
     return fetch(`${basePath}/api/v1/users/${uid}/preferences`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       credentials: 'same-origin',
       body: JSON.stringify({
-        preferences: preference
-      })
+        preferences: preference,
+      }),
     }).then(() => {
-      return;
-    });
+      return
+    })
   }
   handleResize = () => {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
-      height: window.innerHeight - this.state.marginHeight
+      height: window.innerHeight - this.state.marginHeight,
     })
   }
   // eslint-disable-next-line react/no-deprecated
   async componentWillMount() {
     try {
-      const acl = await fetchSubjects();
+      const acl = await fetchSubjects()
       this.autocomplete(this.aggregateSubjects(acl), acl)
-      this.fetchUserPreferences(this.props.user.uid);
+      this.fetchUserPreferences(this.props.user.uid)
     } catch (err) {
-      console.error(err.message);
+      console.error(err.message)
     }
   }
   sort = ({ sortBy, sortDirection }) => {
@@ -512,35 +521,35 @@ class MainPage extends Component {
     }
   }
   handleDrawerToggle = () => {
-    this.setState(state => ({ mobileOpen: !state.mobileOpen }));
-  };
-  handleSearch = value => {
+    this.setState((state) => ({ mobileOpen: !state.mobileOpen }))
+  }
+  handleSearch = (value) => {
     this.setState({
       search: value,
-      search_array: value.map(option => option.value)
-    });
-  };
-  handleChange = name => value => {
+      search_array: value.map((option) => option.value),
+    })
+  }
+  handleChange = (name) => (value) => {
     this.setState({
       [name]: value,
       acl: _.map(default_acl, _.clone).filter((row) => {
-        var key = row.study + row.subject;
-        var filter = value.map(f => f.value);
+        var key = row.study + row.subject
+        var filter = value.map((f) => f.value)
         if (filter.length > 0 && filter.indexOf(key) === -1) {
-          return false;
+          return false
         } else {
-          return true;
+          return true
         }
-      })
-    });
-  };
+      }),
+    })
+  }
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', this.handleResize)
   }
   aggregateSubjects = (acl) => {
-    var options = [];
+    var options = []
     for (var study = 0; study < acl.length; study++) {
-      Array.prototype.push.apply(options, acl[study].subjects);
+      Array.prototype.push.apply(options, acl[study].subjects)
     }
     return this.processDates(options)
   }
@@ -551,69 +560,99 @@ class MainPage extends Component {
       nextWeek: 'dddd',
       lastDay: '[Yesterday]',
       lastWeek: '[Last] dddd',
-      sameElse: 'MM/DD/YYYY'
-    };
-    const nowT = moment().local();
-    for (var i = 0; i < options.length; i++) {
-      var row = options[i];
-      var syncedT = moment.utc(row.synced).local();
-      var syncedL = moment(syncedT.format('YYYY-MM-DD'))
-        .calendar(null, momentSetting);
-      var days = nowT.diff(syncedT, 'days');
-      var color = days > 14 ? '#de1d16' : '#14c774';
-      options[i]['synced'] = syncedL;
-      options[i]['lastSyncedColor'] = color;
+      sameElse: 'MM/DD/YYYY',
     }
-    return options;
+    const nowT = moment().local()
+    for (var i = 0; i < options.length; i++) {
+      var row = options[i]
+      var syncedT = moment.utc(row.synced).local()
+      var syncedL = moment(syncedT.format('YYYY-MM-DD')).calendar(
+        null,
+        momentSetting
+      )
+      var days = nowT.diff(syncedT, 'days')
+      var color = days > 14 ? '#de1d16' : '#14c774'
+      options[i]['synced'] = syncedL
+      options[i]['lastSyncedColor'] = color
+    }
+    return options
   }
   autocomplete = (options, acl) => {
-    autocomplete = options.map(option => ({
+    autocomplete = options.map((option) => ({
       value: option.study + option.subject,
-      label: option.subject + ' in ' + option.study
-    }));
-    default_acl = options;
+      label: option.subject + ' in ' + option.study,
+    }))
+    default_acl = options
     this.starAcl(options, this.state.star)
     this.setState({
       // study determination: at least one upper case
-      totalStudies: acl.filter(s=> /[A-Z]/.test(s.study)).length,
+      totalStudies: acl.filter((s) => /[A-Z]/.test(s.study)).length,
       // subject determination: at least 2 alpha and 3 numeric
-      totalSubjects: options.filter(s=> {
-        let alp=0
-        let num=0
+      totalSubjects: options.filter((s) => {
+        let alp = 0
+        let num = 0
 
-        for (let i=0; i<s.subject.length; i++) {
-          /[a-zA-Z]/.test(s.subject[i]) && alp++;
-          /[0-9]/.test(s.subject[i]) && num++;
+        for (let i = 0; i < s.subject.length; i++) {
+          ;/[a-zA-Z]/.test(s.subject[i]) && alp++
+          ;/[0-9]/.test(s.subject[i]) && num++
         }
 
-        return alp>=2 && num>=3 ? true : false
+        return alp >= 2 && num >= 3 ? true : false
       }).length,
-      totalDays: Math.max.apply(Math, options.map(function (o) { return o.days; })),
-      default_acl: options
-    });
+      totalDays: Math.max.apply(
+        Math,
+        options.map(function (o) {
+          return o.days
+        })
+      ),
+      default_acl: options,
+    })
   }
   getStudyCell = (data) => {
-    return <a style={{ textDecoration: 'none' }} href={`${basePath}/dashboard/${data.study}`}>{data.study}</a>
-  };
+    return (
+      <a
+        style={{ textDecoration: 'none' }}
+        href={`${basePath}/dashboard/${data.study}`}
+      >
+        {data.study}
+      </a>
+    )
+  }
   getSubjectCell = (data) => {
-    return <a style={{ textDecoration: 'none' }} href={`${basePath}/dashboard/${data.study}/${data.subject}`}>{data.subject}</a>
+    return (
+      <a
+        style={{ textDecoration: 'none' }}
+        href={`${basePath}/dashboard/${data.study}/${data.subject}`}
+      >
+        {data.subject}
+      </a>
+    )
   }
   getSyncedCell = (data) => {
-    var complete = this.state.complete;
-    if (data.study in complete && complete[data.study].indexOf(data.subject) > -1) {
+    var complete = this.state.complete
+    if (
+      data.study in complete &&
+      complete[data.study].indexOf(data.subject) > -1
+    ) {
       return <span>{data.synced}</span>
     } else {
       return <span style={{ color: data.lastSyncedColor }}>{data.synced}</span>
     }
-  };
+  }
   render() {
-    const { classes } = this.props;
+    const { classes } = this.props
     const components = {
-      Option, Control,
-      NoOptionsMessage, Placeholder,
-      SingleValue, MultiValue, IndicatorSeparator,
-      ValueContainer, Menu, DropdownIndicator
-    };
+      Option,
+      Control,
+      NoOptionsMessage,
+      Placeholder,
+      SingleValue,
+      MultiValue,
+      IndicatorSeparator,
+      ValueContainer,
+      Menu,
+      DropdownIndicator,
+    }
     return (
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
@@ -639,7 +678,7 @@ class MainPage extends Component {
               <NoSsr>
                 <Select
                   classes={classes}
-                  placeholder="Search a study or subject"
+                  placeholder="Search a study or participant"
                   value={this.state.search}
                   onChange={this.handleSearch}
                   options={autocomplete}
@@ -716,7 +755,7 @@ class MainPage extends Component {
                 sortDirection={this.state.sortDirection}
               >
                 <Column
-                  label="Subject"
+                  label="Participant"
                   dataKey="subject"
                   width={this.state.width / 5}
                   cellRenderer={({ rowData }) => this.getSubjectCell(rowData)}
@@ -784,11 +823,11 @@ class MainPage extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  user: state.user
+  user: state.user,
 })
 
 export default compose(
   withStyles(styles, { withTheme: true }),
   connect(mapStateToProps)
-)(MainPage);
+)(MainPage)
 //export default connect(mapStateToProps)withStyles(styles, { withTheme: true })(MainPage)

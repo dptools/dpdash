@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { ObjectID } from 'mongodb'
+import { ObjectId } from 'mongodb'
 
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import { collections } from '../utils/mongoCollections'
@@ -78,7 +78,7 @@ router
       const { chart_id } = req.params
       const { dataDb } = req.app.locals
       const chart = await dataDb.collection(collections.charts).findOne({
-        _id: ObjectID(chart_id),
+        _id: ObjectId(chart_id),
         owner: req.user,
       })
 
@@ -170,7 +170,7 @@ router
       const { dataDb } = req.app.locals
       const chart = await dataDb
         .collection(collections.charts)
-        .findOne({ _id: new ObjectID(chart_id) })
+        .findOne({ _id: new ObjectId(chart_id) })
 
       if (chart.owner !== req.user) {
         return res
@@ -180,7 +180,7 @@ router
 
       const deletedChart = await dataDb
         .collection(collections.charts)
-        .deleteOne({ _id: ObjectID(chart_id) })
+        .deleteOne({ _id: ObjectId(chart_id) })
 
       if (deletedChart.deletedCount > 0) {
         return res.status(200).json({ data: deletedChart.deletedCount })
@@ -199,7 +199,7 @@ router
       const chart = await dataDb
         .collection(collections.charts)
         .findOne(
-          { _id: new ObjectID(req.params.chart_id), owner: req.user },
+          { _id: new ObjectId(req.params.chart_id), owner: req.user },
           { projection: { _id: 0 } }
         )
 
@@ -235,23 +235,25 @@ router
         fieldLabelValueMap,
         public: isPublic,
       } = req.body
-      const { result } = await dataDb.collection(collections.charts).updateOne(
-        { _id: new ObjectID(chart_id) },
-        {
-          $set: {
-            title,
-            variable,
-            assessment,
-            description,
-            fieldLabelValueMap,
-            public: isPublic,
-            updatedAt: new Date().toISOString(),
-          },
-        }
-      )
+      const updatedChart = await dataDb
+        .collection(collections.charts)
+        .updateOne(
+          { _id: ObjectId(chart_id) },
+          {
+            $set: {
+              title,
+              variable,
+              assessment,
+              description,
+              fieldLabelValueMap,
+              public: isPublic,
+              updatedAt: new Date().toISOString(),
+            },
+          }
+        )
 
-      return result.ok === 1
-        ? res.status(200).json({ data: result })
+      return updatedChart.modifiedCount === 1
+        ? res.status(200).json({ data: updatedChart })
         : res.status(404).json({ message: 'Chart could not be updated' })
     } catch (error) {
       return res.status(500).json({ message: error.message })
@@ -266,7 +268,7 @@ router
       const { chart_id } = req.body
       const sourceChart = await dataDb.collection(collections.charts).findOne(
         {
-          _id: new ObjectID(chart_id),
+          _id: new ObjectId(chart_id),
         },
         { projection: { _id: 0 } }
       )
@@ -293,17 +295,19 @@ router
       const { chart_id } = req.params
       const { dataDb } = req.app.locals
       const { sharedWith } = req.body
-      const { result } = await dataDb.collection(collections.charts).updateOne(
-        { _id: new ObjectID(chart_id) },
-        {
-          $set: {
-            sharedWith,
-            updatedAt: new Date().toISOString(),
-          },
-        }
-      )
+      const updatedChart = await dataDb
+        .collection(collections.charts)
+        .updateOne(
+          { _id: new ObjectId(chart_id) },
+          {
+            $set: {
+              sharedWith,
+              updatedAt: new Date().toISOString(),
+            },
+          }
+        )
 
-      return result.ok === 1
+      return updatedChart.modifiedCount === 1
         ? res.status(200).json({ data: result })
         : res.status(404).json({ message: 'Chart could not be shared' })
     } catch (error) {

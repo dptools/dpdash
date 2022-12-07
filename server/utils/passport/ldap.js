@@ -1,166 +1,158 @@
-import config from '../../configs/config';
-import defaultUserConfig from '../../configs/defaultUserConfig';
-import basePathConfig from '../../configs/basePathConfig';
+import passport from 'passport'
+import config from '../../configs/config'
+import defaultUserConfig from '../../configs/defaultUserConfig'
+import basePathConfig from '../../configs/basePathConfig'
+import { collections } from '../mongoCollections'
 
-import passport from 'passport';
-import { MongoClient }  from 'mongodb';
-
-import { getMongoURI } from '../mongoUtil';
-
-const basePath = basePathConfig || '';
+const basePath = basePathConfig || ''
 
 function getRealms(user) {
   if (user != null && user.realms) {
-    return user.realms;
+    return user.realms
   } else {
-    config.app.realms;
+    config.app.realms
   }
 }
 
 function getUserIcon(user) {
   if (user != null && user.icon) {
-    return user.icon;
+    return user.icon
   } else {
-    return '';
+    return ''
   }
 }
 
 function getUserRoles(user) {
   if (user != null && user.role) {
-    return user.role;
+    return user.role
   } else {
-    return "member";
+    return 'member'
   }
 }
 function getUserAccess(user) {
   if (user != null && user.access) {
-    return user.access;
+    return user.access
   } else {
-    return [];
+    return []
   }
 }
 
 function getUserBlocked(user) {
   if (user != null && user.blocked) {
-    return user.blocked;
+    return user.blocked
   } else {
-    return false;
+    return false
   }
 }
 
 function getUserName(user, ldap_name) {
   if (user != null && user.display_name) {
-    return user.display_name;
+    return user.display_name
   } else if (ldap_name) {
-    return ldap_name;
+    return ldap_name
   } else {
-    return '';
+    return ''
   }
 }
 
 function getUserMail(user, ldap_email) {
   if (user != null && user.mail) {
-    return user.mail;
+    return user.mail
   } else if (ldap_email) {
-    return ldap_email;
+    return ldap_email
   } else {
-    return '';
+    return ''
   }
 }
 
 function getUserTitle(user, ldap_title) {
   if (user != null && user.title) {
-    return user.title;
+    return user.title
   } else if (ldap_title) {
-    return ldap_title;
+    return ldap_title
   } else {
-    return '';
+    return ''
   }
 }
 
 function getUserDpt(user, ldap_dpt) {
   if (user != null && user.department) {
-    return user.department;
+    return user.department
   } else if (ldap_dpt) {
-    return ldap_dpt;
+    return ldap_dpt
   } else {
-    return '';
+    return ''
   }
 }
 
 function getUserCompany(user, ldap_company) {
   if (user != null && user.company) {
-    return user.company;
+    return user.company
   } else if (ldap_company) {
-    return ldap_company;
+    return ldap_company
   } else {
-    return '';
+    return ''
   }
 }
 
 export default (req, res, next) => {
   passport.serializeUser(function (user, done) {
-    done(null, user.uid);
-  });
+    done(null, user.uid)
+  })
 
   passport.deserializeUser(function (user, done) {
-    done(null, user);
-  });
-  passport.authenticate('ldapauth', { session: true }, function (err, user, info) {
-    if (err) {
-      return res.redirect(`${basePath}/login?e=${err}`);
-    }
-    if (!user) {
-      return res.redirect(`${basePath}/login?e=forbidden`);
-    }
-    req.login(user, function (err) {
+    done(null, user)
+  })
+  passport.authenticate(
+    'ldapauth',
+    { session: true },
+    function (err, user, info) {
       if (err) {
-        return next(err);
-      } else {
-        const mongoURI = getMongoURI({ settings: config.database.mongo });
-        MongoClient.connect(mongoURI, config.database.mongo.server, function (err, client) {
-          if (err) {
-            console.error(err.message);
-            return res.redirect(`${basePath}/login?e=forbidden`);
-          }
-          const mongodb = client.db(config.database.mongo.appDB);
-          var uid = user.uid;
-          mongodb.collection('users').findOne(
+        return res.redirect(`${basePath}/login?e=${err}`)
+      }
+      if (!user) {
+        return res.redirect(`${basePath}/login?e=forbidden`)
+      }
+      req.login(user, function (err) {
+        if (err) return next(err)
+        const { appDb } = req.app.locals
+        const uid = user.uid
+        appDb
+          .collection(collections.users)
+          .findOne(
             { uid: uid },
             { realms: 1, role: 1, icon: 1, access: 1, blocked: 1 },
             function (err, userObj) {
-              if (err) {
-                console.error(err.message);
-              }
-              var userRealms = getRealms(userObj);
-              var userIcon = getUserIcon(userObj);
-              var userName = getUserName(userObj, user.cn);
-              var userRoles = getUserRoles(userObj);
-              var userAccess = getUserAccess(userObj);
-              var userBlocked = getUserBlocked(userObj);
-              var userMail = getUserMail(userObj, user.mail);
-              var userDpt = getUserDpt(userObj, user.department);
-              var userCompany = getUserCompany(userObj, user.company);
-              var userTitle = getUserTitle(userObj, user.title);
+              if (err) console.error(err.message)
 
-              mongodb.collection('configs').findOne(
-                { owner: uid },
-                function (err, configObj) {
-                  if (err) {
-                    console.error(err.message);
-                  }
+              const userRealms = getRealms(userObj)
+              const userIcon = getUserIcon(userObj)
+              const userName = getUserName(userObj, user.cn)
+              const userRoles = getUserRoles(userObj)
+              const userAccess = getUserAccess(userObj)
+              const userBlocked = getUserBlocked(userObj)
+              const userMail = getUserMail(userObj, user.mail)
+              const userDpt = getUserDpt(userObj, user.department)
+              const userCompany = getUserCompany(userObj, user.company)
+              const userTitle = getUserTitle(userObj, user.title)
+
+              appDb
+                .collection(collections.configs)
+                .findOne({ owner: uid }, function (err, configObj) {
                   if (!configObj) {
-                    var defaultConfig = {
+                    const defaultConfig = {
                       owner: uid,
                       config: defaultUserConfig,
                       name: 'default',
                       type: 'matrix',
                       readers: [uid],
-                      created: (new Date()).toUTCString()
-                    };
-                    mongodb.collection('configs').insertOne(defaultConfig);
+                      created: new Date().toUTCString(),
+                    }
+                    appDb
+                      .collection(collections.configs)
+                      .insertOne(defaultConfig)
                   }
-                  mongodb.collection('users').findOneAndUpdate(
+                  appDb.collection(collections.users).findOneAndUpdate(
                     { uid: uid },
                     {
                       $set: {
@@ -182,8 +174,8 @@ export default (req, res, next) => {
                         icon: userIcon,
                         role: userRoles,
                         blocked: userBlocked,
-                        access: userAccess
-                      }
+                        access: userAccess,
+                      },
                     },
                     {
                       upsert: true,
@@ -191,23 +183,21 @@ export default (req, res, next) => {
                     },
                     function (err, userinfo) {
                       if (err) {
-                        console.error(err.message);
+                        console.error(err.message)
                       }
-                      client.close();
-                      req.session.role = userRoles;
-                      req.session.display_name = userName;
-                      req.session.mail = userMail;
-                      req.session.celery_tasks = [];
-                      req.session.icon = userIcon;
-                      return res.redirect(`${basePath}/`);
-                    });
-                });
-
-            });
-
-        });
-
-      }
-    });
-  })(req, res, next);
-};
+                      client.close()
+                      req.session.role = userRoles
+                      req.session.display_name = userName
+                      req.session.mail = userMail
+                      req.session.celery_tasks = []
+                      req.session.icon = userIcon
+                      return res.redirect(`${basePath}/`)
+                    }
+                  )
+                })
+            }
+          )
+      })
+    }
+  )(req, res, next)
+}

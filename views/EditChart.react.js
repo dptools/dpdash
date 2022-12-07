@@ -16,7 +16,7 @@ const EditChart = ({ classes, graph, user }) => {
     e.preventDefault()
     const { data } = await editChart(chartID, formValues)
 
-    if (data.ok === 1) window.location.assign(routes.chart(chartID))
+    if (data.modifiedCount === 1) window.location.assign(routes.chart(chartID))
   }
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const EditChart = ({ classes, graph, user }) => {
   if (!chart) return null
 
   return (
-    <AppLayout title='Edit chart'>
+    <AppLayout title="Edit chart">
       <ChartForm
         classes={classes}
         handleSubmit={handleSubmit}

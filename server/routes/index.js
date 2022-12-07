@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { ObjectID } from 'mongodb'
+import { ObjectId } from 'mongodb'
 import { connect } from 'amqplib/callback_api'
 import co from 'co'
 import { createHash } from 'crypto'
@@ -787,7 +787,7 @@ router
       appDb
         .collection('configs')
         .findOneAndUpdate(
-          { _id: new ObjectID(req.body.disable) },
+          { _id: new ObjectId(req.body.disable) },
           { $pull: { readers: req.params.uid } },
           { returnOriginal: false },
           function (err) {
@@ -802,7 +802,7 @@ router
     } else if (Object.prototype.hasOwnProperty.call(req.body, 'remove')) {
       appDb
         .collection('configs')
-        .deleteOne({ _id: new ObjectID(req.body.remove) }, function (err) {
+        .deleteOne({ _id: new ObjectId(req.body.remove) }, function (err) {
           if (err) {
             console.log(err)
             return res.status(502).send({ message: 'fail' })
@@ -814,7 +814,7 @@ router
       appDb
         .collection('configs')
         .findOneAndUpdate(
-          { _id: new ObjectID(req.body.share) },
+          { _id: new ObjectId(req.body.share) },
           { $set: { readers: req.body.shared } },
           { returnOriginal: false },
           function (err) {
@@ -828,7 +828,7 @@ router
         )
     } else if (Object.prototype.hasOwnProperty.call(req.body, 'edit')) {
       appDb.collection('configs').findOneAndUpdate(
-        { _id: new ObjectID(req.body.edit._id) },
+        { _id: new ObjectId(req.body.edit._id) },
         {
           $set: {
             readers: req.body.edit.readers,
@@ -1048,7 +1048,7 @@ router
     appDb
       .collection('configs')
       .findOne(
-        { readers: req.params.uid, _id: new ObjectID(req.params.config_id) },
+        { readers: req.params.uid, _id: new ObjectId(req.params.config_id) },
         function (err, data) {
           if (err) {
             console.log(err)
@@ -1407,7 +1407,7 @@ router
       const { appDb } = req.app.locals
       const { user } = req
       const report = await appDb.collection('reports').findOne({
-        _id: ObjectID(req.params.id),
+        _id: ObjectId(req.params.id),
         $or: [{ user }, { readers: user }],
       })
       if (report === null) {
@@ -1425,7 +1425,7 @@ router
       const { body, user, params } = req
       await appDb.collection('reports').findOneAndUpdate(
         {
-          _id: ObjectID(params.id),
+          _id: ObjectId(params.id),
           user,
         },
         {
@@ -1445,7 +1445,7 @@ router
       const { appDb } = req.app.locals
       const { user } = req
       const deletionRes = await appDb.collection('reports').deleteOne({
-        _id: ObjectID(req.params.id),
+        _id: ObjectId(req.params.id),
         user,
       })
       if (deletionRes.deletedCount > 0) {
@@ -1531,7 +1531,7 @@ router
       const { dataDb } = req.app.locals
       const deleted = await dataDb
         .collection(collections.studyDetails)
-        .deleteOne({ _id: ObjectID(detailId) })
+        .deleteOne({ _id: ObjectId(detailId) })
 
       if (deleted.deletedCount > 0) {
         return res.status(200).json({ data: deleted.deletedCount })

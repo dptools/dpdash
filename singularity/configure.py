@@ -308,10 +308,10 @@ serverurl=AUTO                ; override serverurl computation (childutils)
     return export_file(os.path.join(config_path, 'supervisord.conf'), configuration)
 
 def configure_dpdash(ca_path, key_path, cert_path, dpdash_port, mongo_port, rabbit_port, mongo_password, rabbit_password, session_secret, config_path, data_repo, dpdash_path, rabbit_host, mongo_host, secret):
-    configuration = '''import { readFileSync } from "fs";
-const cert = readFileSync("%(cert_path)s");
-const key = readFileSync("%(key_path)s");
-const ca = [readFileSync("%(ca_path)s")];
+    configuration = '''import path from 'path';
+const cert = path.normalize(("%(cert_path)s");
+const key = path.normalize(("%(key_path)s");
+const ca = path.normalize(("%(ca_path)s");
 
 const config = {};
 

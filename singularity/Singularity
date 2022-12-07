@@ -22,7 +22,7 @@ From:centos:7.4.1708
     yum -y groupinstall "Development tools"
     yum -y install epel-release
     yum -y install net-tools telnet wget git tar which \
-        whereis bzip2 p7zip vim vi vixie-cron cronie sudo
+        bzip2 p7zip vim vi cronie sudo
 
     
     ## install the RabbitMQ message queue
@@ -51,7 +51,7 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mongodb-org-4.4.repo
 
     yum -y install mongodb-org
-    
+
 
     ## install the Celery asyncronous task queue
     pip install "celery==4.3.0" "vine<5.0.0"

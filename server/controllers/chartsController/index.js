@@ -1,6 +1,7 @@
 import { ObjectID } from 'mongodb'
 
 import { collections } from '../../utils/mongoCollections'
+import { SITE_NAMES } from '../../utils/siteNames'
 import {
   generateStudyTargetTotals,
   isAnyTargetIncluded,
@@ -45,7 +46,8 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
     chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
       const { color, label, value, targetValues } = fieldLabelValueMap
       const targetValue = targetValues[study]
-      const dataKey = `${study}-${label}-${targetValue}`
+      const siteName = SITE_NAMES[study] || study
+      const dataKey = `${siteName}-${label}-${targetValue}`
       const totalsDataKey = `${TOTALS_STUDY}-${label}`
       const isVariableValueEmpty = value === ''
       const shouldCountSubject = isVariableValueEmpty
@@ -54,7 +56,12 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
 
       labelMap.set(label, { name: label, color })
       processData({ shouldCountSubject, dataMap, dataKey, totalsDataKey })
-      processTotals({ shouldCountSubject, studyTotals, study, targetValue })
+      processTotals({
+        shouldCountSubject,
+        studyTotals,
+        siteName,
+        targetValue,
+      })
     })
   }
 

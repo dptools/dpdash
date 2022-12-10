@@ -1,3 +1,5 @@
+import { SITE_NAMES } from '../../utils/siteNames'
+
 export const N_A = 'N/A'
 export const TOTALS_STUDY = 'Totals'
 export const EMPTY_VALUE = ''
@@ -79,12 +81,16 @@ export const generateStudyTargetTotals = (chart, allowedStudies) => {
     const { targetValues } = fieldLabelValueMap
 
     allowedStudies.forEach((study) => {
+      const siteName = SITE_NAMES[study] || study
       const rawNewTargetValue = targetValues[study]
       const newTargetValue = !!rawNewTargetValue
         ? +rawNewTargetValue
         : undefined
 
-      studyTotals[study] = studyTargetTotal(studyTotals[study], newTargetValue)
+      studyTotals[siteName] = studyTargetTotal(
+        studyTotals[siteName],
+        newTargetValue
+      )
 
       if (targetValues.hasOwnProperty(study)) {
         studyTotals[TOTALS_STUDY].targetTotal = totalStudyTargetValue(
@@ -129,14 +135,14 @@ export const processData = ({
 export const processTotals = ({
   shouldCountSubject,
   studyTotals,
-  study,
+  siteName,
   targetValue,
 }) => {
   if (shouldCountSubject) {
-    if (studyTotals[study]) {
-      studyTotals[study].count += 1
+    if (studyTotals[siteName]) {
+      studyTotals[siteName].count += 1
     } else {
-      studyTotals[study] = {
+      studyTotals[siteName] = {
         count: 1,
         targetValue,
       }

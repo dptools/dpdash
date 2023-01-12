@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { ObjectId } from 'mongodb'
+import qs from 'qs'
 
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import { collections } from '../utils/mongoCollections'
@@ -46,12 +47,19 @@ router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
     const { dataDb } = req.app.locals
     const { chart_id } = req.params
     const { userAccess } = req.session
+    const parsedQueryParams = qs.parse(req.query)
     const {
       chart: { title, description, fieldLabelValueMap },
       dataBySite,
       labels,
       studyTotals,
-    } = await graphDataController(dataDb, userAccess, chart_id)
+      filters,
+    } = await graphDataController(
+      dataDb,
+      userAccess,
+      chart_id,
+      parsedQueryParams
+    )
     const user = userFromRequest(req)
     const graph = {
       chart_id,
@@ -61,6 +69,7 @@ router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
       description: description,
       legend: legend(fieldLabelValueMap),
       studyTotals,
+      filters,
     }
 
     return res.status(200).send(viewChartPage(user, graph))

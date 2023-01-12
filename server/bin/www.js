@@ -21,8 +21,6 @@ import config from '../configs/config'
 const port = normalizePort(config.app.port)
 app.set('port', port)
 
-console.log(port)
-
 /**
  * Create HTTP server.
  */

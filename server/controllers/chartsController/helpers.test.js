@@ -1,6 +1,7 @@
 import { createChart, createFieldLabelValue } from '../../../test/fixtures'
 import * as helpers from './helpers'
 import * as helpersFactories from './testUtils'
+import { FALSE_STRING, TOTALS_STUDY, TRUE_STRING } from '../../constants'
 
 describe('chartsController - helpers', () => {
   describe(helpers.studyTargetTotal, () => {
@@ -218,7 +219,7 @@ describe('chartsController - helpers', () => {
         MA: { count: 10, targetTotal: 15 },
         NY: { count: 35, targetTotal: 35 },
         Foo: { count: 5, targetTotal: 20 },
-        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: 70 },
+        [TOTALS_STUDY]: { count: 50, targetTotal: 70 },
       }
 
       expect(helpers.isAnyTargetIncluded(studyTotals)).toBe(true)
@@ -229,7 +230,7 @@ describe('chartsController - helpers', () => {
         MA: { count: 10, targetTotal: undefined },
         NY: { count: 35, targetTotal: 35 },
         Foo: { count: 5, targetTotal: undefined },
-        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: undefined },
+        [TOTALS_STUDY]: { count: 50, targetTotal: undefined },
       }
 
       expect(helpers.isAnyTargetIncluded(studyTotals)).toBe(true)
@@ -240,7 +241,7 @@ describe('chartsController - helpers', () => {
         MA: { count: 10, targetTotal: undefined },
         NY: { count: 35, targetTotal: undefined },
         Foo: { count: 5, targetTotal: undefined },
-        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: undefined },
+        [TOTALS_STUDY]: { count: 50, targetTotal: undefined },
       }
 
       expect(helpers.isAnyTargetIncluded(studyTotals)).toBe(false)
@@ -253,7 +254,7 @@ describe('chartsController - helpers', () => {
         Madrid: { count: 10, targetTotal: undefined },
         NY: { count: 35, targetTotal: 35 },
         Foo: { count: 5, targetTotal: 20 },
-        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: 70 },
+        [TOTALS_STUDY]: { count: 50, targetTotal: 70 },
       }
       const postProcessedData = helpers.postProcessData(
         helpersFactories.postProcessDataFactory({
@@ -263,8 +264,8 @@ describe('chartsController - helpers', () => {
           'NY-female-20': 25,
           'Foo-male-10': 5,
           'Foo-female-10': 0,
-          [`${helpers.TOTALS_STUDY}-male`]: 20,
-          [`${helpers.TOTALS_STUDY}-female`]: 30,
+          [`${TOTALS_STUDY}-male`]: 20,
+          [`${TOTALS_STUDY}-female`]: 30,
         }),
         studyTotals
       )
@@ -319,7 +320,7 @@ describe('chartsController - helpers', () => {
         NY: { count: 35, targetTotal: undefined },
         Foo: { count: 5, targetTotal: undefined },
         Bar: { count: 0, targetTotal: undefined },
-        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: undefined },
+        [TOTALS_STUDY]: { count: 50, targetTotal: undefined },
       }
       const data = helpersFactories.postProcessDataFactory({
         'Madrid-male-undefined': 5,
@@ -330,8 +331,8 @@ describe('chartsController - helpers', () => {
         'Foo-female-undefined': 0,
         'Bar-male-undefined': 0,
         'Bar-female-undefined': 0,
-        [`${helpers.TOTALS_STUDY}-male`]: 20,
-        [`${helpers.TOTALS_STUDY}-female`]: 30,
+        [`${TOTALS_STUDY}-male`]: 20,
+        [`${TOTALS_STUDY}-female`]: 30,
       })
       const postProcessedData = helpers.postProcessData(data, studyTotals)
 
@@ -392,7 +393,7 @@ describe('chartsController - helpers', () => {
         Melbourne: { count: 35, targetTotal: undefined },
         NORTHWELL: { count: 5, targetTotal: undefined },
         UNC: { count: 0, targetTotal: undefined },
-        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: undefined },
+        [TOTALS_STUDY]: { count: 50, targetTotal: undefined },
       }
       const data = helpersFactories.postProcessDataFactory({
         'Madrid-male-undefined': 5,
@@ -403,8 +404,8 @@ describe('chartsController - helpers', () => {
         'NORTHWELL-female-undefined': 0,
         'UNC-male-undefined': 0,
         'UNC-female-undefined': 0,
-        [`${helpers.TOTALS_STUDY}-male`]: 20,
-        [`${helpers.TOTALS_STUDY}-female`]: 30,
+        [`${TOTALS_STUDY}-male`]: 20,
+        [`${TOTALS_STUDY}-female`]: 30,
       })
       const postProcessedData = helpers.postProcessData(data, studyTotals)
 
@@ -465,7 +466,7 @@ describe('chartsController - helpers', () => {
         NY: { count: 35, targetTotal: undefined },
         Foo: { count: 5, targetTotal: undefined },
         UNC: { count: 0, targetTotal: undefined },
-        [helpers.TOTALS_STUDY]: { count: 50, targetTotal: undefined },
+        [TOTALS_STUDY]: { count: 50, targetTotal: undefined },
       }
       const data = helpersFactories.postProcessDataFactory({
         'Madrid-male-undefined': 5,
@@ -476,8 +477,8 @@ describe('chartsController - helpers', () => {
         'Foo-female-undefined': 0,
         'UNC-male-undefined': 0,
         'UNC-female-undefined': 0,
-        [`${helpers.TOTALS_STUDY}-male`]: 20,
-        [`${helpers.TOTALS_STUDY}-female`]: 30,
+        [`${TOTALS_STUDY}-male`]: 20,
+        [`${TOTALS_STUDY}-female`]: 30,
       })
       const postProcessedData = helpers.postProcessData(data, studyTotals)
 
@@ -536,7 +537,7 @@ describe('chartsController - helpers', () => {
   describe(helpers.processTotals, () => {
     it('creates a new site on studyTotals with a count and targetValue property', () => {
       const studyTotals = {
-        [helpers.TOTALS_STUDY]: {
+        [TOTALS_STUDY]: {
           count: 0,
           targetTotal: 0,
         },
@@ -551,7 +552,7 @@ describe('chartsController - helpers', () => {
 
       expect(studyTotals).toEqual({
         Foo: { count: 1, targetValue: 2 },
-        [helpers.TOTALS_STUDY]: {
+        [TOTALS_STUDY]: {
           count: 1,
           targetTotal: 0,
         },
@@ -561,7 +562,7 @@ describe('chartsController - helpers', () => {
     it("adds to a site's studyTotals count if subject should be counted", () => {
       const studyTotals = {
         Foo: { count: 1, targetValue: 2 },
-        [helpers.TOTALS_STUDY]: {
+        [TOTALS_STUDY]: {
           count: 1,
           targetTotal: 0,
         },
@@ -576,7 +577,7 @@ describe('chartsController - helpers', () => {
 
       expect(studyTotals).toEqual({
         Foo: { count: 2, targetValue: 2 },
-        [helpers.TOTALS_STUDY]: {
+        [TOTALS_STUDY]: {
           count: 2,
           targetTotal: 0,
         },
@@ -586,7 +587,7 @@ describe('chartsController - helpers', () => {
     it("does not add to a site's count if subject is not to be counted", () => {
       const studyTotals = {
         Foo: { count: 1, targetValue: 2 },
-        [helpers.TOTALS_STUDY]: {
+        [TOTALS_STUDY]: {
           count: 1,
           targetTotal: 0,
         },
@@ -601,11 +602,39 @@ describe('chartsController - helpers', () => {
 
       expect(studyTotals).toEqual({
         Foo: { count: 1, targetValue: 2 },
-        [helpers.TOTALS_STUDY]: {
+        [TOTALS_STUDY]: {
           count: 1,
           targetTotal: 0,
         },
       })
+    })
+  })
+
+  describe(helpers.mongoQueryFromFilters, () => {
+    it('returns undefined when there are no filters', () => {
+      const filters = undefined
+
+      expect(helpers.mongoQueryFromFilters(filters)).toBeUndefined()
+    })
+
+    it('returns an object that can be used to query mongo', () => {
+      const filters = {
+        chrcrit_part: [
+          { name: 'HC', value: TRUE_STRING },
+          { name: 'CHR', value: FALSE_STRING },
+          { name: 'Missing', value: TRUE_STRING },
+        ],
+        included_excluded: [
+          { name: 'Included', value: FALSE_STRING },
+          { name: 'Excluded', value: TRUE_STRING },
+          { name: 'Missing', value: FALSE_STRING },
+        ],
+      }
+
+      expect(helpers.mongoQueryFromFilters(filters)).toEqual([
+        { chrcrit_part: { $in: [2, ''] } },
+        { included_excluded: { $in: [0] } },
+      ])
     })
   })
 })

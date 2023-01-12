@@ -1,3 +1,4 @@
+import qs from 'qs'
 import basePathConfig from '../../server/configs/basePathConfig'
 
 const basePath = basePathConfig || ''
@@ -15,7 +16,10 @@ export const routes = {
   admin: `${basePath}/admin`,
   logout: `${basePath}/logout`,
   studyDetails: `${basePath}/study-details`,
-  chart: (chart_id) => `${basePath}/charts/${chart_id}`,
+  chart: (chart_id, queryParams) =>
+    queryParams
+      ? `${basePath}/charts/${chart_id}?${qs.stringify(queryParams)}`
+      : `${basePath}/charts/${chart_id}`,
   editChart: (chart_id) => `${basePath}/charts/${chart_id}/edit`,
   subjectView: (study, subject) => `${basePath}/dashboard/${study}/${subject}`,
 }

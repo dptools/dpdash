@@ -144,4 +144,41 @@ export const chartStyles = (theme) => ({
     flex: '3',
     justifyContent: 'center',
   },
+  viewChartRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  showFilterContainer: {
+    width: '100%',
+    display: 'flex',
+    paddingTop: '25px',
+    paddingBottom: '25px',
+    justifyContent: 'flex-end',
+  },
+  showFilterButton: {
+    margin: theme.spacing.unit,
+  },
+  leftIcon: {
+    marginRight: theme.spacing.unit,
+  },
+  filters: {
+    width: '100%',
+  },
+  filterText: {
+    paddingRight: theme.spacing.unit * 2,
+    textIndent: '15px',
+  },
+  filterNested: {
+    paddingLeft: theme.spacing.unit * 2,
+    paddingTop: 0,
+    paddingBottom: 0,
+    paddingRight: theme.spacing.unit * 4,
+  },
+  filterLabelContainer: {
+    paddingLeft: '26px',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 })

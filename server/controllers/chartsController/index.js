@@ -1,36 +1,43 @@
-import { ObjectID } from 'mongodb'
-
+import { ObjectId } from 'mongodb'
+import deepEqual from 'deep-equal'
 import { collections } from '../../utils/mongoCollections'
 import { SITE_NAMES } from '../../utils/siteNames'
 import {
   generateStudyTargetTotals,
   isAnyTargetIncluded,
-  N_A,
   postProcessData,
   processData,
   processTotals,
-  TOTALS_STUDY,
+  mongoQueryFromFilters,
 } from './helpers'
+import {
+  N_A,
+  TOTALS_STUDY,
+  STUDIES_TO_OMIT,
+  DEFAULT_CHART_FILTERS,
+  EMPTY_VALUE,
+  INCLUSION_EXCLUSION_CRITERIA_FORM,
+  ALL_SUBJECTS_MONGO_PROJECTION,
+} from '../../constants'
 
-const STUDIES_TO_OMIT = ['files', 'combined']
-
-export const graphDataController = async (dataDb, userAccess, chart_id) => {
+export const graphDataController = async (
+  dataDb,
+  userAccess,
+  chart_id,
+  parsedQueryParams
+) => {
   const labelMap = new Map()
   const dataMap = new Map()
+  const filters = parsedQueryParams.filters || DEFAULT_CHART_FILTERS
   const chart = await dataDb
     .collection(collections.charts)
-    .findOne({ _id: ObjectID(chart_id) })
-  const allSubjects = await dataDb
-    .collection(collections.toc)
-    .find(
-      {
-        assessment: chart.assessment,
-        study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
-      },
-      { projection: { collection: 1, study: 1, _id: 0 } }
-    )
-    .toArray()
-
+    .findOne({ _id: ObjectId(chart_id) })
+  const allSubjects = await getAllSubjects({
+    dataDb,
+    chart,
+    userAccess,
+    filters,
+  })
   const allowedStudies = userAccess.filter(
     (study) => !STUDIES_TO_OMIT.includes(study)
   )
@@ -49,7 +56,7 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
       const siteName = SITE_NAMES[study] || study
       const dataKey = `${siteName}-${label}-${targetValue}`
       const totalsDataKey = `${TOTALS_STUDY}-${label}`
-      const isVariableValueEmpty = value === ''
+      const isVariableValueEmpty = value === EMPTY_VALUE
       const shouldCountSubject = isVariableValueEmpty
         ? subjectDayData.every((day) => day[chart.variable] === value)
         : subjectDayData.some((dayData) => dayData[chart.variable] == value)
@@ -73,8 +80,58 @@ export const graphDataController = async (dataDb, userAccess, chart_id) => {
 
   return {
     chart,
-    dataBySite: Array.from(dataBySite.values()),
+    dataBySite: allSubjects.length > 0 ? Array.from(dataBySite.values()) : [],
     labels: Array.from(labelMap.values()),
     studyTotals,
+    filters,
+  }
+}
+
+const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
+  const { assessment } = chart
+  const allFiltersSelected = deepEqual(filters, DEFAULT_CHART_FILTERS)
+
+  if (allFiltersSelected) {
+    return await dataDb
+      .collection(collections.toc)
+      .find(
+        {
+          assessment,
+          study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+        },
+        { projection: ALL_SUBJECTS_MONGO_PROJECTION }
+      )
+      .toArray()
+  } else {
+    const mongoFilterQuery = mongoQueryFromFilters(filters)
+    const filteredSubjects = []
+    const criteriaCursor = await dataDb.collection(collections.toc).find(
+      {
+        assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+        study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+      },
+      {
+        projection: ALL_SUBJECTS_MONGO_PROJECTION,
+      }
+    )
+
+    for await (let doc of criteriaCursor) {
+      const data = await dataDb
+        .collection(doc.collection)
+        .findOne({ $or: mongoFilterQuery })
+
+      if (data) filteredSubjects.push(data.subjectid)
+    }
+
+    return await dataDb
+      .collection(collections.toc)
+      .find(
+        {
+          assessment,
+          subject: { $in: filteredSubjects },
+        },
+        { projection: ALL_SUBJECTS_MONGO_PROJECTION }
+      )
+      .toArray()
   }
 }

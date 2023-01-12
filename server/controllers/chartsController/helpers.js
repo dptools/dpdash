@@ -1,8 +1,10 @@
 import { SITE_NAMES } from '../../utils/siteNames'
-
-export const N_A = 'N/A'
-export const TOTALS_STUDY = 'Totals'
-export const EMPTY_VALUE = ''
+import {
+  N_A,
+  TOTALS_STUDY,
+  FILTER_TO_MONGO_VALUE_MAP,
+  TRUE_STRING,
+} from '../../constants'
 
 export const isAnyTargetIncluded = (studyTotals) => {
   return Object.keys(studyTotals)
@@ -245,4 +247,34 @@ export const postProcessData = (data, studyTotals) => {
   })
 
   return processedDataBySite
+}
+
+export const mongoQueryFromFilters = (filters) => {
+  if (!filters) {
+    return
+  }
+
+  const chrCritFilters = filters.chrcrit_part.filter(
+    (f) => f.value === TRUE_STRING
+  )
+  const includedExcludedFilters = filters.included_excluded.filter(
+    (f) => f.value === TRUE_STRING
+  )
+
+  return [
+    {
+      chrcrit_part: {
+        $in: chrCritFilters.map(
+          (filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name]
+        ),
+      },
+    },
+    {
+      included_excluded: {
+        $in: includedExcludedFilters.map(
+          (filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name]
+        ),
+      },
+    },
+  ]
 }

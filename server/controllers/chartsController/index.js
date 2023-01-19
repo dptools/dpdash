@@ -103,7 +103,8 @@ const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
       )
       .toArray()
   } else {
-    const mongoFilterQuery = mongoQueryFromFilters(filters)
+    const { mongoAggregateQueryForFilters, activeFilters } =
+      mongoQueryFromFilters(filters)
     const filteredSubjects = []
     const criteriaCursor = await dataDb.collection(collections.toc).find(
       {
@@ -118,9 +119,17 @@ const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
     for await (let doc of criteriaCursor) {
       const data = await dataDb
         .collection(doc.collection)
-        .findOne({ $or: mongoFilterQuery })
+        .aggregate(mongoAggregateQueryForFilters)
+      const subjectCriteriaData = await data.next()
+      const isSubjectInFilteredQuery = activeFilters
+        .map(
+          (requestedFilter) => subjectCriteriaData[requestedFilter].length > 0
+        )
+        .every(Boolean)
 
-      if (data) filteredSubjects.push(data.subjectid)
+      if (isSubjectInFilteredQuery) {
+        filteredSubjects.push(doc.subject)
+      }
     }
 
     return await dataDb

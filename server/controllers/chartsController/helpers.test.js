@@ -631,10 +631,67 @@ describe('chartsController - helpers', () => {
         ],
       }
 
-      expect(helpers.mongoQueryFromFilters(filters)).toEqual([
-        { chrcrit_part: { $in: [2, ''] } },
-        { included_excluded: { $in: [0] } },
-      ])
+      expect(helpers.mongoQueryFromFilters(filters)).toEqual({
+        mongoAggregateQueryForFilters: [
+          {
+            $facet: {
+              chrcrit_part: [
+                {
+                  $match: {
+                    chrcrit_part: {
+                      $in: [2, ''],
+                    },
+                  },
+                },
+              ],
+              included_excluded: [
+                {
+                  $match: {
+                    included_excluded: {
+                      $in: [0],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        activeFilters: ['chrcrit_part', 'included_excluded'],
+      })
+    })
+
+    it('returns an object with individual criterias that can be used to query mongo', () => {
+      const filters = {
+        chrcrit_part: [
+          { name: 'HC', value: TRUE_STRING },
+          { name: 'CHR', value: FALSE_STRING },
+          { name: 'Missing', value: TRUE_STRING },
+        ],
+        included_excluded: [
+          { name: 'Included', value: FALSE_STRING },
+          { name: 'Excluded', value: FALSE_STRING },
+          { name: 'Missing', value: FALSE_STRING },
+        ],
+      }
+
+      expect(helpers.mongoQueryFromFilters(filters)).toEqual({
+        mongoAggregateQueryForFilters: [
+          {
+            $facet: {
+              chrcrit_part: [
+                {
+                  $match: {
+                    chrcrit_part: {
+                      $in: [2, ''],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        activeFilters: ['chrcrit_part'],
+      })
     })
   })
 })

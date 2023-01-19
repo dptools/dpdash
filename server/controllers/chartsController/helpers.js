@@ -253,28 +253,37 @@ export const mongoQueryFromFilters = (filters) => {
   if (!filters) {
     return
   }
+  const activeFilters = []
+  const facet = {}
+  const chrCritFilters = filters.chrcrit_part
+    .filter((f) => f.value === TRUE_STRING)
+    .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
+  const includedExcludedFilters = filters.included_excluded
+    .filter((f) => f.value === TRUE_STRING)
+    .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
 
-  const chrCritFilters = filters.chrcrit_part.filter(
-    (f) => f.value === TRUE_STRING
-  )
-  const includedExcludedFilters = filters.included_excluded.filter(
-    (f) => f.value === TRUE_STRING
-  )
+  if (!!chrCritFilters.length) {
+    facet.chrcrit_part = []
+    facet.chrcrit_part.push({
+      $match: { chrcrit_part: { $in: chrCritFilters } },
+    })
+    activeFilters.push('chrcrit_part')
+  }
 
-  return [
-    {
-      chrcrit_part: {
-        $in: chrCritFilters.map(
-          (filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name]
-        ),
+  if (!!includedExcludedFilters.length) {
+    facet.included_excluded = []
+    facet.included_excluded.push({
+      $match: { included_excluded: { $in: includedExcludedFilters } },
+    })
+    activeFilters.push('included_excluded')
+  }
+
+  return {
+    mongoAggregateQueryForFilters: [
+      {
+        $facet: facet,
       },
-    },
-    {
-      included_excluded: {
-        $in: includedExcludedFilters.map(
-          (filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name]
-        ),
-      },
-    },
-  ]
+    ],
+    activeFilters,
+  }
 }

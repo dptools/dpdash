@@ -20,6 +20,11 @@ export RABBITMQ_CONF_ENV_FILE=/data/dpdash/configs/rabbitmq-env.conf
 # vars for celery worker
 export dppy_config=/data/dpdash/configs/dppy.conf
 
+# clear previous logs
+rm -f ~/.pm2/logs/*
+rm -f /data/dpdash/mongodb/logs/mongod.log
+rm -f /data/dpdash/mongodb/dbs/diagnostic.data/*
+
 # start mongodb, celery, and rabbit
 echo "Starting superivsord..."
 supervisord -c /data/dpdash/configs/supervisord.conf

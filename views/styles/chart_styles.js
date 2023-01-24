@@ -148,37 +148,33 @@ export const chartStyles = (theme) => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
-  showFilterContainer: {
-    width: '100%',
-    display: 'flex',
-    paddingTop: '25px',
-    paddingBottom: '25px',
-    justifyContent: 'flex-end',
-  },
-  showFilterButton: {
-    margin: theme.spacing.unit,
-  },
-  leftIcon: {
-    marginRight: theme.spacing.unit,
+  filterFormContainer: {
+    paddingBottom: '75px',
   },
   filters: {
-    width: '100%',
+    width: '425px',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  filtersContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
   },
   filterText: {
     paddingRight: theme.spacing.unit * 2,
     textIndent: '15px',
   },
   filterNested: {
-    paddingLeft: theme.spacing.unit * 2,
     paddingTop: 0,
     paddingBottom: 0,
-    paddingRight: theme.spacing.unit * 4,
   },
-  filterLabelContainer: {
-    paddingLeft: '26px',
-    width: '100%',
+  filterButtonContainer: {
+    paddingTop: '20px',
+    width: '158px',
     display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  submitFiltersButton: {
+    alignSelf: 'flex-end',
   },
 })

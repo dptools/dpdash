@@ -49,34 +49,40 @@ const ChartFilterForm = ({ initialValues, onSubmit, classes }) => {
               primary={FILTER_CATEGORIES[filterKey]}
               className={classes.filterText}
             />
-            {values[filterKey].map((filter) => {
-              const filterID = `${filterKey}-${filter.name}`
+            <div className={classes.filtersContainer}>
+              {values[filterKey].map((filter) => {
+                const filterID = `${filterKey}-${filter.name}`
 
-              return (
-                <List key={filterID} component="div" disablePadding>
-                  <ListItem className={classes.filterNested}>
-                    <InputLabel
-                      htmlFor={filterID}
-                      className={classes.filterLabelContainer}
-                    >
-                      {filter.name}
-                      <Checkbox
-                        checked={filter.value === TRUE_STRING}
-                        onChange={({ target }) => onChange(target, filterKey)}
-                        name={filter.name}
-                        id={filterID}
-                      />
-                    </InputLabel>
-                  </ListItem>
-                </List>
-              )
-            })}
+                return (
+                  <List key={filterID} component="div" disablePadding>
+                    <ListItem className={classes.filterNested}>
+                      <InputLabel htmlFor={filterID}>
+                        {filter.name}
+                        <Checkbox
+                          checked={filter.value === TRUE_STRING}
+                          onChange={({ target }) => onChange(target, filterKey)}
+                          name={filter.name}
+                          id={filterID}
+                        />
+                      </InputLabel>
+                    </ListItem>
+                  </List>
+                )
+              })}
+            </div>
           </List>
         )
       })}
-      <Button type="submit" color="primary" variant="contained" fullWidth>
-        Apply Filters
-      </Button>
+      <div className={classes.filterButtonContainer}>
+        <Button
+          type="submit"
+          color="primary"
+          variant="contained"
+          className={classes.submitFiltersButton}
+        >
+          Apply Filters
+        </Button>
+      </div>
     </Form>
   )
 }

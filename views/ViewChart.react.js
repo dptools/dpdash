@@ -1,9 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import { withStyles } from '@material-ui/core/styles'
-import { Button, Drawer, Typography } from '@material-ui/core'
-import FilterListIcon from '@material-ui/icons/FilterList'
+import { Typography } from '@material-ui/core'
 import { chartStyles } from './styles/chart_styles'
 import AppLayout from './layouts/AppLayout'
 import BarGraph from './components/BarGraph'
@@ -13,9 +12,6 @@ import { routes } from './routes/routes'
 
 const ViewChart = ({ graph, classes }) => {
   const { title, description, filters } = graph
-  const [showFilterMenu, setFilterMenuToggle] = useState(false)
-  const openFilterMenu = () => setFilterMenuToggle(true)
-  const onCloseFilterMenu = () => setFilterMenuToggle(false)
   const handleSubmit = (updatedFilters) =>
     window.location.assign(
       routes.chart(graph.chart_id, { filters: updatedFilters })
@@ -28,24 +24,15 @@ const ViewChart = ({ graph, classes }) => {
           <Typography variant="subtitle1">
             <pre style={{ fontFamily: 'inherit' }}>{description}</pre>
           </Typography>
-          <Button
-            variant="outline"
-            color="default"
-            className={classes.showFilterButton}
-            onClick={() => openFilterMenu()}
-          >
-            <FilterListIcon className={classes.leftIcon} />
-            Filters
-          </Button>
         </div>
       )}
-      <Drawer anchor="left" open={showFilterMenu} onClose={onCloseFilterMenu}>
+      <div className={classes.filterFormContainer}>
         <ChartFilterForm
           initialValues={filters}
           onSubmit={handleSubmit}
           classes={classes}
         />
-      </Drawer>
+      </div>
       <BarGraph graph={graph} classes={classes} />
       {!!graph.dataBySite.length && <GraphTable graph={graph} />}
     </AppLayout>

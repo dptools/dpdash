@@ -37,7 +37,7 @@ const BarGraph = ({ graph, classes }) => {
           margin={{ top: 0, left: 0, right: 0, bottom: 20 }}
         />
         <XAxis dataKey="name" height={100} angle={55} textAnchor="start">
-          <Label value="Study" />
+          <Label value="Study" dy={20} />
         </XAxis>
         <YAxis width={80}>
           <Label value="Percent" angle={-90} />

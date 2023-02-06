@@ -391,7 +391,7 @@ describe('chartsController - helpers', () => {
       const studyTotals = {
         Madrid: { count: 10, targetTotal: undefined },
         Melbourne: { count: 35, targetTotal: undefined },
-        NORTHWELL: { count: 5, targetTotal: undefined },
+        Northwell: { count: 5, targetTotal: undefined },
         UNC: { count: 0, targetTotal: undefined },
         [TOTALS_STUDY]: { count: 50, targetTotal: undefined },
       }
@@ -400,8 +400,8 @@ describe('chartsController - helpers', () => {
         'Madrid-female-undefined': 5,
         'Melbourne-male-undefined': 10,
         'Melbourne-female-undefined': 25,
-        'NORTHWELL-male-undefined': 5,
-        'NORTHWELL-female-undefined': 0,
+        'Northwell-male-undefined': 5,
+        'Northwell-female-undefined': 0,
         'UNC-male-undefined': 0,
         'UNC-female-undefined': 0,
         [`${TOTALS_STUDY}-male`]: 20,
@@ -432,9 +432,9 @@ describe('chartsController - helpers', () => {
           targets: { female: undefined, male: undefined },
           totalsForStudy: { count: 35, targetTotal: undefined },
         },
-        NORTHWELL: {
+        Northwell: {
           counts: { 'N/A': 0, female: 0, male: 5 },
-          name: 'NORTHWELL',
+          name: 'Northwell',
           percentages: { 'N/A': 0, female: 0, male: 100 },
           targets: { female: undefined, male: undefined },
           totalsForStudy: { count: 5, targetTotal: undefined },

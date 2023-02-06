@@ -547,13 +547,14 @@ describe('chartsController - helpers', () => {
         studyTotals,
         siteName: 'Foo',
         targetValue: 2,
+        variableCount: 4,
       }
       helpers.processTotals(totalsToProcess)
 
       expect(studyTotals).toEqual({
-        Foo: { count: 1, targetValue: 2 },
+        Foo: { count: 4, targetValue: 2 },
         [TOTALS_STUDY]: {
-          count: 1,
+          count: 4,
           targetTotal: 0,
         },
       })
@@ -572,13 +573,14 @@ describe('chartsController - helpers', () => {
         studyTotals,
         siteName: 'Foo',
         targetValue: 2,
+        variableCount: 3,
       }
       helpers.processTotals(totalsToProcess)
 
       expect(studyTotals).toEqual({
-        Foo: { count: 2, targetValue: 2 },
+        Foo: { count: 4, targetValue: 2 },
         [TOTALS_STUDY]: {
-          count: 2,
+          count: 4,
           targetTotal: 0,
         },
       })
@@ -692,6 +694,49 @@ describe('chartsController - helpers', () => {
         ],
         activeFilters: ['chrcrit_part'],
       })
+    })
+  })
+
+  describe(helpers.calculateSubjectVariableDayCount, () => {
+    it('returns the number of times a variable value occurrs in a subjects data', () => {
+      const subjectAssessmentData = [
+        { day: 1, sex: 'male' },
+        { day: 2, sex: 'male' },
+        { day: 3, sex: 'male' },
+        { day: 4, sex: 'female' },
+      ]
+      const variable = 'sex'
+      const value = 'male'
+
+      expect(
+        helpers.calculateSubjectVariableDayCount(
+          subjectAssessmentData,
+          variable,
+          value
+        )
+      ).toEqual(3)
+    })
+
+    it("returns the number of times any variable and it's value appear in subject's data when value is a string number", () => {
+      const subjectAssessmentData = [
+        {
+          day: 1,
+          MRI: 1,
+        },
+        { day: 2, MRI: 1 },
+        { day: 3, MRI: 2 },
+        { day: 4, MRI: 5 },
+      ]
+      const variable = 'MRI'
+      const value = '1'
+
+      expect(
+        helpers.calculateSubjectVariableDayCount(
+          subjectAssessmentData,
+          variable,
+          value
+        )
+      ).toEqual(2)
     })
   })
 })

@@ -111,21 +111,22 @@ export const processData = ({
   dataMap,
   dataKey,
   totalsDataKey,
+  variableCount,
 }) => {
   if (shouldCountSubject) {
     const existingData = dataMap.get(dataKey)
     const existingTotalsData = dataMap.get(totalsDataKey)
 
     if (existingData) {
-      dataMap.set(dataKey, existingData + 1)
+      dataMap.set(dataKey, existingData + variableCount)
     } else {
-      dataMap.set(dataKey, 1)
+      dataMap.set(dataKey, variableCount)
     }
 
     if (existingTotalsData) {
-      dataMap.set(totalsDataKey, existingTotalsData + 1)
+      dataMap.set(totalsDataKey, existingTotalsData + variableCount)
     } else {
-      dataMap.set(totalsDataKey, 1)
+      dataMap.set(totalsDataKey, variableCount)
     }
   } else {
     if (!dataMap.get(dataKey)) {
@@ -139,17 +140,18 @@ export const processTotals = ({
   studyTotals,
   siteName,
   targetValue,
+  variableCount,
 }) => {
   if (shouldCountSubject) {
     if (studyTotals[siteName]) {
-      studyTotals[siteName].count += 1
+      studyTotals[siteName].count += variableCount
     } else {
       studyTotals[siteName] = {
-        count: 1,
+        count: variableCount,
         targetValue,
       }
     }
-    studyTotals[TOTALS_STUDY].count += 1
+    studyTotals[TOTALS_STUDY].count += variableCount
   }
 }
 
@@ -286,4 +288,18 @@ export const mongoQueryFromFilters = (filters) => {
     ],
     activeFilters,
   }
+}
+
+export const calculateSubjectVariableDayCount = (
+  subjectAssessmentDayData,
+  chartVariable,
+  chartValue
+) => {
+  const isChartVariableNaN = isNaN(chartValue)
+  const variableValue = isChartVariableNaN ? chartValue : +chartValue
+  const subjectsDayDataAndVariable = subjectAssessmentDayData.filter(
+    (dayData) => dayData[chartVariable] === variableValue
+  )
+
+  return subjectsDayDataAndVariable.length
 }

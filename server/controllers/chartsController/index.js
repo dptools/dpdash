@@ -9,6 +9,7 @@ import {
   processData,
   processTotals,
   mongoQueryFromFilters,
+  calculateSubjectVariableDayCount,
 } from './helpers'
 import {
   N_A,
@@ -60,14 +61,29 @@ export const graphDataController = async (
       const shouldCountSubject = isVariableValueEmpty
         ? subjectDayData.every((day) => day[chart.variable] === value)
         : subjectDayData.some((dayData) => dayData[chart.variable] == value)
+      const subjectVariableDayCount =
+        isVariableValueEmpty && shouldCountSubject
+          ? 1
+          : calculateSubjectVariableDayCount(
+              subjectDayData,
+              chart.variable,
+              value
+            )
 
       labelMap.set(label, { name: label, color })
-      processData({ shouldCountSubject, dataMap, dataKey, totalsDataKey })
+      processData({
+        shouldCountSubject,
+        dataMap,
+        dataKey,
+        totalsDataKey,
+        variableCount: subjectVariableDayCount,
+      })
       processTotals({
         shouldCountSubject,
         studyTotals,
         siteName,
         targetValue,
+        variableCount: subjectVariableDayCount,
       })
     })
   }

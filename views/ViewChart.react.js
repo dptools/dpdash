@@ -21,9 +21,7 @@ const ViewChart = ({ graph, classes }) => {
     <AppLayout title={title}>
       {description && (
         <div className={classes.viewChartRow}>
-          <Typography variant="subtitle1">
-            <pre style={{ fontFamily: 'inherit' }}>{description}</pre>
-          </Typography>
+          <Typography variant="subtitle1">{description}</Typography>
         </div>
       )}
       <div className={classes.filterFormContainer}>

@@ -147,6 +147,7 @@ export const chartStyles = (theme) => ({
   viewChartRow: {
     display: 'flex',
     justifyContent: 'space-between',
+    paddingBottom: '25px',
   },
   filterFormContainer: {
     paddingBottom: '75px',

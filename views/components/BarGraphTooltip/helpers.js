@@ -1,7 +1,13 @@
-import { N_A, TOTAL_LABEL } from '../../../constants'
+import { N_A, TOTAL_LABEL, TOTALS } from '../../../constants'
 
-const formatTooltipData = (studyCounts = 0, studyTargets) =>
+export const formatTooltipData = (studyCounts = 0, studyTargets) =>
   !!studyTargets ? `${studyCounts} / ${studyTargets}` : `${studyCounts}`
+
+export const formatTotalsTooltipData = ({
+  siteCount,
+  siteTarget,
+  shouldDisplayTargets,
+}) => (shouldDisplayTargets ? `${siteCount} / ${siteTarget}` : `${siteCount}`)
 
 export const isTargetShown = (chartPayload) =>
   chartPayload.some(
@@ -21,9 +27,22 @@ export const siteTooltipContent = (siteData, siteTotals) => {
           counts: { [valueName]: siteCount },
           targets: { [valueName]: siteTarget },
         } = payload
-        const valueColumn = formatTooltipData(siteCount, siteTarget)
-        const rowValue = { labelColumn: valueName, valueColumn }
-        tooltipData.push(rowValue)
+
+        if (payload.name === TOTALS) {
+          const valueColumn = formatTotalsTooltipData({
+            siteCount,
+            siteTarget,
+            shouldDisplayTargets: !!targetTotal,
+          })
+          const rowValue = { labelColumn: valueName, valueColumn }
+
+          tooltipData.push(rowValue)
+        } else {
+          const valueColumn = formatTooltipData(siteCount, siteTarget)
+          const rowValue = { labelColumn: valueName, valueColumn }
+
+          tooltipData.push(rowValue)
+        }
       }
     })
 

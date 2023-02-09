@@ -15,10 +15,11 @@ import {
   N_A,
   TOTALS_STUDY,
   STUDIES_TO_OMIT,
-  DEFAULT_CHART_FILTERS,
+  ALL_FILTERS_ACTIVE,
   EMPTY_VALUE,
   INCLUSION_EXCLUSION_CRITERIA_FORM,
   ALL_SUBJECTS_MONGO_PROJECTION,
+  DEFAULT_CHART_FILTERS,
 } from '../../constants'
 
 export const graphDataController = async (
@@ -105,7 +106,7 @@ export const graphDataController = async (
 
 const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
   const { assessment } = chart
-  const allFiltersSelected = deepEqual(filters, DEFAULT_CHART_FILTERS)
+  const allFiltersSelected = deepEqual(filters, ALL_FILTERS_ACTIVE)
 
   if (allFiltersSelected) {
     return await dataDb

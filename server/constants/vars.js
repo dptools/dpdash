@@ -7,7 +7,7 @@ export const FALSE_STRING = 'false'
 export const INCLUSION_EXCLUSION_CRITERIA_FORM =
   'form_inclusionexclusion_criteria_review'
 
-export const DEFAULT_CHART_FILTERS = {
+export const ALL_FILTERS_ACTIVE = {
   chrcrit_part: [
     { name: 'HC', value: TRUE_STRING },
     { name: 'CHR', value: TRUE_STRING },
@@ -17,6 +17,19 @@ export const DEFAULT_CHART_FILTERS = {
     { name: 'Included', value: TRUE_STRING },
     { name: 'Excluded', value: TRUE_STRING },
     { name: 'Missing', value: TRUE_STRING },
+  ],
+}
+
+export const DEFAULT_CHART_FILTERS = {
+  chrcrit_part: [
+    { name: 'HC', value: TRUE_STRING },
+    { name: 'CHR', value: TRUE_STRING },
+    { name: 'Missing', value: TRUE_STRING },
+  ],
+  included_excluded: [
+    { name: 'Included', value: TRUE_STRING },
+    { name: 'Excluded', value: FALSE_STRING },
+    { name: 'Missing', value: FALSE_STRING },
   ],
 }
 

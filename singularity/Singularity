@@ -73,12 +73,6 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mo
     npm install --legacy-peer-deps
     npm run transpile
 
-    ## install the DPPY DPdash file scanner/importer
-    cd ..
-    git clone --single-branch --branch py3 https://github.com/PREDICT-DPACC/dppy.git
-    cd dppy
-    python setup.py install
-    rm -rf build dist dppy.egg-info
     cd ..
 
     ## install Supervisord process control system

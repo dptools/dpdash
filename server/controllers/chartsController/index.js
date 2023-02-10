@@ -107,9 +107,11 @@ export const graphDataController = async (
 const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
   const { assessment } = chart
   const allFiltersSelected = deepEqual(filters, ALL_FILTERS_ACTIVE)
+  const subjectCollections = new Set()
+  let allSubjects
 
   if (allFiltersSelected) {
-    return await dataDb
+    allSubjects = await dataDb
       .collection(collections.toc)
       .find(
         {
@@ -149,7 +151,7 @@ const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
       }
     }
 
-    return await dataDb
+    allSubjects = await dataDb
       .collection(collections.toc)
       .find(
         {
@@ -160,4 +162,9 @@ const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
       )
       .toArray()
   }
+  return allSubjects.filter((subject) => {
+    if (subjectCollections.has(subject.collection)) return false
+    subjectCollections.add(subject.collection)
+    return true
+  })
 }

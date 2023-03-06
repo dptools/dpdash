@@ -25,7 +25,7 @@ export default (req, res, next, user) => {
 
     appDb.collection(collections.configs).findOne(
       {
-        ower: uid,
+        owner: uid,
       },
       function (err, configObj) {
         if (err) {

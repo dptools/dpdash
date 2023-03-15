@@ -4,6 +4,9 @@ import {
   TOTALS_STUDY,
   FILTER_TO_MONGO_VALUE_MAP,
   TRUE_STRING,
+  SOCIODEMOGRAPHICS_FORM,
+  INCLUSION_EXCLUSION_CRITERIA_FORM,
+  STUDIES_TO_OMIT,
 } from '../../constants'
 
 export const isAnyTargetIncluded = (studyTotals) => {
@@ -11,7 +14,12 @@ export const isAnyTargetIncluded = (studyTotals) => {
     .filter((site) => site !== TOTALS_STUDY)
     .some((site) => studyTotals[site]?.targetTotal !== undefined)
 }
-
+const INDIVIDUAL_FILTERS_MONGO_PROJECTION = {
+  study: 1,
+  collection: 1,
+  _id: 0,
+  subject: 1,
+}
 const calculateStudySectionTargetValue = (
   studySectionTotalTarget,
   studySectionTotalCount
@@ -251,41 +259,63 @@ export const postProcessData = (data, studyTotals) => {
   return processedDataBySite
 }
 
-export const mongoQueryFromFilters = (filters) => {
+export const mongoQueriesFromFilters = (filters, userAccess) => {
   if (!filters) {
     return
   }
   const activeFilters = []
-  const facet = {}
+  const includedCriteriaFacet = {}
   const chrCritFilters = filters.chrcrit_part
     .filter((f) => f.value === TRUE_STRING)
     .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
   const includedExcludedFilters = filters.included_excluded
     .filter((f) => f.value === TRUE_STRING)
     .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
+  const sexAtBirthFilters = filters.sex_at_birth
+    .filter((f) => f.value === TRUE_STRING)
+    .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
 
   if (!!chrCritFilters.length) {
-    facet.chrcrit_part = []
-    facet.chrcrit_part.push({
-      $match: { chrcrit_part: { $in: chrCritFilters } },
-    })
+    includedCriteriaFacet.chrcrit_part = [
+      {
+        $match: { chrcrit_part: { $in: chrCritFilters } },
+      },
+    ]
     activeFilters.push('chrcrit_part')
   }
 
   if (!!includedExcludedFilters.length) {
-    facet.included_excluded = []
-    facet.included_excluded.push({
-      $match: { included_excluded: { $in: includedExcludedFilters } },
-    })
+    includedCriteriaFacet.included_excluded = [
+      {
+        $match: { included_excluded: { $in: includedExcludedFilters } },
+      },
+    ]
     activeFilters.push('included_excluded')
   }
 
+  if (!!sexAtBirthFilters.length) {
+    activeFilters.push('sex_at_birth')
+  }
+
   return {
-    mongoAggregateQueryForFilters: [
+    mongoAggregateQueryForIncludedCriteria: [
       {
-        $facet: facet,
+        $facet: includedCriteriaFacet,
       },
     ],
+    mongoAggregateQueryForFilters: [
+      {
+        $facet: buildFacetForFilters({
+          isSexAtBirthFilterActive: !!sexAtBirthFilters.length,
+          isInclusionCriteriaFilterActive:
+            !!chrCritFilters.length || !!includedExcludedFilters.length,
+          userAccess,
+        }),
+      },
+    ],
+    mongoQueryForSocioDemographics: {
+      chrdemo_sexassigned: { $in: sexAtBirthFilters },
+    },
     activeFilters,
   }
 }
@@ -302,4 +332,92 @@ export const calculateSubjectVariableDayCount = (
   )
 
   return subjectsDayDataAndVariable.length
+}
+
+export const buildFacetForFilters = ({
+  isSexAtBirthFilterActive,
+  isInclusionCriteriaFilterActive,
+  userAccess,
+}) => {
+  const facetForFilters = {}
+
+  if (isSexAtBirthFilterActive) {
+    facetForFilters.socioDemographics = [
+      {
+        $match: {
+          assessment: SOCIODEMOGRAPHICS_FORM,
+          study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+        },
+      },
+      {
+        $project: {
+          ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+        },
+      },
+      {
+        $addFields: {
+          filter: SOCIODEMOGRAPHICS_FORM,
+        },
+      },
+    ]
+  }
+  if (isInclusionCriteriaFilterActive) {
+    facetForFilters.inclusionCriteria = [
+      {
+        $match: {
+          assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+          study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+        },
+      },
+      {
+        $project: {
+          ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+        },
+      },
+      {
+        $addFields: {
+          filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+        },
+      },
+    ]
+  }
+
+  return facetForFilters
+}
+
+export const intersectSubjectsFromFilters = (filters) => {
+  const intersectedSubjects = new Map()
+  const [filterListA, ...rest] = Object.values(filters).map((filter) => {
+    const filterMap = new Map()
+    filter.forEach((subjectData) => {
+      filterMap.set(subjectData.subject, { ...subjectData })
+    })
+
+    return filterMap
+  })
+  filterListA.forEach((subjectData) => {
+    const { subject, collection, filter } = subjectData
+    intersectedSubjects.set(subject, [{ collection, filter }])
+
+    rest.forEach((filterList) => {
+      const existingSubjectData = intersectedSubjects.get(subject)
+      const filterSubjectData = filterList.get(subject)
+
+      if (!!existingSubjectData && !!filterSubjectData) {
+        intersectedSubjects.set(
+          subjectData.subject,
+          existingSubjectData.concat([
+            {
+              collection: filterSubjectData.collection,
+              filter: filterSubjectData.filter,
+            },
+          ])
+        )
+      } else {
+        intersectedSubjects.delete(subject)
+      }
+    })
+  })
+
+  return intersectedSubjects
 }

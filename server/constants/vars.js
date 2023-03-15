@@ -6,6 +6,7 @@ export const TRUE_STRING = 'true'
 export const FALSE_STRING = 'false'
 export const INCLUSION_EXCLUSION_CRITERIA_FORM =
   'form_inclusionexclusion_criteria_review'
+export const SOCIODEMOGRAPHICS_FORM = 'form_sociodemographics'
 
 export const ALL_FILTERS_ACTIVE = {
   chrcrit_part: [
@@ -16,6 +17,11 @@ export const ALL_FILTERS_ACTIVE = {
   included_excluded: [
     { name: 'Included', value: TRUE_STRING },
     { name: 'Excluded', value: TRUE_STRING },
+    { name: 'Missing', value: TRUE_STRING },
+  ],
+  sex_at_birth: [
+    { name: 'Male', value: TRUE_STRING },
+    { name: 'Female', value: TRUE_STRING },
     { name: 'Missing', value: TRUE_STRING },
   ],
 }
@@ -31,6 +37,11 @@ export const DEFAULT_CHART_FILTERS = {
     { name: 'Excluded', value: FALSE_STRING },
     { name: 'Missing', value: FALSE_STRING },
   ],
+  sex_at_birth: [
+    { name: 'Male', value: TRUE_STRING },
+    { name: 'Female', value: TRUE_STRING },
+    { name: 'Missing', value: TRUE_STRING },
+  ],
 }
 
 export const FILTER_TO_MONGO_VALUE_MAP = {
@@ -39,6 +50,8 @@ export const FILTER_TO_MONGO_VALUE_MAP = {
   Missing: '',
   Included: 1,
   Excluded: 0,
+  Male: 1,
+  Female: 2,
 }
 
 export const ALL_SUBJECTS_MONGO_PROJECTION = {

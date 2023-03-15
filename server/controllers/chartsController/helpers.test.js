@@ -1,8 +1,23 @@
 import { createChart, createFieldLabelValue } from '../../../test/fixtures'
 import * as helpers from './helpers'
 import * as helpersFactories from './testUtils'
-import { FALSE_STRING, TOTALS_STUDY, TRUE_STRING } from '../../constants'
+import {
+  FALSE_STRING,
+  TOTALS_STUDY,
+  TRUE_STRING,
+  SOCIODEMOGRAPHICS_FORM,
+  INCLUSION_EXCLUSION_CRITERIA_FORM,
+  STUDIES_TO_OMIT,
+  MONGO_COLLECTION_STRING,
+} from '../../constants'
 
+const userAccess = ['LA', 'YA']
+const INDIVIDUAL_FILTERS_MONGO_PROJECTION = {
+  collection: 1,
+  study: 1,
+  _id: 0,
+  subject: 1,
+}
 describe('chartsController - helpers', () => {
   describe(helpers.studyTargetTotal, () => {
     describe('when there are totals for the study', () => {
@@ -612,11 +627,11 @@ describe('chartsController - helpers', () => {
     })
   })
 
-  describe(helpers.mongoQueryFromFilters, () => {
+  describe(helpers.mongoQueriesFromFilters, () => {
     it('returns undefined when there are no filters', () => {
       const filters = undefined
 
-      expect(helpers.mongoQueryFromFilters(filters)).toBeUndefined()
+      expect(helpers.mongoQueriesFromFilters(filters)).toBeUndefined()
     })
 
     it('returns an object that can be used to query mongo', () => {
@@ -631,10 +646,15 @@ describe('chartsController - helpers', () => {
           { name: 'Excluded', value: TRUE_STRING },
           { name: 'Missing', value: FALSE_STRING },
         ],
+        sex_at_birth: [
+          { name: 'Male', value: TRUE_STRING },
+          { name: 'Female', value: TRUE_STRING },
+          { name: 'Missing', value: TRUE_STRING },
+        ],
       }
 
-      expect(helpers.mongoQueryFromFilters(filters)).toEqual({
-        mongoAggregateQueryForFilters: [
+      expect(helpers.mongoQueriesFromFilters(filters, userAccess)).toEqual({
+        mongoAggregateQueryForIncludedCriteria: [
           {
             $facet: {
               chrcrit_part: [
@@ -658,7 +678,60 @@ describe('chartsController - helpers', () => {
             },
           },
         ],
-        activeFilters: ['chrcrit_part', 'included_excluded'],
+        activeFilters: ['chrcrit_part', 'included_excluded', 'sex_at_birth'],
+        mongoAggregateQueryForFilters: [
+          {
+            $facet: {
+              inclusionCriteria: [
+                {
+                  $match: {
+                    assessment: 'form_inclusionexclusion_criteria_review',
+                    study: {
+                      $in: userAccess,
+                      $nin: ['files', 'combined'],
+                    },
+                  },
+                },
+                {
+                  $project: {
+                    ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+                  },
+                },
+                {
+                  $addFields: {
+                    filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+                  },
+                },
+              ],
+              socioDemographics: [
+                {
+                  $match: {
+                    assessment: 'form_sociodemographics',
+                    study: {
+                      $in: userAccess,
+                      $nin: ['files', 'combined'],
+                    },
+                  },
+                },
+                {
+                  $project: {
+                    ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+                  },
+                },
+                {
+                  $addFields: {
+                    filter: SOCIODEMOGRAPHICS_FORM,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        mongoQueryForSocioDemographics: {
+          chrdemo_sexassigned: {
+            $in: [1, 2, ''],
+          },
+        },
       })
     })
 
@@ -674,10 +747,15 @@ describe('chartsController - helpers', () => {
           { name: 'Excluded', value: FALSE_STRING },
           { name: 'Missing', value: FALSE_STRING },
         ],
+        sex_at_birth: [
+          { name: 'Male', value: FALSE_STRING },
+          { name: 'Female', value: FALSE_STRING },
+          { name: 'Missing', value: FALSE_STRING },
+        ],
       }
 
-      expect(helpers.mongoQueryFromFilters(filters)).toEqual({
-        mongoAggregateQueryForFilters: [
+      expect(helpers.mongoQueriesFromFilters(filters, userAccess)).toEqual({
+        mongoAggregateQueryForIncludedCriteria: [
           {
             $facet: {
               chrcrit_part: [
@@ -693,6 +771,38 @@ describe('chartsController - helpers', () => {
           },
         ],
         activeFilters: ['chrcrit_part'],
+        mongoAggregateQueryForFilters: [
+          {
+            $facet: {
+              inclusionCriteria: [
+                {
+                  $match: {
+                    assessment: 'form_inclusionexclusion_criteria_review',
+                    study: {
+                      $in: ['LA', 'YA'],
+                      $nin: ['files', 'combined'],
+                    },
+                  },
+                },
+                {
+                  $project: {
+                    ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+                  },
+                },
+                {
+                  $addFields: {
+                    filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        mongoQueryForSocioDemographics: {
+          chrdemo_sexassigned: {
+            $in: [],
+          },
+        },
       })
     })
   })
@@ -737,6 +847,166 @@ describe('chartsController - helpers', () => {
           value
         )
       ).toEqual(2)
+    })
+  })
+
+  describe(helpers.buildFacetForFilters, () => {
+    it('returns an object to create lists for the requested filters', () => {
+      expect(
+        helpers.buildFacetForFilters({
+          isSexAtBirthFilterActive: true,
+          isInclusionCriteriaFilterActive: true,
+          userAccess,
+        })
+      ).toEqual({
+        socioDemographics: [
+          {
+            $match: {
+              assessment: SOCIODEMOGRAPHICS_FORM,
+              study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+            },
+          },
+          {
+            $project: {
+              ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+            },
+          },
+          {
+            $addFields: {
+              filter: SOCIODEMOGRAPHICS_FORM,
+            },
+          },
+        ],
+        inclusionCriteria: [
+          {
+            $match: {
+              assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+              study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+            },
+          },
+          {
+            $project: {
+              ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+            },
+          },
+          {
+            $addFields: {
+              filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+            },
+          },
+        ],
+      })
+    })
+
+    it('returns an object only for the requested filters', () => {
+      expect(
+        helpers.buildFacetForFilters({
+          isSexAtBirthFilterActive: true,
+          isInclusionCriteriaFilterActive: undefined,
+          userAccess,
+        })
+      ).toEqual({
+        socioDemographics: [
+          {
+            $match: {
+              assessment: SOCIODEMOGRAPHICS_FORM,
+              study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+            },
+          },
+          {
+            $project: {
+              ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
+            },
+          },
+          {
+            $addFields: {
+              filter: SOCIODEMOGRAPHICS_FORM,
+            },
+          },
+        ],
+      })
+    })
+  })
+
+  describe(helpers.intersectSubjectsFromFilters, () => {
+    it('returns a map with subject data merged', () => {
+      const requestedFilters = {
+        socioDemographics: [
+          {
+            study: 'YA',
+            subject: 'YA01508',
+            collection:
+              '99fc2c55c6718fcd8eadf9244a24d2f68aae77c6fc591d5e2a8e67bab906446f',
+            filter: SOCIODEMOGRAPHICS_FORM,
+          },
+          {
+            study: 'CA',
+            subject: 'CA00063',
+            collection: 'CA00063filter',
+            filter: SOCIODEMOGRAPHICS_FORM,
+          },
+        ],
+        inclusionCriteria: [
+          {
+            study: 'YA',
+            subject: 'YA01508',
+            collection:
+              '062419c48a8b6634e696b9dc0674fb87c34aea44751d1eba107feb0fc7325d71',
+            filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+          },
+          {
+            study: 'CA',
+            subject: 'CA00063',
+            collection: 'CA00063filter',
+            filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+          },
+          {
+            study: 'LA',
+            subject: 'LA00028',
+            collection: 'la00028filter',
+            filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+          },
+          {
+            study: 'YA',
+            subject: 'YA00015',
+            collection: 'YA00015Filter',
+            filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+          },
+        ],
+        thirdCriteriaFilter: [
+          {
+            study: 'YA',
+            subject: 'YA01508',
+            collection: 'thirdCriteriaFilterCollection',
+            filter: 'thirdCriteria',
+          },
+        ],
+      }
+      const intersectedSubjectsMap = Array.from(
+        helpers.intersectSubjectsFromFilters(requestedFilters)
+      )
+
+      expect(intersectedSubjectsMap).toEqual([
+        [
+          'YA01508',
+          [
+            {
+              collection:
+                '99fc2c55c6718fcd8eadf9244a24d2f68aae77c6fc591d5e2a8e67bab906446f',
+              filter: SOCIODEMOGRAPHICS_FORM,
+            },
+            {
+              collection:
+                '062419c48a8b6634e696b9dc0674fb87c34aea44751d1eba107feb0fc7325d71',
+              filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
+            },
+            {
+              collection: 'thirdCriteriaFilterCollection',
+              filter: 'thirdCriteria',
+            },
+          ],
+        ],
+      ])
     })
   })
 })

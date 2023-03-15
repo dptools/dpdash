@@ -8,8 +8,9 @@ import {
   postProcessData,
   processData,
   processTotals,
-  mongoQueryFromFilters,
+  mongoQueriesFromFilters,
   calculateSubjectVariableDayCount,
+  intersectSubjectsFromFilters,
 } from './helpers'
 import {
   N_A,
@@ -17,9 +18,10 @@ import {
   STUDIES_TO_OMIT,
   ALL_FILTERS_ACTIVE,
   EMPTY_VALUE,
-  INCLUSION_EXCLUSION_CRITERIA_FORM,
   ALL_SUBJECTS_MONGO_PROJECTION,
   DEFAULT_CHART_FILTERS,
+  INCLUSION_EXCLUSION_CRITERIA_FORM,
+  SOCIODEMOGRAPHICS_FORM,
 } from '../../constants'
 
 export const graphDataController = async (
@@ -122,34 +124,55 @@ const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
       )
       .toArray()
   } else {
-    const { mongoAggregateQueryForFilters, activeFilters } =
-      mongoQueryFromFilters(filters)
+    const {
+      mongoAggregateQueryForIncludedCriteria,
+      mongoAggregateQueryForFilters,
+      mongoQueryForSocioDemographics,
+      activeFilters,
+    } = mongoQueriesFromFilters(filters, userAccess)
     const filteredSubjects = []
-    const criteriaCursor = await dataDb.collection(collections.toc).find(
-      {
-        assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
-        study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
-      },
-      {
-        projection: ALL_SUBJECTS_MONGO_PROJECTION,
-      }
+    const criteriaCursor = await dataDb
+      .collection(collections.toc)
+      .aggregate(mongoAggregateQueryForFilters)
+    const intersectedSubjectsFromFilters = intersectSubjectsFromFilters(
+      await criteriaCursor.next()
     )
+    await Promise.all(
+      Array.from(intersectedSubjectsFromFilters).map(
+        async ([subject, collections]) => {
+          const data = {}
+          for (const { collection, filter } of collections) {
+            if (filter === INCLUSION_EXCLUSION_CRITERIA_FORM) {
+              const subjectInclusionCriteriaData = await dataDb
+                .collection(collection)
+                .aggregate(mongoAggregateQueryForIncludedCriteria)
+              const inclusionCriteriaData =
+                await subjectInclusionCriteriaData.next()
 
-    for await (let doc of criteriaCursor) {
-      const data = await dataDb
-        .collection(doc.collection)
-        .aggregate(mongoAggregateQueryForFilters)
-      const subjectCriteriaData = await data.next()
-      const isSubjectInFilteredQuery = activeFilters
-        .map(
-          (requestedFilter) => subjectCriteriaData[requestedFilter].length > 0
-        )
-        .every(Boolean)
+              Object.keys(inclusionCriteriaData).forEach(
+                (inclusionCriteriaKey) => {
+                  data[inclusionCriteriaKey] =
+                    inclusionCriteriaData[inclusionCriteriaKey]
+                }
+              )
+            }
 
-      if (isSubjectInFilteredQuery) {
-        filteredSubjects.push(doc.subject)
-      }
-    }
+            if (filter === SOCIODEMOGRAPHICS_FORM) {
+              data.sex_at_birth = await dataDb
+                .collection(collection)
+                .find(mongoQueryForSocioDemographics)
+                .toArray()
+            }
+          }
+
+          const isSubjectInFilteredQuery = activeFilters
+            .map((requestedFilter) => data[requestedFilter].length > 0)
+            .every(Boolean)
+
+          if (isSubjectInFilteredQuery) filteredSubjects.push(subject)
+        }
+      )
+    )
 
     allSubjects = await dataDb
       .collection(collections.toc)
@@ -162,6 +185,7 @@ const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
       )
       .toArray()
   }
+
   return allSubjects.filter((subject) => {
     if (subjectCollections.has(subject.collection)) return false
     subjectCollections.add(subject.collection)

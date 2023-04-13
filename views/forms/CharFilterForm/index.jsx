@@ -4,7 +4,7 @@ import {
   Checkbox,
   List,
   ListItem,
-  ListItemText,
+  Typography,
   InputLabel,
 } from '@material-ui/core'
 import Form from '../Form'
@@ -37,42 +37,43 @@ const ChartFilterForm = ({ initialValues, onSubmit, classes }) => {
         return onSubmit(values)
       }}
     >
-      {Object.keys(values).map((filterKey) => {
-        return (
-          <List
-            id={filterKey}
-            key={filterKey}
-            component="nav"
-            className={classes.filters}
-          >
-            <ListItemText
-              primary={FILTER_CATEGORIES[filterKey]}
-              className={classes.filterText}
-            />
-            <div className={classes.filtersContainer}>
-              {values[filterKey].map((filter) => {
-                const filterID = `${filterKey}-${filter.name}`
+      <div className={classes.filterForm}>
+        {Object.keys(values).map((filterKey) => {
+          return (
+            <div key={filterKey}>
+              <Typography variant="subtitle2" className={classes.filterText}>
+                {FILTER_CATEGORIES[filterKey]}
+              </Typography>
+              <div className={classes.filtersContainer}>
+                {values[filterKey].map((filter) => {
+                  const filterID = `${filterKey}-${filter.name}`
 
-                return (
-                  <List key={filterID} component="div" disablePadding>
-                    <ListItem className={classes.filterNested}>
-                      <InputLabel htmlFor={filterID}>
-                        {filter.name}
+                  return (
+                    <List key={filterID} component="div" disablePadding>
+                      <ListItem className={classes.filterNested}>
+                        <InputLabel
+                          htmlFor={filterID}
+                          className={classes.filterLabel}
+                        >
+                          {filter.name}
+                        </InputLabel>
                         <Checkbox
                           checked={filter.value === TRUE_STRING}
                           onChange={({ target }) => onChange(target, filterKey)}
                           name={filter.name}
                           id={filterID}
+                          className={classes.filterCheckbox}
                         />
-                      </InputLabel>
-                    </ListItem>
-                  </List>
-                )
-              })}
+                      </ListItem>
+                    </List>
+                  )
+                })}
+              </div>
             </div>
-          </List>
-        )
-      })}
+          )
+        })}
+      </div>
+
       <div className={classes.filterButtonContainer}>
         <Button
           type="submit"

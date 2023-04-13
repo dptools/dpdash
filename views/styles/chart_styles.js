@@ -150,32 +150,43 @@ export const chartStyles = (theme) => ({
     paddingBottom: '25px',
   },
   filterFormContainer: {
-    paddingBottom: '75px',
+    paddingBottom: '50px',
   },
-  filters: {
-    width: '425px',
+  filterForm: {
     display: 'flex',
-    flexDirection: 'column',
+    width: '100%',
+  },
+  filterText: {
+    marginTop: 0,
+    marginBottom: 0,
+    textIndent: '15px',
   },
   filtersContainer: {
     display: 'flex',
-    justifyContent: 'space-between',
-  },
-  filterText: {
-    paddingRight: theme.spacing.unit * 2,
-    textIndent: '15px',
+    paddingLeft: '15px',
   },
   filterNested: {
-    paddingTop: 0,
-    paddingBottom: 0,
+    padding: 0,
+  },
+  filterLabel: {
+    fontSize: '12px',
+  },
+  filterCheckbox: {
+    transform: 'scale(.75)',
+    paddingLeft: '0px',
   },
   filterButtonContainer: {
     paddingTop: '20px',
     width: '158px',
-    display: 'flex',
-    justifyContent: 'space-around',
+    paddingLeft: '15px',
   },
   submitFiltersButton: {
     alignSelf: 'flex-end',
+  },
+  [theme.breakpoints.down('md')]: {
+    filterForm: {
+      display: 'flex',
+      flexDirection: 'column',
+    },
   },
 })

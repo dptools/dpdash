@@ -4,6 +4,7 @@ import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
+import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import Link from '@material-ui/core/Link'
 import Delete from '@material-ui/icons/Delete'
@@ -12,6 +13,7 @@ import Share from '@material-ui/icons/Share'
 import PlaylistAdd from '@material-ui/icons/PlaylistAdd'
 
 import { routes } from '../routes/routes'
+import UserAvatar from './UserAvatar'
 
 const ChartList = ({
   handleShareChart,
@@ -27,6 +29,7 @@ const ChartList = ({
         <TableHead>
           <TableRow>
             <TableCell>Chart</TableCell>
+            <TableCell>Owner</TableCell>
             <TableCell align="center">Duplicate</TableCell>
             <TableCell align="center">Edit</TableCell>
             <TableCell align="center">Share</TableCell>
@@ -43,6 +46,17 @@ const ChartList = ({
                   <Link color="textPrimary" href={routes.chart(chart._id)}>
                     {chart.title}
                   </Link>
+                </TableCell>
+                <TableCell>
+                  <span className={classes.chartListOwnerContainer}>
+                    <UserAvatar user={chart.chartOwner} small={true} />
+                    <Typography
+                      variant="subtitle2"
+                      className={classes.chartListOwnerName}
+                    >
+                      {chart.chartOwner.name}
+                    </Typography>
+                  </span>
                 </TableCell>
                 <TableCell align="center">
                   <Button

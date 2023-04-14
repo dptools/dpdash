@@ -9,9 +9,10 @@ import BarGraph from './components/BarGraph'
 import GraphTable from './components/GraphTable'
 import ChartFilterForm from './forms/CharFilterForm'
 import { routes } from './routes/routes'
+import UserAvatar from './components/UserAvatar'
 
 const ViewChart = ({ graph, classes }) => {
-  const { title, description, filters } = graph
+  const { title, description, filters, chartOwner } = graph
   const handleSubmit = (updatedFilters) =>
     window.location.assign(
       routes.chart(graph.chart_id, { filters: updatedFilters })
@@ -21,6 +22,12 @@ const ViewChart = ({ graph, classes }) => {
     <AppLayout title={title}>
       {description && (
         <div className={classes.viewChartRow}>
+          <div className={classes.chartAvatarContainer}>
+            <UserAvatar user={chartOwner} />
+            <Typography variant="subtitle2" className={classes.chartAvatarName}>
+              {chartOwner.display_name}
+            </Typography>
+          </div>
           <Typography variant="subtitle1">{description}</Typography>
         </div>
       )}

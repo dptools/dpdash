@@ -44,12 +44,12 @@ router.route('/charts/new').get(ensureAuthenticated, async (req, res) => {
 
 router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
   try {
-    const { dataDb } = req.app.locals
+    const { dataDb, appDb } = req.app.locals
     const { chart_id } = req.params
     const { userAccess } = req.session
     const parsedQueryParams = qs.parse(req.query)
     const {
-      chart: { title, description, fieldLabelValueMap },
+      chart: { title, description, fieldLabelValueMap, owner },
       dataBySite,
       labels,
       studyTotals,
@@ -61,6 +61,17 @@ router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
       parsedQueryParams
     )
     const user = userFromRequest(req)
+    const chartOwner = await appDb.collection(collections.users).findOne(
+      { uid: owner },
+      {
+        projection: {
+          _id: 0,
+          display_name: 1,
+          icon: 1,
+          uid: 1,
+        },
+      }
+    )
     const graph = {
       chart_id,
       dataBySite,
@@ -70,6 +81,7 @@ router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
       legend: legend(fieldLabelValueMap),
       studyTotals,
       filters,
+      chartOwner,
     }
 
     return res.status(200).send(viewChartPage(user, graph))
@@ -140,29 +152,22 @@ router
   })
   .get(ensureAuthenticated, async (req, res) => {
     try {
+      const chartList = []
       const { dataDb, appDb } = req.app.locals
-      const charts = await dataDb
-        .collection(collections.charts)
-        .find({
-          $or: [
-            { owner: req.user },
-            { sharedWith: req.user },
-            { public: true },
-          ],
-        })
-        .toArray()
-      const chartList = await Promise.all(
-        charts.map(async (chart) => {
-          const { owner } = chart
-          if (owner !== req.user) {
-            const chartOwner = await appDb
-              .collection(collections.users)
-              .findOne({ uid: owner }, { projection: { _id: 0, icon: 1 } })
-            chart.icon = chartOwner.icon
-            return chart
-          } else return chart
-        })
-      )
+      const chartListCursor = await dataDb.collection(collections.charts).find({
+        $or: [{ owner: req.user }, { sharedWith: req.user }, { public: true }],
+      })
+      while (await chartListCursor.hasNext()) {
+        const chart = await chartListCursor.next()
+        chart.chartOwner = await appDb
+          .collection(collections.users)
+          .findOne(
+            { uid: chart.owner },
+            { projection: { _id: 0, icon: 1, uid: 1, name: '$display_name' } }
+          )
+        chartList.push(chart)
+      }
+
       return res.status(200).json({ data: chartList })
     } catch (error) {
       console.error(error)

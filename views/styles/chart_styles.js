@@ -146,11 +146,15 @@ export const chartStyles = (theme) => ({
   },
   viewChartRow: {
     display: 'flex',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
     paddingBottom: '25px',
   },
+  chartAvatarContainer: { paddingBottom: '10px' },
   filterFormContainer: {
     paddingBottom: '50px',
+  },
+  chartAvatarName: {
+    paddingTop: '2px',
   },
   filterForm: {
     display: 'flex',
@@ -188,5 +192,13 @@ export const chartStyles = (theme) => ({
       display: 'flex',
       flexDirection: 'column',
     },
+  },
+  chartListOwnerContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chartListOwnerName: {
+    paddingLeft: '10px',
   },
 })

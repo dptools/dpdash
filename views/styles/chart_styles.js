@@ -201,4 +201,10 @@ export const chartStyles = (theme) => ({
   chartListOwnerName: {
     paddingLeft: '10px',
   },
+  graphTableContainer: {
+    marginTop: '50px',
+  },
+  tableCsvIcon: {
+    marginLeft: '-10px',
+  },
 })

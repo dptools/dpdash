@@ -1,4 +1,10 @@
-import { createChart, createFieldLabelValue } from '../../../test/fixtures'
+import {
+  createChart,
+  createFieldLabelValue,
+  createDataBySite,
+  createLabels,
+  createTableHeaders,
+} from '../../../test/fixtures'
 import * as helpers from './helpers'
 import * as helpersFactories from './testUtils'
 import {
@@ -8,7 +14,7 @@ import {
   SOCIODEMOGRAPHICS_FORM,
   INCLUSION_EXCLUSION_CRITERIA_FORM,
   STUDIES_TO_OMIT,
-  MONGO_COLLECTION_STRING,
+  N_A,
 } from '../../constants'
 
 const userAccess = ['LA', 'YA']
@@ -1005,6 +1011,192 @@ describe('chartsController - helpers', () => {
               filter: 'thirdCriteria',
             },
           ],
+        ],
+      ])
+    })
+  })
+
+  describe(helpers.graphTableColumns, () => {
+    it('returns an array of graph table headers from a list of labels', () => {
+      expect(helpers.graphTableColumns(createLabels())).toEqual([
+        {
+          color: 'gray',
+          name: 'Site',
+        },
+        {
+          color: '#b1b1b1',
+          name: 'Pending evaluation',
+        },
+        {
+          color: '#7AAA7B',
+          name: 'Excellent',
+        },
+        {
+          color: '#97C0CE',
+          name: 'Good',
+        },
+        {
+          color: '#FFD700',
+          name: 'Average',
+        },
+        {
+          color: '#F89235',
+          name: 'Poor',
+        },
+        {
+          color: 'gray',
+          name: 'Total',
+        },
+      ])
+    })
+
+    it('removes the N/A category from the labels list', () => {
+      const isNAValueInArray = helpers
+        .graphTableColumns(
+          createLabels([
+            {
+              name: N_A,
+              color: 'grey',
+            },
+          ])
+        )
+        .some(({ name }) => name === N_A)
+      expect(isNAValueInArray).toEqual(false)
+    })
+
+    it('appends the header "Total" to array', () => {
+      const total = helpers.graphTableColumns(createLabels()).pop()
+      expect(total).toEqual({ color: 'gray', name: 'Total' })
+    })
+  })
+
+  describe(helpers.graphTableRowData, () => {
+    it('returns sorted graph table row data', () => {
+      expect(
+        helpers.graphTableRowData(
+          helpers.sortTableRowDataBySite(createDataBySite()),
+          createTableHeaders()
+        )
+      ).toEqual([
+        [
+          {
+            color: 'gray',
+            data: 'Totals',
+          },
+          {
+            data: '60 / 215 (28%)',
+            color: '#b1b1b1',
+          },
+          {
+            data: '87 / 215 (40%)',
+            color: '#7AAA7B',
+          },
+          {
+            data: '40 / 215 (19%)',
+            color: '#97C0CE',
+          },
+          {
+            data: '26 / 215 (12%)',
+            color: '#FFD700',
+          },
+          {
+            data: '2 / 215 (1%)',
+            color: '#F89235',
+          },
+          {
+            data: '215',
+            color: 'gray',
+          },
+        ],
+        [
+          {
+            color: 'gray',
+            data: 'Birmingham',
+          },
+          {
+            data: '2',
+            color: '#b1b1b1',
+          },
+          {
+            data: '0',
+            color: '#7AAA7B',
+          },
+          {
+            data: '0',
+            color: '#97C0CE',
+          },
+          {
+            data: '0',
+            color: '#FFD700',
+          },
+          {
+            data: '0',
+            color: '#F89235',
+          },
+          {
+            data: '2',
+            color: 'gray',
+          },
+        ],
+        [
+          {
+            color: 'gray',
+            data: 'Calgary',
+          },
+          {
+            data: '3',
+            color: '#b1b1b1',
+          },
+          {
+            data: '2',
+            color: '#7AAA7B',
+          },
+          {
+            data: '0',
+            color: '#97C0CE',
+          },
+          {
+            data: '1',
+            color: '#FFD700',
+          },
+          {
+            data: '0',
+            color: '#F89235',
+          },
+          {
+            data: '6',
+            color: 'gray',
+          },
+        ],
+        [
+          {
+            color: 'gray',
+            data: 'Cambridge UK',
+          },
+          {
+            data: '1',
+            color: '#b1b1b1',
+          },
+          {
+            data: '0',
+            color: '#7AAA7B',
+          },
+          {
+            data: '1',
+            color: '#97C0CE',
+          },
+          {
+            data: '0',
+            color: '#FFD700',
+          },
+          {
+            data: '0',
+            color: '#F89235',
+          },
+          {
+            data: '2',
+            color: 'gray',
+          },
         ],
       ])
     })

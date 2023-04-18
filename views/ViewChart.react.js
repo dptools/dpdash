@@ -39,7 +39,9 @@ const ViewChart = ({ graph, classes }) => {
         />
       </div>
       <BarGraph graph={graph} classes={classes} />
-      {!!graph.dataBySite.length && <GraphTable graph={graph} />}
+      {!!graph.dataBySite.length && (
+        <GraphTable graph={graph} classes={classes} />
+      )}
     </AppLayout>
   )
 }

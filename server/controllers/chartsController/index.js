@@ -11,6 +11,9 @@ import {
   mongoQueriesFromFilters,
   calculateSubjectVariableDayCount,
   intersectSubjectsFromFilters,
+  graphTableColumns,
+  sortTableRowDataBySite,
+  graphTableRowData,
 } from './helpers'
 import {
   N_A,
@@ -91,18 +94,23 @@ export const graphDataController = async (
     })
   }
 
-  const dataBySite = postProcessData(dataMap, studyTotals)
+  const postProcessedDataBySite = postProcessData(dataMap, studyTotals)
 
   if (isAnyTargetIncluded(studyTotals)) {
     labelMap.set(N_A, { name: N_A, color: '#808080' })
   }
 
+  const dataBySite =
+    allSubjects.length > 0 ? Array.from(postProcessedDataBySite.values()) : []
+  const labels = Array.from(labelMap.values())
+
   return {
     chart,
-    dataBySite: allSubjects.length > 0 ? Array.from(dataBySite.values()) : [],
-    labels: Array.from(labelMap.values()),
+    dataBySite,
+    labels,
     studyTotals,
     filters,
+    graphTable: processGraphTableData(dataBySite, labels),
   }
 }
 
@@ -191,4 +199,16 @@ const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
     subjectCollections.add(subject.collection)
     return true
   })
+}
+
+const processGraphTableData = (dataBySite, labels) => {
+  const tableColumns = graphTableColumns(labels)
+
+  return {
+    tableColumns,
+    tableRows: graphTableRowData(
+      sortTableRowDataBySite(dataBySite),
+      tableColumns
+    ),
+  }
 }

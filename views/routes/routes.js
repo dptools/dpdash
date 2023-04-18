@@ -22,6 +22,8 @@ export const routes = {
       : `${basePath}/charts/${chart_id}`,
   editChart: (chart_id) => `${basePath}/charts/${chart_id}/edit`,
   subjectView: (study, subject) => `${basePath}/dashboard/${study}/${subject}`,
+  chartCsv: (chart_id, queryParams) =>
+    `${routes.chart(chart_id, queryParams)}.csv`,
 }
 
 export const apiRoutes = {

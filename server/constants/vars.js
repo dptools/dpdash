@@ -7,6 +7,8 @@ export const FALSE_STRING = 'false'
 export const INCLUSION_EXCLUSION_CRITERIA_FORM =
   'form_inclusionexclusion_criteria_review'
 export const SOCIODEMOGRAPHICS_FORM = 'form_sociodemographics'
+export const TOTAL_LABEL = 'Total'
+export const SITE = 'Site'
 
 export const ALL_FILTERS_ACTIVE = {
   chrcrit_part: [

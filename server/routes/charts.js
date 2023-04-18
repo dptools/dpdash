@@ -5,13 +5,14 @@ import qs from 'qs'
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import { collections } from '../utils/mongoCollections'
 import { userFromRequest } from '../utils/userFromRequestUtil'
+import CsvService from '../services/CSVService'
 
 import chartsListPage from '../templates/Chart.template'
 import newChartPage from '../templates/NewChart.template'
 import viewChartPage from '../templates/ViewChart.template'
 import editChartPage from '../templates/EditChart.template'
 
-import { legend } from '../helpers/chartsHelpers'
+import { legend, formatGraphTableDataToCSV } from '../helpers/chartsHelpers'
 import { graphDataController } from '../controllers/chartsController'
 import { routes } from '../utils/routes'
 import { defaultTargetValueMap } from '../utils/defaultTargetValueMap'
@@ -42,55 +43,69 @@ router.route('/charts/new').get(ensureAuthenticated, async (req, res) => {
   }
 })
 
-router.route('/charts/:chart_id').get(ensureAuthenticated, async (req, res) => {
-  try {
-    const { dataDb, appDb } = req.app.locals
-    const { chart_id } = req.params
-    const { userAccess } = req.session
-    const parsedQueryParams = qs.parse(req.query)
-    const {
-      chart: { title, description, fieldLabelValueMap, owner },
-      dataBySite,
-      labels,
-      studyTotals,
-      filters,
-    } = await graphDataController(
-      dataDb,
-      userAccess,
-      chart_id,
-      parsedQueryParams
-    )
-    const user = userFromRequest(req)
-    const chartOwner = await appDb.collection(collections.users).findOne(
-      { uid: owner },
-      {
-        projection: {
-          _id: 0,
-          display_name: 1,
-          icon: 1,
-          uid: 1,
-        },
+router
+  .route('/charts/:chart_id')
+  .get(ensureAuthenticated, async (req, res, next) => {
+    try {
+      const { dataDb, appDb } = req.app.locals
+      const { chart_id } = req.params
+      const { userAccess } = req.session
+      const parsedQueryParams = qs.parse(req.query)
+      const {
+        chart: { title, description, fieldLabelValueMap, owner },
+        dataBySite,
+        labels,
+        studyTotals,
+        filters,
+        graphTable,
+      } = await graphDataController(
+        dataDb,
+        userAccess,
+        chart_id,
+        parsedQueryParams
+      )
+      const user = userFromRequest(req)
+      const chartOwner = await appDb.collection(collections.users).findOne(
+        { uid: owner },
+        {
+          projection: {
+            _id: 0,
+            display_name: 1,
+            icon: 1,
+            uid: 1,
+          },
+        }
+      )
+      const graph = {
+        chart_id,
+        dataBySite,
+        labels,
+        title: title,
+        description: description,
+        legend: legend(fieldLabelValueMap),
+        studyTotals,
+        filters,
+        chartOwner,
+        graphTable,
       }
-    )
-    const graph = {
-      chart_id,
-      dataBySite,
-      labels,
-      title: title,
-      description: description,
-      legend: legend(fieldLabelValueMap),
-      studyTotals,
-      filters,
-      chartOwner,
+      if (req.headers['content-type'] === 'text/csv') {
+        res.header('Content-Type', 'text/csv')
+
+        const csvService = new CsvService(formatGraphTableDataToCSV(graphTable))
+        const csvStream = csvService.toReadableStream().pipe(res)
+        csvStream.on('error', (err) => next(err))
+        csvStream.on('end', () => res.end())
+
+        return res.send()
+      }
+
+      return res.status(200).send(viewChartPage(user, graph))
+    } catch (err) {
+      console.error(err.stack)
+
+      return res.status(500).send({ message: err.message })
     }
-
-    return res.status(200).send(viewChartPage(user, graph))
-  } catch (err) {
-    console.error(err.stack)
-
-    return res.status(500).send({ message: err.message })
-  }
-})
+  })
 
 router
   .route('/charts/:chart_id/edit')
@@ -210,16 +225,17 @@ router
   .get(ensureAuthenticated, async (req, res) => {
     try {
       const { dataDb } = req.app.locals
+      const { chart_id } = req.params
+      const { userAccess } = req.session
       const chart = await dataDb
         .collection(collections.charts)
         .findOne(
-          { _id: new ObjectId(req.params.chart_id), owner: req.user },
+          { _id: new ObjectId(chart_id), owner: req.user },
           { projection: { _id: 0 } }
         )
 
       if (!chart) return res.redirect(routes.charts)
 
-      const { userAccess } = req.session
       const targetValuesMap = defaultTargetValueMap(userAccess)
       chart.fieldLabelValueMap = chart.fieldLabelValueMap.map((fieldValue) => {
         const updateTargetValues = {

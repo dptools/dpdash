@@ -1,5 +1,6 @@
+import FileSaver from 'file-saver'
 import basePathConfig from '../../server/configs/basePathConfig'
-import { routes, defaultApiOptions, apiRoutes } from '../routes/routes'
+import { defaultApiOptions, apiRoutes, routes } from '../routes/routes'
 const basePath = basePathConfig || ''
 
 const fetchStudiesAdmin = async () => {
@@ -200,6 +201,19 @@ const shareChart = async (chart_id, sharedWith) => {
   return res.json()
 }
 
+const fetchGraphTableCSV = async (chart_id, filters, filename) => {
+  const res = await window.fetch(routes.chartCsv(chart_id, filters), {
+    headers: {
+      'Content-Type': 'text/csv',
+    },
+    method: 'GET',
+  })
+  const graphTableData = await res.blob()
+  FileSaver.saveAs(graphTableData, `${filename}.csv`)
+
+  return res
+}
+
 export {
   fetchStudies,
   fetchStudiesAdmin,
@@ -218,4 +232,5 @@ export {
   fetchConfigurations,
   fetchPreferences,
   shareChart,
+  fetchGraphTableCSV,
 }

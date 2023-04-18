@@ -7,6 +7,8 @@ import {
   SOCIODEMOGRAPHICS_FORM,
   INCLUSION_EXCLUSION_CRITERIA_FORM,
   STUDIES_TO_OMIT,
+  TOTAL_LABEL,
+  SITE,
 } from '../../constants'
 
 export const isAnyTargetIncluded = (studyTotals) => {
@@ -420,4 +422,53 @@ export const intersectSubjectsFromFilters = (filters) => {
   })
 
   return intersectedSubjects
+}
+
+export const sortTableRowDataBySite = (dataBySite) => {
+  return dataBySite
+    .map((site) => {
+      const { count, targetTotal } = site.totalsForStudy
+      site.counts[TOTAL_LABEL] = count
+      site.targets[TOTAL_LABEL] = targetTotal
+      return site
+    })
+    .sort(sortAllSitesBeforeTotalsSite)
+}
+
+const sortAllSitesBeforeTotalsSite = (siteA, siteB) => {
+  if (siteA.name === TOTALS_STUDY) return 1
+  if (siteB.name === TOTALS_STUDY) return 1
+}
+
+const formatGraphTableCellData = (siteTarget, studyCounts = 0) => {
+  if (!siteTarget) return `${studyCounts}`
+
+  const percent = studyCountsToPercentage(studyCounts, siteTarget)
+
+  return `${studyCounts} / ${siteTarget} (${formatAsPercentage(percent)})`
+}
+
+export const graphTableColumns = (columns) => [
+  { name: SITE, color: 'gray' },
+  ...columns
+    .filter((column) => column.name !== N_A)
+    .concat({ name: TOTAL_LABEL, color: 'gray' }),
+]
+
+const formatAsPercentage = (value = 0) => value.toFixed(0) + '%'
+
+export const graphTableRowData = (sortedGraphTableData, tableHeaders) => {
+  return sortedGraphTableData.map((siteData) => {
+    return tableHeaders.map(({ name: columnHeader, color }) => {
+      const {
+        name,
+        counts: { [columnHeader]: siteCount },
+        targets: { [columnHeader]: siteTarget },
+      } = siteData
+
+      return columnHeader === SITE
+        ? { data: name, color }
+        : { data: formatGraphTableCellData(siteTarget, siteCount), color }
+    })
+  })
 }

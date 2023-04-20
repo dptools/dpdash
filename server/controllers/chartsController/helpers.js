@@ -432,12 +432,16 @@ export const sortTableRowDataBySite = (dataBySite) => {
       site.targets[TOTAL_LABEL] = targetTotal
       return site
     })
-    .sort(sortAllSitesBeforeTotalsSite)
+    .sort(sortSitesByNameAndTotalsAtBottom)
 }
 
-const sortAllSitesBeforeTotalsSite = (siteA, siteB) => {
+const sortSitesByNameAndTotalsAtBottom = (siteA, siteB) => {
   if (siteA.name === TOTALS_STUDY) return 1
-  if (siteB.name === TOTALS_STUDY) return 1
+  if (siteB.name === TOTALS_STUDY) return -1
+  if (siteA.name < siteB.name) return -1
+  if (siteA.name > siteB.name) return 1
+
+  return 0
 }
 
 const formatGraphTableCellData = (siteTarget, studyCounts = 0) => {

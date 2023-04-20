@@ -1081,61 +1081,31 @@ describe('chartsController - helpers', () => {
         [
           {
             color: 'gray',
-            data: 'Totals',
-          },
-          {
-            data: '60 / 215 (28%)',
-            color: '#b1b1b1',
-          },
-          {
-            data: '87 / 215 (40%)',
-            color: '#7AAA7B',
-          },
-          {
-            data: '40 / 215 (19%)',
-            color: '#97C0CE',
-          },
-          {
-            data: '26 / 215 (12%)',
-            color: '#FFD700',
-          },
-          {
-            data: '2 / 215 (1%)',
-            color: '#F89235',
-          },
-          {
-            data: '215',
-            color: 'gray',
-          },
-        ],
-        [
-          {
-            color: 'gray',
             data: 'Birmingham',
           },
           {
-            data: '2',
             color: '#b1b1b1',
-          },
-          {
-            data: '0',
-            color: '#7AAA7B',
-          },
-          {
-            data: '0',
-            color: '#97C0CE',
-          },
-          {
-            data: '0',
-            color: '#FFD700',
-          },
-          {
-            data: '0',
-            color: '#F89235',
-          },
-          {
             data: '2',
+          },
+          {
+            color: '#7AAA7B',
+            data: '0',
+          },
+          {
+            color: '#97C0CE',
+            data: '0',
+          },
+          {
+            color: '#FFD700',
+            data: '0',
+          },
+          {
+            color: '#F89235',
+            data: '0',
+          },
+          {
             color: 'gray',
+            data: '2',
           },
         ],
         [
@@ -1144,28 +1114,28 @@ describe('chartsController - helpers', () => {
             data: 'Calgary',
           },
           {
-            data: '3',
             color: '#b1b1b1',
+            data: '3',
           },
           {
-            data: '2',
             color: '#7AAA7B',
+            data: '2',
           },
           {
-            data: '0',
             color: '#97C0CE',
-          },
-          {
-            data: '1',
-            color: '#FFD700',
-          },
-          {
             data: '0',
-            color: '#F89235',
           },
           {
-            data: '6',
+            color: '#FFD700',
+            data: '1',
+          },
+          {
+            color: '#F89235',
+            data: '0',
+          },
+          {
             color: 'gray',
+            data: '6',
           },
         ],
         [
@@ -1174,28 +1144,58 @@ describe('chartsController - helpers', () => {
             data: 'Cambridge UK',
           },
           {
-            data: '1',
             color: '#b1b1b1',
-          },
-          {
-            data: '0',
-            color: '#7AAA7B',
-          },
-          {
             data: '1',
+          },
+          {
+            color: '#7AAA7B',
+            data: '0',
+          },
+          {
             color: '#97C0CE',
+            data: '1',
           },
           {
-            data: '0',
             color: '#FFD700',
-          },
-          {
             data: '0',
-            color: '#F89235',
           },
           {
-            data: '2',
+            color: '#F89235',
+            data: '0',
+          },
+          {
             color: 'gray',
+            data: '2',
+          },
+        ],
+        [
+          {
+            color: 'gray',
+            data: 'Totals',
+          },
+          {
+            color: '#b1b1b1',
+            data: '60 / 215 (28%)',
+          },
+          {
+            color: '#7AAA7B',
+            data: '87 / 215 (40%)',
+          },
+          {
+            color: '#97C0CE',
+            data: '40 / 215 (19%)',
+          },
+          {
+            color: '#FFD700',
+            data: '26 / 215 (12%)',
+          },
+          {
+            color: '#F89235',
+            data: '2 / 215 (1%)',
+          },
+          {
+            color: 'gray',
+            data: '215',
           },
         ],
       ])

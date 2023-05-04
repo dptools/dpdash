@@ -14,7 +14,9 @@ node_modules
 # Local configs
 config.js
 .env
-server/configs
+!server/
+server/configs/*
+!server/configs/basePathConfig.js
 
 # Built code
 *.map

@@ -1,137 +1,18 @@
 import { Router } from 'express'
 import { ObjectId } from 'mongodb'
-import qs from 'qs'
 
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import { collections } from '../utils/mongoCollections'
-import { userFromRequest } from '../utils/userFromRequestUtil'
-import CsvService from '../services/CSVService'
-
-import chartsListPage from '../templates/Chart.template'
-import newChartPage from '../templates/NewChart.template'
-import viewChartPage from '../templates/ViewChart.template'
-import editChartPage from '../templates/EditChart.template'
-
-import { legend, formatGraphTableDataToCSV } from '../helpers/chartsHelpers'
-import { graphDataController } from '../controllers/chartsController'
+import chartsController from '../controllers/chartsController'
 import { routes } from '../utils/routes'
 import { defaultTargetValueMap } from '../utils/defaultTargetValueMap'
 
 const router = Router()
 
-router.route('/charts').get(ensureAuthenticated, async (req, res) => {
-  try {
-    const user = userFromRequest(req)
-
-    return res.status(200).send(chartsListPage(user))
-  } catch (err) {
-    console.error(err.message)
-
-    return res.status(500).send({ message: err.message })
-  }
-})
-
-router.route('/charts/new').get(ensureAuthenticated, async (req, res) => {
-  try {
-    const user = userFromRequest(req)
-
-    return res.status(200).send(newChartPage(user))
-  } catch (error) {
-    console.error(error.message)
-
-    return res.status(500).send({ message: err.message })
-  }
-})
-
-router
-  .route('/charts/:chart_id')
-  .get(ensureAuthenticated, async (req, res, next) => {
-    try {
-      const { dataDb, appDb } = req.app.locals
-      const { chart_id } = req.params
-      const { userAccess } = req.session
-      const parsedQueryParams = qs.parse(req.query)
-      const {
-        chart: { title, description, fieldLabelValueMap, owner },
-        dataBySite,
-        labels,
-        studyTotals,
-        filters,
-        graphTable,
-      } = await graphDataController(
-        dataDb,
-        userAccess,
-        chart_id,
-        parsedQueryParams
-      )
-      const user = userFromRequest(req)
-      const chartOwner = await appDb.collection(collections.users).findOne(
-        { uid: owner },
-        {
-          projection: {
-            _id: 0,
-            display_name: 1,
-            icon: 1,
-            uid: 1,
-          },
-        }
-      )
-      const graph = {
-        chart_id,
-        dataBySite,
-        labels,
-        title: title,
-        description: description,
-        legend: legend(fieldLabelValueMap),
-        studyTotals,
-        filters,
-        chartOwner,
-        graphTable,
-      }
-      if (req.headers['content-type'] === 'text/csv') {
-        res.header('Content-Type', 'text/csv')
-
-        const csvService = new CsvService(formatGraphTableDataToCSV(graphTable))
-        const csvStream = csvService.toReadableStream().pipe(res)
-        csvStream.on('error', (err) => next(err))
-        csvStream.on('end', () => res.end())
-
-        return res.send()
-      }
-
-      return res.status(200).send(viewChartPage(user, graph))
-    } catch (err) {
-      console.error(err.stack)
-
-      return res.status(500).send({ message: err.message })
-    }
-  })
-
-router
-  .route('/charts/:chart_id/edit')
-  .get(ensureAuthenticated, async (req, res) => {
-    try {
-      const { chart_id } = req.params
-      const { dataDb } = req.app.locals
-      const chart = await dataDb.collection(collections.charts).findOne({
-        _id: ObjectId(chart_id),
-        owner: req.user,
-      })
-
-      if (!chart) return res.redirect(routes.charts)
-
-      const user = userFromRequest(req)
-      const graph = {
-        chart_id,
-      }
-
-      return res.status(200).send(editChartPage(user, graph))
-    } catch (error) {
-      console.error(error.message)
-
-      return res.status(500).send({ message: err.message })
-    }
-  })
+router.route(routes.charts).get(ensureAuthenticated, chartsController.index)
+router.route(routes.newChart).get(ensureAuthenticated, chartsController.new)
+router.route(routes.chart).get(ensureAuthenticated, chartsController.show)
+router.route(routes.editChart).get(ensureAuthenticated, chartsController.edit)
 
 router
   .route('/api/v1/charts')

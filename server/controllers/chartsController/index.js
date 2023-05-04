@@ -1,214 +1,137 @@
 import { ObjectId } from 'mongodb'
-import deepEqual from 'deep-equal'
+import qs from 'qs'
+
 import { collections } from '../../utils/mongoCollections'
-import { SITE_NAMES } from '../../utils/siteNames'
-import {
-  generateStudyTargetTotals,
-  isAnyTargetIncluded,
-  postProcessData,
-  processData,
-  processTotals,
-  mongoQueriesFromFilters,
-  calculateSubjectVariableDayCount,
-  intersectSubjectsFromFilters,
-  graphTableColumns,
-  sortTableRowDataBySite,
-  graphTableRowData,
-} from './helpers'
-import {
-  N_A,
-  TOTALS_STUDY,
-  STUDIES_TO_OMIT,
-  ALL_FILTERS_ACTIVE,
-  EMPTY_VALUE,
-  ALL_SUBJECTS_MONGO_PROJECTION,
-  DEFAULT_CHART_FILTERS,
-  INCLUSION_EXCLUSION_CRITERIA_FORM,
-  SOCIODEMOGRAPHICS_FORM,
-} from '../../constants'
+import { userFromRequest } from '../../utils/userFromRequestUtil'
+import chartsListPage from '../../templates/Chart.template'
+import newChartPage from '../../templates/NewChart.template'
+import viewChartPage from '../../templates/ViewChart.template'
+import editChartPage from '../../templates/EditChart.template'
+import { DEFAULT_CHART_FILTERS } from '../../constants'
+import SubjectModel from '../../models/SubjectModel'
+import BarChartService from '../../services/BarChartService'
+import BarChartTableService from '../../services/BarChartTableService'
+import CsvService from '../../services/CSVService'
 
-export const graphDataController = async (
-  dataDb,
-  userAccess,
-  chart_id,
-  parsedQueryParams
-) => {
-  const labelMap = new Map()
-  const dataMap = new Map()
-  const filters = parsedQueryParams.filters || DEFAULT_CHART_FILTERS
-  const chart = await dataDb
-    .collection(collections.charts)
-    .findOne({ _id: ObjectId(chart_id) })
-  const allSubjects = await getAllSubjects({
-    dataDb,
-    chart,
-    userAccess,
-    filters,
-  })
-  const allowedStudies = userAccess.filter(
-    (study) => !STUDIES_TO_OMIT.includes(study)
-  )
-  const studyTotals = generateStudyTargetTotals(chart, allowedStudies)
+const index = async (req, res) => {
+  try {
+    const user = userFromRequest(req)
 
-  for await (const subject of allSubjects) {
-    const { study } = subject
-    const subjectDayData = await dataDb
-      .collection(subject.collection)
-      .find({})
-      .toArray()
+    return res.status(200).send(chartsListPage(user))
+  } catch (err) {
+    console.error(err.message)
 
-    chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
-      const { color, label, value, targetValues } = fieldLabelValueMap
-      const targetValue = targetValues[study]
-      const siteName = SITE_NAMES[study] || study
-      const dataKey = `${siteName}-${label}-${targetValue}`
-      const totalsDataKey = `${TOTALS_STUDY}-${label}`
-      const isVariableValueEmpty = value === EMPTY_VALUE
-      const shouldCountSubject = isVariableValueEmpty
-        ? subjectDayData.every((day) => day[chart.variable] === value)
-        : subjectDayData.some((dayData) => dayData[chart.variable] == value)
-      const subjectVariableDayCount =
-        isVariableValueEmpty && shouldCountSubject
-          ? 1
-          : calculateSubjectVariableDayCount(
-              subjectDayData,
-              chart.variable,
-              value
-            )
+    return res.status(500).send({ message: err.message })
+  }
+}
 
-      labelMap.set(label, { name: label, color })
-      processData({
-        shouldCountSubject,
-        dataMap,
-        dataKey,
-        totalsDataKey,
-        variableCount: subjectVariableDayCount,
-      })
-      processTotals({
-        shouldCountSubject,
-        studyTotals,
-        siteName,
-        targetValue,
-        variableCount: subjectVariableDayCount,
-      })
+const newChart = async (req, res) => {
+  try {
+    const user = userFromRequest(req)
+
+    return res.status(200).send(newChartPage(user))
+  } catch (err) {
+    console.error(err.message)
+
+    return res.status(500).send({ message: err.message })
+  }
+}
+
+const show = async (req, res, next) => {
+  try {
+    const { dataDb, appDb } = req.app.locals
+    const { chart_id } = req.params
+    const { userAccess } = req.session
+    const parsedQueryParams = qs.parse(req.query)
+    const filters = parsedQueryParams.filters || DEFAULT_CHART_FILTERS
+    const chart = await dataDb
+      .collection(collections.charts)
+      .findOne({ _id: ObjectId(chart_id) })
+    const subjects = await SubjectModel.allForAssessment(
+      dataDb,
+      chart.assessment,
+      userAccess,
+      filters
+    )
+    const chartService = new BarChartService(dataDb, chart)
+    const { dataBySite, labels, studyTotals } = await chartService.createChart(
+      subjects,
+      userAccess
+    )
+    const chartTableService = new BarChartTableService(dataBySite, labels)
+    const websiteTable = chartTableService.websiteTableData()
+    const user = userFromRequest(req)
+    const chartOwner = await appDb.collection(collections.users).findOne(
+      { uid: chart.owner },
+      {
+        projection: {
+          _id: 0,
+          display_name: 1,
+          icon: 1,
+          uid: 1,
+        },
+      }
+    )
+
+    if (req.headers['content-type'] === 'text/csv') {
+      res.header('Content-Type', 'text/csv')
+
+      const csvTableData = chartTableService.csvTableData()
+      const csvService = new CsvService(csvTableData)
+      const csvStream = csvService.toReadableStream().pipe(res)
+      csvStream.on('error', (err) => next(err))
+      csvStream.on('end', () => res.end())
+
+      return res.send()
+    }
+
+    const graph = {
+      chart_id,
+      dataBySite,
+      labels,
+      title: chart.title,
+      description: chart.description,
+      legend: chartService.legend(),
+      studyTotals,
+      filters,
+      chartOwner,
+      graphTable: websiteTable,
+    }
+    return res.status(200).send(viewChartPage(user, graph))
+  } catch (err) {
+    console.error(err.stack)
+
+    return res.status(500).send({ message: err.message })
+  }
+}
+
+const edit = async (req, res) => {
+  try {
+    const { chart_id } = req.params
+    const { dataDb } = req.app.locals
+    const chart = await dataDb.collection(collections.charts).findOne({
+      _id: ObjectId(chart_id),
+      owner: req.user,
     })
-  }
 
-  const postProcessedDataBySite = postProcessData(dataMap, studyTotals)
+    if (!chart) return res.redirect(routes.charts)
 
-  if (isAnyTargetIncluded(studyTotals)) {
-    labelMap.set(N_A, { name: N_A, color: '#808080' })
-  }
+    const user = userFromRequest(req)
+    const graph = {
+      chart_id,
+    }
 
-  const dataBySite =
-    allSubjects.length > 0 ? Array.from(postProcessedDataBySite.values()) : []
-  const labels = Array.from(labelMap.values())
+    return res.status(200).send(editChartPage(user, graph))
+  } catch (error) {
+    console.error(error.message)
 
-  return {
-    chart,
-    dataBySite,
-    labels,
-    studyTotals,
-    filters,
-    graphTable: processGraphTableData(dataBySite, labels),
+    return res.status(500).send({ message: error.message })
   }
 }
 
-const getAllSubjects = async ({ dataDb, chart, userAccess, filters }) => {
-  const { assessment } = chart
-  const allFiltersSelected = deepEqual(filters, ALL_FILTERS_ACTIVE)
-  const subjectCollections = new Set()
-  let allSubjects
-
-  if (allFiltersSelected) {
-    allSubjects = await dataDb
-      .collection(collections.toc)
-      .find(
-        {
-          assessment,
-          study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
-        },
-        { projection: ALL_SUBJECTS_MONGO_PROJECTION }
-      )
-      .toArray()
-  } else {
-    const {
-      mongoAggregateQueryForIncludedCriteria,
-      mongoAggregateQueryForFilters,
-      mongoQueryForSocioDemographics,
-      activeFilters,
-    } = mongoQueriesFromFilters(filters, userAccess)
-    const filteredSubjects = []
-    const criteriaCursor = await dataDb
-      .collection(collections.toc)
-      .aggregate(mongoAggregateQueryForFilters)
-    const intersectedSubjectsFromFilters = intersectSubjectsFromFilters(
-      await criteriaCursor.next()
-    )
-    await Promise.all(
-      Array.from(intersectedSubjectsFromFilters).map(
-        async ([subject, collections]) => {
-          const data = {}
-          for (const { collection, filter } of collections) {
-            if (filter === INCLUSION_EXCLUSION_CRITERIA_FORM) {
-              const subjectInclusionCriteriaData = await dataDb
-                .collection(collection)
-                .aggregate(mongoAggregateQueryForIncludedCriteria)
-              const inclusionCriteriaData =
-                await subjectInclusionCriteriaData.next()
-
-              Object.keys(inclusionCriteriaData).forEach(
-                (inclusionCriteriaKey) => {
-                  data[inclusionCriteriaKey] =
-                    inclusionCriteriaData[inclusionCriteriaKey]
-                }
-              )
-            }
-
-            if (filter === SOCIODEMOGRAPHICS_FORM) {
-              data.sex_at_birth = await dataDb
-                .collection(collection)
-                .find(mongoQueryForSocioDemographics)
-                .toArray()
-            }
-          }
-
-          const isSubjectInFilteredQuery = activeFilters
-            .map((requestedFilter) => data[requestedFilter].length > 0)
-            .every(Boolean)
-
-          if (isSubjectInFilteredQuery) filteredSubjects.push(subject)
-        }
-      )
-    )
-
-    allSubjects = await dataDb
-      .collection(collections.toc)
-      .find(
-        {
-          assessment,
-          subject: { $in: filteredSubjects },
-        },
-        { projection: ALL_SUBJECTS_MONGO_PROJECTION }
-      )
-      .toArray()
-  }
-
-  return allSubjects.filter((subject) => {
-    if (subjectCollections.has(subject.collection)) return false
-    subjectCollections.add(subject.collection)
-    return true
-  })
-}
-
-const processGraphTableData = (dataBySite, labels) => {
-  const tableColumns = graphTableColumns(labels)
-
-  return {
-    tableColumns,
-    tableRows: graphTableRowData(
-      sortTableRowDataBySite(dataBySite),
-      tableColumns
-    ),
-  }
+export default {
+  edit,
+  index,
+  new: newChart,
+  show,
 }

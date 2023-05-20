@@ -1,56 +1,62 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import 'whatwg-fetch';
-import update from 'immutability-helper';
-import { Column, Table } from 'react-virtualized';
-import * as _ from 'lodash';
-import uuid from 'uuid';
-import classNames from 'classnames';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import 'whatwg-fetch'
+import update from 'immutability-helper'
+import { Column, Table } from 'react-virtualized'
+import * as _ from 'lodash'
+import uuid from 'uuid'
+import classNames from 'classnames'
+import moment from 'moment'
 
-import Settings from '@material-ui/icons/Settings';
-import SearchIcon from '@material-ui/icons/Search';
-import Clear from '@material-ui/icons/Clear';
+import Settings from '@material-ui/icons/Settings'
+import SearchIcon from '@material-ui/icons/Search'
+import Clear from '@material-ui/icons/Clear'
 
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import Dialog from '@material-ui/core/Dialog';
-import Button from '@material-ui/core/Button';
-import Subheader from '@material-ui/core/ListSubheader';
-import SelectField from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import NoSsr from '@material-ui/core/NoSsr';
-import Select from 'react-select';
-import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper';
-import Chip from '@material-ui/core/Chip';
-import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import Dialog from '@material-ui/core/Dialog'
+import Button from '@material-ui/core/Button'
+import Subheader from '@material-ui/core/ListSubheader'
+import SelectField from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import Checkbox from '@material-ui/core/Checkbox'
+import IconButton from '@material-ui/core/IconButton'
+import AppBar from '@material-ui/core/AppBar'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import NoSsr from '@material-ui/core/NoSsr'
+import Select from 'react-select'
+import TextField from '@material-ui/core/TextField'
+import Paper from '@material-ui/core/Paper'
+import Chip from '@material-ui/core/Chip'
+import { emphasize } from '@material-ui/core/styles/colorManipulator'
 
-import { compose } from 'redux';
-import { withStyles } from '@material-ui/core/styles';
+import { compose } from 'redux'
+import { withStyles } from '@material-ui/core/styles'
 
-import Sidebar from './components/Sidebar';
-import getAvatar from './fe-utils/avatarUtil';
-import getCounts from './fe-utils/countUtil';
-import { fetchSubjects, fetchStudiesAdmin, fetchUsers } from './fe-utils/fetchUtil';
-import basePathConfig from '../server/configs/basePathConfig';
+import Sidebar from './components/Sidebar'
+import getAvatar from './fe-utils/avatarUtil'
+import getCounts from './fe-utils/countUtil'
+import {
+  fetchSubjects,
+  fetchStudiesAdmin,
+  fetchUsers,
+  updateUser,
+} from './fe-utils/fetchUtil'
+import basePathConfig from '../server/configs/basePathConfig'
 
-const drawerWidth = 200;
+const drawerWidth = 200
 
-const basePath = basePathConfig || '';
+const basePath = basePathConfig || ''
 
 const memberMenu = [
   { value: 0, level: 'admin', text: 'System Admins' },
   { value: 1, level: 'manager', text: 'Study Manager' },
-  { value: 2, level: 'member', text: 'Member' }
-];
+  { value: 2, level: 'member', text: 'Member' },
+]
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     flexGrow: 1,
     height: '100vh',
@@ -68,7 +74,7 @@ const styles = theme => ({
     },
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)'
+    color: 'rgba(0, 0, 0, 0.54)',
   },
   navIconHide: {
     [theme.breakpoints.up('md')]: {
@@ -96,8 +102,10 @@ const styles = theme => ({
   },
   chipFocused: {
     backgroundColor: emphasize(
-      theme.palette.type === 'light' ? theme.palette.grey[300] : theme.palette.grey[700],
-      0.08,
+      theme.palette.type === 'light'
+        ? theme.palette.grey[300]
+        : theme.palette.grey[700],
+      0.08
     ),
   },
   noOptionsMessage: {
@@ -114,9 +122,9 @@ const styles = theme => ({
   paper: {
     marginTop: theme.spacing.unit,
     position: 'absolute',
-    width: '100%'
+    width: '100%',
   },
-});
+})
 
 function NoOptionsMessage(props) {
   return (
@@ -127,10 +135,10 @@ function NoOptionsMessage(props) {
     >
       {props.children}
     </Typography>
-  );
+  )
 }
 function inputComponent({ inputRef, ...props }) {
-  return <div ref={inputRef} {...props} />;
+  return <div ref={inputRef} {...props} />
 }
 function Control(props) {
   return (
@@ -144,11 +152,11 @@ function Control(props) {
           children: props.children,
           ...props.innerProps,
         },
-        disableUnderline: true
+        disableUnderline: true,
       }}
       {...props.selectProps.textFieldProps}
     />
-  );
+  )
 }
 function Option(props) {
   return (
@@ -161,13 +169,9 @@ function Option(props) {
       }}
       {...props.innerProps}
     >
-      <Typography
-        color='textPrimary'
-      >
-        {props.children}
-      </Typography>
+      <Typography color="textPrimary">{props.children}</Typography>
     </MenuItem>
-  );
+  )
 }
 function Placeholder(props) {
   return (
@@ -178,60 +182,65 @@ function Placeholder(props) {
     >
       {props.children}
     </Typography>
-  );
+  )
 }
 function SingleValue(props) {
   return (
-    <Typography className={props.selectProps.classes.singleValue} {...props.innerProps}>
+    <Typography
+      className={props.selectProps.classes.singleValue}
+      {...props.innerProps}
+    >
       {props.children}
     </Typography>
-  );
+  )
 }
 function ValueContainer(props) {
-  return <div className={props.selectProps.classes.valueContainer}>{props.children}</div>;
+  return (
+    <div className={props.selectProps.classes.valueContainer}>
+      {props.children}
+    </div>
+  )
 }
 function MultiValue(props) {
   return (
     <Chip
       tabIndex={-1}
-      label={
-        props.children
-      }
+      label={props.children}
       className={classNames(props.selectProps.classes.chip, {
         [props.selectProps.classes.chipFocused]: props.isFocused,
       })}
-      onDelete={event => {
-        props.removeProps.onClick();
-        props.removeProps.onMouseDown(event);
+      onDelete={(event) => {
+        props.removeProps.onClick()
+        props.removeProps.onMouseDown(event)
       }}
     />
-  );
+  )
 }
 function Menu(props) {
   return (
-    <Paper square className={props.selectProps.classes.paper} {...props.innerProps}>
+    <Paper
+      square
+      className={props.selectProps.classes.paper}
+      {...props.innerProps}
+    >
       {props.children}
     </Paper>
-  );
+  )
 }
 function DropdownIndicator() {
-  return (
-    <SearchIcon color='disabled' />
-  );
+  return <SearchIcon color="disabled" />
 }
 const indicatorSeparatorStyle = {
-  display: 'none'
-};
+  display: 'none',
+}
 
 const IndicatorSeparator = ({ innerProps }) => {
-  return (
-    <span style={indicatorSeparatorStyle} {...innerProps} />
-  );
-};
+  return <span style={indicatorSeparatorStyle} {...innerProps} />
+}
 
 class AdminPage extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       tab: 0,
       width: 0,
@@ -253,16 +262,15 @@ class AdminPage extends Component {
       search: [],
       search_array: [],
       autocomplete: [],
-      deleteUser: -1
-    };
+      deleteUser: -1,
+    }
   }
-  componentDidUpdate() {
-  }
+  componentDidUpdate() {}
   componentDidMount() {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight,
-      avatar: getAvatar({ user: this.props.user })
+      avatar: getAvatar({ user: this.props.user }),
     })
     /* Resize listener register */
     window.addEventListener('resize', this.handleResize)
@@ -270,43 +278,47 @@ class AdminPage extends Component {
   // eslint-disable-next-line react/no-deprecated
   async componentWillMount() {
     try {
-      const acl = await fetchSubjects();
-      this.setState(getCounts({ acl }));
-      const users = await fetchUsers();
+      const acl = await fetchSubjects()
+      this.setState(getCounts({ acl }))
+      const users = await fetchUsers()
       this.setState({
         users,
         autocomplete: this.autocomplete({ users }),
-      });
-      const studies = await fetchStudiesAdmin();
+      })
+      const studies = await fetchStudiesAdmin()
       this.setState({
-        studies: studies.map(suggestion => ({
+        studies: studies.map((suggestion) => ({
           value: suggestion,
-          label: suggestion
-        }))
-      });
+          label: suggestion,
+        })),
+      })
     } catch (err) {
-      console.error(err.message);
+      console.error(err.message)
     }
   }
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('resize', this.handleResize)
   }
   handleDrawerToggle = () => {
-    this.setState(state => ({ mobileOpen: !state.mobileOpen }));
-  };
-  autocomplete = ({ users }) => users.map(option => ({
+    this.setState((state) => ({ mobileOpen: !state.mobileOpen }))
+  }
+  autocomplete = ({ users }) =>
+    users.map((option) => ({
       value: option.uid,
-      label: ((/\S/.test(option.display_name) && option.display_name != undefined) ? option.display_name : option.uid)
-    }));
+      label:
+        /\S/.test(option.display_name) && option.display_name != undefined
+          ? option.display_name
+          : option.uid,
+    }))
   handleTab = (value) => {
     this.setState({
       tab: value,
-    });
+    })
   }
   handleResize = () => {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
-      height: window.innerHeight - this.state.marginHeight
+      height: window.innerHeight - this.state.marginHeight,
     })
   }
   sort = ({ sortBy, sortDirection }) => {
@@ -314,7 +326,7 @@ class AdminPage extends Component {
     this.setState({
       sortBy: sortBy,
       sortDirection: sortDirection,
-      users: sortedList
+      users: sortedList,
     })
   }
   sortList = ({ sortBy, sortDirection }) => {
@@ -329,136 +341,157 @@ class AdminPage extends Component {
     }
   }
   resetPassword = (cellData) => {
-    let index = _.findIndex(this.state.users, function (i) { return cellData['rowData'].uid == i.uid });
-    this.openReset(index);
+    let index = _.findIndex(this.state.users, function (i) {
+      return cellData['rowData'].uid == i.uid
+    })
+    this.openReset(index)
   }
   closeReset = () => {
     this.setState({
       openReset: false,
-      resetUser: 0
-    });
+      resetUser: 0,
+    })
   }
   deleteUser = (cellData) => {
-    let index = _.findIndex(this.state.users, function (i) { return cellData['rowData'].uid == i.uid });
+    let index = _.findIndex(this.state.users, function (i) {
+      return cellData['rowData'].uid == i.uid
+    })
     this.setState({
       deleteUser: index,
-      openDelete: true
-    });
+      openDelete: true,
+    })
   }
   confirmDelete = () => {
-    let index = this.state.deleteUser;
-    const uid = this.state.users[index].uid;
-    return window.fetch(`${basePath}/api/v1/users/${uid}/delete`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin'
-    }).then(() => {
-      this.closeDelete();
-      location.reload();
-    });
+    let index = this.state.deleteUser
+    const uid = this.state.users[index].uid
+    return window
+      .fetch(`${basePath}/api/v1/users/${uid}/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+      })
+      .then(() => {
+        this.closeDelete()
+        location.reload()
+      })
   }
   closeDelete = () => {
     this.setState({
       openDelete: false,
-      deleteUser: -1
-    });
+      deleteUser: -1,
+    })
   }
   blockUser = (cellData) => {
-    let index = _.findIndex(this.state.users, function (i) { return cellData['rowData'].uid == i.uid });
-    let blocked = this.state.users[index]['blocked'] ? this.state.users[index]['blocked'] : false;
-    let block = !blocked;
-    let uid = this.state.users[index]['uid'];
+    let index = _.findIndex(this.state.users, function (i) {
+      return cellData['rowData'].uid == i.uid
+    })
+    let blocked = this.state.users[index]['blocked']
+      ? this.state.users[index]['blocked']
+      : false
+    let block = !blocked
+    let uid = this.state.users[index]['uid']
     this.setState({
       users: update(this.state.users, {
         [index]: {
           blocked: {
-            $set: block
-          }
-        }
-      })
-    });
-    this.updateBlockedUser(uid, block);
+            $set: block,
+          },
+        },
+      }),
+    })
+    this.updateBlockedUser(uid, block)
   }
   updateBlockedUser = (uid, block) => {
-    return window.fetch(`${basePath}/api/v1/users/${uid}/blocked`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        blocked: block,
+    return window
+      .fetch(`${basePath}/api/v1/users/${uid}/blocked`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          blocked: block,
+        }),
       })
-    }).then(() => {
-      return;
-    });
+      .then(() => {
+        return
+      })
   }
   openReset = (index) => {
-    let uid = this.state.users[index]['uid'];
-    let reset = this.state.users[index]['force_reset_pw'] ? this.state.users[index]['force_reset_pw'] : false;
-    let reset_key = uuid.v4();
+    let uid = this.state.users[index]['uid']
+    let reset = this.state.users[index]['force_reset_pw']
+      ? this.state.users[index]['force_reset_pw']
+      : false
+    let reset_key = uuid.v4()
     if (reset == true) {
-      reset_key = '';
+      reset_key = ''
       this.setState({
         users: update(this.state.users, {
           [index]: {
             force_reset_pw: {
-              $set: !reset
+              $set: !reset,
             },
             reset_key: {
-              $set: reset_key
-            }
-          }
-        })
-      });
+              $set: reset_key,
+            },
+          },
+        }),
+      })
     } else {
       this.setState({
         users: update(this.state.users, {
           [index]: {
             force_reset_pw: {
-              $set: !reset
+              $set: !reset,
             },
             reset_key: {
-              $set: reset_key
-            }
-          }
+              $set: reset_key,
+            },
+          },
         }),
         openReset: true,
-        resetUser: index
-      });
+        resetUser: index,
+      })
     }
 
-    this.updateReset(uid, !reset, reset_key);
+    this.updateReset(uid, !reset, reset_key)
   }
   updateReset = (uid, force_reset, reset_key) => {
-    return window.fetch(`${basePath}/api/v1/users/${uid}/resetpw`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        force_reset_pw: force_reset,
-        reset_key: reset_key
+    return window
+      .fetch(`${basePath}/api/v1/users/${uid}/resetpw`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          force_reset_pw: force_reset,
+          reset_key: reset_key,
+        }),
       })
-    }).then(() => {
-      return;
-    });
+      .then(() => {
+        return
+      })
   }
   openAccess = (cellData) => {
-    let index = _.findIndex(this.state.users, function (i) { return cellData['rowData'].uid == i.uid });
-    let access = ('access' in this.state.users[index]) ? this.state.users[index]['access'].map(suggestion => ({
-      value: suggestion,
-      label: suggestion
-    })) : [];
+    let index = _.findIndex(this.state.users, function (i) {
+      return cellData['rowData'].uid == i.uid
+    })
+    let access =
+      'access' in this.state.users[index]
+        ? this.state.users[index]['access'].map((suggestion) => ({
+            value: suggestion,
+            label: suggestion,
+          }))
+        : []
     this.setState({
       editACL: access,
       editLevel: this.findEditLevel(this.state.users[index]['role']),
       editUser: index,
-      openAccess: true
-    });
+      openAccess: true,
+    })
   }
   findEditLevel = (role) => {
     for (let key = 0; key < memberMenu.length; key++) {
@@ -469,103 +502,138 @@ class AdminPage extends Component {
     return 0
   }
   closeAccess = () => {
-    let role = memberMenu[this.state.editLevel]['level'];
-    let uid = this.state.users[this.state.editUser]['uid'];
-    this.updateRole(uid, role);
+    let role = memberMenu[this.state.editLevel]['level']
+    let uid = this.state.users[this.state.editUser]['uid']
+    this.updateRole(uid, role)
 
     this.setState({
       editACL: [],
       editUser: -1,
-      openAccess: false
-    });
+      openAccess: false,
+    })
   }
   handleAddChip = (chip) => {
     this.setState({
       editACL: update(this.state.editACL, {
-        $push: [chip]
-      })
-    });
+        $push: [chip],
+      }),
+    })
   }
   handleDeleteChip = (chip, index) => {
     this.setState({
       editACL: update(this.state.editACL, {
-        $splice: [[index, 1]]
-      })
-    });
+        $splice: [[index, 1]],
+      }),
+    })
   }
   modifyACL = () => {
-    let uid = this.state.users[this.state.editUser]['uid'];
-    let role = memberMenu[this.state.editLevel]['level'];
-    let access = this.state.editACL.map(f => f.value);
+    let uid = this.state.users[this.state.editUser]['uid']
+    let role = memberMenu[this.state.editLevel]['level']
+    let access = this.state.editACL.map((f) => f.value)
 
     this.setState({
       users: update(this.state.users, {
         [this.state.editUser]: {
           access: {
-            $set: access
+            $set: access,
           },
           role: {
-            $set: role
-          }
-        }
+            $set: role,
+          },
+        },
+      }),
+    })
+    return window
+      .fetch(`${basePath}/api/v1/users/${uid}/studies`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          acl: access,
+        }),
       })
-    });
-    return window.fetch(`${basePath}/api/v1/users/${uid}/studies`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        acl: access,
+      .then(() => {
+        this.closeAccess()
       })
-    }).then(() => {
-      this.closeAccess();
-    });
   }
   handleLevelChange = (event) => {
     this.setState({
-      editLevel: event.target.value
-    });
+      editLevel: event.target.value,
+    })
   }
   updateRole = (uid, role) => {
-    return window.fetch(`${basePath}/api/v1/users/${uid}/role`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        role: role,
+    return window
+      .fetch(`${basePath}/api/v1/users/${uid}/role`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          role: role,
+        }),
       })
-    }).then(() => {
-      return;
-    });
+      .then(() => {
+        return
+      })
   }
   generatetMenu = (options) => {
     return options.map((option, index) => (
-      <MenuItem key={index} value={index}>{option.text}</MenuItem>
-    ));
+      <MenuItem key={index} value={index}>
+        {option.text}
+      </MenuItem>
+    ))
   }
-  handleSearch = value => {
+  handleSearch = (value) => {
     this.setState({
       search: value,
-      search_array: value.map(option => option.value)
-    });
-  };
-  handleChange = name => value => {
+      search_array: value.map((option) => option.value),
+    })
+  }
+  handleChange = (name) => (value) => {
     this.setState({
       [name]: value,
-    });
-  };
+    })
+  }
+
+  updateUser = async (uid, { account_expires }) => {
+    if (!account_expires) await updateUser(uid, { account_expires: null })
+
+    const formatAccountExpiration = moment(account_expires).format()
+
+    await updateUser(uid, {
+      account_expires: formatAccountExpiration,
+    })
+
+    this.setState((previousState) => {
+      return {
+        ...previousState,
+        users: previousState.users.map((user) => {
+          if (uid === user.uid) {
+            return { ...user, account_expires }
+          }
+          return user
+        }),
+      }
+    })
+  }
+
   render() {
     const components = {
-      Option, Control,
-      NoOptionsMessage, Placeholder,
-      SingleValue, MultiValue, IndicatorSeparator,
-      ValueContainer, Menu, DropdownIndicator
-    };
-    const { classes } = this.props;
+      Option,
+      Control,
+      NoOptionsMessage,
+      Placeholder,
+      SingleValue,
+      MultiValue,
+      IndicatorSeparator,
+      ValueContainer,
+      Menu,
+      DropdownIndicator,
+    }
+    const { classes } = this.props
     return (
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
@@ -695,6 +763,27 @@ class AdminPage extends Component {
                 )}
                 dataKey="access"
                 width={this.state.width / 6}
+              />
+              <Column
+                label="Account Expiration"
+                cellRenderer={({ cellData, rowData: { uid } }) => (
+                  <TextField
+                    id="account_expires"
+                    name="account_expires"
+                    type="date"
+                    defaultValue={moment(cellData).format('YYYY-MM-DD')}
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    onChange={(e) =>
+                      this.updateUser(uid, {
+                        [e.target.name]: e.target.value,
+                      })
+                    }
+                  />
+                )}
+                dataKey="account_expires"
+                width={this.state.width / 4}
               />
               <Column
                 label="Reset Password"
@@ -878,10 +967,10 @@ class AdminPage extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  user: state.user
+  user: state.user,
 })
 
 export default compose(
   withStyles(styles, { withTheme: true }),
   connect(mapStateToProps)
-)(AdminPage);
+)(AdminPage)

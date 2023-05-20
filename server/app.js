@@ -1,64 +1,67 @@
-import express from 'express';
-import path from 'path';
-import helmet from 'helmet';
-import morgan from 'morgan';
-import winston from 'winston';
-import favicon from 'serve-favicon';
-import cookieParser from 'cookie-parser';
+import express from 'express'
+import path from 'path'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import winston from 'winston'
+import favicon from 'serve-favicon'
+import cookieParser from 'cookie-parser'
 import csrf from 'csurf'
-import expressSession from 'express-session';
-import MongoStore from 'connect-mongo';
-import { MongoClient } from 'mongodb';
-import passport from 'passport';
-import ldapStrategy from 'passport-ldapauth';
-import { Strategy } from 'passport-local';
-import co from 'co';
-import bodyParser from 'body-parser';
-import methodOverride from 'method-override';
-import noCache from 'nocache';
+import expressSession from 'express-session'
+import MongoStore from 'connect-mongo'
+import { MongoClient } from 'mongodb'
+import passport from 'passport'
+import ldapStrategy from 'passport-ldapauth'
+import { Strategy } from 'passport-local'
+import co from 'co'
+import bodyParser from 'body-parser'
+import methodOverride from 'method-override'
+import noCache from 'nocache'
 import livereload from 'livereload'
 import connectLiveReload from 'connect-livereload'
-import { getMongoURI } from './utils/mongoUtil';
+import { getMongoURI } from './utils/mongoUtil'
 
-import indexRouter from './routes/index';
+import indexRouter from './routes/index'
 import chartsRouter from './routes/charts'
+import adminRouter from './routes/admin'
 
-import config from './configs/config';
-import basePathConfig from './configs/basePathConfig';
+import config from './configs/config'
+import basePathConfig from './configs/basePathConfig'
 
-const localStrategy = Strategy;
+const localStrategy = Strategy
 
-const basePath = basePathConfig || '';
+const basePath = basePathConfig || ''
 
 /* csrf protection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
 const csrfProtection = csrf({ cookie: true })
 const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
-const app = express();
+const app = express()
 
 if (process.env.NODE_ENV === 'development') {
-  const liveReloadServer = livereload.createServer();
-  liveReloadServer.watch(path.join(__dirname, '../public'));
-  liveReloadServer.server.once("connection", () => {
+  const liveReloadServer = livereload.createServer()
+  liveReloadServer.watch(path.join(__dirname, '../public'))
+  liveReloadServer.server.once('connection', () => {
     setTimeout(() => {
-      liveReloadServer.refresh("/");
-    }, 100);
-  });
-  app.use(connectLiveReload());
+      liveReloadServer.refresh('/')
+    }, 100)
+  })
+  app.use(connectLiveReload())
 }
 /** favicon setup */
-app.use(favicon(path.join(__dirname, '../public/img/favicon.png')));
+app.use(favicon(path.join(__dirname, '../public/img/favicon.png')))
 
 /** security setup */
-app.use(helmet({
-  noSniff: true
-}));
+app.use(
+  helmet({
+    noSniff: true,
+  })
+)
 
-app.use(noCache());
+app.use(noCache())
 
 /** logger setup */
 morgan.token('remote-user', function (req, res) {
-  return (req.user) ? req.user : 'unidentified';
-});
+  return req.user ? req.user : 'unidentified'
+})
 const logger = winston.createLogger({
   transports: [
     new winston.transports.File({
@@ -66,29 +69,29 @@ const logger = winston.createLogger({
       filename: config.app.logfile,
       handleExceptions: true,
       json: true,
-      colorize: false
+      colorize: false,
     }),
     new winston.transports.Console({
       level: 'debug',
       handleExceptions: true,
       json: false,
-      colorize: true
-    })
+      colorize: true,
+    }),
   ],
-  exitOnError: false
-});
+  exitOnError: false,
+})
 logger.stream = {
   write: function (message, encoding) {
     logger.info(message)
-  }
-};
-app.use(morgan('combined', { 'stream': logger.stream }));
+  },
+}
+app.use(morgan('combined', { stream: logger.stream }))
 
 /** parsers setup */
-app.use(express.static(path.join(__dirname, '../public')));
-app.use(cookieParser(config.session.secret));
-app.use(bodyParser.json({ limit: '50mb', extended: true }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.static(path.join(__dirname, '../public')))
+app.use(cookieParser(config.session.secret))
+app.use(bodyParser.json({ limit: '50mb', extended: true }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 /* csrf protection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
 app.get('/form', csrfProtection, function (req, res) {
@@ -98,90 +101,112 @@ app.post('/process', parseForm, csrfProtection, function (req, res) {
   res.send('Processing data ...')
 })
 
-app.set('view engine', 'html');
-app.use(methodOverride());
-
+app.set('view engine', 'html')
+app.use(methodOverride())
 
 /* database setup */
-let mongodb;
-const mongoURI = getMongoURI({ settings: config.database.mongo });
+let mongodb
+const mongoURI = getMongoURI({ settings: config.database.mongo })
 const mongodbPromise = co(function* () {
+  return yield MongoClient.connect(mongoURI, config.database.mongo.server)
+}).then(function (res) {
+  mongodb = res.db()
+  app.locals.appDb = res.db()
+  app.locals.dataDb = res.db(config.database.mongo.dataDB)
+  res.db().collection('sessions').drop()
 
-  return yield MongoClient
-    .connect(mongoURI, config.database.mongo.server)})
-    .then(function (res) {
-      mongodb = res.db();
-      app.locals.appDb = res.db()
-      app.locals.dataDb = res.db(config.database.mongo.dataDB)
-      res.db().collection('sessions').drop();
-      
-      return res;
-});
+  return res
+})
 
 /** session store setup */
-app.set('trust proxy', 1);
-app.use(expressSession({
-  secret: config.session.secret,
-  saveUninitialized: config.session.saveUninitialized,
-  resave: config.session.resave,
-  proxy: config.session.proxy,
-  cookie: config.session.cookie,
-  store: MongoStore.create({
-    clientPromise: mongodbPromise,
-    autoRemove: 'native'
+app.set('trust proxy', 1)
+app.use(
+  expressSession({
+    secret: config.session.secret,
+    saveUninitialized: config.session.saveUninitialized,
+    resave: config.session.resave,
+    proxy: config.session.proxy,
+    cookie: config.session.cookie,
+    store: MongoStore.create({
+      clientPromise: mongodbPromise,
+      autoRemove: 'native',
+    }),
   })
-}));
+)
 
 /** authenticator setup */
 if (config.auth.useLDAP) {
   //passport ldap strategy
-  passport.use(new ldapStrategy({
-    server: config.auth.ldap,
-    usernameField: config.auth.usernameField,
-    passwordField: config.auth.passwordField
-  }));
+  passport.use(
+    new ldapStrategy({
+      server: config.auth.ldap,
+      usernameField: config.auth.usernameField,
+      passwordField: config.auth.passwordField,
+    })
+  )
 }
 
 //passport local strategy
-passport.use('local-login', new localStrategy({
-  usernameField: config.auth.usernameField,
-  passwordField: config.auth.passwordField
-},
-  function (username, password, done) {
-    mongodb.collection('users').findOne({ uid: username }).then(function (user) {
-      if (!user) {
-        return done(null, false);
-      } else {
-        return done(null, user);
-      }
-    });
-  }
-));
+passport.use(
+  'local-login',
+  new localStrategy(
+    {
+      usernameField: config.auth.usernameField,
+      passwordField: config.auth.passwordField,
+    },
+    function (username, password, done) {
+      mongodb
+        .collection('users')
+        .findOne({ uid: username })
+        .then(function (user) {
+          if (!user) {
+            return done(null, false)
+          } else {
+            return done(null, user)
+          }
+        })
+    }
+  )
+)
 
 //passport local registeration
-passport.use('local-signup', new localStrategy({
-  usernameField: config.auth.usernameField,
-  passwordField: config.auth.passwordField,
-  passReqToCallback: true
-},
-  function (req, username, password, done) {
-    mongodb.collection('users').findOne({ uid: username }).then(function (err, user) {
-      if (!user) {
-        return done(null, false, req.body);
-      }
-      return done(null, true, null);
-    });
-  }
-));
+passport.use(
+  'local-signup',
+  new localStrategy(
+    {
+      usernameField: config.auth.usernameField,
+      passwordField: config.auth.passwordField,
+      passReqToCallback: true,
+    },
+    function (req, username, password, done) {
+      mongodb
+        .collection('users')
+        .findOne({ uid: username })
+        .then(function (err, user) {
+          if (!user) {
+            return done(null, false, req.body)
+          }
+          return done(null, true, null)
+        })
+    }
+  )
+)
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize())
+app.use(passport.session())
 
-app.use(`${basePath}/`, indexRouter);
-app.use(`${basePath}/`, chartsRouter);
-app.use(`${basePath}/css`, express.static(path.join(__dirname, '../public/css')));
-app.use(`${basePath}/js`, express.static(path.join(__dirname, '../public/js')));
-app.use(`${basePath}/img`, express.static(path.join(__dirname, '../public/img')));
+app.use(`${basePath}/`, indexRouter)
+app.use(`${basePath}/`, chartsRouter)
+app.use(`${basePath}/`, adminRouter)
+app.use(
+  `${basePath}/css`,
+  express.static(path.join(__dirname, '../public/css'))
+)
+app.use(`${basePath}/js`, express.static(path.join(__dirname, '../public/js')))
+app.use(
+  `${basePath}/img`,
+  express.static(path.join(__dirname, '../public/img'))
+)
 //app.use('/users', usersRouter);
 
 /** error handlers setup */
@@ -189,40 +214,39 @@ app.use(`${basePath}/img`, express.static(path.join(__dirname, '../public/img'))
 //catch 404 and forward to error handler
 app.use(function (req, res, next) {
   if (req.accepts('html')) {
-    res.status(404);
-    return;
+    res.status(404)
+    return
   }
 
   if (req.accepts('json')) {
-    res.status(404).json({ error: '404: Page not found.' });
-    return;
+    res.status(404).json({ error: '404: Page not found.' })
+    return
   }
 
-  res.status(404).type('txt').send('ERROR 404: Page not found.');
+  res.status(404).type('txt').send('ERROR 404: Page not found.')
 
-  next(err);
-});
+  next(err)
+})
 
 //catch any other error
 app.use(function (err, req, res, next) {
-  console.log(err);
-  var errStatus = err.status || 500;
-  var errMessage = '';
+  console.log(err)
+  var errStatus = err.status || 500
+  var errMessage = ''
   switch (errStatus) {
     case 400:
-      errMessage = 'Bad Request';
-      break;
+      errMessage = 'Bad Request'
+      break
     case 401:
-      errMessage = 'Unauthorized';
-      break;
+      errMessage = 'Unauthorized'
+      break
     case 403:
-      errMessage = 'Forbidden';
-      break;
+      errMessage = 'Forbidden'
+      break
     case 500:
-      errMessage = 'Internal Server Error';
-      break;
+      errMessage = 'Internal Server Error'
+      break
   }
-});
+})
 
-
-export default app;
+export default app

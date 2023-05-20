@@ -1,4 +1,3 @@
-import config from '../../configs/config'
 import { collections } from '../../utils/mongoCollections'
 
 const userMongoProjection = {
@@ -29,7 +28,7 @@ const UserModel = {
     password: '',
     ldap: false,
     force_reset_pw: false,
-    realms: config.app.realms,
+    realms: [''],
     icon: '',
     access: [],
     blocked: false,
@@ -43,7 +42,7 @@ const UserModel = {
   },
   findAndUpdate: async (db, uid, userUpdates) => {
     return await db.collection(collections.users).findOneAndUpdate(
-      uid,
+      { uid },
       {
         $set: userUpdates,
       },
@@ -53,6 +52,11 @@ const UserModel = {
         upsert: true,
       }
     )
+  },
+  update: async (db, uid, userAttributes) => {
+    return await db
+      .collection(collections.users)
+      .updateOne({ uid }, { $set: userAttributes })
   },
 }
 

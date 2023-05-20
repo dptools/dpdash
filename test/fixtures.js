@@ -56,6 +56,7 @@ export const createDb = (overrides = {}) => ({
   }),
   findOne: jest.fn(),
   toArray: jest.fn(),
+  updateOne: jest.fn(),
   ...overrides,
 })
 
@@ -63,6 +64,7 @@ export const createResponse = (overrides = {}) => ({
   header: jest.fn(),
   redirect: jest.fn(),
   send: jest.fn(),
+  json: jest.fn(),
   status: jest.fn(function () {
     return this
   }),
@@ -73,6 +75,7 @@ export const createRequest = (overrides = {}) => ({
   headers: {},
   params: {},
   query: '',
+  body: {},
   app: {
     locals: {
       appDb: createDb(),

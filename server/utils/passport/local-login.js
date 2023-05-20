@@ -34,15 +34,9 @@ export default (req, res, next, user) => {
         await ConfigModel.save(appDb, configAttributes)
       }
 
-      const userInfo = await UserModel.findAndUpdate(
-        appDb,
-
-        uid,
-
-        {
-          last_logon: Date.now(),
-        }
-      )
+      const userInfo = await UserModel.findAndUpdate(appDb, uid, {
+        last_logon: Date.now(),
+      })
       const { role, display_name, mail, icon, access, account_expires } =
         userInfo.value
       const today = moment()

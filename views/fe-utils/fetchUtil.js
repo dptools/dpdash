@@ -214,6 +214,18 @@ const fetchGraphTableCSV = async (chart_id, filters, filename) => {
   return res
 }
 
+const updateUser = async (uid, attributes) => {
+  const res = await window.fetch(apiRoutes.updateUser(uid), {
+    ...defaultApiOptions,
+    method: 'PATCH',
+    body: JSON.stringify(attributes),
+  })
+
+  if (res.status !== 200) throw new Error(res.message)
+
+  return res.json()
+}
+
 export {
   fetchStudies,
   fetchStudiesAdmin,
@@ -233,4 +245,5 @@ export {
   fetchPreferences,
   shareChart,
   fetchGraphTableCSV,
+  updateUser,
 }

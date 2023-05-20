@@ -18,6 +18,7 @@ import LDAP from '../utils/passport/ldap'
 import LocalLogin from '../utils/passport/local-login'
 import LocalSignup from '../utils/passport/local-signup'
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
+import ensureAdmin from '../utils/passport/ensure-admin'
 
 import userPage from '../templates/Account.template'
 import adminPage from '../templates/Admin.template'
@@ -60,28 +61,6 @@ connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
 })
 
 //Admin privilege checking middleware
-function ensureAdmin(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return res.redirect(`${basePath}/logout`)
-  }
-  const { appDb } = req.app.locals
-  appDb
-    .collection('users')
-    .findOne(
-      { uid: req.user, role: 'admin' },
-      { _id: 0, uid: 1 },
-      function (err, data) {
-        if (err) {
-          console.log(err)
-          return res.redirect(`${basePath}/?e=forbidden`)
-        } else if (!data || Object.keys(data).length === 0) {
-          return res.redirect(`${basePath}/?e=forbidden`)
-        } else {
-          return next()
-        }
-      }
-    )
-}
 
 //Check if the information requested is for the user
 function ensureUser(req, res, next) {

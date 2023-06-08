@@ -17,6 +17,7 @@ config.js
 !server/
 server/configs/*
 !server/configs/basePathConfig.js
+!server/configs/defaultUserConfig.js
 
 # Built code
 *.map

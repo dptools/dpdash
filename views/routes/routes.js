@@ -23,9 +23,28 @@ export const routes = {
   editChart: (chart_id) => `${basePath}/charts/${chart_id}/edit`,
   subjectView: (study, subject) => `${basePath}/dashboard/${study}/${subject}`,
   chartCsv: (chart_id, queryParams) => routes.chart(chart_id, queryParams),
+  editConfiguration: (configId) =>
+    `${basePath}/u/configure?s=edit&id=${configId}`,
+  viewConfiguration: (configId) =>
+    `${basePath}/u/configure?s=view&id=${configId}`,
+  configurationSuccess: `${basePath}/u/configure?u=success`,
+  invalidConfiguration: `${basePath}/u/configure?u=invalid`,
+  configurationError: `${basePath}/u/configure?u=error`,
+  createConfiguration: `${basePath}/u/configure?s=add`,
 }
 
 export const apiRoutes = {
+  configurations: {
+    userConfigurations: (uid) => `${apiPath}/users/${uid}/configs`,
+    userConfiguration: (uid, _id) =>
+      `${apiRoutes.configurations.userConfigurations(uid)}/${_id}`,
+    configurationFileUpload: (uid) =>
+      `${apiRoutes.configurations.userConfigurations(uid)}/file`,
+  },
+  users: {
+    user: (uid) => `${apiPath}/users/${uid}`,
+    preferences: (uid) => `${apiRoutes.users.user(uid)}/preferences`,
+  },
   chart: (chart_id) => `${apiPath}/charts/${chart_id}`,
   charts: `${apiPath}/charts`,
   chartDuplicate: `${apiPath}/charts/duplicate`,

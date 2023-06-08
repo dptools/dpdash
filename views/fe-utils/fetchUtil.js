@@ -57,14 +57,18 @@ const fetchUsers = async () => {
 }
 
 const fetchUsernames = async () => {
-  const res = await window.fetch(`${basePath}/api/v1/search/users`, {
-    defaultApiOptions,
-    method: 'GET',
-  })
-  if (res.status !== 200) {
-    throw new Error(res.statusText)
+  try {
+    const res = await window.fetch(`${basePath}/api/v1/search/users`, {
+      defaultApiOptions,
+      method: 'GET',
+    })
+    if (res.status !== 200) {
+      throw new Error(res.statusText)
+    }
+    return res.json()
+  } catch (error) {
+    console.log(error)
   }
-  return res.json()
 }
 
 const fetchStudyDetails = async () => {

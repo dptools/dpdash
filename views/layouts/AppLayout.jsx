@@ -11,24 +11,19 @@ import getCounts from '../fe-utils/countUtil'
 import { fetchSubjects } from '../fe-utils/fetchUtil'
 import getDefaultStyles from '../fe-utils/styleUtil'
 
-const AppLayout = ({
-  user,
-  classes,
-  title,
-  children
-}) => {
+const AppLayout = ({ user, classes, title, children }) => {
   const [openDrawer, setOpenDrawer] = useState(false)
-  const [sideBarState, setSideBarState] = useState({ 
+  const [sideBarState, setSideBarState] = useState({
     totalDays: 0,
     totalStudies: 0,
-    totalSubjects: 0 
+    totalSubjects: 0,
   })
   const [avatar, setAvatar] = useState('')
 
   const toggleDrawer = () => setOpenDrawer(!openDrawer)
 
   useEffect(() => {
-    fetchSubjects().then(acl => {
+    fetchSubjects().then((acl) => {
       setSideBarState(getCounts({ acl }))
     })
     setAvatar(getAvatar({ user }))
@@ -57,11 +52,14 @@ const AppLayout = ({
   )
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   ...getDefaultStyles(theme),
 })
 const mapStateToProps = (state) => ({
-  user: state.user
+  user: state.user,
 })
 
-export default compose(withStyles(styles, { withTheme: true }), connect(mapStateToProps))(AppLayout)
+export default compose(
+  withStyles(styles, { withTheme: true }),
+  connect(mapStateToProps)
+)(AppLayout)

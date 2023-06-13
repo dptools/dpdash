@@ -31,6 +31,7 @@ export default (req, res, next) => {
           password: hashedPW,
           mail: email,
           account_expires,
+          preferences: {},
         }
 
         await UserModel.save(appDb, newUserAttributes)

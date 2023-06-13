@@ -183,11 +183,11 @@ const ConfigurationsList = ({ user, classes, theme }) => {
   useEffect(() => {
     loadUserNames()
     handleResize()
-    fetchConfigurations(user.uid).then((configurations) => {
+    fetchConfigurations(user.uid).then(({ data }) => {
       setState((prevState) => {
         return {
           ...prevState,
-          configurations,
+          configurations: data,
         }
       })
     })
@@ -292,7 +292,7 @@ const ConfigurationsList = ({ user, classes, theme }) => {
   }
   const fetchPreferences = (uid) => {
     return window
-      .fetch(apiRoutes.users.preferences(uid), {
+      .fetch(apiRoutes.users.user(uid), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -305,13 +305,30 @@ const ConfigurationsList = ({ user, classes, theme }) => {
         }
         return response.json()
       })
-      .then((response) => {
+      .then(({ data }) => {
         setState((prevState) => {
           return {
             ...prevState,
-            preferences: babyProofPreferences(response),
+            preferences: babyProofPreferences(data.preferences),
           }
         })
+      })
+  }
+  const removeConfiguration = async (_id) => {
+    return window
+      .fetch(apiRoutes.configurations.userConfiguration(user.uid, _id), {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+      })
+      .then((response) => {
+        return response.json()
+      })
+      .then((response) => {
+        if (response.status === 200) {
+        }
       })
   }
   const fetchConfigurations = async (uid) => {
@@ -332,31 +349,30 @@ const ConfigurationsList = ({ user, classes, theme }) => {
       throw new Error(error)
     }
   }
-  const updateConfigurations = (configID, ownsConfig) => {
-    if (ownsConfig) {
-      window.fetch(apiRoutes.configurations.userConfigurations(uid), {
-        method: 'POST',
+  const updateConfiguration = (configID, configAttributes) => {
+    window
+      .fetch(apiRoutes.configurations.userConfiguration(user.uid, configID), {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          remove: configID,
-        }),
+        body: JSON.stringify(configAttributes),
       })
-    } else {
-      window.fetch(apiRoutes.configurations.userConfigurations(uid), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          disable: configID,
-        }),
+      .then((res) => {
+        if (res.status === 200) {
+          fetchConfigurations(user.uid).then(({ data }) => {
+            setState((prevState) => {
+              return {
+                ...prevState,
+                configurations: data,
+              }
+            })
+          })
+        }
       })
-    }
   }
+
   const handleCrumbs = () => {
     setState((prevState) => {
       return {
@@ -366,8 +382,8 @@ const ConfigurationsList = ({ user, classes, theme }) => {
       }
     })
   }
-  const removeConfig = (configs, index, configID, ownsConfig) => {
-    updateConfigurations(configID, ownsConfig)
+  const removeConfig = (configs, index, configID) => {
+    removeConfiguration(configID)
     setState((prevState) => {
       return {
         ...prevState,
@@ -412,14 +428,14 @@ const ConfigurationsList = ({ user, classes, theme }) => {
       }
     })
   }
-  const copyConfig = (config) => {
-    let newConfig = {}
-    newConfig['owner'] = user.uid
-    newConfig['readers'] = [user.uid]
-    newConfig['created'] = new Date().toUTCString()
-    newConfig['type'] = config['type']
-    newConfig['name'] = config['name']
-    newConfig['config'] = config['config']
+  const copyConfig = (configuration) => {
+    const { _id, ...configAttributes } = configuration
+    const newConfig = {
+      ...configAttributes,
+      owner: user.uid,
+      readers: [user.uid],
+      created: new Date().toUTCString(),
+    }
 
     return window
       .fetch(apiRoutes.configurations.userConfigurations(uid), {
@@ -428,13 +444,18 @@ const ConfigurationsList = ({ user, classes, theme }) => {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          add: newConfig,
-        }),
+        body: JSON.stringify(newConfig),
       })
       .then((response) => {
         if (response.status == 201) {
-          fetchConfigurations(user.uid)
+          fetchConfigurations(user.uid).then(({ data }) => {
+            setState((prevState) => {
+              return {
+                ...prevState,
+                configurations: data,
+              }
+            })
+          })
         }
       })
   }
@@ -460,7 +481,18 @@ const ConfigurationsList = ({ user, classes, theme }) => {
               }
               action={
                 <IconButton
-                  onClick={() => removeConfig(configs, item, _id, ownsConfig)}
+                  onClick={() => {
+                    if (ownsConfig) {
+                      removeConfig(configs, item, _id)
+                    } else {
+                      const configAttributes = {
+                        readers: config.readers.filter(
+                          (reader) => reader !== user.uid
+                        ),
+                      }
+                      updateConfiguration(_id, configAttributes)
+                    }
+                  }}
                 >
                   <Clear color="rgba(0, 0, 0, 0.54)" />
                 </IconButton>
@@ -568,22 +600,22 @@ const ConfigurationsList = ({ user, classes, theme }) => {
     return cards
   }
   const shareWithUsers = () => {
+    const { _id } = state.selectedConfig
+    const configAttributes = {
+      readers: state.shared.map((sharedWith) => sharedWith.value),
+    }
+
     return window
-      .fetch(apiRoutes.configurations.userConfigurations(user.uid), {
-        method: 'POST',
+      .fetch(apiRoutes.configurations.userConfiguration(user.uid, _id), {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          share: state.selectedConfig['_id'],
-          shared: state.shared.map((o) => {
-            return o.value
-          }),
-        }),
+        body: JSON.stringify(configAttributes),
       })
       .then((response) => {
-        if (response.status == 201) {
+        if (response.status === 200) {
           setState((prevState) => {
             return {
               ...prevState,

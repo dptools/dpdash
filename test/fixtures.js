@@ -48,13 +48,19 @@ export const createSiteData = (overrides = {}) => ({
 })
 
 export const createDb = (overrides = {}) => ({
+  aggregate: jest.fn(function () {
+    return this
+  }),
   collection: jest.fn(function () {
     return this
   }),
+  deleteOne: jest.fn(),
+  insertOne: jest.fn(),
   find: jest.fn(function () {
     return this
   }),
   findOne: jest.fn(),
+  findOneAndUpdate: jest.fn(),
   toArray: jest.fn(),
   updateOne: jest.fn(),
   ...overrides,
@@ -62,9 +68,9 @@ export const createDb = (overrides = {}) => ({
 
 export const createResponse = (overrides = {}) => ({
   header: jest.fn(),
+  json: jest.fn(),
   redirect: jest.fn(),
   send: jest.fn(),
-  json: jest.fn(),
   status: jest.fn(function () {
     return this
   }),
@@ -112,5 +118,15 @@ export const createUser = (overrides = {}) => ({
 })
 
 export const createSubjectDayData = (overrides = {}) => ({
+  ...overrides,
+})
+
+export const createConfiguration = (overrides = {}) => ({
+  _id: '1',
+  owner: 'owl',
+  config: [],
+  type: 'matrix',
+  created: 'Mon, 12 June 2023',
+  readers: [],
   ...overrides,
 })

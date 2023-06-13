@@ -36,14 +36,16 @@ export const routes = {
 export const apiRoutes = {
   configurations: {
     userConfigurations: (uid) => `${apiPath}/users/${uid}/configs`,
-    userConfiguration: (uid, _id) =>
-      `${apiRoutes.configurations.userConfigurations(uid)}/${_id}`,
+    userConfiguration: (uid, config_id) =>
+      `${apiRoutes.configurations.userConfigurations(uid)}/${config_id}`,
     configurationFileUpload: (uid) =>
       `${apiRoutes.configurations.userConfigurations(uid)}/file`,
   },
   users: {
     user: (uid) => `${apiPath}/users/${uid}`,
-    preferences: (uid) => `${apiRoutes.users.user(uid)}/preferences`,
+  },
+  users: {
+    user: (uid) => `${apiPath}/users/${uid}`,
   },
   chart: (chart_id) => `${apiPath}/charts/${chart_id}`,
   charts: `${apiPath}/charts`,

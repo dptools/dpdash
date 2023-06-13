@@ -1,28 +1,29 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import 'whatwg-fetch';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import 'whatwg-fetch'
 
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import ButtonBase from '@material-ui/core/ButtonBase';
-import Snackbar from '@material-ui/core/Snackbar';
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import Tooltip from '@material-ui/core/Tooltip'
+import ButtonBase from '@material-ui/core/ButtonBase'
+import Snackbar from '@material-ui/core/Snackbar'
 
-import { compose } from 'redux';
-import { withStyles } from '@material-ui/core/styles';
+import { compose } from 'redux'
+import { withStyles } from '@material-ui/core/styles'
 
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
+import Header from './components/Header'
+import Sidebar from './components/Sidebar'
 
-import getAvatar from './fe-utils/avatarUtil';
-import getCounts from './fe-utils/countUtil';
-import { fetchSubjects } from './fe-utils/fetchUtil';
+import getAvatar from './fe-utils/avatarUtil'
+import getCounts from './fe-utils/countUtil'
+import { fetchSubjects } from './fe-utils/fetchUtil'
 
-import basePathConfig from '../server/configs/basePathConfig';
+import basePathConfig from '../server/configs/basePathConfig'
+import { apiRoutes } from './routes/routes'
 
-const basePath = basePathConfig || '';
+const basePath = basePathConfig || ''
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     flexGrow: 1,
     height: '100vh',
@@ -38,8 +39,8 @@ const styles = theme => ({
     backgroundColor: '#fefefe',
     padding: theme.spacing.unit * 3,
     marginTop: '64px',
-  }
-});
+  },
+})
 
 class AccountPage extends Component {
   constructor(props) {
@@ -79,7 +80,7 @@ class AccountPage extends Component {
   }
   fetchUserInfo = (uid) => {
     return window
-      .fetch(`${basePath}/api/v1/users/${uid}`, {
+      .fetch(apiRoutes.users.user(uid), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -92,17 +93,17 @@ class AccountPage extends Component {
         }
         return response.json()
       })
-      .then((response) => {
+      .then(({ data }) => {
         this.setState({
-          _id: response['_id'],
-          uid: response['uid'],
-          display_name: response['display_name'],
-          title: response['title'],
-          department: response['department'],
-          company: response['company'],
-          mail: response['mail'],
-          ldap: response['ldap'],
-          icon: response['icon'],
+          _id: data['_id'],
+          uid: data['uid'],
+          display_name: data['display_name'],
+          title: data['title'],
+          department: data['department'],
+          company: data['company'],
+          mail: data['mail'],
+          ldap: data['ldap'],
+          icon: data['icon'],
         })
       })
   }
@@ -112,8 +113,8 @@ class AccountPage extends Component {
     })
   }
   editUserInfo = () => {
-    let uid = this.state.uid
-    let user = {}
+    const { uid } = this.state
+    const user = {}
     user['uid'] = uid
     user['display_name'] = this.state.display_name
     user['title'] = this.state.title
@@ -123,15 +124,13 @@ class AccountPage extends Component {
     user['icon'] = this.state.icon
 
     return window
-      .fetch(`${basePath}/api/v1/users/${uid}`, {
-        method: 'POST',
+      .fetch(apiRoutes.users.user(uid), {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
-        body: JSON.stringify({
-          user: user,
-        }),
+        body: JSON.stringify(user),
       })
       .then((response) => {
         return response
@@ -360,10 +359,10 @@ class AccountPage extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  user: state.user
-});
+  user: state.user,
+})
 
 export default compose(
   withStyles(styles, { withTheme: true }),
   connect(mapStateToProps)
-)(AccountPage);
+)(AccountPage)

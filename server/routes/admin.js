@@ -7,7 +7,7 @@ import { v1Routes } from '../utils/routes'
 const router = Router()
 
 router
-  .route(v1Routes.adminRoutes.updateUser)
+  .route(v1Routes.adminRoutes.show)
   .patch(ensureAdmin, AdminUsersController.update)
 
 export default router

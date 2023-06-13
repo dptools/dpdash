@@ -1,10 +1,14 @@
-import { Router } from 'express';
+import { Router } from 'express'
 
-const router = Router();
+import ensureUser from '../utils/passport/ensure-user'
+import UsersController from '../controllers/usersController'
+import { v1Routes } from '../utils/routes'
 
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-  res.send('respond with a resource');
-});
+const router = Router()
 
-export default router;
+router
+  .route(v1Routes.users.show)
+  .get(ensureUser, UsersController.show)
+  .put(ensureUser, UsersController.edit)
+
+export default router

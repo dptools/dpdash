@@ -20,9 +20,11 @@ import livereload from 'livereload'
 import connectLiveReload from 'connect-livereload'
 import { getMongoURI } from './utils/mongoUtil'
 
-import indexRouter from './routes/index'
-import chartsRouter from './routes/charts'
 import adminRouter from './routes/admin'
+import configurationsRouter from './routes/configurations'
+import chartsRouter from './routes/charts'
+import indexRouter from './routes/index'
+import usersRouter from './routes/users'
 
 import config from './configs/config'
 import basePathConfig from './configs/basePathConfig'
@@ -198,6 +200,9 @@ app.use(passport.session())
 app.use(`${basePath}/`, indexRouter)
 app.use(`${basePath}/`, chartsRouter)
 app.use(`${basePath}/`, adminRouter)
+app.use(`${basePath}/`, configurationsRouter)
+app.use(`${basePath}/`, usersRouter)
+
 app.use(
   `${basePath}/css`,
   express.static(path.join(__dirname, '../public/css'))

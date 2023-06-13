@@ -19,6 +19,7 @@ import LocalLogin from '../utils/passport/local-login'
 import LocalSignup from '../utils/passport/local-signup'
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import ensureAdmin from '../utils/passport/ensure-admin'
+import ensureUser from '../utils/passport/ensure-user'
 
 import userPage from '../templates/Account.template'
 import adminPage from '../templates/Admin.template'
@@ -63,15 +64,7 @@ connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
 //Admin privilege checking middleware
 
 //Check if the information requested is for the user
-function ensureUser(req, res, next) {
-  if (!req.isAuthenticated()) {
-    return res.redirect(`${basePath}/logout?e=forbidden`)
-  } else if (req.params.uid !== req.user) {
-    return res.redirect(`${basePath}/?e=forbidden`)
-  } else {
-    return next()
-  }
-}
+
 //Check user privilege for the study
 function ensurePermission(req, res, next) {
   if (!req.isAuthenticated()) {
@@ -660,191 +653,6 @@ router.get('/api/v1/search/users', ensureAuthenticated, function (req, res) {
       }
     })
 })
-
-router
-  .route('/api/v1/users/:uid')
-  .get(ensureUser, function (req, res) {
-    const { appDb } = req.app.locals
-    appDb.collection('users').findOne(
-      { uid: req.params.uid },
-      {
-        configs: 0,
-        member_of: 0,
-        bad_pwd_count: 0,
-        lockout_time: 0,
-        last_logoff: 0,
-        last_logon: 0,
-        account_expires: 0,
-        force_reset_pw: 0,
-        realms: 0,
-        role: 0,
-        preferences: 0,
-      },
-      function (err, user) {
-        if (err) {
-          console.log(err)
-          return res.status(502).send({})
-        } else if (!user || Object.keys(user).length === 0) {
-          return res.status(404).send({})
-        } else {
-          return res.status(200).json(user)
-        }
-      }
-    )
-  })
-  .post(ensureUser, function (req, res) {
-    const { appDb } = req.app.locals
-    appDb.collection('users').findOneAndUpdate(
-      { uid: req.params.uid },
-      {
-        $set: {
-          display_name: req.body.user.display_name,
-          title: req.body.user.title,
-          department: req.body.user.department,
-          company: req.body.user.company,
-          mail: req.body.user.mail,
-          icon: req.body.user.icon,
-        },
-      },
-      function (err, user) {
-        if (err) {
-          console.log(err)
-          return res.sendStatus(502)
-        } else if (!user) {
-          return res.sendStatus(404)
-        } else {
-          req.session.display_name = req.body.user.display_name
-          req.session.title = req.body.user.title
-          req.session.department = req.body.user.department
-          req.session.company = req.body.user.company
-          req.session.mail = req.body.user.mail
-          req.session.icon = req.body.user.icon
-          return res.sendStatus(201)
-        }
-      }
-    )
-  })
-
-router
-  .route('/api/v1/users/:uid/configs')
-  .get(ensureUser, async (req, res) => {
-    const { appDb } = req.app.locals
-    const data = await appDb
-      .collection(collections.configs)
-      .aggregate([
-        { $match: { readers: req.params.uid } },
-        {
-          $lookup: {
-            from: 'users',
-            let: { owner: '$owner' },
-            pipeline: [
-              {
-                $match: {
-                  $expr: { $eq: ['$$owner', '$uid'] },
-                },
-              },
-              {
-                $project: {
-                  icon: 1,
-                  uid: 1,
-                  name: '$display_name',
-                  _id: 0,
-                },
-              },
-            ],
-            as: 'ownerUser',
-          },
-        },
-        { $unwind: '$ownerUser' },
-      ])
-      .toArray()
-    return res.status(200).json(data)
-  })
-  .post(ensureUser, function (req, res) {
-    const { appDb } = req.app.locals
-    if (Object.prototype.hasOwnProperty.call(req.body, 'disable')) {
-      appDb
-        .collection('configs')
-        .findOneAndUpdate(
-          { _id: new ObjectId(req.body.disable) },
-          { $pull: { readers: req.params.uid } },
-          { returnOriginal: false },
-          function (err) {
-            if (err) {
-              console.log(err)
-              return res.status(502).send({ message: 'fail' })
-            } else {
-              return res.status(201).send({ message: 'success' })
-            }
-          }
-        )
-    } else if (Object.prototype.hasOwnProperty.call(req.body, 'remove')) {
-      appDb
-        .collection('configs')
-        .deleteOne({ _id: new ObjectId(req.body.remove) }, function (err) {
-          if (err) {
-            console.log(err)
-            return res.status(502).send({ message: 'fail' })
-          } else {
-            return res.status(201).send({ message: 'success' })
-          }
-        })
-    } else if (Object.prototype.hasOwnProperty.call(req.body, 'share')) {
-      appDb
-        .collection('configs')
-        .findOneAndUpdate(
-          { _id: new ObjectId(req.body.share) },
-          { $set: { readers: req.body.shared } },
-          { returnOriginal: false },
-          function (err) {
-            if (err) {
-              console.log(err)
-              return res.status(502).send({ message: 'fail' })
-            } else {
-              return res.status(201).send({ message: 'success' })
-            }
-          }
-        )
-    } else if (Object.prototype.hasOwnProperty.call(req.body, 'edit')) {
-      appDb.collection('configs').findOneAndUpdate(
-        { _id: new ObjectId(req.body.edit._id) },
-        {
-          $set: {
-            readers: req.body.edit.readers,
-            config: req.body.edit.config,
-            name: req.body.edit.name,
-            type: req.body.edit.type,
-          },
-        },
-        { returnOriginal: false },
-        function (err) {
-          if (err) {
-            console.log(err)
-            return res.status(502).send({ message: 'fail' })
-          } else {
-            return res.status(201).send({ message: 'success' })
-          }
-        }
-      )
-    } else if (Object.prototype.hasOwnProperty.call(req.body, 'add')) {
-      appDb.collection('configs').insertOne(req.body.add, function (err, doc) {
-        if (err) {
-          console.log(err)
-          return res.status(502).send({ message: 'fail' })
-        } else {
-          if ('insertedId' in doc) {
-            var _id = doc['insertedId']
-            var uri = `${basePath}/u/configure?s=edit&id=${_id}`
-            return res.status(201).send({ uri: uri })
-          } else {
-            return res.status(502).send({ message: 'fail' })
-          }
-        }
-      })
-    } else {
-      return res.status(502).send({ message: 'fail' })
-    }
-  })
 
 router
   .route('/api/v1/users/:uid/resetpw')

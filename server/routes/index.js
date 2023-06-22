@@ -180,56 +180,6 @@ router.route('/admin').get(ensureAdmin, function (req, res) {
     )
 })
 
-//Login
-router
-  .route('/login')
-  .get(function (req, res) {
-    let message = ''
-    if (req.query.e) {
-      if (req.query.e === 'forbidden') {
-        message = 'Not authorized. Please contact the admin'
-      } else if (req.query.e === 'unauthorized') {
-        message = 'Please contact the admin to get access to your projects'
-      } else if (req.query.e === 'NA') {
-        message =
-          'This application uses LDAP authentication. Please contact the admin.'
-      } else if (req.query.e === 'resetpw') {
-        message = 'Your password has been changed. Please log in'
-      } else {
-        message = req.query.e
-      }
-    }
-    return res.send(loginPage(message))
-  })
-  .post(function (req, res, next) {
-    passport.authenticate(
-      'local-login',
-      { session: true },
-      function (err, user) {
-        if (err) {
-          console.error(err)
-          return res.redirect(`${basePath}/login?e=${err}`)
-        }
-        if (!user) {
-          if (config.auth.useLDAP) {
-            return LDAP(req, res, next)
-          } else {
-            return res.redirect(`${basePath}/login`)
-          }
-        }
-        if (user.ldap) {
-          if (config.auth.useLDAP) {
-            return LDAP(req, res, next)
-          } else {
-            return res.redirect(`${basePath}/login`)
-          }
-        } else {
-          return LocalLogin(req, res, next, user)
-        }
-      }
-    )(req, res, next)
-  })
-
 //register
 router
   .route('/signup')

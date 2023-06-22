@@ -24,4 +24,7 @@ server/configs/*
 *.min.js
 docs/build
 public/js
+public/css
 dist
+
+app_build

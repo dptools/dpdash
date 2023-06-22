@@ -1,10 +1,8 @@
-import { routes } from '../routes'
-
 export default function ensureUser(req, res, next) {
   if (!req.isAuthenticated()) {
-    return res.redirect(`${routes.logout}?e=forbidden`)
+    return res.status(401).json({ error: 'Unathorized' })
   } else if (req.params.uid !== req.user) {
-    return res.redirect(`${routes.root}?e=forbidden`)
+    return res.status(400).json({ error: 'Bad Request' })
   } else {
     return next()
   }

@@ -1,16 +1,15 @@
 import passport from 'passport'
-import moment from 'moment'
 
 import { verifyHash } from '../crypto/hash'
-import { routes } from '../routes'
+import { isAccountExpired } from './helpers'
 
 import ConfigModel from '../../models/ConfigModel'
 import UserModel from '../../models/UserModel'
 
-export default (req, res, next, user) => {
+export default (req, res, _, user) => {
   //validate submitted password
   if (!verifyHash(req.body.password, user.password))
-    return res.redirect(`${routes.login}?e=forbidden`)
+    return res.status(401).json({ error: 'Incorrect password' })
 
   //passport local log-in serializer
   passport.serializeUser(function (user, done) {
@@ -21,7 +20,7 @@ export default (req, res, next, user) => {
   })
   //If the user exists, serialize the user to the session
   req.login(user, async function (err) {
-    if (err) return res.redirect(`${routes.login}?e=${err}`)
+    if (err) return res.status(500).json({ error: err.message })
 
     try {
       const { appDb } = req.app.locals
@@ -40,11 +39,9 @@ export default (req, res, next, user) => {
       })
       const { role, display_name, mail, icon, access, account_expires } =
         userInfo
-      const today = moment()
-      const accountExpirationToMoment = moment(account_expires)
-      const isAccountExpired = accountExpirationToMoment.isBefore(today)
 
-      if (isAccountExpired) return res.redirect(`${routes.login}?e=forbidden`)
+      if (isAccountExpired(account_expires))
+        return res.status(401).json({ error: 'Account is expired' })
 
       req.session.role = role
       req.session.display_name = display_name
@@ -53,9 +50,10 @@ export default (req, res, next, user) => {
       req.session.icon = icon
       req.session.userAccess = access
 
-      return res.redirect(routes.root)
+      return res.status(200).json({ data: userInfo })
     } catch (error) {
-      return res.redirect(`${routes.login}?e=${error}`)
+      console.error(error)
+      return res.status(400).json({ error: error.message })
     }
   })
 }

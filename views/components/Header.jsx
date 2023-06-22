@@ -1,74 +1,48 @@
-import React from 'react';
-import { compose } from 'redux';
-import { withStyles } from '@material-ui/core/styles';
-import openNewWindow from '../fe-utils/windowUtil';
-import AppBar from '@material-ui/core/AppBar';
-import IconButton from '@material-ui/core/IconButton';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import ColorLens from '@material-ui/icons/ColorLens';
-import Person from '@material-ui/icons/Person';
-import basePathConfig from '../../server/configs/basePathConfig';
+import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
+import AppBar from '@material-ui/core/AppBar'
+import IconButton from '@material-ui/core/IconButton'
+import Toolbar from '@material-ui/core/Toolbar'
+import Typography from '@material-ui/core/Typography'
+import ColorLens from '@material-ui/icons/ColorLens'
+import Person from '@material-ui/icons/Person'
+import openNewWindow from '../fe-utils/windowUtil'
+import { ThemeContext } from '../contexts/ThemeContext'
+import basePathConfig from '../../server/configs/basePathConfig'
+import { routes } from '../routes/routes'
 
-const basePath = basePathConfig || '';
+const basePath = basePathConfig || ''
 
-const drawerWidth = 200;
+const Header = ({ handleDrawerToggle, isAccountPage, title }) => {
+  const { classes } = useContext(ThemeContext)
+  const navigate = useNavigate()
 
-const styles = theme => ({
-  appBar: {
-    position: 'absolute',
-    marginLeft: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-    },
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)',
-    boxShadow: 'none',
-  },
-  navIconHide: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  title: {
-    color: 'rgba(0,0,0,0.4)',
-    fontSize: '18px',
-    letterSpacing: '1.25px',
-    flexGrow: 1
-  }
-});
-
-const Header = ({ classes, handleDrawerToggle, isAccountPage, title }) => (
-  <AppBar className={classes.appBar}>
-    <Toolbar style={{ paddingLeft: '16px' }}>
-      <IconButton
-        color="default"
-        aria-label="Open drawer"
-        onClick={handleDrawerToggle}
-        className={classes.navIconHide}
-      >
-        <img width="24px" height="24px" src={`${basePath}/img/favicon.png`} />
-      </IconButton>
-      <Typography variant="title" color="inherit" className={classes.title}>
-        {title}
-      </Typography>
-      {!isAccountPage && (
-        <IconButton onClick={() => openNewWindow(`${basePath}/u`)}>
-          <Person color="primary" />
+  return (
+    <AppBar className={classes.appBar}>
+      <Toolbar style={{ paddingLeft: '16px' }}>
+        <IconButton
+          color="default"
+          aria-label="Open drawer"
+          onClick={handleDrawerToggle}
+          className={classes.navIconHide}
+        >
+          <img width="24px" height="24px" src={`${basePath}/img/favicon.png`} />
         </IconButton>
-      )}
-      {isAccountPage && (
-        <IconButton onClick={() => openNewWindow(`${basePath}/u/configure`)}>
-          <ColorLens color="primary" />
-        </IconButton>
-      )}
-    </Toolbar>
-  </AppBar>
-)
+        <Typography variant="title" color="inherit" className={classes.title}>
+          {title}
+        </Typography>
+        {isAccountPage ? (
+          <IconButton onClick={() => navigate(routes.configs)}>
+            <ColorLens color="primary" />
+          </IconButton>
+        ) : (
+          <IconButton onClick={() => navigate(routes.accountPage)}>
+            <Person color="primary" />
+          </IconButton>
+        )}
+      </Toolbar>
+    </AppBar>
+  )
+}
 
-
-export default compose(
-  withStyles(styles, { withTheme: true })
-)(Header);
-  
+export default Header

@@ -16,13 +16,12 @@ import co from 'co'
 import bodyParser from 'body-parser'
 import methodOverride from 'method-override'
 import noCache from 'nocache'
-import livereload from 'livereload'
-import connectLiveReload from 'connect-livereload'
 import { getMongoURI } from './utils/mongoUtil'
 
 import adminRouter from './routes/admin'
-import configurationsRouter from './routes/configurations'
+import authRouter from './routes/auth'
 import chartsRouter from './routes/charts'
+import configurationsRouter from './routes/configurations'
 import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 
@@ -38,18 +37,8 @@ const csrfProtection = csrf({ cookie: true })
 const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
 const app = express()
 
-if (process.env.NODE_ENV === 'development') {
-  const liveReloadServer = livereload.createServer()
-  liveReloadServer.watch(path.join(__dirname, '../public'))
-  liveReloadServer.server.once('connection', () => {
-    setTimeout(() => {
-      liveReloadServer.refresh('/')
-    }, 100)
-  })
-  app.use(connectLiveReload())
-}
 /** favicon setup */
-app.use(favicon(path.join(__dirname, '../public/img/favicon.png')))
+app.use(favicon(path.join(__dirname, '../public/favicon.ico')))
 
 /** security setup */
 app.use(
@@ -90,7 +79,7 @@ logger.stream = {
 app.use(morgan('combined', { stream: logger.stream }))
 
 /** parsers setup */
-app.use(express.static(path.join(__dirname, '../public')))
+app.use(express.static('app_build'))
 app.use(cookieParser(config.session.secret))
 app.use(bodyParser.json({ limit: '50mb', extended: true }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
@@ -103,7 +92,6 @@ app.post('/process', parseForm, csrfProtection, function (req, res) {
   res.send('Processing data ...')
 })
 
-app.set('view engine', 'html')
 app.use(methodOverride())
 
 /* database setup */
@@ -197,22 +185,27 @@ passport.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.use(`${basePath}/`, indexRouter)
-app.use(`${basePath}/`, chartsRouter)
 app.use(`${basePath}/`, adminRouter)
+app.use(`${basePath}/`, authRouter)
 app.use(`${basePath}/`, configurationsRouter)
+app.use(`${basePath}/`, chartsRouter)
+app.use(`${basePath}/`, indexRouter)
 app.use(`${basePath}/`, usersRouter)
-
-app.use(
-  `${basePath}/css`,
-  express.static(path.join(__dirname, '../public/css'))
-)
-app.use(`${basePath}/js`, express.static(path.join(__dirname, '../public/js')))
 app.use(
   `${basePath}/img`,
   express.static(path.join(__dirname, '../public/img'))
 )
-//app.use('/users', usersRouter);
+
+app.get('*', async (req, res) => {
+  return res.sendFile(
+    path.join(__dirname, '..', 'app_build', 'index.html'),
+    (err) => {
+      if (err) {
+        res.status(500).send(err)
+      }
+    }
+  )
+})
 
 /** error handlers setup */
 

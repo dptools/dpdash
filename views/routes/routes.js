@@ -7,13 +7,16 @@ const apiPath = `${basePath}/api/v1`
 export const routes = {
   basePath,
   home: `${basePath}/`,
+  accountPage: `${basePath}/user-account`,
   userAccount: `${basePath}/u`,
   newChart: `${basePath}/charts/new`,
   configure: `${basePath}/u/configure`,
+  configs: `${basePath}/configs`,
   dashboard: `${basePath}/dashboard`,
   charts: `${basePath}/charts`,
   reports: `${basePath}/reports`,
   admin: `${basePath}/admin`,
+  login: `${basePath}/login`,
   logout: `${basePath}/logout`,
   studyDetails: `${basePath}/study-details`,
   chart: (chart_id, queryParams) =>
@@ -34,6 +37,10 @@ export const routes = {
 }
 
 export const apiRoutes = {
+  auth: {
+    login: `${apiPath}/login`,
+    me: `${apiPath}/me`,
+  },
   configurations: {
     userConfigurations: (uid) => `${apiPath}/users/${uid}/configs`,
     userConfiguration: (uid, config_id) =>

@@ -85,13 +85,6 @@ const styles = (theme) => ({
     color: 'rgba(0, 0, 0, 0.54)',
   },
   navIconHide: {},
-  drawerPaper: {
-    width: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      position: 'relative',
-    },
-    borderRight: '0px',
-  },
   content: {
     borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     flexGrow: 1,
@@ -222,7 +215,7 @@ class Graph extends Component {
       listItem.push(
         <ListItem
           href={`${basePath}${link}`}
-          target='_blank'
+          target="_blank"
           primaryText={acl[i]['subjects']}
           secondaryText={acl[i]['study']}
           key={link}

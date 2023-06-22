@@ -13,12 +13,16 @@ export const routes = {
 }
 
 export const v1Routes = {
-  adminRoutes: {
-    show: `${v1Root}/admin/users/:uid`,
+  auth: {
+    login: `${v1Root}/login`,
+    me: `${v1Root}/me`,
   },
   config: {
     index: `${userRoot}/configs`,
     show: `${userRoot}/configs/:config_id`,
+  },
+  adminRoutes: {
+    show: `${v1Root}/admin/users/:uid`,
   },
   users: {
     show: userRoot,

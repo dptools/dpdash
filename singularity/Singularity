@@ -6,9 +6,9 @@ From:centos:7.4.1708
     AUTHOR jisoolily_jeong@harvard.edu
     AUTHOR timothy_okeefe@harvard.edu
     AUTHOR hhoke@fas.harvard.edu
-    
+
     AUTHOR and MAINTAINER tbillah@bwh.harvard.edu
-    
+
 
 %post
     ## Set data path
@@ -16,7 +16,7 @@ From:centos:7.4.1708
     mkdir -p /data/dpdash/
     cd /sw/apps/
 
-    
+
     ## update yum and install some useful things
     yum -y update
     yum -y groupinstall "Development tools"
@@ -24,7 +24,7 @@ From:centos:7.4.1708
     yum -y install net-tools telnet wget git tar which \
         bzip2 p7zip vim vi cronie sudo
 
-    
+
     ## install the RabbitMQ message queue
     wget https://github.com/rabbitmq/erlang-rpm/releases/download/v19.3.6.13/erlang-19.3.6.13-1.el7.centos.x86_64.rpm
     yum -y install erlang-19.3.6.13-1.el7.centos.x86_64.rpm
@@ -43,14 +43,15 @@ From:centos:7.4.1708
     yum -y install nodejs
 
     ## install the MongoDB document database
-    echo -e "[mongodb-org-4.4]
+    echo -e "[mongodb-org-6.0]
 name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/4.4/x86_64/
+baseurl=https://repo.mongodb.org/yum/redhat/7/mongodb-org/6.0/x86_64/
 gpgcheck=1
 enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mongodb-org-4.4.repo
+gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc" >> /etc/yum.repos.d/mongodb-org-6.0.repo
 
     yum -y install mongodb-org
+    yum install -y mongodb-mongosh
 
 
     ## install the Celery asyncronous task queue
@@ -58,14 +59,14 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mo
 
 
     ## clone the DPdash digital phenotyping dashboard
-    git clone https://github.com/PREDICT-DPACC/dpdash.git 
+    git clone https://github.com/PREDICT-DPACC/dpdash.git
     cd dpdash
 
     ## use version of node found in .nvmrc
     npm install -g n
     n auto
     export PATH=/usr/local/bin/node:$PATH
-    
+
     ## use latest version of npm
     npm install -g npm@latest
 

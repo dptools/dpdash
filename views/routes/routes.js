@@ -44,9 +44,6 @@ export const apiRoutes = {
   users: {
     user: (uid) => `${apiPath}/users/${uid}`,
   },
-  users: {
-    user: (uid) => `${apiPath}/users/${uid}`,
-  },
   chart: (chart_id) => `${apiPath}/charts/${chart_id}`,
   charts: `${apiPath}/charts`,
   chartDuplicate: `${apiPath}/charts/duplicate`,

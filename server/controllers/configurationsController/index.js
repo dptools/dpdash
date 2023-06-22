@@ -4,17 +4,9 @@ const ConfigurationsController = {
   create: async (req, res) => {
     try {
       const { appDb } = req.app.locals
-      const { insertedId, insertedCount } = await ConfigModel.save(
-        appDb,
-        req.body
-      )
+      const newConfiguration = await ConfigModel.save(appDb, req.body)
 
-      if (insertedCount > 0) {
-        const newConfiguration = await ConfigModel.findOne(appDb, insertedId)
-
-        return res.status(200).json({ data: newConfiguration })
-      }
-      if (!insertedId) return res.status(500)
+      return res.status(200).json({ data: newConfiguration })
     } catch (error) {
       return res.status(400).json({ error: error.message })
     }
@@ -23,28 +15,26 @@ const ConfigurationsController = {
     try {
       const { appDb } = req.app.locals
       const { config_id } = req.params
-      const { deletedCount } = await ConfigModel.destroy(appDb, config_id)
+      await ConfigModel.destroy(appDb, config_id)
 
-      if (deletedCount > 0) {
-        return res.status(200)
-      } else {
-        return res.status(404)
-      }
+      return res.status(204).end()
     } catch (error) {
-      res.status(400).json({ error: error.message })
+      return res.status(400).json({ error: error.message })
     }
   },
   update: async (req, res) => {
     try {
       const { appDb } = req.app.locals
       const { config_id } = req.params
-      const { value } = await ConfigModel.update(appDb, config_id, req.body)
+      const updatedConfiguration = await ConfigModel.update(
+        appDb,
+        config_id,
+        req.body
+      )
 
-      if (value) {
-        return res.status(200).json({ data: value })
-      } else return res.status(400)
+      return res.status(200).json({ data: updatedConfiguration })
     } catch (error) {
-      return res.status(500).json({ error: error.message })
+      return res.status(422).json({ error: error.message })
     }
   },
   index: async (req, res) => {

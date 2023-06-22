@@ -57,7 +57,38 @@ export const configStyles = (theme) => ({
     right: 0,
     zIndex: 1,
   },
+  gridList: {
+    padding: '2px',
+    overflowY: 'auto',
+    marginBottom: '128px',
+  },
+  uploadActions: {
+    right: 4,
+    bottom: 4,
+    position: 'fixed',
+  },
   divider: {
     height: theme.spacing.unit * 2,
   },
+  textAndIcon: {
+    color: colors.gray,
+  },
+  actionsDivider: {
+    padding: '16px 24px',
+  },
+  actionsContainer: {
+    display: 'flex',
+    justifyContent: 'space-around',
+  },
+  dialogTitle: {
+    backgroundColor: colors.black,
+  },
+  dialogText: {
+    color: colors.white,
+  },
+  dialogContent: {
+    padding: '24px',
+    overflowY: 'visible',
+  },
+  hiddenInput: { display: 'none' },
 })

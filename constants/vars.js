@@ -9,3 +9,11 @@ export const FILTER_CATEGORIES = {
 }
 export const TRUE_STRING = 'true'
 export const FALSE_STRING = 'false'
+
+export const BASE_REQUEST_OPTIONS = {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'same-origin',
+}

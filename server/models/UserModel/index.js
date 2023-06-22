@@ -25,7 +25,7 @@ const UserModel = {
     )
   },
   update: async (db, uid, userUpdates) => {
-    return await db.collection(collections.users).findOneAndUpdate(
+    const { value } = await db.collection(collections.users).findOneAndUpdate(
       { uid },
       {
         $set: userUpdates,
@@ -36,6 +36,10 @@ const UserModel = {
         upsert: true,
       }
     )
+
+    if (!value) throw new Error('Could not update user.')
+
+    return value
   },
   withDefaults: (overrides = {}) => ({
     display_name: '',

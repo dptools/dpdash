@@ -1,45 +1,29 @@
 import React, { useState, useEffect } from 'react'
-import moment from 'moment'
 import classNames from 'classnames'
-import 'whatwg-fetch'
 import Select from 'react-select'
-import update from 'immutability-helper'
 
 import AttachFile from '@material-ui/icons/AttachFile'
 import Button from '@material-ui/core/Button'
 import CancelIcon from '@material-ui/icons/Cancel'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardHeader from '@material-ui/core/CardHeader'
 import Chip from '@material-ui/core/Chip'
-import Clear from '@material-ui/icons/Clear'
-import Copy from '@material-ui/icons/FileCopy'
 import ContentAdd from '@material-ui/icons/Add'
 import Tooltip from '@material-ui/core/Tooltip'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import Divider from '@material-ui/core/Divider'
-import Edit from '@material-ui/icons/Edit'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import FullView from '@material-ui/icons/AspectRatio'
 import GridList from '@material-ui/core/GridList'
-import IconButton from '@material-ui/core/IconButton'
 import MenuList from '@material-ui/core/MenuList'
 import MenuItem from '@material-ui/core/MenuItem'
 import Paper from '@material-ui/core/Paper'
-import Share from '@material-ui/icons/Share'
 import Snackbar from '@material-ui/core/Snackbar'
-import Switch from '@material-ui/core/Switch'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 
-import ConfigCardAvatar from '../ConfigurationCardAvatar'
-
 import { fetchUsernames } from '../../fe-utils/fetchUtil'
-import openNewWindow from '../../fe-utils/windowUtil'
-import { apiRoutes, routes } from '../../routes/routes'
+import { routes } from '../../routes/routes'
+import api from '../../api'
+import ConfigurationCard from '../ConfigurationCard'
 
 function NoOptionsMessage(props) {
   return (
@@ -159,47 +143,43 @@ const components = {
   ValueContainer,
 }
 const ConfigurationsList = ({ user, classes, theme }) => {
+  const { uid } = user
   const userMessageLength = user.message.length
-  const [state, setState] = useState({
-    user: {},
-    preferences: {},
-    configurations: [],
-    gridCols: 1,
-    gridWidth: 350,
-    searchUsers: false,
-    friends: [],
-    shared: [],
-    snackTime: false,
-    uploadSnack: false,
+  const [configurations, setConfigurations] = useState([])
+  const [snackBar, setSnackBar] = useState({
+    open: false,
+    message: '',
+  })
+  const [sharedWithState, setSharedWith] = useState({
     selectedConfig: {},
     configOwner: '',
-    totalStudies: 0,
-    totalSubjects: 0,
-    totalDays: 0,
+    shared: [],
+    searchUsers: false,
+    friends: [],
   })
+  const [grid, setGrid] = useState({
+    gridCols: null,
+    gridWidth: 350,
+    cellWidth: null,
+  })
+  const [preferences, setPreferences] = useState({})
   const minimumInnerWidth = 768
   const gridColumnsDivisor = 350
 
   useEffect(() => {
     loadUserNames()
     handleResize()
-    fetchConfigurations(user.uid).then(({ data }) => {
-      setState((prevState) => {
-        return {
-          ...prevState,
-          configurations: data,
-        }
-      })
-    })
-    fetchPreferences(user.uid)
+    loadAllConfigurations(uid)
+    fetchPreferences(uid)
+
     window.addEventListener('resize', handleResize)
 
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
   useEffect(() => {
-    if (user.message.length > 0) {
-      setState((prevState) => {
+    if (userMessageLength > 0) {
+      setSnackBars((prevState) => {
         return {
           ...prevState,
           uploadSnack: true,
@@ -209,204 +189,73 @@ const ConfigurationsList = ({ user, classes, theme }) => {
   }, [userMessageLength])
 
   const loadUserNames = async () => {
-    try {
-      const usernames = await fetchUsernames()
-      setState((prevstate) => {
-        return {
-          ...prevstate,
-          friends: usernames.map((username) => ({
-            value: username,
-            label: username,
-          })),
-        }
-      })
-    } catch (error) {
-      throw new Error(error)
-    }
+    const usernames = await fetchUsernames()
+    setSharedWith((prevstate) => {
+      return {
+        ...prevstate,
+        friends: usernames.map((username) => ({
+          value: username,
+          label: username,
+        })),
+      }
+    })
   }
 
   const handleResize = () => {
     if (window.innerWidth >= minimumInnerWidth) {
       const gridCols = Math.floor(window.innerWidth / gridColumnsDivisor)
-      setState((prevState) => {
-        return { ...prevState, gridCols: gridCols }
+      const cellWidth = window.innerWidth / gridCols
+
+      setGrid((prevState) => {
+        return {
+          ...prevState,
+          gridCols: gridCols,
+          cellWidth,
+        }
       })
     } else if (gridCols !== 1) {
-      setState((prevState) => {
-        return { ...prevState, gridCols: 1 }
-      })
-    }
-  }
-  const babyProofPreferences = (preferences) => {
-    let preference = {}
-    preference['star'] = preferences['star'] || {}
-    preference['sort'] = preferences['sort'] || 0
-    preference['config'] = preferences['config'] || ''
-    preference['complete'] = preferences['complete'] || {}
-    return preference
-  }
-  const updateUserPreferences = (index, type) => {
-    let { uid } = user
-    let preference = {}
-    if (type === 'index') {
-      if (state.configurations.length > 0 && state.configurations[index]) {
-        preference['config'] = state.configurations[index]['_id']
-      }
-    } else {
-      preference['config'] = index
-    }
-    preference['complete'] = state.preferences['complete'] || {}
-    preference['star'] = state.preferences['star'] || {}
-    preference['sort'] = state.preferences['sort'] || 0
-    preference = babyProofPreferences(preference)
+      const cellWidth = window.innerWidth / 1
 
-    return window
-      .fetch(apiRoutes.users.preferences(uid), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          preferences: preference,
-        }),
-      })
-      .then(() => {
-        if (type == 'index') {
-          setState((prevState) => {
-            return {
-              ...prevState,
-              preferences: preference,
-              snackTime: true,
-            }
-          })
-        } else {
-          setState((prevState) => {
-            return {
-              ...prevState,
-              preferences: preference,
-            }
-          })
+      setGrid((prevState) => {
+        return {
+          ...prevState,
+          gridCols: 1,
+          cellWidth,
         }
       })
+    }
   }
-  const fetchPreferences = (uid) => {
-    return window
-      .fetch(apiRoutes.users.user(uid), {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-      })
-      .then((response) => {
-        if (response.status !== 200) {
-          return
-        }
-        return response.json()
-      })
-      .then(({ data }) => {
-        setState((prevState) => {
-          return {
-            ...prevState,
-            preferences: babyProofPreferences(data.preferences),
-          }
-        })
-      })
-  }
-  const removeConfiguration = async (_id) => {
-    return window
-      .fetch(apiRoutes.configurations.userConfiguration(user.uid, _id), {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-      })
-      .then((response) => {
-        return response.json()
-      })
-      .then((response) => {
-        if (response.status === 200) {
-        }
-      })
-  }
-  const fetchConfigurations = async (uid) => {
+  const fetchPreferences = async (userId) => {
     try {
-      const response = await window.fetch(
-        apiRoutes.configurations.userConfigurations(uid),
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'same-origin',
-        }
-      )
-      if (response.status !== 200) return
-      return response.json()
+      const user = await api.users.findOne(userId)
+      setPreferences(user.preferences)
     } catch (error) {
-      throw new Error(error)
+      setSnackBar({ open: true, message: error.message })
     }
-  }
-  const updateConfiguration = (configID, configAttributes) => {
-    window
-      .fetch(apiRoutes.configurations.userConfiguration(user.uid, configID), {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(configAttributes),
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          fetchConfigurations(user.uid).then(({ data }) => {
-            setState((prevState) => {
-              return {
-                ...prevState,
-                configurations: data,
-              }
-            })
-          })
-        }
-      })
   }
 
-  const handleCrumbs = () => {
-    setState((prevState) => {
-      return {
-        ...prevState,
-        snackTime: false,
-        uploadSnack: false,
-      }
-    })
-  }
-  const removeConfig = (configs, index, configID) => {
-    removeConfiguration(configID)
-    setState((prevState) => {
-      return {
-        ...prevState,
-        configurations: update(configs, {
-          $splice: [[index, 1]],
-        }),
-        snackTime: true,
-      }
-    })
-    if (index == state.preferences['config']) {
-      updateUserPreferences(0, 'index')
+  const loadAllConfigurations = async (userId) => {
+    try {
+      const configurations = await api.userConfigurations.all(userId)
+
+      setConfigurations(configurations)
+    } catch (error) {
+      setSnackBar({ open: true, message: error.message })
     }
   }
-  const openSearchUsers = (index, configID, shared, owner) => {
-    setState((prevState) => {
+
+  const handleCrumbs = () => setSnackBar({ open: false, message: '' })
+
+  const openSearchUsers = (config) => {
+    const { _id, readers, owner } = config
+    setSharedWith((prevState) => {
       return {
         ...prevState,
         searchUsers: true,
         selectedConfig: {
-          _id: configID,
-          index: index,
+          _id,
         },
-        shared: shared.map((friend) => ({
+        shared: readers.map((friend) => ({
           label: friend,
           value: friend,
         })),
@@ -415,268 +264,61 @@ const ConfigurationsList = ({ user, classes, theme }) => {
     })
   }
   const closeSearchUsers = () => {
-    setState((prevState) => {
+    setSharedWith((prevState) => {
       return {
         ...prevState,
         searchUsers: false,
         selectedConfig: {
           _id: '',
-          index: -1,
         },
         shared: [],
         configOwner: '',
       }
     })
   }
-  const copyConfig = (configuration) => {
-    const { _id, ...configAttributes } = configuration
-    const newConfig = {
-      ...configAttributes,
-      owner: user.uid,
-      readers: [user.uid],
-      created: new Date().toUTCString(),
-    }
 
-    return window
-      .fetch(apiRoutes.configurations.userConfigurations(uid), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(newConfig),
-      })
-      .then((response) => {
-        if (response.status == 201) {
-          fetchConfigurations(user.uid).then(({ data }) => {
-            setState((prevState) => {
-              return {
-                ...prevState,
-                configurations: data,
-              }
-            })
-          })
-        }
-      })
-  }
-
-  const generateCards = (configs, preference) => {
-    let cards = []
-    if (configs && configs.length > 0) {
-      for (let item in configs) {
-        const configuration = configs[item]
-        const { _id } = configuration
-        const ownsConfig = user.uid === configs[item]['owner']
-        const showTime = configs[item].modified || configs[item].created
-        const localTime = moment.utc(showTime).local().format()
-        const updated = moment(localTime).calendar()
-
-        cards.push(
-          <Card style={{ margin: '3px' }}>
-            <CardHeader
-              title={configs[item]['owner']}
-              subheader={updated}
-              avatar={
-                <ConfigCardAvatar config={configs[item]} currentUser={user} />
-              }
-              action={
-                <IconButton
-                  onClick={() => {
-                    if (ownsConfig) {
-                      removeConfig(configs, item, _id)
-                    } else {
-                      const configAttributes = {
-                        readers: config.readers.filter(
-                          (reader) => reader !== user.uid
-                        ),
-                      }
-                      updateConfiguration(_id, configAttributes)
-                    }
-                  }}
-                >
-                  <Clear color="rgba(0, 0, 0, 0.54)" />
-                </IconButton>
-              }
-            />
-            <Divider />
-            <div style={{ padding: '16px 24px' }}>
-              <Typography variant="headline" component="h3">
-                {configs[item]['name']}
-              </Typography>
-              <Typography
-                style={{
-                  color: 'rgba(0, 0, 0, 0.54)',
-                }}
-                component="p"
-              >
-                {configs[item]['type']}
-              </Typography>
-            </div>
-            <CardActions>
-              <div
-                style={{
-                  padding: '0px',
-                  display: 'inline-block',
-                  whiteSpace: 'nowrap',
-                  width: '100%',
-                }}
-              >
-                <div style={{ float: 'right' }}>
-                  {ownsConfig ? (
-                    <IconButton
-                      onClick={() =>
-                        openNewWindow(routes.editConfiguration(_id))
-                      }
-                      iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
-                      tooltipPosition="top-center"
-                      tooltip="Edit"
-                    >
-                      <Edit />
-                    </IconButton>
-                  ) : (
-                    <IconButton
-                      onClick={() =>
-                        openNewWindow(routes.viewConfiguration(_id))
-                      }
-                      iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
-                      tooltipPosition="top-center"
-                      tooltip="View"
-                    >
-                      <FullView />
-                    </IconButton>
-                  )}
-                  {ownsConfig ? (
-                    <IconButton
-                      iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
-                      tooltipPosition="top-center"
-                      tooltip="Share"
-                      onClick={() =>
-                        openSearchUsers(
-                          item,
-                          configs[item]['_id'],
-                          configs[item]['readers'],
-                          configs[item]['owner']
-                        )
-                      }
-                    >
-                      <Share />
-                    </IconButton>
-                  ) : (
-                    <IconButton
-                      iconStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
-                      tooltipPosition="top-center"
-                      tooltip="Duplicate"
-                      onClick={() => copyConfig(configs[item])}
-                    >
-                      <Copy />
-                    </IconButton>
-                  )}
-                </div>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      style={{
-                        width: 'auto',
-                      }}
-                      labelStyle={{ color: 'rgba(0, 0, 0, 0.54)' }}
-                      checked={
-                        'config' in preference
-                          ? configs[item]['_id'] == preference['config']
-                          : false
-                      }
-                      onChange={(e, isInputChecked) =>
-                        changeDefaultConfig(e, isInputChecked, item)
-                      }
-                    />
-                  }
-                  label="Default"
-                />
-              </div>
-            </CardActions>
-          </Card>
-        )
+  const shareWithUsers = async () => {
+    try {
+      const { _id } = sharedWithState.selectedConfig
+      const configAttributes = {
+        readers: sharedWithState.shared.map((sharedWith) => sharedWith.value),
       }
-    }
-    return cards
-  }
-  const shareWithUsers = () => {
-    const { _id } = state.selectedConfig
-    const configAttributes = {
-      readers: state.shared.map((sharedWith) => sharedWith.value),
-    }
 
-    return window
-      .fetch(apiRoutes.configurations.userConfiguration(user.uid, _id), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify(configAttributes),
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          setState((prevState) => {
-            return {
-              ...prevState,
-              configurations: update(state.configurations, {
-                [state.selectedConfig['index']]: {
-                  ['readers']: {
-                    $set: state.shared.map((o) => {
-                      return o.value
-                    }),
-                  },
-                },
-              }),
-            }
-          })
-        }
-        closeSearchUsers()
-      })
-  }
-  const handleChange = (name) => (value) => {
-    let uid = user.uid
-    let names = value.map((o) => {
-      return o.value
-    })
-    if (names.indexOf(uid) === -1) {
-      throw new Error('Unable to delete owner.')
+      await api.userConfigurations.update(uid, _id, configAttributes)
+
+      loadAllConfigurations(uid)
+      closeSearchUsers()
+    } catch (error) {
+      setSnackBar({ open: true, message: error.message })
     }
-    setState((prevState) => {
+  }
+
+  const handleChange = (name) => (value) => {
+    const names = value.map((o) => o.value)
+
+    if (names.indexOf(uid) === -1) throw new Error('Unable to delete owner.')
+
+    setSharedWith((prevState) => {
       return { ...prevState, [name]: value }
     })
   }
-  const handleChangeFile = (e) => {
-    e.preventDefault()
-    const file = e.target.files ? e.target.files[0] : ''
-    new Response(file)
-      .json()
-      .then(async (json) => {
-        const res = await window.fetch(
-          apiRoutes.configurations.configurationFileUpload(user.uid),
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: 'same-origin',
-            body: JSON.stringify(json),
-          }
-        )
-        if (res.status === 200) {
-          window.location = routes.configurationSuccess
-        } else if (res.status === 400) {
-          window.location = routes.invalidConfiguration
-        } else {
-          window.location = routes.configurationError
-        }
-      })
-      .catch((err) => {
-        throw new Error(err)
-      })
-  }
-  const changeDefaultConfig = (e, checked, index) => {
-    updateUserPreferences(index, 'index')
+
+  const handleChangeFile = async (e) => {
+    try {
+      e.preventDefault()
+      const file = e.target.files ? e.target.files[0] : ''
+      const json = await new Response(file).json()
+      const userAttributes = {
+        owner: uid,
+        readers: [uid],
+        ...json,
+      }
+      await api.userConfigurations.create(uid, userAttributes)
+
+      loadAllConfigurations(uid)
+    } catch (error) {
+      setSnackBar({ open: true, message: error.message })
+    }
   }
 
   const actions = [
@@ -715,28 +357,100 @@ const ConfigurationsList = ({ user, classes, theme }) => {
     }),
   }
 
-  if (state?.configurations?.length <= 0) return <div>Loading...</div>
+  const copyConfiguration = async (configuration) => {
+    try {
+      const { _id, ...configAttributes } = configuration
+      const newConfig = {
+        ...configAttributes,
+        owner: uid,
+        readers: [uid],
+        created: new Date().toUTCString(),
+      }
+
+      await api.userConfigurations.create(uid, newConfig)
+
+      loadAllConfigurations(uid)
+    } catch (error) {
+      setSnackBar({ open: true, message: error.message })
+    }
+  }
+
+  const removeConfiguration = async (configId) => {
+    try {
+      await api.userConfigurations.destroy(uid, configId)
+
+      loadAllConfigurations(uid)
+
+      if (preferences.config === configId) updateUserPreferences(configId)
+    } catch (error) {
+      setSnackBar(() => ({
+        open: true,
+        message: error.message,
+      }))
+    }
+  }
+
+  const updateConfiguration = async (configId, configAttributes) => {
+    try {
+      await api.userConfigurations.update(uid, configId, configAttributes)
+      updateUserPreferences(configId)
+      loadAllConfigurations(uid)
+    } catch (error) {
+      setSnackBar({ open: true, message: error.message })
+    }
+  }
+
+  const updateUserPreferences = async (configId) => {
+    try {
+      const userAttributes = {
+        preferences: {
+          ...preferences,
+          config: preferences.config === configId ? '' : configId,
+        },
+      }
+
+      await api.users.update(uid, userAttributes)
+      setPreferences(userAttributes.preferences)
+    } catch (error) {
+      setSnackBar({ open: true, message: error.message })
+    }
+  }
+
+  const onRemoveOrUpdateConfig = (ownsConfig, configId) => {
+    if (ownsConfig) {
+      removeConfiguration(configId)
+    } else {
+      const configAttributes = {
+        readers: readers.filter((reader) => reader !== uid),
+      }
+      updateConfiguration(configId, configAttributes)
+    }
+  }
 
   return (
     <div>
       <GridList
-        style={{
-          padding: '2px',
-          overflowY: 'auto',
-          marginBottom: '128px',
-        }}
-        cols={state.gridCols}
+        className={classes.gridList}
+        cols={grid.gridCols}
         cellHeight="auto"
       >
-        {generateCards(state.configurations, state.preferences)}
+        {configurations.map((config) => {
+          return (
+            <ConfigurationCard
+              classes={classes}
+              config={config}
+              openSearch={openSearchUsers}
+              onCopyConfig={copyConfiguration}
+              onRemoveOrUpdateConfig={onRemoveOrUpdateConfig}
+              onUpdatePreferences={updateUserPreferences}
+              preferences={preferences}
+              user={user}
+              width={grid.cellWidth}
+            />
+          )
+        })}
       </GridList>
-      <div
-        style={{
-          right: 4,
-          bottom: 4,
-          position: 'fixed',
-        }}
-      >
+      <div className={classes.uploadActions}>
         <form>
           <input
             accept=".json"
@@ -744,7 +458,7 @@ const ConfigurationsList = ({ user, classes, theme }) => {
             id="raised-button-file"
             multiple
             type="file"
-            style={{ display: 'none' }}
+            className={classes.hiddenInput}
             onChange={handleChangeFile}
           />
           <label htmlFor="raised-button-file">
@@ -774,7 +488,7 @@ const ConfigurationsList = ({ user, classes, theme }) => {
         </Button>
       </div>
       <Dialog
-        open={state.searchUsers}
+        open={sharedWithState.searchUsers}
         onClose={closeSearchUsers}
         fullScreen={true}
       >
@@ -785,21 +499,11 @@ const ConfigurationsList = ({ user, classes, theme }) => {
             backgroundColor: 'rgba(0,0,0,0.7)',
           }}
         >
-          <Typography
-            variant="title"
-            style={{
-              color: '#ffffff',
-            }}
-          >
+          <Typography variant="title" className={classes.dialogText}>
             Share your configuration
           </Typography>
         </DialogTitle>
-        <DialogContent
-          style={{
-            padding: '24px',
-            overflowY: 'visible',
-          }}
-        >
+        <DialogContent className={classes.dialogContent}>
           <Select
             classes={classes}
             styles={selectStyles}
@@ -809,9 +513,9 @@ const ConfigurationsList = ({ user, classes, theme }) => {
                 shrink: true,
               },
             }}
-            options={state.friends}
+            options={sharedWithState.friends}
             components={components}
-            value={state.shared}
+            value={sharedWithState.shared}
             onChange={handleChange('shared')}
             placeholder="Shared with"
             isMulti
@@ -820,14 +524,8 @@ const ConfigurationsList = ({ user, classes, theme }) => {
         <DialogActions>{actions}</DialogActions>
       </Dialog>
       <Snackbar
-        open={state.snackTime}
-        message="Your configuration has been updated."
-        autoHideDuration={2000}
-        onRequestClose={handleCrumbs}
-      />
-      <Snackbar
-        open={state.uploadSnack}
-        message={user.message}
+        open={snackBar.open}
+        message={snackBar.message}
         autoHideDuration={2000}
         onRequestClose={handleCrumbs}
       />

@@ -17,6 +17,7 @@ export const colors = {
   deep_saffron: '#F89235',
   transparentWhite: 'rgba(255, 255, 255, 0.9)',
   columbia_blue: '#c0d9e1',
+  gray: 'rgba(0, 0, 0, 0.54)',
 }
 
 export const presetColors = [

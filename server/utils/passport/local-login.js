@@ -26,7 +26,8 @@ export default (req, res, next, user) => {
     try {
       const { appDb } = req.app.locals
       const uid = user.uid
-      const config = await ConfigModel.findOne(appDb, uid)
+      const configQuery = { owner: uid }
+      const config = await ConfigModel.findOne(appDb, configQuery)
 
       if (!config) {
         const configAttributes = { owner: uid, readers: [uid] }
@@ -38,7 +39,7 @@ export default (req, res, next, user) => {
         last_logon: Date.now(),
       })
       const { role, display_name, mail, icon, access, account_expires } =
-        userInfo.value
+        userInfo
       const today = moment()
       const accountExpirationToMoment = moment(account_expires)
       const isAccountExpired = accountExpirationToMoment.isBefore(today)

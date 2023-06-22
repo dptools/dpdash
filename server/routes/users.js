@@ -9,6 +9,6 @@ const router = Router()
 router
   .route(v1Routes.users.show)
   .get(ensureUser, UsersController.show)
-  .put(ensureUser, UsersController.edit)
+  .patch(ensureUser, UsersController.edit)
 
 export default router

@@ -7,6 +7,7 @@ import {
   FILTER_CATEGORIES,
   TRUE_STRING,
   FALSE_STRING,
+  BASE_REQUEST_OPTIONS,
 } from './vars'
 
 export {
@@ -19,4 +20,5 @@ export {
   FILTER_CATEGORIES,
   TRUE_STRING,
   FALSE_STRING,
+  BASE_REQUEST_OPTIONS,
 }

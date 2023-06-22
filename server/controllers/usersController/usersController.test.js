@@ -9,11 +9,11 @@ describe('UsersController', () => {
   const params = { uid: 'owl' }
 
   describe(UsersController.show, () => {
-    const request = createRequestWithUser({ params })
-    const response = createResponse()
-
     describe('When successful', () => {
       it('returns a status of 200 and a user object', async () => {
+        const request = createRequestWithUser({ params })
+        const response = createResponse()
+
         request.app.locals.appDb.findOne.mockResolvedValue(
           createUser({
             uid: 'owl',
@@ -36,16 +36,19 @@ describe('UsersController', () => {
     })
 
     describe('When unsuccessful', () => {
-      it('returns a status of 404 and an error message', async () => {
+      it('returns a status of 400 and an error message', async () => {
+        const request = createRequestWithUser({ params })
+        const response = createResponse()
+
         request.app.locals.appDb.findOne.mockImplementation(() => {
-          throw new Error()
+          throw new Error('some error')
         })
 
         await UsersController.show(request, response)
 
-        expect(response.status).toHaveBeenCalledWith(404)
+        expect(response.status).toHaveBeenCalledWith(400)
         expect(response.json).toHaveBeenCalledWith({
-          data: { message: 'User could not be found' },
+          error: 'some error',
         })
       })
     })
@@ -82,22 +85,6 @@ describe('UsersController', () => {
     })
 
     describe('when unsuccessful', () => {
-      it('returns a 404 error with the error message', async () => {
-        const request = createRequestWithUser({ params, body })
-        const response = createResponse()
-
-        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce({})
-
-        await UsersController.edit(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(404)
-        expect(response.json).toHaveBeenCalledWith({
-          message: 'User could not be updated',
-        })
-      })
-    })
-
-    describe('when error', () => {
       it('returns a 400 error with the error message', async () => {
         const request = createRequestWithUser({ params, body })
         const response = createResponse()

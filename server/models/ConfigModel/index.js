@@ -4,18 +4,28 @@ import { collections } from '../../utils/mongoCollections'
 
 const ConfigModel = {
   destroy: async (db, configId) => {
-    return await db
+    const { deletedCount } = await db
       .collection(collections.configs)
       .deleteOne({ _id: new ObjectId(configId) })
+
+    if (deletedCount !== 1) {
+      throw new Error('Unable to delete configuration')
+    }
   },
   update: async (db, configId, configAttributes) => {
-    return await db
+    const { value } = await db
       .collection(collections.configs)
       .findOneAndUpdate(
         { _id: new ObjectId(configId) },
         { $set: configAttributes },
         { returnOriginal: false }
       )
+
+    if (!value) {
+      throw new Error('Could not update configuration')
+    }
+
+    return value
   },
   index: async (db, userId) => {
     return await db
@@ -26,10 +36,16 @@ const ConfigModel = {
   save: async (db, configAttributes) => {
     const config = ConfigModel.withDefaults(configAttributes)
 
-    return await db.collection(collections.configs).insertOne(config)
+    const { insertedId } = await db
+      .collection(collections.configs)
+      .insertOne(config)
+
+    if (insertedId) return await ConfigModel.findOne(db, { _id: insertedId })
+
+    throw new Error('Could not save configuration')
   },
-  findOne: async (db, userId) =>
-    await db.collection(collections.configs).findOne({ owner: userId }),
+  findOne: async (db, configQuery) =>
+    await db.collection(collections.configs).findOne(configQuery),
   withDefaults: (overrides = {}) => ({
     config: defaultUserConfig,
     name: 'default',

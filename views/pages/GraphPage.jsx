@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
-import GraphFactory from './components/GraphFactory'
-import { connect } from 'react-redux'
+import GraphFactory from '../components/GraphFactory'
 import io from 'socket.io-client'
-import 'whatwg-fetch'
 import FileSaver from 'file-saver'
 
 import Button from '@material-ui/core/Button'
@@ -14,14 +12,11 @@ import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
 
-import { compose } from 'redux'
-import { withStyles } from '@material-ui/core/styles'
-import DrawerComponent from './components/Drawer'
+import DrawerComponent from '../components/Drawer'
 import Drawer from '@material-ui/core/Drawer'
 
 import SaveIcon from '@material-ui/icons/Save'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import green from '@material-ui/core/colors/green'
 import CheckIcon from '@material-ui/icons/Check'
 import RefreshIcon from '@material-ui/icons/Refresh'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -38,21 +33,19 @@ import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 
-import SelectConfigurationForm from './components/SelectConfigurationForm'
+import SelectConfigurationForm from '../components/SelectConfigurationForm'
 
-import getAvatar from './fe-utils/avatarUtil'
-import getCounts from './fe-utils/countUtil'
+import getAvatar from '../fe-utils/avatarUtil'
+import getCounts from '../fe-utils/countUtil'
 import {
   fetchSubjects,
   fetchConfigurations,
   fetchPreferences,
-} from './fe-utils/fetchUtil'
-import { preparePreferences } from './fe-utils/preferencesUtil'
-import basePathConfig from '../server/configs/basePathConfig'
-import { routes, apiRoutes } from './routes/routes'
-import { graphPageStyles } from './styles/graph_page_styles'
-
-const drawerWidth = 200
+} from '../fe-utils/fetchUtil'
+import { preparePreferences } from '../fe-utils/preferencesUtil'
+import basePathConfig from '../../server/configs/basePathConfig'
+import { routes, apiRoutes } from '../routes/routes'
+import { withRouter } from '../hoc/withRouter'
 
 const basePath = basePathConfig || ''
 
@@ -64,76 +57,28 @@ const socket = io(socketAddress, {
   autoConnect: false,
 })
 
-const styles = (theme) => ({
-  root: {
-    flexGrow: 1,
-    height: '100vh',
-    zIndex: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    display: 'flex',
-    width: '100%',
-  },
-  appBar: {
-    position: 'absolute',
-    marginLeft: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - 0px)`,
+const CustomTableCell = ({ theme }) =>
+  ({
+    head: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
     },
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)',
-  },
-  navIconHide: {},
-  content: {
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    flexGrow: 1,
-    backgroundColor: '#fefefe',
-    padding: theme.spacing.unit * 3,
-  },
-  wrapper: {
-    margin: theme.spacing.unit,
-    position: 'relative',
-  },
-  buttonSuccess: {
-    backgroundColor: green[500],
-    '&:hover': {
-      backgroundColor: green[700],
+    body: {
+      fontSize: 14,
     },
-  },
-  fabProgress: {
-    color: green[500],
-    position: 'absolute',
-    bottom: -6,
-    left: -6,
-    zIndex: 1,
-  },
-  buttonProgress: {
-    color: green[500],
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    marginTop: -12,
-    marginLeft: -12,
-  },
-  ...graphPageStyles(theme),
-})
-
-const CustomTableCell = withStyles((theme) => ({
-  head: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-  },
-  body: {
-    fontSize: 14,
-  },
-}))(TableCell)
+  }(TableCell))
 
 class Graph extends Component {
   constructor(props) {
+    const { subject, study } = props.params
+    const { preferences } = props.user
+
     super(props)
     this.state = {
-      subject: {},
+      subject: {
+        project: study,
+        sid: subject,
+      },
       graph: {},
       user: {},
       searchList: {},
@@ -164,7 +109,7 @@ class Graph extends Component {
       cardSize: 50,
       openStat: false,
       configurationsList: [],
-      preferences: {},
+      preferences,
     }
   }
   fetchMetadata = (study, subject, day) => {
@@ -225,8 +170,8 @@ class Graph extends Component {
     return listItem
   }
   downloadPng = () => {
-    let SID = this.props.subject.sid
-    this.refs.canvas.toBlob((blob) => {
+    let SID = this.state.subject.sid
+    this.canvas.toBlob((blob) => {
       FileSaver.saveAs(blob, SID + '.png')
     })
   }
@@ -269,67 +214,137 @@ class Graph extends Component {
       openStat: true,
     })
   }
+  fetchGraph = async (subject, study) => {
+    return await window
+      .fetch(`${basePath}/dashboard/${study}/${subject}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+      })
+      .then((res) => res.json())
+      .then(({ data }) => {
+        this.setState({ graph: data.graph })
+      })
+  }
   componentDidUpdate() {}
   // eslint-disable-next-line react/no-deprecated
-  async componentWillMount() {
+  async componentDidMount() {
     try {
-      const [acl, preferences, configurations] = await Promise.all([
+      this.fetchGraph(this.state.subject.sid, this.state.subject.project)
+      const [acl, configurations] = await Promise.all([
         fetchSubjects(),
-        fetchPreferences(this.props.user.uid),
         fetchConfigurations(this.props.user.uid),
       ])
       this.setState({
         ...getCounts({ acl }),
-        preferences,
-        configurationsList: configurations,
+        configurationsList: configurations.data,
       })
-    } catch (err) {
-      console.error(err.message)
-    }
-    let maxDay = 1
-    for (
-      let dataIndex = 0;
-      dataIndex < this.props.graph.matrixData.length;
-      dataIndex++
-    ) {
-      let maxObj = _.maxBy(
-        this.props.graph.matrixData[dataIndex]['data'],
-        function (o) {
-          return o.day
+
+      let maxDay = 1
+      for (
+        let dataIndex = 0;
+        dataIndex < this.state.graph.matrixData.length;
+        dataIndex++
+      ) {
+        let maxObj = _.maxBy(
+          this.state.graph.matrixData[dataIndex]['data'],
+          function (o) {
+            return o.day
+          }
+        )
+        if (maxObj == undefined) {
+          continue
+        }
+        let day = maxObj['day']
+        if (day > maxDay) {
+          maxDay = day
+        }
+      }
+
+      this.setState({
+        maxDay: maxDay,
+        subject: this.state.subject,
+        user: this.props.user,
+        iconBase64: this.props.user.icon,
+        searchList: this.props.user.acl,
+        socketIOSubjectRoom: `${basePath}/resync/${this.state.subject.project}/${this.state.subject.sid}`,
+        socketIOUserRoom: this.props.user.uid,
+      })
+      this.setState({ configurations: this.props.user.configs })
+      if (!HTMLCanvasElement.prototype.toBlob) {
+        Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+          value: function (callback, type, quality) {
+            var binStr = atob(this.toDataURL(type, quality).split(',')[1]),
+              len = binStr.length,
+              arr = new Uint8Array(len)
+
+            for (var i = 0; i < len; i++) {
+              arr[i] = binStr.charCodeAt(i)
+            }
+            callback(new Blob([arr], { type: type || 'image/png' }))
+          },
+        })
+      }
+      socket.open()
+      this.setState({
+        avatar: getAvatar({ user: this.props.user }),
+      })
+      if (this.matrix.graph === undefined) {
+        console.log('error')
+        return
+      }
+      let svgElement = this.matrix.graph.el.lastChild
+      this.setState(
+        {
+          graphWidth: svgElement.getBBox().width + 20,
+          graphHeight: svgElement.getBBox().height,
+        },
+        () => {
+          // Download set-up
+
+          //svg conversion
+          let updatedSvgElement = this.matrix.graph.el.lastChild
+          let svgString = new XMLSerializer().serializeToString(
+            updatedSvgElement
+          )
+          let svgUrl =
+            'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString)
+
+          let canvas = this.canvas.current
+          canvas.width = updatedSvgElement.getBBox().width
+          canvas.height = updatedSvgElement.getBBox().height
+
+          // png conversion
+          let img = new Image()
+          let ctx = canvas.getContext('2d')
+
+          img.onload = () => {
+            ctx.drawImage(
+              img,
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            )
+          }
+          img.src = svgUrl
+
+          this.setState({
+            svgLink: svgUrl,
+            graphWidth: window.innerWidth,
+            graphHeight: window.innerHeight - 30,
+            cardSize: 20,
+          })
         }
       )
-      if (maxObj == undefined) {
-        continue
-      }
-      let day = maxObj['day']
-      if (day > maxDay) {
-        maxDay = day
-      }
-    }
-
-    this.setState({
-      maxDay: maxDay,
-      subject: this.props.subject,
-      user: this.props.user,
-      iconBase64: this.props.user.icon,
-      searchList: this.props.user.acl,
-      socketIOSubjectRoom: `${basePath}/resync/${this.props.subject.project}/${this.props.subject.sid}`,
-      socketIOUserRoom: this.props.user.uid,
-    })
-    this.setState({ configurations: this.props.user.configs })
-    if (!HTMLCanvasElement.prototype.toBlob) {
-      Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
-        value: function (callback, type, quality) {
-          var binStr = atob(this.toDataURL(type, quality).split(',')[1]),
-            len = binStr.length,
-            arr = new Uint8Array(len)
-
-          for (var i = 0; i < len; i++) {
-            arr[i] = binStr.charCodeAt(i)
-          }
-          callback(new Blob([arr], { type: type || 'image/png' }))
-        },
-      })
+    } catch (err) {
+      console.error(err.message)
     }
   }
   handleDrawerToggle = () => {
@@ -351,22 +366,24 @@ class Graph extends Component {
         100 - (validData.length * 100) / this.state.maxDay
       tableItem.push(
         <TableRow key={i + dataItem['label']}>
-          <CustomTableCell>{dataItem['label']}</CustomTableCell>
-          <CustomTableCell>
+          <CustomTableCell theme={this.props.theme}>
+            {dataItem['label']}
+          </CustomTableCell>
+          <CustomTableCell theme={this.props.theme}>
             {dataItem['stat'].length > 0 &&
             !isNaN(parseFloat(dataItem['stat'][0].min)) &&
             isFinite(dataItem['stat'][0].min)
               ? dataItem['stat'][0].min.toFixed(2)
               : 'N/A'}
           </CustomTableCell>
-          <CustomTableCell>
+          <CustomTableCell theme={this.props.theme}>
             {dataItem['stat'].length > 0 &&
             !isNaN(parseFloat(dataItem['stat'][0].max)) &&
             isFinite(dataItem['stat'][0].max)
               ? dataItem['stat'][0].max.toFixed(2)
               : 'N/A'}
           </CustomTableCell>
-          <CustomTableCell>
+          <CustomTableCell theme={this.props.theme}>
             {dataItem['stat'].length > 0 &&
             !isNaN(parseFloat(dataItem['stat'][0].mean)) &&
             isFinite(dataItem['stat'][0].mean)
@@ -388,91 +405,6 @@ class Graph extends Component {
       )
     }
     return tableItem
-  }
-  componentDidMount() {
-    socket.open()
-    this.setState({
-      avatar: getAvatar({ user: this.props.user }),
-    })
-    if (this.refs.matrix.graph === undefined) {
-      console.log('error')
-      return
-    }
-    let svgElement = this.refs.matrix.graph.el.lastChild
-    this.setState(
-      {
-        graphWidth: svgElement.getBBox().width + 20,
-        graphHeight: svgElement.getBBox().height,
-      },
-      () => {
-        // Download set-up
-
-        //svg conversion
-        let updatedSvgElement = this.refs.matrix.graph.el.lastChild
-        let svgString = new XMLSerializer().serializeToString(updatedSvgElement)
-        let svgUrl =
-          'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString)
-
-        let canvas = this.refs.canvas
-        canvas.width = updatedSvgElement.getBBox().width
-        canvas.height = updatedSvgElement.getBBox().height
-
-        // png conversion
-        let img = new Image()
-        let ctx = canvas.getContext('2d')
-
-        img.onload = () => {
-          ctx.drawImage(
-            img,
-            0,
-            0,
-            canvas.width,
-            canvas.height,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-          )
-        }
-        img.src = svgUrl
-
-        this.setState({
-          svgLink: svgUrl,
-          graphWidth: window.innerWidth,
-          graphHeight: window.innerHeight - 30,
-          cardSize: 20,
-        })
-      }
-    )
-
-    /* Resize listener register */
-    window.addEventListener('resize', this.handleResize)
-
-    /* Socket.io */
-    socket.on('PROCESSING', () => {})
-
-    socket.on('SUCCESS', (message) => {
-      if (this.state.taskId === message.taskId) {
-        socket.disconnect()
-        this.setState(
-          {
-            loading: false,
-            success: true,
-          },
-          () => {
-            setTimeout(() => {
-              location.reload(true)
-            }, 2000)
-          }
-        )
-      }
-    })
-    socket.on('ERROR', () => {})
-    socket.on('CONFIG_UPDATED', (message) => {
-      if (message.uid === this.state.user.uid) {
-        //    location.reload(true)
-      }
-    })
   }
 
   componentWillUnmount() {
@@ -500,12 +432,10 @@ class Graph extends Component {
       })
       .then((res) => {
         if (res.status === 201) {
-          window.location.replace(
-            routes.subjectView(
-              this.state.subject.project,
-              this.state.subject.sid
-            )
-          )
+          this.setState({
+            preferences: { ...this.state.preferences, config: configurationId },
+          })
+          this.fetchGraph(this.state.subject.project, this.state.subject.sid)
         }
       })
   }
@@ -515,6 +445,7 @@ class Graph extends Component {
     const buttonClassname = classNames({
       [classes.buttonSuccess]: success,
     })
+
     return (
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
@@ -567,6 +498,7 @@ class Graph extends Component {
             </IconButton>
           </Toolbar>
         </AppBar>
+
         <Drawer
           variant="temporary"
           anchor={theme.direction === 'rtl' ? 'right' : 'left'}
@@ -602,13 +534,13 @@ class Graph extends Component {
               type="matrix"
               width={this.state.graphWidth}
               height={this.state.graphHeight}
-              data={this.props.graph.matrixData}
+              data={this.state.graph.matrixData}
               cardSize={this.state.cardSize}
               study={this.state.subject.project}
               subject={this.state.subject.sid}
-              consentDate={this.props.graph.consentDate}
-              ref="matrix"
-              configuration={this.props.graph.configurations}
+              consentDate={this.state.graph.consentDate}
+              ref={(elem) => (this.matrix = elem)}
+              configuration={this.state.graph.configurations}
               startFromTheLastDay={this.state.startFromTheLastDay}
               startDay={this.state.startDay}
               lastDay={this.state.lastDay}
@@ -667,15 +599,15 @@ class Graph extends Component {
             <Table>
               <TableHead>
                 <TableRow>
-                  <CustomTableCell> Label </CustomTableCell>
-                  <CustomTableCell> Min </CustomTableCell>
-                  <CustomTableCell> Max </CustomTableCell>
-                  <CustomTableCell> Mean </CustomTableCell>
-                  <CustomTableCell> Missing % </CustomTableCell>
+                  <CustomTableCell theme={theme}> Label </CustomTableCell>
+                  <CustomTableCell theme={theme}> Min </CustomTableCell>
+                  <CustomTableCell theme={theme}> Max </CustomTableCell>
+                  <CustomTableCell theme={theme}> Mean </CustomTableCell>
+                  <CustomTableCell theme={theme}> Missing % </CustomTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {this.generateStatItem(this.props.graph.matrixData)}
+                {this.generateStatItem(this.state.graph.matrixData)}
               </TableBody>
             </Table>
           </DialogContent>
@@ -685,19 +617,13 @@ class Graph extends Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <canvas ref="canvas" style={{ display: 'none' }}></canvas>
+        <canvas
+          ref={(elem) => (this.canvas = elem)}
+          style={{ display: 'none' }}
+        ></canvas>
       </div>
     )
   }
 }
 
-const mapStateToProps = (state) => ({
-  graph: state.graph,
-  user: state.user,
-  subject: state.subject,
-})
-
-export default compose(
-  withStyles(styles, { withTheme: true }),
-  connect(mapStateToProps)
-)(Graph)
+export default withRouter(Graph)

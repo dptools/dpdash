@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import 'whatwg-fetch'
 import { MuiThemeProvider, withStyles } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 

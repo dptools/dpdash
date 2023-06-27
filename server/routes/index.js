@@ -4,8 +4,6 @@ import { connect } from 'amqplib/callback_api'
 import co from 'co'
 import { createHash } from 'crypto'
 import uuidV4 from 'uuid/v4'
-import passport from 'passport'
-import { hash } from '../utils/crypto/hash'
 import {
   getConfigSchema,
   getConfigForUser,
@@ -14,31 +12,11 @@ import {
 } from '../utils/routerUtil'
 import { collections } from '../utils/mongoCollections'
 
-import LDAP from '../utils/passport/ldap'
-import LocalLogin from '../utils/passport/local-login'
-import LocalSignup from '../utils/passport/local-signup'
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import ensureAdmin from '../utils/passport/ensure-admin'
 import ensureUser from '../utils/passport/ensure-user'
 
-import userPage from '../templates/Account.template'
-import adminPage from '../templates/Admin.template'
-import configPage from '../templates/Config.template'
-import deepdivePage from '../templates/DeepDive.template'
-import editConfig from '../templates/EditConfig.template'
-import graphPage from '../templates/Graph.template'
-import loginPage from '../templates/Login.template'
-import mainPage from '../templates/Main.template'
-import registerPage from '../templates/Register.template'
-import resetPage from '../templates/Resetpw.template'
-import studyPage from '../templates/Study.template'
-import reportsListPage from '../templates/ReportsList.template'
-import editReportPage from '../templates/EditReport.template'
-import viewReportPage from '../templates/Report.template'
-import studyDetailsPage from '../templates/StudyDetails.template'
-
 import config from '../configs/config'
-import defaultStudyConfig from '../configs/defaultStudyConfig'
 import defaultUserConfig from '../configs/defaultUserConfig'
 import basePathConfig from '../configs/basePathConfig'
 
@@ -96,111 +74,6 @@ function ensurePermission(req, res, next) {
       }
     )
 }
-//Home
-router.get('/', ensureAuthenticated, function (req, res) {
-  return res.send(
-    mainPage(
-      req.user,
-      req.session.display_name,
-      req.session.role,
-      req.session.icon
-    )
-  )
-})
-
-//User Home
-router.route('/u').get(ensureAuthenticated, function (req, res) {
-  return res
-    .status(200)
-    .send(
-      userPage(
-        req.user,
-        req.session.display_name,
-        req.session.icon,
-        req.session.mail,
-        req.session.role
-      )
-    )
-})
-
-//User Configuration
-router.route('/u/configure').get(ensureAuthenticated, function (req, res) {
-  if (req.query.s && req.query.id) {
-    return res.status(200).send(editConfig(req.user, req.query.s, req.query.id))
-  } else if (req.query.s) {
-    return res.status(200).send(editConfig(req.user, req.query.s, null))
-  } else if (req.query.u) {
-    let message = req.query.u
-    if (req.query.u == 'invalid') {
-      message = 'Invalid configuration format.'
-    } else if (req.query.u == 'error') {
-      message = 'Error occurred while uploading the configuration.'
-    } else if (req.query.u == 'success') {
-      message = 'Configuration upload successful!'
-    }
-    return res
-      .status(200)
-      .send(
-        configPage(
-          req.user,
-          req.session.display_name,
-          req.session.icon,
-          req.session.mail,
-          req.session.role,
-          message
-        )
-      )
-  } else {
-    return res
-      .status(200)
-      .send(
-        configPage(
-          req.user,
-          req.session.display_name,
-          req.session.icon,
-          req.session.mail,
-          req.session.role,
-          ''
-        )
-      )
-  }
-})
-
-//Admin Home
-router.route('/admin').get(ensureAdmin, function (req, res) {
-  return res
-    .status(200)
-    .send(
-      adminPage(
-        req.user,
-        req.session.display_name,
-        req.session.role,
-        req.session.icon
-      )
-    )
-})
-
-//register
-router
-  .route('/signup')
-  .get(function (req, res) {
-    if (config.auth.useLDAP) {
-      return res.redirect(`${basePath}/login?e=NA`)
-    } else if (req.query.e === 'existingUser') {
-      return res.send(
-        registerPage('The username already exists. Please choose another.')
-      )
-    } else {
-      return res.send(registerPage(''))
-    }
-  })
-  .post(function (req, res, next) {
-    if (config.auth.useLDAP) {
-      return res.redirect(`${basePath}/login`)
-    } else {
-      return LocalSignup(req, res, next)
-    }
-  })
 
 //deepdive page
 router.get(
@@ -245,11 +118,7 @@ router.get(
 router.get(
   '/deepdive/:study/:subject/:day',
   ensurePermission,
-  function (req, res) {
-    return res.send(
-      deepdivePage(req.params.study, req.params.subject, req.params.day)
-    )
-  }
+  function (req, res) {}
 )
 
 //Dashboard page
@@ -270,74 +139,22 @@ router.get(
         subject: req.params.subject,
         defaultConfig,
       })
-      return res.send(
-        graphPage(
-          req.params.subject,
-          req.params.study,
-          req.user,
-          req.session.display_name,
-          req.session.icon,
-          req.session.mail,
-          req.session.toc,
-          dashboardState,
-          defaultConfig,
-          req.session.celery_tasks,
-          req.session.role
-        )
-      )
+      return res.status(200).json({
+        data: {
+          subject: { sid: req.params.subject, project: req.params.study },
+          graph: {
+            matrixData: dashboardState.matrixData,
+            configurations: dashboardState.matrixConfig,
+            consentDate: dashboardState.consentDate,
+          },
+        },
+      })
     } catch (err) {
       console.error(err.message)
       return res.status(500).send({ message: err.message })
     }
   }
 )
-
-router
-  .route('/resetpw')
-  .get(function (req, res) {
-    if (config.auth.useLDAP) {
-      return res.redirect(`${basePath}/login?e=NA`)
-    } else {
-      let message = ''
-      if (req.query.e) {
-        if (req.query.e === 'unmatched') {
-          message = 'The passwords do not match. Please try again.'
-        } else if (req.query.e === 'db') {
-          message = 'There was an error. Please contact the admin.'
-        } else if (req.query.e === 'nouser') {
-          message = 'The username or reset key did not match. Please try again.'
-        } else {
-          message = req.query.e
-        }
-      }
-      return res.send(resetPage(message))
-    }
-  })
-  .post(function (req, res) {
-    if (req.body.password !== req.body.confirmpw) {
-      return res.redirect(`${basePath}/resetpw?e=unmatched`)
-    } else {
-      const { appDb } = req.app.locals
-      var hashedPW = hash(req.body.password)
-      appDb.collection('users').findOneAndUpdate(
-        { uid: req.body.username, reset_key: req.body.reset_key },
-        {
-          $set: { password: hashedPW, reset_key: '', force_reset_pw: false },
-        },
-        { returnOriginal: false },
-        function (err, doc) {
-          if (err) {
-            console.log(err)
-            return res.redirect(`${basePath}/resetpw?e=db`)
-          } else if (!doc || doc['value'] === null) {
-            return res.redirect(`${basePath}/resetpw?e=nouser`)
-          } else {
-            return res.redirect(`${basePath}/login?e=resetpw`)
-          }
-        }
-      )
-    }
-  })
 
 router
   .route('/resync/:study/:subject')
@@ -483,19 +300,6 @@ router.get('/dashboard/:study', ensurePermission, function (req, res) {
       }
       dashboardData.push(dashboardState)
     }
-    return res.send(
-      studyPage(
-        req.params.study,
-        req.user,
-        req.session.display_name,
-        req.session.icon,
-        req.session.role,
-        req.session.toc,
-        req.session.celery_tasks,
-        dashboardData,
-        defaultStudyConfig
-      )
-    )
   })
 })
 
@@ -901,15 +705,6 @@ router
 router.route('/reports').get(ensureAuthenticated, async (req, res) => {
   try {
     const { display_name, role, icon } = req.session
-
-    return res.status(200).send(
-      reportsListPage({
-        uid: req.user,
-        name: display_name,
-        role,
-        icon,
-      })
-    )
   } catch (err) {
     console.error(err.message)
     return res.status(500).send({ message: err.message })
@@ -928,7 +723,6 @@ router.route('/reports/:id/view').get(ensureAuthenticated, async (req, res) => {
     const report = {
       id: req.params.id,
     }
-    return res.status(200).send(viewReportPage({ user, report }))
   } catch (err) {
     console.error(err.message)
     return res.status(500).send({ message: err.message })
@@ -948,7 +742,6 @@ router.route('/reports/:id/edit').get(ensureAuthenticated, async (req, res) => {
       mode: 'edit',
       id: req.params.id,
     }
-    return res.status(200).send(editReportPage({ user, report }))
   } catch (err) {
     console.error(err.message)
     return res.status(500).send({ message: err.message })
@@ -967,7 +760,6 @@ router.route('/reports/new').get(ensureAuthenticated, async (req, res) => {
     const report = {
       mode: 'create',
     }
-    return res.status(200).send(editReportPage({ user, report }))
   } catch (err) {
     console.error(err.message)
     return res.status(500).send({ message: err.message })
@@ -1191,15 +983,6 @@ router
 router.route('/study-details').get(ensureAuthenticated, async (req, res) => {
   try {
     const { display_name, role, icon } = req.session
-
-    return res.status(200).send(
-      studyDetailsPage({
-        uid: req.user,
-        name: display_name,
-        role,
-        icon,
-      })
-    )
   } catch (error) {
     console.error(error.message)
 

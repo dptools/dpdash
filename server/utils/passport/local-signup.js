@@ -2,7 +2,6 @@ import passport from 'passport'
 import moment from 'moment'
 
 import { hash } from '../crypto/hash'
-import { routes } from '../routes'
 
 import UserModel from '../../models/UserModel'
 import ConfigModel from '../../models/ConfigModel'
@@ -13,9 +12,10 @@ export default (req, res, next) => {
     { session: true },
     async function (err, existingUser, reqBody) {
       try {
-        if (err) return res.redirect(`${routes.login}?e=${err}`)
+        if (err) return res.status(500).json({ error: err.message })
 
-        if (existingUser) return res.redirect(`${routes.signup}?e=existingUser`)
+        if (existingUser)
+          return res.status(400).json({ error: 'User has an account' })
 
         const { appDb } = req.app.locals
         const password = reqBody.password
@@ -33,15 +33,13 @@ export default (req, res, next) => {
           account_expires,
           preferences: {},
         }
+        const newUser = await UserModel.save(appDb, newUserAttributes)
 
-        await UserModel.save(appDb, newUserAttributes)
         await ConfigModel.save(appDb, configAttributes)
 
-        return res.redirect(routes.root)
+        return res.status(200).json({ data: newUser })
       } catch (error) {
-        console.error(error)
-
-        return res.redirect(`${routes.login}?e=${error}`)
+        return res.status(401).json({ error: error.message })
       }
     }
   )(req, res, next)

@@ -24,6 +24,15 @@ const auth = {
 
     return handleApiResponse(response)
   },
+  resetPassword: async (resetAttributes) => {
+    const response = await fetch(apiRoutes.auth.resetPassword, {
+      ...BASE_REQUEST_OPTIONS,
+      method: 'POST',
+      body: JSON.stringify(resetAttributes),
+    })
+
+    return handleApiResponse(response)
+  },
 }
 
 export default auth

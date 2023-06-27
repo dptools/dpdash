@@ -9,7 +9,7 @@ const outputDirectory = 'app_build'
 module.exports = {
   target: 'web',
   mode: process.env.NODE_ENV || 'production',
-  entry: ['babel-polyfill', './views/index.js'],
+  entry: './views/index.js',
   watchOptions: {
     ignored: ['**/node_modules', '**/server'],
   },

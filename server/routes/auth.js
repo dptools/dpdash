@@ -16,10 +16,14 @@ router.route(v1Routes.auth.login).post(function (req, res, next) {
   })(req, res, next)
 })
 
+router.route(v1Routes.auth.signup).post(AuthController.create)
+
 router
   .route(v1Routes.auth.logout)
   .get(ensureAuthenticated, AuthController.destroy)
 
 router.route(v1Routes.auth.me).get(ensureAuthenticated, AuthController.show)
+
+router.route(v1Routes.auth.resetpw).post(AuthController.update)
 
 export default router

@@ -7,32 +7,30 @@ const apiPath = `${basePath}/api/v1`
 export const routes = {
   basePath,
   home: `${basePath}/`,
-  accountPage: `${basePath}/user-account`,
-  userAccount: `${basePath}/u`,
-  newChart: `${basePath}/charts/new`,
-  configure: `${basePath}/u/configure`,
-  configs: `${basePath}/configs`,
+  userAccount: 'user-account',
+  configs: `/configs`,
+  editConfigPage: '/config/:config_id/edit',
   dashboard: `${basePath}/dashboard`,
-  charts: `${basePath}/charts`,
+  charts: '/charts',
+  newChart: '/charts/new',
+  editChart: (chartId) => `/charts/${chartId}/edit`,
+  editChartPage: '/charts/:chart_id/edit',
+  viewChartPage: '/charts/:chart_id',
+  viewChart: (chartId) => `/charts/${chartId}`,
   reports: `${basePath}/reports`,
-  admin: `${basePath}/admin`,
+  admin: '/admin',
+  register: '/register',
+  resetpw: '/reset-password',
   login: `/login`,
-  logout: `${basePath}/logout`,
+  logout: `/logout`,
+  dpdashboard: '/dashboard/:study/:subject',
   studyDetails: `${basePath}/study-details`,
-  chart: (chart_id, queryParams) =>
-    queryParams
-      ? `${basePath}/charts/${chart_id}?${qs.stringify(queryParams)}`
-      : `${basePath}/charts/${chart_id}`,
-  editChart: (chart_id) => `${basePath}/charts/${chart_id}/edit`,
+  main: '/main',
   subjectView: (study, subject) => `${basePath}/dashboard/${study}/${subject}`,
   chartCsv: (chart_id, queryParams) => routes.chart(chart_id, queryParams),
-  editConfiguration: (configId) =>
-    `${basePath}/u/configure?s=edit&id=${configId}`,
+  editConfiguration: (configId) => `/config/${configId}/edit`,
   viewConfiguration: (configId) =>
     `${basePath}/u/configure?s=view&id=${configId}`,
-  configurationSuccess: `${basePath}/u/configure?u=success`,
-  invalidConfiguration: `${basePath}/u/configure?u=invalid`,
-  configurationError: `${basePath}/u/configure?u=error`,
   createConfiguration: `${basePath}/u/configure?s=add`,
 }
 
@@ -41,6 +39,13 @@ export const apiRoutes = {
     login: `${apiPath}/login`,
     logout: `${apiPath}/logout`,
     me: `${apiPath}/me`,
+    resetPassword: `${apiPath}/resetpw`,
+  },
+  chartData: {
+    show: (chartId, queryParams) =>
+      queryParams
+        ? `${apiPath}/charts/${chartId}/data?${qs.stringify(queryParams)}`
+        : `${apiPath}/charts/${chartId}/data`,
   },
   configurations: {
     userConfigurations: (uid) => `${apiPath}/users/${uid}/configs`,

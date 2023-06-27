@@ -16,13 +16,10 @@ const UserModel = {
 
     return await db.collection(collections.users).insertOne(newUser)
   },
-  findOne: async (db, uid) => {
-    return await db.collection(collections.users).findOne(
-      { uid },
-      {
-        projection: userMongoProjection,
-      }
-    )
+  findOne: async (db, userAttributes) => {
+    return await db.collection(collections.users).findOne(userAttributes, {
+      projection: userMongoProjection,
+    })
   },
   update: async (db, uid, userUpdates) => {
     const { value } = await db.collection(collections.users).findOneAndUpdate(

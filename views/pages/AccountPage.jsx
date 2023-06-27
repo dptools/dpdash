@@ -1,6 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import 'whatwg-fetch'
 
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
@@ -8,39 +6,11 @@ import Tooltip from '@material-ui/core/Tooltip'
 import ButtonBase from '@material-ui/core/ButtonBase'
 import Snackbar from '@material-ui/core/Snackbar'
 
-import { compose } from 'redux'
-import { withStyles } from '@material-ui/core/styles'
+import getAvatar from '../fe-utils/avatarUtil'
+import getCounts from '../fe-utils/countUtil'
+import { fetchSubjects } from '../fe-utils/fetchUtil'
 
-import Header from './components/Header'
-import Sidebar from './components/Sidebar'
-
-import getAvatar from './fe-utils/avatarUtil'
-import getCounts from './fe-utils/countUtil'
-import { fetchSubjects } from './fe-utils/fetchUtil'
-
-import basePathConfig from '../server/configs/basePathConfig'
-import { apiRoutes } from './routes/routes'
-
-const basePath = basePathConfig || ''
-
-const styles = (theme) => ({
-  root: {
-    flexGrow: 1,
-    height: '100vh',
-    zIndex: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    display: 'flex',
-    width: '100%',
-  },
-  content: {
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    flexGrow: 1,
-    backgroundColor: '#fefefe',
-    padding: theme.spacing.unit * 3,
-    marginTop: '64px',
-  },
-})
+import { apiRoutes } from '../routes/routes'
 
 class AccountPage extends Component {
   constructor(props) {
@@ -74,6 +44,9 @@ class AccountPage extends Component {
     } catch (err) {
       console.error(err.message)
     }
+  }
+  componentWillMount() {
+    this.fetchUserInfo(this.props.user.uid)
   }
   handleDrawerToggle = () => {
     this.setState((state) => ({ mobileOpen: !state.mobileOpen }))
@@ -197,26 +170,6 @@ class AccountPage extends Component {
     const { classes } = this.props
     return (
       <div className={classes.root}>
-        <Header
-          title="Account"
-          isAccountPage
-          handleDrawerToggle={this.handleDrawerToggle}
-        />
-        <Sidebar
-          avatar={getAvatar({
-            user: {
-              icon: this.state.icon,
-              name: this.state.display_name,
-              uid: this.state.uid,
-            },
-          })}
-          handleDrawerToggle={this.handleDrawerToggle}
-          mobileOpen={this.state.mobileOpen}
-          totalDays={this.state.totalDays}
-          totalStudies={this.state.totalStudies}
-          totalSubjects={this.state.totalSubjects}
-          user={{ ...this.state.user, name: this.state.display_name }}
-        />
         <div
           className={classes.content}
           style={{
@@ -358,11 +311,4 @@ class AccountPage extends Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  user: state.user,
-})
-
-export default compose(
-  withStyles(styles, { withTheme: true }),
-  connect(mapStateToProps)
-)(AccountPage)
+export default AccountPage

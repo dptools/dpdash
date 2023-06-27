@@ -2,6 +2,7 @@ import { chartStyles } from './chart_styles'
 import { configStyles } from './config_styles'
 import { graphPageStyles } from './graph_page_styles'
 import { studyDetailStyles } from './study_details'
+import { mainLayoutStyles } from './main_layout_styles'
 
 const drawerWidth = 200
 
@@ -10,6 +11,7 @@ export const styles = (theme) => ({
   ...configStyles(theme),
   ...graphPageStyles(theme),
   ...studyDetailStyles(theme),
+  ...mainLayoutStyles(theme),
   drawerPaper: {
     width: drawerWidth,
     [theme.breakpoints.up('md')]: {

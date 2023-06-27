@@ -16,7 +16,7 @@ const UsersController = {
     try {
       const { appDb } = req.app.locals
       const { uid } = req.params
-      const user = await UserModel.findOne(appDb, uid)
+      const user = await UserModel.findOne(appDb, { uid })
 
       return res.status(200).json({ data: user })
     } catch (error) {

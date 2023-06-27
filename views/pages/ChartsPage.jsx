@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { compose } from 'redux'
-import { withStyles } from '@material-ui/core/styles'
+import { useOutletContext } from 'react-router-dom'
 
-import { chartStyles } from './styles/chart_styles'
-import AppLayout from './layouts/AppLayout'
-import ChartList from './components/ChartList'
-import AddNewChart from './components/Graphs/AddNewChart'
-import ShareChart from './components/ShareCharts'
+import ChartList from '../components/ChartList'
+import AddNewChart from '../components/Graphs/AddNewChart'
+import ShareChart from '../components/ShareCharts'
 import {
   getCharts,
   deleteChart,
   duplicateChart,
   fetchUsernames,
   shareChart,
-} from './fe-utils/fetchUtil'
+} from '../fe-utils/fetchUtil'
+import { routes } from '../routes/routes'
 
 const NULL_CHART = {}
 
-const Charts = ({ user, classes }) => {
+const ChartsPage = () => {
+  const { user, classes, navigate } = useOutletContext()
   const [chartToShare, setChartToShare] = useState(NULL_CHART)
   const [chartList, setChartList] = useState([])
   const [usernames, setUsernames] = useState([])
@@ -58,6 +56,7 @@ const Charts = ({ user, classes }) => {
     const { data: charts } = await getCharts()
     setChartList(charts)
   }
+  const newChart = () => navigate(routes.newChart)
 
   useEffect(() => {
     loadCharts()
@@ -74,7 +73,7 @@ const Charts = ({ user, classes }) => {
   }, [])
 
   return (
-    <AppLayout title='Charts'>
+    <>
       <ChartList
         handleShareChart={handleShareChart}
         chartList={chartList}
@@ -92,19 +91,9 @@ const Charts = ({ user, classes }) => {
           classes={classes}
         />
       )}
-      <AddNewChart />
-    </AppLayout>
+      <AddNewChart onNewChart={newChart} />
+    </>
   )
 }
 
-const styles = (theme) => ({
-  ...chartStyles(theme),
-})
-const mapStateToProps = (state) => ({
-  user: state.user,
-})
-
-export default compose(
-  withStyles(styles, { withTheme: true }),
-  connect(mapStateToProps)
-)(Charts)
+export default ChartsPage

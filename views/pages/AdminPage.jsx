@@ -1,6 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import 'whatwg-fetch'
 import update from 'immutability-helper'
 import { Column, Table } from 'react-virtualized'
 import * as _ from 'lodash'
@@ -22,29 +20,22 @@ import SelectField from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import Checkbox from '@material-ui/core/Checkbox'
 import IconButton from '@material-ui/core/IconButton'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import NoSsr from '@material-ui/core/NoSsr'
 import Select from 'react-select'
 import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 import Chip from '@material-ui/core/Chip'
-import { emphasize } from '@material-ui/core/styles/colorManipulator'
 
-import { compose } from 'redux'
-import { withStyles } from '@material-ui/core/styles'
-
-import Sidebar from './components/Sidebar'
-import getAvatar from './fe-utils/avatarUtil'
-import getCounts from './fe-utils/countUtil'
+import getAvatar from '../fe-utils/avatarUtil'
+import getCounts from '../fe-utils/countUtil'
 import {
   fetchSubjects,
   fetchStudiesAdmin,
   fetchUsers,
   updateUser,
-} from './fe-utils/fetchUtil'
-import basePathConfig from '../server/configs/basePathConfig'
+} from '../fe-utils/fetchUtil'
+import basePathConfig from '../../server/configs/basePathConfig'
 
 const drawerWidth = 200
 
@@ -55,76 +46,6 @@ const memberMenu = [
   { value: 1, level: 'manager', text: 'Study Manager' },
   { value: 2, level: 'member', text: 'Member' },
 ]
-
-const styles = (theme) => ({
-  root: {
-    flexGrow: 1,
-    height: '100vh',
-    zIndex: 1,
-    overflow: 'hidden',
-    position: 'relative',
-    display: 'flex',
-    width: '100%',
-  },
-  appBar: {
-    position: 'absolute',
-    marginLeft: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-    },
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    backgroundColor: 'white',
-    color: 'rgba(0, 0, 0, 0.54)',
-  },
-  navIconHide: {
-    [theme.breakpoints.up('md')]: {
-      display: 'none',
-    },
-  },
-  content: {
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
-    flexGrow: 1,
-    backgroundColor: '#fefefe',
-    padding: theme.spacing.unit * 3,
-  },
-  input: {
-    display: 'flex',
-    padding: 0,
-  },
-  valueContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    flex: 1,
-    alignItems: 'center',
-  },
-  chip: {
-    margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
-  },
-  chipFocused: {
-    backgroundColor: emphasize(
-      theme.palette.type === 'light'
-        ? theme.palette.grey[300]
-        : theme.palette.grey[700],
-      0.08
-    ),
-  },
-  noOptionsMessage: {
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-  },
-  singleValue: {
-    fontSize: 16,
-  },
-  placeholder: {
-    position: 'absolute',
-    left: 2,
-    fontSize: 16,
-  },
-  paper: {
-    marginTop: theme.spacing.unit,
-    position: 'absolute',
-    width: '100%',
-  },
-})
 
 function NoOptionsMessage(props) {
   return (
@@ -270,7 +191,6 @@ class AdminPage extends Component {
     this.setState({
       width: window.innerWidth - this.state.marginWidth,
       height: window.innerHeight - this.state.marginHeight,
-      avatar: getAvatar({ user: this.props.user }),
     })
     /* Resize listener register */
     window.addEventListener('resize', this.handleResize)
@@ -635,58 +555,22 @@ class AdminPage extends Component {
     }
     const { classes } = this.props
     return (
-      <div className={classes.root}>
-        <AppBar className={classes.appBar}>
-          <Toolbar
-            variant="dense"
-            style={{
-              paddingLeft: '16px',
-            }}
-          >
-            <IconButton
-              color="default"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerToggle}
-              className={classes.navIconHide}
-            >
-              <img
-                width="24px"
-                height="24px"
-                src={`${basePath}/img/favicon.png`}
+      <>
+        <div>
+          <div style={{ width: '100%' }}>
+            <NoSsr>
+              <Select
+                classes={classes}
+                placeholder="Search users"
+                value={this.state.search}
+                onChange={this.handleSearch}
+                options={this.state.autocomplete}
+                autoFocus={true}
+                components={components}
+                isMulti
               />
-            </IconButton>
-            <div style={{ width: '100%' }}>
-              <NoSsr>
-                <Select
-                  classes={classes}
-                  placeholder="Search users"
-                  value={this.state.search}
-                  onChange={this.handleSearch}
-                  options={this.state.autocomplete}
-                  autoFocus={true}
-                  components={components}
-                  isMulti
-                />
-              </NoSsr>
-            </div>
-          </Toolbar>
-        </AppBar>
-        <Sidebar
-          avatar={this.state.avatar}
-          handleDrawerToggle={this.handleDrawerToggle}
-          mobileOpen={this.state.mobileOpen}
-          totalDays={this.state.totalDays}
-          totalStudies={this.state.totalStudies}
-          totalSubjects={this.state.totalSubjects}
-          user={this.props.user}
-        />
-        <div
-          className={classes.content}
-          style={{
-            padding: '12px',
-            marginTop: '48px',
-          }}
-        >
+            </NoSsr>
+          </div>
           {this.state.users ? (
             <Table
               width={
@@ -961,16 +845,9 @@ class AdminPage extends Component {
             </DialogContent>
           </Dialog>
         ) : null}
-      </div>
+      </>
     )
   }
 }
 
-const mapStateToProps = (state) => ({
-  user: state.user,
-})
-
-export default compose(
-  withStyles(styles, { withTheme: true }),
-  connect(mapStateToProps)
-)(AdminPage)
+export default AdminPage

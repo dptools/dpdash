@@ -76,7 +76,7 @@ const LoginPage = (props) => {
       const user = await api.auth.login(credentials)
 
       props.setUser(user)
-      navigate(routes.configs)
+      navigate(routes.main)
     } catch (error) {
       setState((prevState) => {
         return {
@@ -200,7 +200,7 @@ const LoginPage = (props) => {
               <br />
               <Typography
                 component={Link}
-                to={routes.resetPassword}
+                to={routes.resetpw}
                 style={{
                   textAlign: 'right',
                   width: '100%',
@@ -230,7 +230,7 @@ const LoginPage = (props) => {
               <br />
               <Typography
                 component={Link}
-                to={routes.signUp}
+                to={routes.register}
                 style={{
                   textAlign: 'center',
                   width: '100%',

@@ -4,15 +4,14 @@ import { ObjectId } from 'mongodb'
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import { collections } from '../utils/mongoCollections'
 import chartsController from '../controllers/chartsController'
-import { routes } from '../utils/routes'
+import { v1Routes } from '../utils/routes'
 import { defaultTargetValueMap } from '../utils/defaultTargetValueMap'
 
 const router = Router()
 
-router.route(routes.charts).get(ensureAuthenticated, chartsController.index)
-router.route(routes.newChart).get(ensureAuthenticated, chartsController.new)
-router.route(routes.chart).get(ensureAuthenticated, chartsController.show)
-router.route(routes.editChart).get(ensureAuthenticated, chartsController.edit)
+router
+  .route(v1Routes.charts.show)
+  .get(ensureAuthenticated, chartsController.show)
 
 router
   .route('/api/v1/charts')
@@ -115,7 +114,7 @@ router
           { projection: { _id: 0 } }
         )
 
-      if (!chart) return res.redirect(routes.charts)
+      if (!chart) return res.status(400).json({ error: 'Chart not found.' })
 
       const targetValuesMap = defaultTargetValueMap(userAccess)
       chart.fieldLabelValueMap = chart.fieldLabelValueMap.map((fieldValue) => {

@@ -6,7 +6,6 @@ export const routes = {
   chart: '/charts/:chart_id',
   charts: '/charts',
   editChart: '/charts/:chart_id/edit',
-  newChart: '/charts/new',
   login: `/login`,
   signup: `/signup`,
   logout: `/logout`,
@@ -14,9 +13,14 @@ export const routes = {
 
 export const v1Routes = {
   auth: {
+    me: `${v1Root}/me`,
     login: `${v1Root}/login`,
     logout: `${v1Root}/logout`,
-    me: `${v1Root}/me`,
+    signup: `${v1Root}/signup`,
+    resetpw: `${v1Root}/resetpw`,
+  },
+  charts: {
+    show: `${v1Root}/charts/:chart_id/data`,
   },
   config: {
     index: `${userRoot}/configs`,

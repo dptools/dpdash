@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import {
   BarChart,
   Bar,
@@ -23,7 +24,7 @@ const BarGraph = ({ graph, classes }) => {
     return (
       <>
         <p>This chart has no data to display.</p>
-        <a href={routes.editChart(graph.chart_id)}>Edit chart</a>
+        <Link to={routes.editChart(graph.chart_id)}>Edit chart</Link>
       </>
     )
   }

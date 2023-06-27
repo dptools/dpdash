@@ -2,9 +2,7 @@ import Fab from '@material-ui/core/Fab'
 import Tooltip from '@material-ui/core/Tooltip'
 import Add from '@material-ui/icons/Add'
 
-import { routes } from '../../routes/routes'
-
-const AddNewChart = () => {
+const AddNewChart = ({ onNewChart }) => {
   return (
     <div
       style={{
@@ -16,7 +14,7 @@ const AddNewChart = () => {
       <Fab
         component="span"
         focusRipple
-        onClick={() => window.location.assign(routes.newChart)}
+        onClick={() => onNewChart()}
         style={{ marginBottom: '8px' }}
       >
         <Tooltip title="Create A New Chart">

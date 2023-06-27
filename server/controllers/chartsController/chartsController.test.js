@@ -7,12 +7,7 @@ import {
   createSubject,
   createUser,
 } from '../../../test/fixtures'
-import chartsListPage from '../../templates/Chart.template'
-import editChartPage from '../../templates/EditChart.template'
-import newChartPage from '../../templates/NewChart.template'
-import viewChartPage from '../../templates/ViewChart.template'
 import chartsController from '.'
-import { userFromRequest } from '../../utils/userFromRequestUtil'
 import BarChartService from '../../services/BarChartService'
 import BarChartTableService from '../../services/BarChartTableService'
 import SubjectModel from '../../models/SubjectModel'
@@ -32,99 +27,6 @@ describe('chartsController', () => {
     console.error = consoleError
   })
 
-  describe(chartsController.index, () => {
-    describe('when successful', () => {
-      it('renders the charts list page', async () => {
-        const request = createRequestWithUser()
-        const response = createResponse()
-        const user = userFromRequest(request)
-
-        await chartsController.index(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(200)
-        expect(response.send).toHaveBeenCalledWith(chartsListPage(user))
-      })
-    })
-
-    describe('when unsuccessful', () => {
-      it('returns a 500 error with the error message', async () => {
-        const request = {}
-        const response = createResponse()
-
-        await chartsController.index(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(500)
-        expect(response.send).toHaveBeenCalledWith({
-          message: "Cannot read properties of undefined (reading 'role')",
-        })
-      })
-    })
-  })
-
-  describe(chartsController.new, () => {
-    describe('when successful', () => {
-      it('renders the new chart page', async () => {
-        const request = createRequestWithUser()
-        const response = createResponse()
-        const user = userFromRequest(request)
-
-        await chartsController.new(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(200)
-        expect(response.send).toHaveBeenCalledWith(newChartPage(user))
-      })
-    })
-
-    describe('when unsuccessful', () => {
-      it('returns a 500 error with the error message', async () => {
-        const request = {}
-        const response = createResponse()
-
-        await chartsController.new(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(500)
-        expect(response.send).toHaveBeenCalledWith({
-          message: "Cannot read properties of undefined (reading 'role')",
-        })
-      })
-    })
-  })
-
-  describe(chartsController.edit, () => {
-    describe('when successful', () => {
-      const chartId = 10
-      const request = createRequestWithUser({ params: { chart_id: chartId } })
-      const response = createResponse()
-      const user = userFromRequest(request)
-      const chart = createChart({ id: chartId })
-
-      it('renders the edit chart page', async () => {
-        request.app.locals.dataDb.findOne.mockResolvedValueOnce(chart)
-
-        await chartsController.edit(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(200)
-        expect(response.send).toHaveBeenCalledWith(
-          editChartPage(user, { chart_id: chartId })
-        )
-      })
-    })
-
-    describe('when unsuccessful', () => {
-      it('returns a 500 error with the error message', async () => {
-        const request = {}
-        const response = createResponse()
-
-        await chartsController.edit(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(500)
-        expect(response.send).toHaveBeenCalledWith({
-          message: "Cannot read properties of undefined (reading 'chart_id')",
-        })
-      })
-    })
-  })
-
   describe(chartsController.show, () => {
     const chart = createChart()
     const mockCreateChart = jest.fn()
@@ -138,7 +40,6 @@ describe('chartsController', () => {
       params: { chart_id: chart.id },
     })
     const response = createResponse()
-    const user = userFromRequest(request)
 
     beforeEach(() => {
       BarChartService.mockImplementationOnce(() => {
@@ -183,8 +84,8 @@ describe('chartsController', () => {
       await chartsController.show(request, response)
 
       expect(response.status).toHaveBeenCalledWith(200)
-      expect(response.send).toHaveBeenCalledWith(
-        viewChartPage(user, {
+      expect(response.json).toHaveBeenCalledWith({
+        data: {
           chart_id: chart.id,
           dataBySite: mockDataBySite,
           labels: mockLabels,
@@ -195,8 +96,8 @@ describe('chartsController', () => {
           filters: DEFAULT_CHART_FILTERS,
           chartOwner,
           graphTable,
-        })
-      )
+        },
+      })
     })
   })
 })

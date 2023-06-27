@@ -11,6 +11,7 @@ import Delete from '@material-ui/icons/Delete'
 import Edit from '@material-ui/icons/Edit'
 import Share from '@material-ui/icons/Share'
 import PlaylistAdd from '@material-ui/icons/PlaylistAdd'
+import { Link as RouterLink } from 'react-router-dom'
 
 import { routes } from '../routes/routes'
 import UserAvatar from './UserAvatar'
@@ -43,7 +44,11 @@ const ChartList = ({
             return (
               <TableRow key={chart._id}>
                 <TableCell>
-                  <Link color="textPrimary" href={routes.chart(chart._id)}>
+                  <Link
+                    component={RouterLink}
+                    color="textPrimary"
+                    to={routes.viewChart(chart._id)}
+                  >
                     {chart.title}
                   </Link>
                 </TableCell>
@@ -69,7 +74,8 @@ const ChartList = ({
                 </TableCell>
                 <TableCell align="center">
                   <Link
-                    href={userIsOwner ? routes.editChart(chart._id) : '#'}
+                    component={RouterLink}
+                    to={userIsOwner ? routes.editChart(chart._id) : '#'}
                     color="textPrimary"
                     className={userIsOwner ? '' : classes.disable}
                   >

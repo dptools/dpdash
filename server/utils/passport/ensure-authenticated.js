@@ -8,7 +8,7 @@ export default async function ensureAuthenticated(req, res, next) {
 
     const { appDb } = req.app.locals
     const uid = req.user
-    const user = await UserModel.findOne(appDb, uid)
+    const user = await UserModel.findOne(appDb, { uid })
     const { account_expires, blocked, access } = user
 
     switch (true) {

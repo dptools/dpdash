@@ -7,7 +7,7 @@ const apiPath = `${basePath}/api/v1`
 export const routes = {
   basePath,
   home: `${basePath}/`,
-  userAccount: 'user-account',
+  userAccount: '/user-account',
   configs: `/configs`,
   editConfigPage: '/config/:config_id/edit',
   dashboard: `${basePath}/dashboard`,

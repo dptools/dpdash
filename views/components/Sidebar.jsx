@@ -33,7 +33,7 @@ const Sidebar = ({
   }
 
   return (
-    <>
+    <div className={classes.sideBar}>
       <Hidden mdUp>
         <Drawer
           variant="temporary"
@@ -79,7 +79,7 @@ const Sidebar = ({
           />
         </Drawer>
       </Hidden>
-    </>
+    </div>
   )
 }
 

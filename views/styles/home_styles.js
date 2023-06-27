@@ -7,7 +7,6 @@ export const homeStyles = (theme) => ({
     flexGrow: 1,
   },
   home_content: {
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     flexGrow: 1,
     backgroundColor: '#fefefe',
     padding: theme.spacing.unit * 3,

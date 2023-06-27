@@ -1,3 +1,4 @@
+import { accountPageStyles } from './account_page_styles'
 import { chartStyles } from './chart_styles'
 import { configStyles } from './config_styles'
 import { graphPageStyles } from './graph_page_styles'
@@ -12,6 +13,7 @@ export const styles = (theme) => ({
   ...graphPageStyles(theme),
   ...studyDetailStyles(theme),
   ...mainLayoutStyles(theme),
+  ...accountPageStyles(theme),
   drawerPaper: {
     width: drawerWidth,
     [theme.breakpoints.up('md')]: {
@@ -41,4 +43,5 @@ export const styles = (theme) => ({
     letterSpacing: '1.25px',
     flexGrow: 1,
   },
+  sideBar: { borderRight: '1px solid rgba(0, 0, 0, 0.12)' },
 })

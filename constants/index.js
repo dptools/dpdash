@@ -8,6 +8,7 @@ import {
   TRUE_STRING,
   FALSE_STRING,
   BASE_REQUEST_OPTIONS,
+  EMAIL_REGEX,
 } from './vars'
 
 export {
@@ -21,4 +22,5 @@ export {
   TRUE_STRING,
   FALSE_STRING,
   BASE_REQUEST_OPTIONS,
+  EMAIL_REGEX,
 }

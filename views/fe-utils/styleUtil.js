@@ -9,7 +9,6 @@ const getDefaultStyles = (theme) => ({
     width: '100%',
   },
   content: {
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     flexGrow: 1,
     backgroundColor: '#fefefe',
     padding: theme.spacing.unit * 3,
@@ -18,7 +17,7 @@ const getDefaultStyles = (theme) => ({
     padding: '12px',
     marginTop: '64px',
     overflow: 'scroll',
-  }
-});
+  },
+})
 
-export default getDefaultStyles;
+export default getDefaultStyles

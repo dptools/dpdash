@@ -13,7 +13,6 @@ export const configStyles = (theme) => ({
   },
   content: {
     flexGrow: 1,
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     backgroundColor: colors.configWhite,
     paddingTop: theme.spacing.unit * 10,
     paddingLeft: theme.spacing.unit * 3,

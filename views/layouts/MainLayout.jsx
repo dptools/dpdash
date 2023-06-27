@@ -11,7 +11,7 @@ import { AuthContext } from '../contexts/AuthContext'
 import { headerTitle } from './helpers'
 
 const MainLayout = ({ classes, theme }) => {
-  const [user] = useContext(AuthContext)
+  const [user, setUser] = useContext(AuthContext)
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
@@ -45,7 +45,7 @@ const MainLayout = ({ classes, theme }) => {
         totalSubjects={sideBarState.totalSubjects}
       />
       <div className={classNames(classes.content, classes.contentPadded)}>
-        <Outlet context={{ user, classes, theme, navigate }} />
+        <Outlet context={{ user, classes, theme, navigate, setUser }} />
       </div>
     </div>
   )

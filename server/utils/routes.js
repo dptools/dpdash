@@ -15,6 +15,7 @@ export const routes = {
 export const v1Routes = {
   auth: {
     login: `${v1Root}/login`,
+    logout: `${v1Root}/logout`,
     me: `${v1Root}/me`,
   },
   config: {

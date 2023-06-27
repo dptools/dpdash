@@ -202,17 +202,6 @@ router
     }
   })
 
-//Logout page
-router.get('/logout', function (req, res) {
-  req.session.destroy()
-  req.logout()
-  if (req.query.e) {
-    return res.redirect(`${basePath}/login?e=${req.query.e}`)
-  } else {
-    return res.redirect(`${basePath}/login`)
-  }
-})
-
 //deepdive page
 router.get(
   '/api/v1/studies/:study/subjects/:subject/deepdive/:day',

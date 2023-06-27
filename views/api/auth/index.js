@@ -12,6 +12,11 @@ const auth = {
 
     return handleApiResponse(response)
   },
+  logout: async () => {
+    const response = await fetch(apiRoutes.auth.logout, BASE_REQUEST_OPTIONS)
+
+    return handleApiResponse(response)
+  },
   me: async () => {
     const response = await fetch(apiRoutes.auth.me, {
       ...BASE_REQUEST_OPTIONS,

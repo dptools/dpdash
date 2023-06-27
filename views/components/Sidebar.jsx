@@ -1,10 +1,14 @@
 import React, { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import DrawerComponent from './Drawer'
 import Drawer from '@material-ui/core/Drawer'
 import Hidden from '@material-ui/core/Hidden'
 import { ThemeContext } from '../contexts/ThemeContext'
 import { AuthContext } from '../contexts/AuthContext'
 import getAvatar from '../fe-utils/avatarUtil'
+
+import api from '../api'
+import { routes } from '../routes/routes'
 
 const Sidebar = ({
   handleDrawerToggle,
@@ -14,8 +18,20 @@ const Sidebar = ({
   totalSubjects,
 }) => {
   const { classes, theme } = useContext(ThemeContext)
-  const [user] = useContext(AuthContext)
+  const [user, setUser] = useContext(AuthContext)
   const avatar = getAvatar({ user })
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await api.auth.logout()
+
+      setUser(null)
+      navigate(routes.login)
+    } catch (error) {
+      alert(error.message)
+    }
+  }
 
   return (
     <>
@@ -39,6 +55,7 @@ const Sidebar = ({
             totalDays={totalDays}
             user={user}
             name={user.name}
+            onLogout={handleLogout}
           />
         </Drawer>
       </Hidden>
@@ -57,6 +74,7 @@ const Sidebar = ({
             totalDays={totalDays}
             user={user}
             name={user.name}
+            onLogout={handleLogout}
           />
         </Drawer>
       </Hidden>

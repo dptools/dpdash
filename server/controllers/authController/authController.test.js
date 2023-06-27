@@ -6,6 +6,40 @@ import {
 } from '../../../test/fixtures'
 
 describe('AuthController', () => {
+  describe(AuthController.destroy, () => {
+    describe('When successful', () => {
+      it('returns a status of 200 and success data message', async () => {
+        const request = createRequestWithUser()
+        const response = createResponse()
+
+        request.session.destroy.mockResolvedValueOnce()
+        request.logout.mockResolvedValueOnce()
+
+        await AuthController.destroy(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(200)
+        expect(response.json).toHaveBeenCalledWith({
+          data: { message: 'User is logged out' },
+        })
+      })
+    })
+
+    describe('When unsuccessful', () => {
+      it('returns a status of 500 and an error message', async () => {
+        const request = createRequestWithUser()
+        const response = createResponse()
+
+        request.session.destroy.mockRejectedValueOnce(new Error('some error'))
+
+        await AuthController.destroy(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(500)
+        expect(response.json).toHaveBeenCalledWith({
+          error: 'some error',
+        })
+      })
+    })
+  })
   describe(AuthController.show, () => {
     describe('When successful', () => {
       it('returns a status of 200 and a user object', async () => {

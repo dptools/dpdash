@@ -67,6 +67,7 @@ export const createDb = (overrides = {}) => ({
 })
 
 export const createResponse = (overrides = {}) => ({
+  clearCookie: jest.fn(),
   header: jest.fn(),
   json: jest.fn(),
   redirect: jest.fn(),
@@ -88,6 +89,7 @@ export const createRequest = (overrides = {}) => ({
       dataDb: createDb(),
     },
   },
+  logout: jest.fn(),
   ...overrides,
 })
 
@@ -99,6 +101,7 @@ export const createRequestWithUser = (overrides = {}) => ({
     display_name: 'Display Name',
     role: '',
     userAccess: [],
+    destroy: jest.fn(),
   },
   ...overrides,
 })

@@ -16,7 +16,7 @@ export const routes = {
   charts: `${basePath}/charts`,
   reports: `${basePath}/reports`,
   admin: `${basePath}/admin`,
-  login: `${basePath}/login`,
+  login: `/login`,
   logout: `${basePath}/logout`,
   studyDetails: `${basePath}/study-details`,
   chart: (chart_id, queryParams) =>
@@ -39,6 +39,7 @@ export const routes = {
 export const apiRoutes = {
   auth: {
     login: `${apiPath}/login`,
+    logout: `${apiPath}/logout`,
     me: `${apiPath}/me`,
   },
   configurations: {

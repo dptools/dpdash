@@ -17,6 +17,7 @@ import { ShowChart } from '@material-ui/icons'
 
 import { colors } from '../../constants/styles'
 import { routes } from '../routes/routes'
+import getAvatar from '../fe-utils/avatarUtil'
 
 const DrawerComponent = (props) => {
   return (
@@ -27,14 +28,16 @@ const DrawerComponent = (props) => {
           src={`${routes.basePath}/img/dpdash.png`}
         />
       </div>
-      <div className={props.classes.avatarContainer}>{props.avatar}</div>
+      <div className={props.classes.avatarContainer}>
+        {getAvatar({ user: props.user })}
+      </div>
 
       <Typography
         noWrap={true}
         className={props.classes.userName}
         variant="subheading"
       >
-        {props.name ? props.name : props.user.uid}
+        {props.user.name ? props.user.name : props.user.uid}
       </Typography>
       <table className={props.classes.statsContainer}>
         <tbody>

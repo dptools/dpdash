@@ -45,17 +45,6 @@ const fetchSubjects = async () => {
   return subjectsResponse.json()
 }
 
-const fetchUsers = async () => {
-  const res = await window.fetch(`${basePath}/api/v1/users`, {
-    ...defaultApiOptions,
-    method: 'GET',
-  })
-  if (res.status !== 200) {
-    throw new Error(res.statusText)
-  }
-  return res.json()
-}
-
 const fetchUsernames = async () => {
   try {
     const res = await window.fetch(`${basePath}/api/v1/search/users`, {
@@ -218,23 +207,10 @@ const fetchGraphTableCSV = async (chart_id, filters, filename) => {
   return res
 }
 
-const updateUser = async (uid, attributes) => {
-  const res = await window.fetch(apiRoutes.updateUser(uid), {
-    ...defaultApiOptions,
-    method: 'PATCH',
-    body: JSON.stringify(attributes),
-  })
-
-  if (res.status !== 200) throw new Error(res.message)
-
-  return res.json()
-}
-
 export {
   fetchStudies,
   fetchStudiesAdmin,
   fetchSubjects,
-  fetchUsers,
   fetchUsernames,
   fetchStudyDetails,
   deleteStudyDetails,
@@ -249,5 +225,4 @@ export {
   fetchPreferences,
   shareChart,
   fetchGraphTableCSV,
-  updateUser,
 }

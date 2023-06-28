@@ -11,6 +11,8 @@ const userMongoProjection = {
 }
 
 const UserModel = {
+  all: async (db) =>
+    db.collection(collections.users).find({}, userMongoProjection).toArray(),
   save: async (db, userAttributes) => {
     const newUser = UserModel.withDefaults(userAttributes)
 
@@ -31,6 +33,7 @@ const UserModel = {
         projection: userMongoProjection,
         returnOriginal: false,
         upsert: true,
+        returnDocument: 'after',
       }
     )
 

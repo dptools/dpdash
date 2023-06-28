@@ -1,24 +1,11 @@
-import { BASE_REQUEST_OPTIONS } from '../../../constants'
 import { apiRoutes } from '../../routes/routes'
-import { handleApiResponse } from '../helpers'
+import http from '../http'
 
 const users = {
-  findOne: async (userId) => {
-    const response = await fetch(apiRoutes.users.user(userId), {
-      ...BASE_REQUEST_OPTIONS,
-    })
-
-    return handleApiResponse(response)
-  },
-  update: async (userId, userAttributes) => {
-    const response = await fetch(apiRoutes.users.user(userId), {
-      ...BASE_REQUEST_OPTIONS,
-      method: 'PATCH',
-      body: JSON.stringify(userAttributes),
-    })
-
-    return handleApiResponse(response)
-  },
+  loadAll: async () => http.get(apiRoutes.users.index),
+  findOne: async (userId) => http.get(apiRoutes.users.show(userId)),
+  update: async (userId, userAttributes) =>
+    http.patch(apiRoutes.users.show(userId), userAttributes),
 }
 
 export default users

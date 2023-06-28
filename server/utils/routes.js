@@ -26,10 +26,13 @@ export const v1Routes = {
     index: `${userRoot}/configs`,
     show: `${userRoot}/configs/:config_id`,
   },
-  adminRoutes: {
-    show: `${v1Root}/admin/users/:uid`,
+  admin: {
+    users: {
+      show: `${v1Root}/admin/users/:uid`,
+    },
   },
   users: {
+    index: `${v1Root}/users`,
     show: userRoot,
   },
 }

@@ -27,14 +27,9 @@ import TextField from '@material-ui/core/TextField'
 import Paper from '@material-ui/core/Paper'
 import Chip from '@material-ui/core/Chip'
 
-import getAvatar from '../fe-utils/avatarUtil'
 import getCounts from '../fe-utils/countUtil'
-import {
-  fetchSubjects,
-  fetchStudiesAdmin,
-  fetchUsers,
-  updateUser,
-} from '../fe-utils/fetchUtil'
+import { fetchSubjects, fetchStudiesAdmin } from '../fe-utils/fetchUtil'
+import api from '../api'
 import basePathConfig from '../../server/configs/basePathConfig'
 
 const drawerWidth = 200
@@ -200,7 +195,7 @@ class AdminPage extends Component {
     try {
       const acl = await fetchSubjects()
       this.setState(getCounts({ acl }))
-      const users = await fetchUsers()
+      const users = await api.users.loadAll()
       this.setState({
         users,
         autocomplete: this.autocomplete({ users }),
@@ -519,25 +514,17 @@ class AdminPage extends Component {
   }
 
   updateUser = async (uid, { account_expires }) => {
-    if (!account_expires) await updateUser(uid, { account_expires: null })
+    const updateUserParams = !!account_expires
+      ? { account_expires: moment(account_expires).format() }
+      : { account_expires: null }
+    const updatedUser = await api.admin.users.update(uid, updateUserParams)
 
-    const formatAccountExpiration = moment(account_expires).format()
-
-    await updateUser(uid, {
-      account_expires: formatAccountExpiration,
-    })
-
-    this.setState((previousState) => {
-      return {
-        ...previousState,
-        users: previousState.users.map((user) => {
-          if (uid === user.uid) {
-            return { ...user, account_expires }
-          }
-          return user
-        }),
-      }
-    })
+    this.setState((previousState) => ({
+      ...previousState,
+      users: previousState.users.map((user) =>
+        uid === user.uid ? updatedUser : user
+      ),
+    }))
   }
 
   render() {

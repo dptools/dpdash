@@ -512,12 +512,10 @@ class Graph extends Component {
           }}
         >
           <DrawerComponent
-            avatar={this.state.avatar}
             totalStudies={this.state.totalStudies}
             totalSubjects={this.state.totalSubjects}
             totalDays={this.state.totalDays}
             user={this.props.user}
-            name={this.props.user.name}
           />
         </Drawer>
         <div

@@ -5,7 +5,6 @@ import Drawer from '@material-ui/core/Drawer'
 import Hidden from '@material-ui/core/Hidden'
 import { ThemeContext } from '../contexts/ThemeContext'
 import { AuthContext } from '../contexts/AuthContext'
-import getAvatar from '../fe-utils/avatarUtil'
 import api from '../api'
 import { routes } from '../routes/routes'
 
@@ -18,7 +17,6 @@ const Sidebar = ({
 }) => {
   const { classes, theme } = useContext(ThemeContext)
   const [user, setUser] = useContext(AuthContext)
-  const avatar = getAvatar({ user })
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -48,9 +46,7 @@ const Sidebar = ({
           }}
         >
           <DrawerComponent
-            avatar={avatar}
             classes={classes}
-            name={user.name}
             onLogout={handleLogout}
             totalStudies={totalStudies}
             totalSubjects={totalSubjects}
@@ -68,9 +64,7 @@ const Sidebar = ({
           }}
         >
           <DrawerComponent
-            avatar={avatar}
             classes={classes}
-            name={user.name}
             onLogout={handleLogout}
             totalStudies={totalStudies}
             totalSubjects={totalSubjects}

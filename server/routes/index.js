@@ -19,6 +19,8 @@ import ensureUser from '../utils/passport/ensure-user'
 import config from '../configs/config'
 import defaultUserConfig from '../configs/defaultUserConfig'
 import basePathConfig from '../configs/basePathConfig'
+import ApiUsersController from '../controllers/apiUsersController'
+import { v1Routes } from '../utils/routes'
 
 const router = Router()
 
@@ -360,22 +362,7 @@ router.get('/api/v1/subjects', ensureAuthenticated, function (req, res) {
     })
 })
 
-router.get('/api/v1/users', ensureAdmin, function (req, res) {
-  const { appDb } = req.app.locals
-  appDb
-    .collection('users')
-    .find({}, { _id: 0, configs: 0, member_of: 0, password: 0, last_logoff: 0 })
-    .toArray(function (err, users) {
-      if (err) {
-        console.log(err)
-        return res.status(502).send([])
-      } else if (users.length == 0) {
-        return res.status(404).send([])
-      } else {
-        return res.status(200).json(users)
-      }
-    })
-})
+router.get(v1Routes.users.index, ensureAdmin, ApiUsersController.index)
 router.get('/api/v1/search/users', ensureAuthenticated, function (req, res) {
   const { appDb } = req.app.locals
   appDb

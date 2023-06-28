@@ -41,6 +41,11 @@ export const apiRoutes = {
     me: `${apiPath}/me`,
     resetPassword: `${apiPath}/resetpw`,
   },
+  admin: {
+    users: {
+      show: (uid) => `${apiPath}/admin/users/${uid}`,
+    },
+  },
   chartData: {
     show: (chartId, queryParams) =>
       queryParams
@@ -55,7 +60,8 @@ export const apiRoutes = {
       `${apiRoutes.configurations.userConfigurations(uid)}/file`,
   },
   users: {
-    user: (uid) => `${apiPath}/users/${uid}`,
+    index: `${apiPath}/users`,
+    show: (uid) => `${apiPath}/users/${uid}`,
   },
   chart: (chart_id) => `${apiPath}/charts/${chart_id}`,
   charts: `${apiPath}/charts`,

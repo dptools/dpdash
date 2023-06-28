@@ -16,14 +16,10 @@ const AccountPage = () => {
   const profileImageRef = useRef()
   const [snackBar, setSnackBar] = useState({ open: false, message: '' })
   const { user, classes, setUser } = useOutletContext()
+  const [formValues, setFormValues] = useState(user)
 
   const handleChange = (e) =>
-    setUser((prevState) => {
-      return {
-        ...prevState,
-        [e.target.name]: e.target.value,
-      }
-    })
+    setFormValues({ ...formValues, [e.target.name]: e.target.value })
 
   const handleProfileImageChange = (e) => {
     const { files } = e.target
@@ -33,22 +29,18 @@ const AccountPage = () => {
 
       reader.readAsDataURL(files[0])
       reader.onload = (e) => {
-        setUser((prevState) => {
-          return {
-            ...prevState,
-            icon: e.target.result,
-          }
-        })
+        setFormValues({ ...formValues, icon: e.target.result })
       }
     }
   }
 
-  const handleSubmit = async (e, formValues) => {
+  const handleSubmit = async (e) => {
     try {
       e.preventDefault()
 
-      await api.users.update(user.uid, formValues)
+      const updatedUser = await api.users.update(user.uid, formValues)
 
+      setUser(updatedUser)
       setSnackBar(() => ({
         open: true,
         message: 'User has been updated.',
@@ -84,16 +76,6 @@ const AccountPage = () => {
     canvas.width = 200
 
     ctx.drawImage(image, sx, sy, swidth, sheight, x, y, 200, 200)
-
-    const dataURL = canvas.toDataURL('image/png')
-
-    setUser((prevState) => {
-      return {
-        ...prevState,
-        icon: dataURL,
-      }
-    })
-
     ctx.clearRect(0, 0, canvas.width, canvas.height)
   }
 
@@ -106,7 +88,7 @@ const AccountPage = () => {
   return (
     <>
       <div className={classnames(classes.content, classes.form)}>
-        <Form handleSubmit={(e) => handleSubmit(e, user)}>
+        <Form handleSubmit={(e) => handleSubmit(e)}>
           <div className={classes.userAvatar}>
             <input
               accept="image/*"
@@ -120,9 +102,7 @@ const AccountPage = () => {
             <label htmlFor="icon">
               <span className={classes.userAvatarContainer}>
                 <Tooltip title="Edit Profile Photo">
-                  {getAvatar({
-                    user,
-                  })}
+                  {getAvatar({ user: formValues })}
                 </Tooltip>
               </span>
             </label>
@@ -131,7 +111,7 @@ const AccountPage = () => {
             className={classes.formInputSpacing}
             label="Full Name"
             name="display_name"
-            value={user.display_name}
+            value={formValues.display_name}
             onChange={handleChange}
             fullWidth={true}
           />
@@ -141,7 +121,7 @@ const AccountPage = () => {
             type="email"
             pattern={EMAIL_REGEX}
             name="email"
-            value={user.mail}
+            value={formValues.mail}
             fullWidth={true}
             onChange={handleChange}
           />
@@ -149,7 +129,7 @@ const AccountPage = () => {
             className={classes.formInputSpacing}
             label="Title"
             name="title"
-            value={user.title}
+            value={formValues.title}
             fullWidth={true}
             onChange={handleChange}
           />
@@ -157,7 +137,7 @@ const AccountPage = () => {
             className={classes.formInputSpacing}
             label="Department"
             name="department"
-            value={user.department}
+            value={formValues.department}
             fullWidth={true}
             onChange={handleChange}
           />
@@ -165,7 +145,7 @@ const AccountPage = () => {
             className={classes.formInputSpacing}
             label="Company"
             name="company"
-            value={user.company}
+            value={formValues.company}
             fullWidth={true}
             onChange={handleChange}
           />
@@ -190,7 +170,7 @@ const AccountPage = () => {
         className={classes.userAvatarInput}
         ref={profileImageRef}
         onLoad={scaleDownImage}
-        src={user.icon}
+        src={formValues.icon}
       />
       <canvas ref={canvasRef} className={classes.userAvatarInput} />
     </>

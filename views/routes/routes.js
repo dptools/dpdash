@@ -24,7 +24,6 @@ export const routes = {
   login: `/login`,
   logout: `/logout`,
   dpdashboard: '/dashboard/:study/:subject',
-  studyDetails: `${basePath}/study-details`,
   main: '/main',
   subjectView: (study, subject) => `${basePath}/dashboard/${study}/${subject}`,
   chartCsv: (chart_id, queryParams) => routes.chart(chart_id, queryParams),

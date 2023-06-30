@@ -60,38 +60,6 @@ const fetchUsernames = async () => {
   }
 }
 
-const fetchStudyDetails = async () => {
-  const res = await window.fetch(apiRoutes.studyDetails, {
-    ...defaultApiOptions,
-    method: 'GET',
-  })
-
-  return res.json()
-}
-
-const createStudyDetails = async (body) => {
-  const res = await window.fetch(apiRoutes.studyDetails, {
-    ...defaultApiOptions,
-    method: 'POST',
-    body: JSON.stringify(body),
-  })
-
-  if (res.status !== 200) return new Error(res.message)
-
-  return res.json()
-}
-
-const deleteStudyDetails = async (id) => {
-  const res = await window.fetch(apiRoutes.studyDetail(id), {
-    ...defaultApiOptions,
-    method: 'DELETE',
-  })
-
-  if (res.status !== 200) return new Error(res.message)
-
-  return res.json()
-}
-
 const createChart = async (formValues) => {
   const res = await window.fetch(apiRoutes.charts, {
     ...defaultApiOptions,
@@ -212,9 +180,6 @@ export {
   fetchStudiesAdmin,
   fetchSubjects,
   fetchUsernames,
-  fetchStudyDetails,
-  deleteStudyDetails,
-  createStudyDetails,
   createChart,
   getCharts,
   deleteChart,

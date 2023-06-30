@@ -17,7 +17,6 @@ export const routes = {
   editChartPage: '/charts/:chart_id/edit',
   viewChartPage: '/charts/:chart_id',
   viewChart: (chartId) => `/charts/${chartId}`,
-  reports: `${basePath}/reports`,
   admin: '/admin',
   register: '/register',
   resetpw: '/reset-password',

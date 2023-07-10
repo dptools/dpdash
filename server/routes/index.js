@@ -125,7 +125,7 @@ router.get(
 
 //Dashboard page
 router.get(
-  '/dashboard/:study/:subject',
+  '/api/v1/dashboards/:study/:subject',
   ensurePermission,
   async function (req, res) {
     try {

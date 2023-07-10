@@ -51,6 +51,7 @@
     "helmet": "^3.14.0",
     "http-errors": "~1.6.2",
     "immutability-helper": "^2.8.1",
+    "lodash": "^4.17.21",
     "material-ui-chip-input": "^1.0.0-beta.8",
     "mathjs": "^7.6.0",
     "method-override": "^3.0.0",

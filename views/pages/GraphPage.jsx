@@ -1,10 +1,9 @@
-import React, { Component } from 'react'
-import GraphFactory from '../components/GraphFactory'
+import React from 'react'
+import { useOutletContext, useParams } from 'react-router-dom'
 import io from 'socket.io-client'
 import FileSaver from 'file-saver'
 
 import Button from '@material-ui/core/Button'
-import ListItem from '@material-ui/core/ListItem'
 import * as _ from 'lodash'
 
 import AppBar from '@material-ui/core/AppBar'
@@ -27,27 +26,19 @@ import DialogContent from '@material-ui/core/DialogContent'
 import Dialog from '@material-ui/core/Dialog'
 import Functions from '@material-ui/icons/Functions'
 
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-
 import SelectConfigurationForm from '../components/SelectConfigurationForm'
 
-import getAvatar from '../fe-utils/avatarUtil'
 import getCounts from '../fe-utils/countUtil'
-import {
-  fetchSubjects,
-  fetchConfigurations,
-  fetchPreferences,
-} from '../fe-utils/fetchUtil'
+import { fetchSubjects, fetchConfigurations } from '../fe-utils/fetchUtil'
 import { preparePreferences } from '../fe-utils/preferencesUtil'
 import basePathConfig from '../../server/configs/basePathConfig'
-import { routes, apiRoutes } from '../routes/routes'
-import { withRouter } from '../hoc/withRouter'
+import { apiRoutes } from '../routes/routes'
+import Matrix from '../components/Matrix.d3'
+import GraphPageTable from '../components/GraphPageTable'
+import api from '../api'
 
 const basePath = basePathConfig || ''
+const cardSize = 20
 
 const socketAddress = `https://${window.location.hostname}${basePath}/dashboard`
 const socket = io(socketAddress, {
@@ -57,133 +48,58 @@ const socket = io(socketAddress, {
   autoConnect: false,
 })
 
-const CustomTableCell = ({ theme }) =>
-  ({
-    head: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white,
-    },
-    body: {
-      fontSize: 14,
-    },
-  }(TableCell))
-
-class Graph extends Component {
-  constructor(props) {
-    const { subject, study } = props.params
-    const { preferences } = props.user
-
-    super(props)
-    this.state = {
-      subject: {
-        project: study,
-        sid: subject,
-      },
-      graph: {},
-      user: {},
-      searchList: {},
-      svgLink: {},
-      startFromTheLastDay: false,
-      graphWidth: 0,
-      graphHeight: 0,
-      startDay: 1,
-      lastDay: null,
-      maxDay: 1,
-      socketIOSubjectRoom: null,
-      socketIOUserRoom: null,
-      taskId: '',
-      metadata: {},
-      configurations: {
-        colormap: [],
-      },
-      data: {
-        matrix: {},
-      },
-      mobileOpen: false,
-      icon: '',
-      totalSubjects: 0,
-      totalStudies: 0,
-      totalDays: 0,
-      loading: false,
-      success: false,
-      cardSize: 50,
-      openStat: false,
-      configurationsList: [],
-      preferences,
-    }
-  }
-  fetchMetadata = (study, subject, day) => {
-    return fetch(
-      `${basePath}/api/v1/studies/${study}/subjects/${subject}/deepdive/${day}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-      }
-    )
-      .then((response) => {
-        if (response.status !== 201) {
-          return
-        }
-        return response.json()
-      })
-      .then((response) => {
-        this.setState({
-          data: response,
-        })
-      })
-  }
-  filterList = (event) => {
-    let updatedList = this.state.searchList
-    if (event.target.value !== '') {
-      updatedList = this.props.user.acl.filter(function (item) {
-        return (
-          item['subjects']
-            .toLowerCase()
-            .search(event.target.value.toLowerCase()) !== -1
-        )
-      })
-    } else {
-      //reset the acl
-      updatedList = this.props.user.acl
-    }
-
-    this.setState({ searchList: updatedList })
-  }
-
-  generateListItem(acl) {
-    let listItem = []
-    for (let i in acl) {
-      let link = '/dashboard/' + acl[i]['study'] + '/' + acl[i]['subjects']
-      listItem.push(
-        <ListItem
-          href={`${basePath}${link}`}
-          target="_blank"
-          primaryText={acl[i]['subjects']}
-          secondaryText={acl[i]['study']}
-          key={link}
-        />
-      )
-    }
-    return listItem
-  }
-  downloadPng = () => {
-    let SID = this.state.subject.sid
-    this.canvas.toBlob((blob) => {
-      FileSaver.saveAs(blob, SID + '.png')
+const GraphPage = () => {
+  const { user, classes, theme } = useOutletContext()
+  const el = React.useRef()
+  const canvasRef = React.useRef()
+  const graphRef = React.createRef()
+  const { study, subject } = useParams()
+  const [graphRendered, setGraphRendered] = React.useState(0)
+  const [graph, setGraph] = React.useState({
+    configurations: [],
+    consentDate: '2022-03-05',
+    matrixData: [],
+  })
+  const [graphDimensions, setGraphDimensions] = React.useState({
+    height: window.innerHeight,
+    width: window.innerWidth,
+  })
+  const [socketData, setSocketData] = React.useState({
+    socketIOSubjectRoom: `${basePath}/resync/${study}/${subject}`,
+    socketIOUserRoom: user.uid,
+    taskId: '',
+  })
+  const [mobileOpen, setMobileOpen] = React.useState(false)
+  const [counts, setCounts] = React.useState({
+    totalSubjects: 0,
+    totalStudies: 0,
+    totalDays: 0,
+  })
+  const [dayData, setDayData] = React.useState({
+    startFromTheLastDay: false,
+    startDay: 1,
+    lastDay: null,
+    maxDay: 1,
+  })
+  const [loading, setLoading] = React.useState(false)
+  const [success, setSuccess] = React.useState(false)
+  const [openStat, setOpenStat] = React.useState(false)
+  const [preferences, setPreferences] = React.useState(user.preferences)
+  const [configurationsList, setConfigurationsList] = React.useState([])
+  const downloadPng = () => {
+    canvasRef.current.toBlob((blob) => {
+      FileSaver.saveAs(blob, `${subject}.png`)
     })
   }
-  handleResize = () => {
-    this.setState({
-      graphWidth: window.innerWidth,
-      graphHeight: window.innerHeight - 30,
+  const handleResize = () => {
+    setGraphDimensions({
+      height: window.innerHeight - 30,
+      width: window.innerWidth,
     })
   }
-  resync = () => {
+  const resync = () => {
     window
-      .fetch(this.state.socketIOSubjectRoom, {
+      .fetch(socketData.socketIOSubjectRoom, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,82 +113,61 @@ class Graph extends Component {
         return response.json()
       })
       .then((response) => {
-        this.setState({
+        setLoading(true)
+        setSuccess(false)
+        setSocketData({
+          ...socketData,
           taskId: response.correlationId,
-          loading: true,
-          success: false,
         })
       })
   }
-  closeStat = () => {
-    this.setState({
-      openStat: false,
-    })
-  }
-  openStat = () => {
-    this.setState({
-      openStat: true,
-    })
-  }
-  fetchGraph = async (subject, study) => {
-    return await window
-      .fetch(`${basePath}/dashboard/${study}/${subject}`, {
-        method: 'GET',
+  const closeStat = () => setOpenStat(false)
+  const fetchGraph = () => api.dashboard.load(study, subject)
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen)
+  const buttonClassname = classNames({
+    [classes.buttonSuccess]: success,
+  })
+  const updateUserPreferences = async (configurationId) => {
+    const { uid } = user
+    const selectedUserPreference = preparePreferences(
+      configurationId,
+      preferences
+    )
+
+    return window
+      .fetch(apiRoutes.preferences(uid), {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'same-origin',
+        body: JSON.stringify({
+          preferences: selectedUserPreference,
+        }),
       })
-      .then((res) => res.json())
-      .then(({ data }) => {
-        this.setState({ graph: data.graph })
+      .then(() => fetchGraph())
+      .then((graphData) => {
+        setGraph(graphData.graph)
+        setPreferences({ ...preferences, config: configurationId })
       })
   }
-  componentDidUpdate() {}
-  // eslint-disable-next-line react/no-deprecated
-  async componentDidMount() {
+  const onMount = async () => {
     try {
-      this.fetchGraph(this.state.subject.sid, this.state.subject.project)
-      const [acl, configurations] = await Promise.all([
+      const [graphData, acl, configurations] = await Promise.all([
+        fetchGraph(),
         fetchSubjects(),
-        fetchConfigurations(this.props.user.uid),
+        fetchConfigurations(user.uid),
       ])
-      this.setState({
-        ...getCounts({ acl }),
-        configurationsList: configurations.data,
-      })
 
-      let maxDay = 1
-      for (
-        let dataIndex = 0;
-        dataIndex < this.state.graph.matrixData.length;
-        dataIndex++
-      ) {
-        let maxObj = _.maxBy(
-          this.state.graph.matrixData[dataIndex]['data'],
-          function (o) {
-            return o.day
-          }
-        )
-        if (maxObj == undefined) {
-          continue
-        }
-        let day = maxObj['day']
-        if (day > maxDay) {
-          maxDay = day
-        }
-      }
+      const maxObj = graphData.graph.matrixData.map((matrixData) =>
+        _.maxBy(matrixData.data, ({ day }) => day)
+      )
 
-      this.setState({
-        maxDay: maxDay,
-        subject: this.state.subject,
-        user: this.props.user,
-        iconBase64: this.props.user.icon,
-        searchList: this.props.user.acl,
-        socketIOSubjectRoom: `${basePath}/resync/${this.state.subject.project}/${this.state.subject.sid}`,
-        socketIOUserRoom: this.props.user.uid,
-      })
-      this.setState({ configurations: this.props.user.configs })
+      setCounts(getCounts({ acl }))
+      setConfigurationsList(configurations.data)
+      setGraph(graphData.graph)
+      setDayData({ ...dayData, maxDay: maxObj.day || 1 })
+      renderMatrix()
       if (!HTMLCanvasElement.prototype.toBlob) {
         Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
           value: function (callback, type, quality) {
@@ -288,340 +183,233 @@ class Graph extends Component {
         })
       }
       socket.open()
-      this.setState({
-        avatar: getAvatar({ user: this.props.user }),
-      })
-      if (this.matrix.graph === undefined) {
-        console.log('error')
-        return
+    } catch (e) {
+      console.error(e.message)
+    }
+  }
+  const renderMatrix = () => {
+    if (el.current.firstChild) {
+      el.current.removeChild(el.current.firstChild)
+    }
+    if (!graph.matrixData || Object.keys(graph.matrixData).length == 0) {
+      return
+    }
+    const matrixProps = {
+      id: 'matrix',
+      type: 'matrix',
+      width: graphDimensions.width,
+      height: graphDimensions.height,
+      data: graph.matrixData,
+      cardSize,
+      study,
+      subject,
+      consentDate: graph.consentDate,
+      configuration: graph.configurations,
+      startFromTheLastDay: dayData.startFromTheLastDay,
+      startDay: dayData.startDay,
+      lastDay: dayData.lastDay,
+      maxDay: dayData.maxDay,
+      user: user.uid,
+    }
+
+    graphRef.current = new Matrix(el.current, matrixProps)
+    graphRef.current.create(graph.matrixData)
+    setGraphRendered(graphRendered + 1)
+  }
+
+  React.useEffect(() => {
+    onMount()
+
+    return () => {
+      socket.disconnect()
+      socket.close()
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (!el.current) {
+      console.log('error')
+      return
+    }
+
+    let updatedSvgElement = el.current.lastChild
+    if (updatedSvgElement) {
+      let svgString = new XMLSerializer().serializeToString(updatedSvgElement)
+      let svgUrl =
+        'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString)
+
+      const kanvas = canvasRef.current
+      kanvas.width = updatedSvgElement.getBBox().width
+      kanvas.height = updatedSvgElement.getBBox().height
+
+      // png conversion
+      let img = new Image()
+      let ctx = kanvas.getContext('2d')
+
+      img.onload = () => {
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          kanvas.width,
+          kanvas.height,
+          0,
+          0,
+          kanvas.width,
+          kanvas.height
+        )
       }
-      let svgElement = this.matrix.graph.el.lastChild
-      this.setState(
-        {
-          graphWidth: svgElement.getBBox().width + 20,
-          graphHeight: svgElement.getBBox().height,
-        },
-        () => {
-          // Download set-up
-
-          //svg conversion
-          let updatedSvgElement = this.matrix.graph.el.lastChild
-          let svgString = new XMLSerializer().serializeToString(
-            updatedSvgElement
-          )
-          let svgUrl =
-            'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString)
-
-          let canvas = this.canvas.current
-          canvas.width = updatedSvgElement.getBBox().width
-          canvas.height = updatedSvgElement.getBBox().height
-
-          // png conversion
-          let img = new Image()
-          let ctx = canvas.getContext('2d')
-
-          img.onload = () => {
-            ctx.drawImage(
-              img,
-              0,
-              0,
-              canvas.width,
-              canvas.height,
-              0,
-              0,
-              canvas.width,
-              canvas.height
-            )
-          }
-          img.src = svgUrl
-
-          this.setState({
-            svgLink: svgUrl,
-            graphWidth: window.innerWidth,
-            graphHeight: window.innerHeight - 30,
-            cardSize: 20,
-          })
-        }
-      )
-    } catch (err) {
-      console.error(err.message)
+      img.src = svgUrl
     }
-  }
-  handleDrawerToggle = () => {
-    this.setState((state) => ({ mobileOpen: !state.mobileOpen }))
-  }
-  generateStatItem(data) {
-    let tableItem = []
-    for (let i in data) {
-      let dataItem = data[i]
-      let validData = _.filter(
-        dataItem['data'],
-        _.conforms({
-          [dataItem['variable']]: function (n) {
-            return _.isNumber(n)
-          },
-        })
-      )
-      let missingDataPercentage =
-        100 - (validData.length * 100) / this.state.maxDay
-      tableItem.push(
-        <TableRow key={i + dataItem['label']}>
-          <CustomTableCell theme={this.props.theme}>
-            {dataItem['label']}
-          </CustomTableCell>
-          <CustomTableCell theme={this.props.theme}>
-            {dataItem['stat'].length > 0 &&
-            !isNaN(parseFloat(dataItem['stat'][0].min)) &&
-            isFinite(dataItem['stat'][0].min)
-              ? dataItem['stat'][0].min.toFixed(2)
-              : 'N/A'}
-          </CustomTableCell>
-          <CustomTableCell theme={this.props.theme}>
-            {dataItem['stat'].length > 0 &&
-            !isNaN(parseFloat(dataItem['stat'][0].max)) &&
-            isFinite(dataItem['stat'][0].max)
-              ? dataItem['stat'][0].max.toFixed(2)
-              : 'N/A'}
-          </CustomTableCell>
-          <CustomTableCell theme={this.props.theme}>
-            {dataItem['stat'].length > 0 &&
-            !isNaN(parseFloat(dataItem['stat'][0].mean)) &&
-            isFinite(dataItem['stat'][0].mean)
-              ? dataItem['stat'][0].mean.toFixed(2)
-              : 'N/A'}
-          </CustomTableCell>
-          <CustomTableCell
-            id={'stat-missingdata-' + i}
-            title={validData.length + '/' + this.state.maxDay}
+  }, [graphRendered])
+
+  React.useEffect(() => {
+    renderMatrix()
+  }, [graph.matrixData])
+
+  return (
+    <div className={classes.root}>
+      <AppBar className={classes.appBar}>
+        <Toolbar
+          variant="dense"
+          style={{
+            paddingLeft: '16px',
+          }}
+        >
+          <IconButton
+            color="default"
+            aria-label="Open drawer"
+            onClick={handleDrawerToggle}
           >
-            {missingDataPercentage.toFixed(2) +
-              ' (' +
-              validData.length +
-              '/' +
-              this.state.maxDay +
-              ')'}
-          </CustomTableCell>
-        </TableRow>
-      )
-    }
-    return tableItem
-  }
-
-  componentWillUnmount() {
-    socket.disconnect()
-    socket.close()
-    window.removeEventListener('resize', this.handleResize)
-  }
-  updateUserPreferences = (configurationId) => {
-    const { uid } = this.props.user
-    const selectedUserPreference = preparePreferences(
-      configurationId,
-      this.state.preferences
-    )
-
-    return window
-      .fetch(apiRoutes.preferences(uid), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          preferences: selectedUserPreference,
-        }),
-      })
-      .then((res) => {
-        if (res.status === 201) {
-          this.setState({
-            preferences: { ...this.state.preferences, config: configurationId },
-          })
-          this.fetchGraph(this.state.subject.project, this.state.subject.sid)
-        }
-      })
-  }
-  render() {
-    const { loading, success } = this.state
-    const { classes, theme } = this.props
-    const buttonClassname = classNames({
-      [classes.buttonSuccess]: success,
-    })
-
-    return (
-      <div className={classes.root}>
-        <AppBar className={classes.appBar}>
-          <Toolbar
-            variant="dense"
+            <img
+              width="24px"
+              height="24px"
+              src={`${basePath}/img/favicon.png`}
+            />
+          </IconButton>
+          <Typography
+            variant="title"
+            color="inherit"
             style={{
-              paddingLeft: '16px',
+              color: 'default',
+              fontSize: '18px',
+              letterSpacing: '1.25px',
+              flexGrow: 1,
             }}
           >
-            <IconButton
-              color="default"
-              aria-label="Open drawer"
-              onClick={this.handleDrawerToggle}
-            >
-              <img
-                width="24px"
-                height="24px"
-                src={`${basePath}/img/favicon.png`}
-              />
-            </IconButton>
-            <Typography
-              variant="title"
-              color="inherit"
-              style={{
-                color: 'default',
-                fontSize: '18px',
-                letterSpacing: '1.25px',
-                flexGrow: 1,
-              }}
-            >
-              {this.state.subject.sid + ' - ' + this.state.subject.project}
+            {subject + ' - ' + study}
+          </Typography>
+          <div className={classes.configDropDownContainer}>
+            <Typography className={classes.dropDownText}>
+              Configuration
             </Typography>
-            <div className={classes.configDropDownContainer}>
-              <Typography className={classes.dropDownText}>
-                Configuration
-              </Typography>
-              <SelectConfigurationForm
-                configurations={this.state.configurationsList}
-                onChange={this.updateUserPreferences}
-                currentPreference={this.state.preferences}
-                classes={classes}
-              />
-            </div>
-            <IconButton
-              color="default"
-              aria-label="Open Stat"
-              onClick={this.openStat}
-            >
-              <Functions />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-
-        <Drawer
-          variant="temporary"
-          anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-          open={this.state.mobileOpen}
-          onClose={this.handleDrawerToggle}
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-        >
-          <DrawerComponent
-            totalStudies={this.state.totalStudies}
-            totalSubjects={this.state.totalSubjects}
-            totalDays={this.state.totalDays}
-            user={this.props.user}
-          />
-        </Drawer>
-        <div
-          className={classes.content}
-          style={{
-            padding: '12px',
-            marginTop: '48px',
-            overflowY: 'scroll',
-          }}
-        >
-          <div className="Matrix">
-            <GraphFactory
-              id="matrix"
-              type="matrix"
-              width={this.state.graphWidth}
-              height={this.state.graphHeight}
-              data={this.state.graph.matrixData}
-              cardSize={this.state.cardSize}
-              study={this.state.subject.project}
-              subject={this.state.subject.sid}
-              consentDate={this.state.graph.consentDate}
-              ref={(elem) => (this.matrix = elem)}
-              configuration={this.state.graph.configurations}
-              startFromTheLastDay={this.state.startFromTheLastDay}
-              startDay={this.state.startDay}
-              lastDay={this.state.lastDay}
-              maxDay={this.state.maxDay}
-              user={this.state.user.uid}
+            <SelectConfigurationForm
+              configurations={configurationsList}
+              onChange={updateUserPreferences}
+              currentPreference={preferences}
+              classes={classes}
             />
           </div>
-          <div
+          <IconButton
+            color="default"
+            aria-label="Open Stat"
+            onClick={() => setOpenStat(true)}
+          >
+            <Functions />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer
+        variant="temporary"
+        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        classes={{
+          paper: classes.drawerPaper,
+        }}
+        ModalProps={{
+          keepMounted: true, // Better open performance on mobile.
+        }}
+      >
+        <DrawerComponent
+          classes={classes}
+          totalStudies={counts.totalStudies}
+          totalSubjects={counts.totalSubjects}
+          totalDays={counts.totalDays}
+          user={user}
+        />
+      </Drawer>
+      <div
+        className={classes.content}
+        style={{
+          padding: '12px',
+          marginTop: '48px',
+          overflowY: 'scroll',
+        }}
+      >
+        <div className="Matrix">
+          <div className="graph" ref={el} />
+        </div>
+        <div
+          style={{
+            right: 10,
+            bottom: 10,
+            position: 'fixed',
+          }}
+        >
+          <Button
+            variant="fab"
+            onClick={downloadPng}
+            id="downloadPng"
+            focusRipple={true}
             style={{
-              right: 10,
-              bottom: 10,
-              position: 'fixed',
+              marginBottom: '6px',
             }}
           >
+            <Tooltip title="Download as PNG">
+              <SaveIcon />
+            </Tooltip>
+          </Button>
+          <div>
             <Button
               variant="fab"
-              onClick={this.downloadPng}
-              id="downloadPng"
-              ref="downloadPng"
-              focusRipple={true}
-              style={{
-                marginBottom: '6px',
-              }}
+              color="secondary"
+              className={buttonClassname}
+              onClick={resync}
             >
-              <Tooltip title="Download as PNG">
-                <SaveIcon />
+              <Tooltip title="Resync with the File System">
+                {success ? <CheckIcon /> : <RefreshIcon />}
               </Tooltip>
             </Button>
-            <div>
-              <Button
-                variant="fab"
-                color="secondary"
-                className={buttonClassname}
-                onClick={this.resync}
-              >
-                <Tooltip title="Resync with the File System">
-                  {success ? <CheckIcon /> : <RefreshIcon />}
-                </Tooltip>
-              </Button>
-              {loading && (
-                <CircularProgress size={68} className={classes.fabProgress} />
-              )}
-            </div>
+            {loading && (
+              <CircularProgress size={68} className={classes.fabProgress} />
+            )}
           </div>
         </div>
-        <Dialog
-          modal={false}
-          open={this.state.openStat}
-          onClose={this.closeStat}
-        >
-          <DialogContent
-            style={{
-              padding: '0',
-            }}
-          >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <CustomTableCell theme={theme}> Label </CustomTableCell>
-                  <CustomTableCell theme={theme}> Min </CustomTableCell>
-                  <CustomTableCell theme={theme}> Max </CustomTableCell>
-                  <CustomTableCell theme={theme}> Mean </CustomTableCell>
-                  <CustomTableCell theme={theme}> Missing % </CustomTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.generateStatItem(this.state.graph.matrixData)}
-              </TableBody>
-            </Table>
-          </DialogContent>
-          <DialogActions>
-            <Button color="secondary" onClick={this.closeStat}>
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <canvas
-          ref={(elem) => (this.canvas = elem)}
-          style={{ display: 'none' }}
-        ></canvas>
       </div>
-    )
-  }
+      <Dialog modal={false} open={openStat} onClose={closeStat}>
+        <DialogContent
+          style={{
+            padding: '0',
+          }}
+        >
+          <GraphPageTable
+            matrixData={graph.matrixData}
+            maxDay={dayData.maxDay}
+            theme={theme}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button color="secondary" onClick={closeStat}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+    </div>
+  )
 }
 
-export default withRouter(Graph)
+export default GraphPage

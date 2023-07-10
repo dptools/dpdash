@@ -8,9 +8,11 @@ export const routes = {
   basePath,
   home: `${basePath}/`,
   userAccount: '/user-account',
-  configs: `/configs`,
+  configs: '/configs',
   editConfigPage: '/config/:config_id/edit',
-  dashboard: `${basePath}/dashboard`,
+  dashboards: `${basePath}/dashboard`,
+  dashboard: (study = ':study', subject = ':subject') =>
+    `${routes.dashboards}/${study}/${subject}`,
   charts: '/charts',
   newChart: '/charts/new',
   editChart: (chartId) => `/charts/${chartId}/edit`,
@@ -20,11 +22,9 @@ export const routes = {
   admin: '/admin',
   register: '/register',
   resetpw: '/reset-password',
-  login: `/login`,
-  logout: `/logout`,
-  dpdashboard: '/dashboard/:study/:subject',
+  login: '/login',
+  logout: '/logout',
   main: '/main',
-  subjectView: (study, subject) => `${basePath}/dashboard/${study}/${subject}`,
   chartCsv: (chart_id, queryParams) => routes.chart(chart_id, queryParams),
   editConfiguration: (configId) => `/config/${configId}/edit`,
   viewConfiguration: (configId) =>
@@ -56,6 +56,10 @@ export const apiRoutes = {
       `${apiRoutes.configurations.userConfigurations(uid)}/${config_id}`,
     configurationFileUpload: (uid) =>
       `${apiRoutes.configurations.userConfigurations(uid)}/file`,
+  },
+  dashboards: {
+    show: (study = ':study', subject = ':subject') =>
+      `${apiPath}/dashboards/${study}/${subject}`,
   },
   users: {
     index: `${apiPath}/users`,

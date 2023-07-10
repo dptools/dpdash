@@ -60,7 +60,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, outputDirectory),
-    filename: 'bundle.js',
+    filename: 'js/bundle.js',
   },
   resolve: {
     fallback: {

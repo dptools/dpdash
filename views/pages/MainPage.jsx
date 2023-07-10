@@ -23,6 +23,7 @@ import getAvatar from '../fe-utils/avatarUtil'
 import { fetchSubjects } from '../fe-utils/fetchUtil'
 
 import basePathConfig from '../../server/configs/basePathConfig'
+import { routes } from '../routes/routes'
 
 const basePath = basePathConfig || ''
 const drawerWidth = 200
@@ -485,19 +486,19 @@ class MainPage extends Component {
   }
   getStudyCell = (data) => {
     return (
-      <a
+      <Link
         style={{ textDecoration: 'none' }}
-        href={`${basePath}/dashboard/${data.study}`}
+        to={`${basePath}/dashboard/${data.study}`}
       >
         {data.study}
-      </a>
+      </Link>
     )
   }
   getSubjectCell = (data) => {
     return (
       <Link
         style={{ textDecoration: 'none' }}
-        to={`${basePath}/dashboard/${data.study}/${data.subject}`}
+        to={routes.dashboard(data.study, data.subject)}
       >
         {data.subject}
       </Link>

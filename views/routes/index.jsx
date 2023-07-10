@@ -31,22 +31,13 @@ const Router = (props) => {
         <Route path={routes.register} element={<RegisterPage />} />
         <Route path={routes.resetpw} element={<ResetPasswordPage />} />
         <Route
-          path={routes.dpdashboard}
-          element={
-            <GraphPage
-              user={props.user}
-              classes={props.classes}
-              theme={props.theme}
-            />
-          }
-        />
-        <Route
           element={
             <AuthenticatedRoute>
               <MainLayout classes={props.classes} theme={props.theme} />
             </AuthenticatedRoute>
           }
         >
+          <Route path={routes.dashboard()} element={<GraphPage />} />
           <Route path={routes.configs} element={<ConfigPage />} />
           <Route
             path={routes.main}

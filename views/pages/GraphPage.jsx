@@ -1,6 +1,5 @@
 import React from 'react'
 import { useOutletContext, useParams } from 'react-router-dom'
-import io from 'socket.io-client'
 import FileSaver from 'file-saver'
 
 import Button from '@material-ui/core/Button'
@@ -15,11 +14,7 @@ import DrawerComponent from '../components/Drawer'
 import Drawer from '@material-ui/core/Drawer'
 
 import SaveIcon from '@material-ui/icons/Save'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import CheckIcon from '@material-ui/icons/Check'
-import RefreshIcon from '@material-ui/icons/Refresh'
 import Tooltip from '@material-ui/core/Tooltip'
-import classNames from 'classnames'
 
 import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -40,14 +35,6 @@ import api from '../api'
 const basePath = basePathConfig || ''
 const cardSize = 20
 
-const socketAddress = `https://${window.location.hostname}${basePath}/dashboard`
-const socket = io(socketAddress, {
-  requestTimeout: 1250,
-  randomizationFactor: 0,
-  reconnectionDelay: 0,
-  autoConnect: false,
-})
-
 const GraphPage = () => {
   const { user, classes, theme } = useOutletContext()
   const el = React.useRef()
@@ -64,11 +51,6 @@ const GraphPage = () => {
     height: window.innerHeight,
     width: window.innerWidth,
   })
-  const [socketData, setSocketData] = React.useState({
-    socketIOSubjectRoom: `${basePath}/resync/${study}/${subject}`,
-    socketIOUserRoom: user.uid,
-    taskId: '',
-  })
   const [mobileOpen, setMobileOpen] = React.useState(false)
   const [counts, setCounts] = React.useState({
     totalSubjects: 0,
@@ -81,8 +63,6 @@ const GraphPage = () => {
     lastDay: null,
     maxDay: 1,
   })
-  const [loading, setLoading] = React.useState(false)
-  const [success, setSuccess] = React.useState(false)
   const [openStat, setOpenStat] = React.useState(false)
   const [preferences, setPreferences] = React.useState(user.preferences)
   const [configurationsList, setConfigurationsList] = React.useState([])
@@ -97,36 +77,9 @@ const GraphPage = () => {
       width: window.innerWidth,
     })
   }
-  const resync = () => {
-    window
-      .fetch(socketData.socketIOSubjectRoom, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-      })
-      .then((response) => {
-        if (response.status !== 201) {
-          return
-        }
-        return response.json()
-      })
-      .then((response) => {
-        setLoading(true)
-        setSuccess(false)
-        setSocketData({
-          ...socketData,
-          taskId: response.correlationId,
-        })
-      })
-  }
   const closeStat = () => setOpenStat(false)
   const fetchGraph = () => api.dashboard.load(study, subject)
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen)
-  const buttonClassname = classNames({
-    [classes.buttonSuccess]: success,
-  })
   const updateUserPreferences = async (configurationId) => {
     const { uid } = user
     const selectedUserPreference = preparePreferences(
@@ -182,7 +135,6 @@ const GraphPage = () => {
           },
         })
       }
-      socket.open()
     } catch (e) {
       console.error(e.message)
     }
@@ -221,8 +173,6 @@ const GraphPage = () => {
     onMount()
 
     return () => {
-      socket.disconnect()
-      socket.close()
       window.removeEventListener('resize', handleResize)
     }
   }, [])
@@ -372,21 +322,6 @@ const GraphPage = () => {
               <SaveIcon />
             </Tooltip>
           </Button>
-          <div>
-            <Button
-              variant="fab"
-              color="secondary"
-              className={buttonClassname}
-              onClick={resync}
-            >
-              <Tooltip title="Resync with the File System">
-                {success ? <CheckIcon /> : <RefreshIcon />}
-              </Tooltip>
-            </Button>
-            {loading && (
-              <CircularProgress size={68} className={classes.fabProgress} />
-            )}
-          </div>
         </div>
       </div>
       <Dialog modal={false} open={openStat} onClose={closeStat}>

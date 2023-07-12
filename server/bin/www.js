@@ -56,33 +56,6 @@ function normalizePort(val) {
 }
 
 /**
- * Create a websocket
- */
-var io = require('socket.io')(server, {
-  transports: ['websocket', 'polling'],
-  pingInterval: 1500,
-  pingTimeout: 2000,
-}) //squid v2
-
-app.set('socketio', io)
-
-/* authenticated */
-io.use(function (socket, next) {
-  if (socket.request.headers.cookie) return next()
-  next(new Error('Authentication error'))
-})
-
-/* Not authenticated */
-io.on('connection', function (socket) {
-  socket.on('subscribe', function (roomID) {
-    socket.join(roomID)
-  })
-  socket.on('unsubscribe', function (roomID) {
-    socket.leave(roomID)
-  })
-})
-
-/**
  * Create a rabbitmq connection
  */
 var amqpAddress = 'amqp://' + config.rabbitmq.username
@@ -138,21 +111,6 @@ for (const hour in config.rabbitmq.sync.hours) {
       timeZone: config.rabbitmq.sync.timezone,
     })
   }
-}
-
-/* socket.io connection */
-var dashboardNsp = io.of('/dashboard')
-
-function consumer(conn, ch, replyTo) {
-  ch.consume(replyTo, function (msg) {
-    var response = JSON.parse(msg.content.toString())
-    var taskStatus = response.status
-    if (taskStatus === 'PROCESSING') {
-      dashboardNsp.emit(taskStatus, { taskId: response.task_id })
-    } else if (taskStatus === 'SUCCESS') {
-      dashboardNsp.emit(taskStatus, { taskId: response.task_id })
-    }
-  })
 }
 
 /**

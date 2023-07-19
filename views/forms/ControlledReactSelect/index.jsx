@@ -1,6 +1,5 @@
 import { useContext } from 'react'
 import ReactSelect from 'react-select'
-
 import { Controller } from 'react-hook-form'
 import { NotificationContext } from '../../contexts'
 
@@ -28,7 +27,6 @@ const ControlledReactSelect = ({ name, control, options, ...rest }) => {
   return (
     <Controller
       name={name}
-      defaultValue={['']}
       control={control}
       render={({ field }) => (
         <ReactSelect

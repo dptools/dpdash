@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongodb'
 import ConfigModel from '../../models/ConfigModel'
 
 const ConfigurationsController = {
@@ -18,6 +19,19 @@ const ConfigurationsController = {
       await ConfigModel.destroy(appDb, config_id)
 
       return res.status(204).end()
+    } catch (error) {
+      return res.status(400).json({ error: error.message })
+    }
+  },
+  findOne: async (req, res) => {
+    try {
+      const { appDb } = req.app.locals
+      const { config_id } = req.params
+      const currentConfig = await ConfigModel.findOne(appDb, {
+        _id: ObjectId(config_id),
+      })
+
+      return res.status(200).json({ data: currentConfig })
     } catch (error) {
       return res.status(400).json({ error: error.message })
     }

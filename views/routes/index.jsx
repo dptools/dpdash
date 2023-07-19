@@ -74,16 +74,7 @@ const Router = (props) => {
               />
             }
           />
-          <Route
-            path={routes.editConfigPage}
-            element={
-              <EditConfigPage
-                user={props.user}
-                classes={props.classes}
-                theme={props.theme}
-              />
-            }
-          />
+          <Route path={routes.editConfigPage} element={<EditConfigPage />} />
           <Route path={routes.newConfiguration} element={<NewConfigPage />} />
         </Route>
       </Routes>

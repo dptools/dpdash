@@ -11,6 +11,8 @@ const userConfigurations = {
     ),
   destroy: async (userId, configId) =>
     http.delete(apiRoutes.configurations.userConfiguration(userId, configId)),
+  findOne: async (userId, configId) =>
+    http.get(apiRoutes.configurations.userConfiguration(userId, configId)),
   update: async (userId, configId, configAttributes) =>
     http.patch(
       apiRoutes.configurations.userConfiguration(userId, configId),

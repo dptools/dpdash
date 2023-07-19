@@ -38,7 +38,7 @@ const NewConfigPage = () => {
 
       await api.userConfigurations.create(uid, newConfigurationAttributes)
 
-      setNotification({ open: true, message: UserConfigModel.successMessage })
+      setNotification({ open: true, message: UserConfigModel.message.success })
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }
@@ -50,13 +50,13 @@ const NewConfigPage = () => {
     <>
       <ConfigForm
         classes={classes}
-        control={control}
         colors={colors}
+        control={control}
+        fields={fields}
         friendsList={friendsList}
         gridState={gridState}
-        fields={fields}
-        onCopy={onCopy}
         onAddNewField={addNewField}
+        onCopy={onCopy}
         onSubmit={handleSubmit(handleFormData)}
         onRemove={removeField}
       />

@@ -9,13 +9,12 @@ import {
   Switch,
   IconButton,
   FormControlLabel,
+  Tooltip,
 } from '@material-ui/core'
 import { Edit, Clear, Share } from '@material-ui/icons'
 import FullView from '@material-ui/icons/AspectRatio'
 import Copy from '@material-ui/icons/FileCopy'
 import ConfigCardAvatar from '../ConfigurationCardAvatar'
-import { routes } from '../../routes/routes'
-import { colors } from '../../../constants'
 
 const ConfigurationCard = ({
   classes,
@@ -46,7 +45,7 @@ const ConfigurationCard = ({
         avatar={<ConfigCardAvatar config={config} currentUser={user} />}
         action={
           <IconButton onClick={() => onRemoveOrUpdateConfig(ownsConfig, _id)}>
-            <Clear color={colors.gray} />
+            <Clear />
           </IconButton>
         }
       />
@@ -63,7 +62,7 @@ const ConfigurationCard = ({
         <FormControlLabel
           control={
             <Switch
-              labelStyle={classes.textAndIcon}
+              className={classes.textAndIcon}
               checked={checked}
               onChange={() => onUpdatePreferences(_id)}
             />
@@ -73,41 +72,42 @@ const ConfigurationCard = ({
         <div>
           {ownsConfig ? (
             <>
-              <IconButton
-                onClick={() => onEditConfig(_id)}
-                iconStyle={classes.textAndIcon}
-                tooltipPosition="top-center"
-                tooltip="Edit"
-              >
-                <Edit />
-              </IconButton>
-              <IconButton
-                iconStyle={classes.textAndIcon}
-                tooltipPosition="top-center"
-                tooltip="Share"
-                onClick={() => openSearch(config)}
-              >
-                <Share />
-              </IconButton>
+              <Tooltip title="Edit" placement="top">
+                <IconButton
+                  onClick={() => onEditConfig(_id)}
+                  className={classes.textAndIcon}
+                >
+                  <Edit />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Share" placement="top">
+                <IconButton
+                  className={classes.textAndIcon}
+                  onClick={() => openSearch(config)}
+                >
+                  <Share />
+                </IconButton>
+              </Tooltip>
             </>
           ) : (
             <>
-              <IconButton
-                onClick={() => onViewConfig(_id)}
-                iconStyle={classes.textAndIcon}
-                tooltipPosition="top-center"
-                tooltip="View"
-              >
-                <FullView />
-              </IconButton>
-              <IconButton
-                iconStyle={classes.textAndIcon}
-                tooltipPosition="top-center"
-                tooltip="Duplicate"
-                onClick={() => onCopyConfig(config)}
-              >
-                <Copy />
-              </IconButton>
+              {' '}
+              <Tooltip title="View" placement="top">
+                <IconButton
+                  onClick={() => onViewConfig(_id)}
+                  className={classes.textAndIcon}
+                >
+                  <FullView />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Duplicate" placement="top">
+                <IconButton
+                  className={classes.textAndIcon}
+                  onClick={() => onCopyConfig(config)}
+                >
+                  <Copy />
+                </IconButton>
+              </Tooltip>
             </>
           )}
         </div>

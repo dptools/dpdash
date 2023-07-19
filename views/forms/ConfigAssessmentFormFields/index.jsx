@@ -9,12 +9,14 @@ const ConfigAssessmentFormFields = ({
   control,
   colors,
   index,
-  width,
+  id,
   onCopy,
   onRemove,
+  width,
 }) => {
   return (
     <ConfigurationCategoryCard
+      key={id + 'card'}
       classes={classes}
       formIndex={index}
       onCopy={onCopy}
@@ -23,32 +25,37 @@ const ConfigAssessmentFormFields = ({
       width={width}
     >
       <TextInput
+        key={id + 'category'}
         control={control}
         name={`config.${index}.category`}
         label="Category"
       />
       <TextInput
+        key={id + 'analysis'}
         control={control}
         name={`config.${index}.analysis`}
         label="Assessment"
       />
       <TextInput
+        key={id + 'variable'}
         control={control}
         name={`config.${index}.variable`}
         label="Variable"
       />
       <TextInput
+        key={id + 'label'}
         control={control}
         name={`config.${index}.label`}
         label="Label"
       />
       <ControlledSelectInput
+        key={id + 'color'}
         control={control}
         name={`config.${index}.color`}
         value={221}
       >
-        {colors.map(({ value, label }, index) => (
-          <MenuItem value={value} key={index + value}>
+        {colors.map(({ value, label }, colorsIndex) => (
+          <MenuItem value={value} key={`${id}-${colorsIndex}-${index}`}>
             <div className={classes.configPaletteContainer}>
               {label.map((palette) => (
                 <span
@@ -64,12 +71,14 @@ const ConfigAssessmentFormFields = ({
       </ControlledSelectInput>
       <div>
         <TextInput
+          key={id + 'min'}
           control={control}
           fullWidth={false}
           label="Min"
           name={`config.${index}.min`}
         />
         <TextInput
+          key={id + 'max'}
           control={control}
           fullWidth={false}
           label="Max"

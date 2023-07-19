@@ -71,7 +71,6 @@ connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
       { durable: false },
       function (err, q) {
         if (err) console.log(err)
-        consumer(conn, ch, q.queue)
       }
     )
   })

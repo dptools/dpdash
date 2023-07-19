@@ -127,7 +127,7 @@ export const createSubjectDayData = (overrides = {}) => ({
 export const createConfiguration = (overrides = {}) => ({
   _id: '1',
   owner: 'owl',
-  config: [],
+  config: {},
   type: 'matrix',
   created: 'Mon, 12 June 2023',
   readers: [],

@@ -42,7 +42,48 @@ const UserConfigModel = {
       throw new Error('There was a problem processing the form')
     }
   },
-  successMessage: 'Config Added Successfully',
+  processConfigToFormFields: async (currentConfig, colors) => {
+    try {
+      const { name, type, owner, readers, config } = currentConfig
+      const configKey = Object.keys(config)[0]
+      const configCategoryFields = config[configKey].map(
+        ({ category, analysis, variable, label, range, color }) => {
+          const [min, max] = range
+          return {
+            analysis,
+            category,
+            variable,
+            label,
+            min,
+            max,
+            color: findCategoryColor(color, colors) || defaultColorValue,
+          }
+        }
+      )
+
+      return {
+        configName: name,
+        configType: type,
+        owner: owner,
+        readers: readers.map((reader) => ({
+          value: reader,
+          label: reader,
+          isFixed: reader === owner,
+        })),
+        config: configCategoryFields,
+      }
+    } catch (error) {
+      throw new Error('There was an error processing the configuration')
+    }
+  },
+  message: {
+    success: 'Config Added Successfully',
+  },
 }
 
+const findCategoryColor = (categoryColors, colors) => {
+  return colors.find(({ label }) =>
+    categoryColors.every((el, i) => el === label[i])
+  )
+}
 export default UserConfigModel

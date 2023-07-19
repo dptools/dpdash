@@ -13,6 +13,7 @@ router
 
 router
   .route(v1Routes.config.show)
+  .get(ensureUser, ConfigurationsController.findOne)
   .delete(ensureUser, ConfigurationsController.destroy)
   .patch(ensureUser, ConfigurationsController.update)
 

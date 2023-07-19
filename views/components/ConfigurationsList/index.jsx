@@ -5,6 +5,7 @@ import Select from 'react-select'
 
 import AttachFile from '@material-ui/icons/AttachFile'
 import Button from '@material-ui/core/Button'
+import { Fab } from '@material-ui/core'
 import CancelIcon from '@material-ui/icons/Cancel'
 import Chip from '@material-ui/core/Chip'
 import ContentAdd from '@material-ui/icons/Add'
@@ -419,9 +420,8 @@ const ConfigurationsList = ({
             onChange={handleChangeFile}
           />
           <label htmlFor="raised-button-file">
-            <Button
+            <Fab
               component="span"
-              variant="fab"
               focusRipple
               style={{
                 marginBottom: '8px',
@@ -430,21 +430,19 @@ const ConfigurationsList = ({
               <Tooltip title="Upload configuration file">
                 <AttachFile />
               </Tooltip>
-            </Button>
+            </Fab>
           </label>
         </form>
-        <Button
+        <Fab
           component={Link}
-          variant="fab"
           color="secondary"
           to={routes.newConfiguration}
           focusRipple
-          fab
         >
           <Tooltip title="Add a configuration manually">
             <ContentAdd />
           </Tooltip>
-        </Button>
+        </Fab>
       </div>
       <Dialog
         open={sharedWithState.searchUsers}

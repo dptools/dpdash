@@ -176,4 +176,41 @@ describe('ConfigurationsController', () => {
       })
     })
   })
+  describe(ConfigurationsController.findOne, () => {
+    describe('When successful', () => {
+      it('sends a status of 200 with a data property when successful', async () => {
+        const config = createConfiguration()
+        const params = { config_id: '1' }
+        const request = createRequestWithUser(params)
+        const response = createResponse()
+
+        request.app.locals.appDb.findOne.mockResolvedValueOnce(config)
+
+        await ConfigurationsController.findOne(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(200)
+        expect(response.json).toHaveBeenCalledWith({
+          data: config,
+        })
+      })
+    })
+
+    describe('When unsuccessful', () => {
+      it('sends a status of 400 with a message when database there is an error', async () => {
+        const request = createRequestWithUser()
+        const response = createResponse()
+
+        request.app.locals.appDb.findOne.mockRejectedValueOnce(
+          new Error('Rejected error message')
+        )
+
+        await ConfigurationsController.findOne(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(400)
+        expect(response.json).toHaveBeenCalledWith({
+          error: 'Rejected error message',
+        })
+      })
+    })
+  })
 })

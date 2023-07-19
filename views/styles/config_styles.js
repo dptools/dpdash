@@ -90,4 +90,49 @@ export const configStyles = (theme) => ({
     overflowY: 'visible',
   },
   hiddenInput: { display: 'none' },
+  configFormButtonContainer: { right: 0, bottom: 0, position: 'fixed' },
+  addNewFieldButton: {
+    marginRight: '10px',
+    marginBottom: '5px',
+    marginLeft: '10px',
+    marginTop: '10px',
+    backgroundColor: colors.white,
+  },
+  saveConfigurationButton: {
+    margin: '10px',
+    border: `2px solid ${colors.sasquatch}`,
+    backgroundColor: colors.white,
+  },
+  configurationListGrid: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    padding: '4px',
+  },
+  configurationCategoryCard: {
+    padding: '12px',
+    marginBottom: '4px',
+  },
+  configurationCategoryCardHeader: {
+    paddingLeft: '0px',
+    paddingTop: '12px',
+    paddingBottom: '12px',
+  },
+  configurationCategoryCardActions: {
+    display: 'table',
+    width: '100%',
+  },
+  categoryButtons: {
+    width: '45%',
+  },
+  configPaletteContainer: {
+    display: 'table',
+    width: '100%',
+  },
+  configColorBlock: {
+    width: '20px',
+    height: '20px',
+    display: 'table-cell',
+  },
 })

@@ -1,4 +1,4 @@
-import { colors, presetColors } from './styles'
+import { colors, presetColors, baseGridWidth, baseInnerWidth } from './styles'
 import {
   N_A,
   TOTAL_LABEL,
@@ -8,6 +8,7 @@ import {
   TRUE_STRING,
   FALSE_STRING,
   EMAIL_REGEX,
+  NOTIFICATION_DEFAULT,
 } from './vars'
 
 export {
@@ -21,4 +22,7 @@ export {
   TRUE_STRING,
   FALSE_STRING,
   EMAIL_REGEX,
+  baseGridWidth,
+  baseInnerWidth,
+  NOTIFICATION_DEFAULT,
 }

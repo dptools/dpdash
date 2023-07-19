@@ -12,16 +12,23 @@ const userMongoProjection = {
 
 const UserModel = {
   all: async (db) =>
-    db.collection(collections.users).find({}, userMongoProjection).toArray(),
+    await db
+      .collection(collections.users)
+      .find({}, { projection: userMongoProjection })
+      .toArray(),
   save: async (db, userAttributes) => {
     const newUser = UserModel.withDefaults(userAttributes)
 
     return await db.collection(collections.users).insertOne(newUser)
   },
   findOne: async (db, userAttributes) => {
-    return await db.collection(collections.users).findOne(userAttributes, {
-      projection: userMongoProjection,
-    })
+    const user = await db
+      .collection(collections.users)
+      .findOne(userAttributes, {
+        projection: userMongoProjection,
+      })
+
+    return user
   },
   update: async (db, uid, userUpdates) => {
     const { value } = await db.collection(collections.users).findOneAndUpdate(

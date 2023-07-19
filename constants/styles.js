@@ -18,6 +18,8 @@ export const colors = {
   transparentWhite: 'rgba(255, 255, 255, 0.9)',
   columbia_blue: '#c0d9e1',
   gray: 'rgba(0, 0, 0, 0.54)',
+  gray68: '#adadad',
+  sasquatch: 'rgb(255, 64, 129)',
 }
 
 export const presetColors = [
@@ -32,3 +34,6 @@ export const presetColors = [
   colors.deep_green,
   colors.smokey_topaz,
 ]
+
+export const baseGridWidth = 300
+export const baseInnerWidth = 768

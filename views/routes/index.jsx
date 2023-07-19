@@ -12,6 +12,7 @@ import LoginPage from '../pages/LoginPage'
 import MainPage from '../pages/MainPage'
 import MainLayout from '../layouts/MainLayout'
 import NewChartPage from '../pages/NewChartPage'
+import NewConfigPage from '../pages/NewConfigPage'
 import ResetPasswordPage from '../pages/ResetPasswordPage'
 import RegisterPage from '../pages/RegisterPage'
 import ViewChartPage from '../pages/ViewChartPage'
@@ -83,6 +84,7 @@ const Router = (props) => {
               />
             }
           />
+          <Route path={routes.newConfiguration} element={<NewConfigPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

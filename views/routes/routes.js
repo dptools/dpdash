@@ -6,7 +6,7 @@ const apiPath = `${basePath}/api/v1`
 
 export const routes = {
   basePath,
-  home: `${basePath}/`,
+  home: `/`,
   userAccount: '/user-account',
   configs: '/configs',
   editConfigPage: '/config/:config_id/edit',
@@ -29,7 +29,7 @@ export const routes = {
   editConfiguration: (configId) => `/config/${configId}/edit`,
   viewConfiguration: (configId) =>
     `${basePath}/u/configure?s=view&id=${configId}`,
-  createConfiguration: `${basePath}/u/configure?s=add`,
+  newConfiguration: '/configs/new',
 }
 
 export const apiRoutes = {

@@ -1,9 +1,7 @@
-const Form = ({ children, handleSubmit }) => {
-  return (
-    <form autoComplete='off' onSubmit={handleSubmit}>
-      {children}
-    </form>
-  )
+import React from 'react'
+
+const Form = ({ children, onSubmit }) => {
+  return <form onSubmit={onSubmit}>{children}</form>
 }
 
 export default Form

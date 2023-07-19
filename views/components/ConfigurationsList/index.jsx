@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import classNames from 'classnames'
 import Select from 'react-select'
 
@@ -16,7 +17,6 @@ import GridList from '@material-ui/core/GridList'
 import MenuList from '@material-ui/core/MenuList'
 import MenuItem from '@material-ui/core/MenuItem'
 import Paper from '@material-ui/core/Paper'
-import Snackbar from '@material-ui/core/Snackbar'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
 
@@ -24,6 +24,7 @@ import { fetchUsernames } from '../../fe-utils/fetchUtil'
 import { routes } from '../../routes/routes'
 import api from '../../api'
 import ConfigurationCard from '../ConfigurationCard'
+import useGrid from '../../hooks/useGrid'
 
 function NoOptionsMessage(props) {
   return (
@@ -142,14 +143,15 @@ const components = {
   SingleValue,
   ValueContainer,
 }
-const ConfigurationsList = ({ user, classes, theme, navigate }) => {
+const ConfigurationsList = ({
+  user,
+  classes,
+  theme,
+  navigate,
+  onNotification,
+}) => {
   const { uid } = user
-  const userMessage = user.message
   const [configurations, setConfigurations] = useState([])
-  const [snackBar, setSnackBar] = useState({
-    open: false,
-    message: '',
-  })
   const [sharedWithState, setSharedWith] = useState({
     selectedConfig: {},
     configOwner: '',
@@ -157,37 +159,14 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
     searchUsers: false,
     friends: [],
   })
-  const [grid, setGrid] = useState({
-    gridCols: null,
-    gridWidth: 350,
-    cellWidth: null,
-  })
   const [preferences, setPreferences] = useState({})
-  const minimumInnerWidth = 768
-  const gridColumnsDivisor = 350
+  const gridState = useGrid()
 
   useEffect(() => {
     loadUserNames()
-    handleResize()
     loadAllConfigurations(uid)
     fetchPreferences(uid)
-
-    window.addEventListener('resize', handleResize)
-
-    return () => window.removeEventListener('resize', handleResize)
   }, [])
-
-  useEffect(() => {
-    if (userMessage?.length > 0) {
-      setSnackBars((prevState) => {
-        return {
-          ...prevState,
-          uploadSnack: true,
-        }
-      })
-    }
-  }, [userMessage])
-
   const loadUserNames = async () => {
     const usernames = await fetchUsernames()
     setSharedWith((prevstate) => {
@@ -200,36 +179,12 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
       }
     })
   }
-
-  const handleResize = () => {
-    if (window.innerWidth >= minimumInnerWidth) {
-      const gridCols = Math.floor(window.innerWidth / gridColumnsDivisor)
-      const cellWidth = window.innerWidth / gridCols
-      setGrid((prevState) => {
-        return {
-          ...prevState,
-          gridCols: gridCols,
-          cellWidth,
-        }
-      })
-    } else if (gridCols !== 1) {
-      const cellWidth = window.innerWidth / 1
-
-      setGrid((prevState) => {
-        return {
-          ...prevState,
-          gridCols: 1,
-          cellWidth,
-        }
-      })
-    }
-  }
   const fetchPreferences = async (userId) => {
     try {
       const user = await api.users.findOne(userId)
       setPreferences(user.preferences)
     } catch (error) {
-      setSnackBar({ open: true, message: error.message })
+      onNotification(error.message)
     }
   }
 
@@ -239,11 +194,9 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
 
       setConfigurations(configurations)
     } catch (error) {
-      setSnackBar({ open: true, message: error.message })
+      onNotification(error.message)
     }
   }
-
-  const handleCrumbs = () => setSnackBar({ open: false, message: '' })
 
   const openSearchUsers = (config) => {
     const { _id, readers, owner } = config
@@ -288,7 +241,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
       loadAllConfigurations(uid)
       closeSearchUsers()
     } catch (error) {
-      setSnackBar({ open: true, message: error.message })
+      onNotification(error.message)
     }
   }
 
@@ -316,7 +269,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
 
       loadAllConfigurations(uid)
     } catch (error) {
-      setSnackBar({ open: true, message: error.message })
+      onNotification(error.message)
     }
   }
 
@@ -370,7 +323,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
 
       loadAllConfigurations(uid)
     } catch (error) {
-      setSnackBar({ open: true, message: error.message })
+      onNotification(error.message)
     }
   }
 
@@ -382,10 +335,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
 
       if (preferences.config === configId) updateUserPreferences(configId)
     } catch (error) {
-      setSnackBar(() => ({
-        open: true,
-        message: error.message,
-      }))
+      onNotification(error.message)
     }
   }
 
@@ -395,7 +345,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
       updateUserPreferences(configId)
       loadAllConfigurations(uid)
     } catch (error) {
-      setSnackBar({ open: true, message: error.message })
+      onNotification(error.message)
     }
   }
 
@@ -411,7 +361,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
       await api.users.update(uid, userAttributes)
       setPreferences(userAttributes.preferences)
     } catch (error) {
-      setSnackBar({ open: true, message: error.message })
+      onNotification(error.message)
     }
   }
 
@@ -436,7 +386,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
     <div>
       <GridList
         className={classes.gridList}
-        cols={grid.gridCols}
+        cols={gridState.columns}
         cellHeight="auto"
       >
         {configurations.map((config) => {
@@ -452,7 +402,7 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
               onViewConfig={onViewConfig}
               preferences={preferences}
               user={user}
-              width={grid.cellWidth}
+              width={gridState.gridWidth}
             />
           )
         })}
@@ -484,10 +434,12 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
           </label>
         </form>
         <Button
+          component={Link}
           variant="fab"
           color="secondary"
-          href={routes.createConfiguration}
+          to={routes.newConfiguration}
           focusRipple
+          fab
         >
           <Tooltip title="Add a configuration manually">
             <ContentAdd />
@@ -530,12 +482,6 @@ const ConfigurationsList = ({ user, classes, theme, navigate }) => {
         </DialogContent>
         <DialogActions>{actions}</DialogActions>
       </Dialog>
-      <Snackbar
-        open={snackBar.open}
-        message={snackBar.message}
-        autoHideDuration={2000}
-        onRequestClose={handleCrumbs}
-      />
     </div>
   )
 }

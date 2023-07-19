@@ -5,13 +5,16 @@ import classNames from 'classnames'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 
+import api from '../api'
 import getCounts from '../fe-utils/countUtil'
 import { fetchSubjects } from '../fe-utils/fetchUtil'
-import { AuthContext } from '../contexts/AuthContext'
+import { AuthContext, NotificationContext } from '../contexts'
 import { headerTitle } from './helpers'
 
 const MainLayout = ({ classes, theme }) => {
+  const [, setNotification] = useContext(NotificationContext)
   const [user, setUser] = useContext(AuthContext)
+  const [users, setUsers] = useState([])
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
@@ -23,11 +26,16 @@ const MainLayout = ({ classes, theme }) => {
   })
 
   const toggleDrawer = () => setOpenDrawer(!openDrawer)
+  const fetchUsers = async () => {
+    const usersList = await api.users.loadAll()
+    setUsers(usersList)
+  }
 
   useEffect(() => {
     fetchSubjects().then((acl) => {
       setSideBarState(getCounts({ acl }))
     })
+    fetchUsers()
   }, [])
 
   return (
@@ -45,7 +53,17 @@ const MainLayout = ({ classes, theme }) => {
         totalSubjects={sideBarState.totalSubjects}
       />
       <div className={classNames(classes.content, classes.contentPadded)}>
-        <Outlet context={{ user, classes, theme, navigate, setUser }} />
+        <Outlet
+          context={{
+            classes,
+            navigate,
+            setNotification,
+            setUser,
+            theme,
+            user,
+            users,
+          }}
+        />
       </div>
     </div>
   )

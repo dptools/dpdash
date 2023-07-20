@@ -1,5 +1,6 @@
 import { useContext } from 'react'
-import ReactSelect from 'react-select'
+import Select from 'react-select'
+import { components } from './components'
 import { Controller } from 'react-hook-form'
 import { NotificationContext } from '../../contexts'
 
@@ -19,6 +20,11 @@ const ControlledReactSelect = ({ name, control, options, ...rest }) => {
           return
         }
         break
+      case 'clear':
+        options = field.value.filter(({ isFixed }) => isFixed)
+        field.onChange(options)
+
+        break
     }
 
     field.onChange(options)
@@ -29,14 +35,14 @@ const ControlledReactSelect = ({ name, control, options, ...rest }) => {
       name={name}
       control={control}
       render={({ field }) => (
-        <ReactSelect
+        <Select
           {...rest}
           {...field}
           options={options}
-          isClearable={false}
           onChange={(options, actionMeta) =>
             onChange(options, actionMeta, field)
           }
+          components={components}
         />
       )}
     />

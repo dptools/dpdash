@@ -38,7 +38,10 @@ const NewConfigPage = () => {
 
       await api.userConfigurations.create(uid, newConfigurationAttributes)
 
-      setNotification({ open: true, message: UserConfigModel.message.success })
+      setNotification({
+        open: true,
+        message: UserConfigModel.message.successAdd,
+      })
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }

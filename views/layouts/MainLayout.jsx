@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import classNames from 'classnames'
-
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 
@@ -68,5 +67,4 @@ const MainLayout = ({ classes, theme }) => {
     </div>
   )
 }
-
 export default MainLayout

@@ -20,23 +20,21 @@ const ConfigurationCard = ({
   classes,
   config,
   onCopyConfig,
+  onOpen,
   onEditConfig,
   onRemoveOrUpdateConfig,
   onUpdatePreferences,
   onViewConfig,
-  openSearch,
-  preferences,
   user,
   width,
 }) => {
-  const { uid } = user
-  const { _id, name, owner, readers, type } = config
+  const { uid, preferences } = user
+  const { _id, name, owner, type } = config
   const ownsConfig = uid === owner
   const showTime = config.modified || config.created
   const localTime = moment.utc(showTime).local().format()
   const updated = moment(localTime).calendar()
   const checked = config._id === preferences.config
-
   return (
     <Card style={{ margin: '3px', width: `${width}px` }}>
       <CardHeader
@@ -83,7 +81,7 @@ const ConfigurationCard = ({
               <Tooltip title="Share" placement="top">
                 <IconButton
                   className={classes.textAndIcon}
-                  onClick={() => openSearch(config)}
+                  onClick={() => onOpen(config)}
                 >
                   <Share />
                 </IconButton>
@@ -115,5 +113,4 @@ const ConfigurationCard = ({
     </Card>
   )
 }
-
 export default ConfigurationCard

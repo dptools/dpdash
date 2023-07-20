@@ -1,16 +1,11 @@
 import React, { Component } from 'react'
 import Select from 'react-select'
-import classNames from 'classnames'
 import _ from 'lodash'
 import { Column, Table } from 'react-virtualized'
 import moment from 'moment'
 import update from 'immutability-helper'
 
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
 import NoSsr from '@material-ui/core/NoSsr'
-import MenuItem from '@material-ui/core/MenuItem'
-import Chip from '@material-ui/core/Chip'
 import Checkbox from '@material-ui/core/Checkbox'
 import { Link } from 'react-router-dom'
 
@@ -18,91 +13,18 @@ import StarBorder from '@material-ui/icons/StarBorder'
 import Star from '@material-ui/icons/Star'
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank'
 import CheckBoxIcon from '@material-ui/icons/CheckBox'
-
 import getAvatar from '../fe-utils/avatarUtil'
 import { fetchSubjects } from '../fe-utils/fetchUtil'
 
 import basePathConfig from '../../server/configs/basePathConfig'
 import { routes } from '../routes/routes'
+import { components } from '../forms/ControlledReactSelect/components'
 
 const basePath = basePathConfig || ''
 const drawerWidth = 200
 
-function NoOptionsMessage(props) {
-  return (
-    <Typography
-      color="textSecondary"
-      className={props.selectProps.classes.home_noOptionsMessage}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  )
-}
-
-function Option(props) {
-  var index = props.children.indexOf(' ')
-  return (
-    <MenuItem
-      buttonRef={props.innerRef}
-      selected={props.isFocused}
-      component="div"
-      style={{
-        fontWeight: props.isSelected ? 500 : 400,
-      }}
-      {...props.innerProps}
-    >
-      <Typography color="textPrimary">
-        {props.children.substr(0, index)}
-      </Typography>
-      &nbsp;
-      <Typography color="textSecondary" noWrap={true}>
-        {props.children.substr(index)}
-      </Typography>
-    </MenuItem>
-  )
-}
-
-function SingleValue(props) {
-  return (
-    <Typography
-      className={props.selectProps.classes.home_singleValue}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  )
-}
-
-function MultiValue(props) {
-  return (
-    <Chip
-      tabIndex={-1}
-      label={props.children}
-      className={classNames(props.selectProps.classes.home_chip, {
-        [props.selectProps.classes.home_chipFocused]: props.isFocused,
-      })}
-      onDelete={(event) => {
-        props.removeProps.onClick()
-        props.removeProps.onMouseDown(event)
-      }}
-    />
-  )
-}
-
 var autocomplete = []
 var default_acl = []
-
-const customStyles = {
-  control: (baseStyles, state) => ({
-    ...baseStyles,
-    border: state.isFocused ? 0 : 0,
-    boxShadow: state.isFocused ? 0 : 0,
-    '&:hover': {
-      border: state.isFocused ? 0 : 0,
-    },
-  }),
-}
 
 class MainPage extends Component {
   constructor(props) {
@@ -467,12 +389,10 @@ class MainPage extends Component {
       totalSubjects: options.filter((s) => {
         let alp = 0
         let num = 0
-
         for (let i = 0; i < s.subject.length; i++) {
           ;/[a-zA-Z]/.test(s.subject[i]) && alp++
           ;/[0-9]/.test(s.subject[i]) && num++
         }
-
         return alp >= 2 && num >= 3 ? true : false
       }).length,
       totalDays: Math.max.apply(
@@ -517,20 +437,11 @@ class MainPage extends Component {
   }
   render() {
     const { classes } = this.props
-    const components = {
-      Option,
-      NoOptionsMessage,
-      SingleValue,
-      MultiValue,
-      DropdownIndicator: () => null,
-      IndicatorSeparator: () => null,
-    }
 
     return (
       <div className={classes.home_root}>
         <NoSsr>
           <Select
-            styles={customStyles}
             classes={classes}
             placeholder="Search a study or participant"
             value={this.state.search}
@@ -656,5 +567,4 @@ class MainPage extends Component {
     )
   }
 }
-
 export default MainPage

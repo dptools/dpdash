@@ -4,6 +4,7 @@ import { configStyles } from './config_styles'
 import { graphPageStyles } from './graph_page_styles'
 import { studyDetailStyles } from './study_details'
 import { mainLayoutStyles } from './main_layout_styles'
+import { shareFormStyles } from './share_form_styles'
 
 const drawerWidth = 200
 
@@ -14,6 +15,13 @@ export const styles = (theme) => ({
   ...studyDetailStyles(theme),
   ...mainLayoutStyles(theme),
   ...accountPageStyles(theme),
+  ...shareFormStyles(theme),
+  selectedFontWeight: {
+    fontWeight: 500,
+  },
+  normalFontWeight: {
+    fontWeight: 400,
+  },
   drawerPaper: {
     width: drawerWidth,
     [theme.breakpoints.up('md')]: {

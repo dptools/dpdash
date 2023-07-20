@@ -1,6 +1,8 @@
 import UserConfigModel from '.'
+import { findCategoryColor } from '.'
+import { createColorList } from '../../../test/fixtures'
 
-describe('Models - User Confg', () => {
+describe('Models - User Config', () => {
   const colors = [
     {
       value: 221,
@@ -104,6 +106,24 @@ describe('Models - User Confg', () => {
           ],
         })
       )
+    })
+  })
+})
+
+describe('findCategoryColor', () => {
+  it('finds the correct color value from color list', () => {
+    const colorList = createColorList()
+    const categoryColors = [
+      '#ffffcc',
+      '#d9f0a3',
+      '#addd8e',
+      '#78c679',
+      '#31a354',
+      '#006837',
+    ]
+    expect(findCategoryColor(categoryColors, colorList)).toEqual({
+      label: ['#ffffcc', '#d9f0a3', '#addd8e', '#78c679', '#31a354', '#006837'],
+      value: 3,
     })
   })
 })

@@ -135,4 +135,7 @@ export const configStyles = (theme) => ({
     height: '20px',
     display: 'table-cell',
   },
+  fabButtonStyles: {
+    marginBottom: '8px',
+  },
 })

@@ -3,7 +3,7 @@ import TextInput from '../TextInput'
 import ControlledReactSelect from '../ControlledReactSelect'
 
 const ConfigTypeFormFields = (props) => {
-  const { control, friendsList } = props
+  const { control, friendsList, classes } = props
 
   return (
     <>
@@ -22,6 +22,7 @@ const ConfigTypeFormFields = (props) => {
       />
       <ControlledReactSelect
         name="readers"
+        classes={classes}
         control={control}
         options={friendsList}
         placeholder="Shared with"

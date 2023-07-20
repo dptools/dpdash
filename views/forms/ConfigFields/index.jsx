@@ -15,7 +15,11 @@ const ConfigFormFields = ({
 }) => {
   return (
     <>
-      <ConfigTypeFormFields control={control} friendsList={friendsList} />
+      <ConfigTypeFormFields
+        control={control}
+        friendsList={friendsList}
+        classes={classes}
+      />
       <GridList
         cellHeight="auto"
         className={classes.configurationListGrid}

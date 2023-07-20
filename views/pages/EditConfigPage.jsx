@@ -39,7 +39,7 @@ const EditConfigPage = () => {
 
       setNotification({
         open: true,
-        message: UserConfigModel.message.success,
+        message: UserConfigModel.message.successUpdate,
       })
     } catch (error) {
       setNotification({ open: true, message: error.message })

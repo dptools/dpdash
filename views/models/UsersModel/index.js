@@ -1,13 +1,18 @@
 const UsersModel = {
-  createUserFriendList: (users, user) => {
-    const userId = user.uid
-
+  createUserFriendList: (users, owner) => {
     return users.map(({ uid }) => ({
       label: uid,
       value: uid,
-      isFixed: uid === userId,
+      isFixed: uid === owner,
     }))
   },
+  createOptionsFromReaders: (readers, owner) =>
+    readers.map((reader) => ({
+      label: reader,
+      value: reader,
+      isFixed: reader === owner,
+    })),
+  createReadersList: (readers) => readers.map(({ value }) => value),
 }
 
 export default UsersModel

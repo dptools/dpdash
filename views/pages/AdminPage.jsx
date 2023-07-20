@@ -3,11 +3,9 @@ import update from 'immutability-helper'
 import { Column, Table } from 'react-virtualized'
 import * as _ from 'lodash'
 import uuid from 'uuid'
-import classNames from 'classnames'
 import moment from 'moment'
 
 import Settings from '@material-ui/icons/Settings'
-import SearchIcon from '@material-ui/icons/Search'
 import Clear from '@material-ui/icons/Clear'
 
 import DialogActions from '@material-ui/core/DialogActions'
@@ -24,135 +22,19 @@ import Typography from '@material-ui/core/Typography'
 import NoSsr from '@material-ui/core/NoSsr'
 import Select from 'react-select'
 import TextField from '@material-ui/core/TextField'
-import Paper from '@material-ui/core/Paper'
-import Chip from '@material-ui/core/Chip'
 
+import { components } from '../forms/ControlledReactSelect/components'
 import getCounts from '../fe-utils/countUtil'
 import { fetchSubjects, fetchStudiesAdmin } from '../fe-utils/fetchUtil'
 import api from '../api'
 import basePathConfig from '../../server/configs/basePathConfig'
-
 const drawerWidth = 200
-
 const basePath = basePathConfig || ''
-
 const memberMenu = [
   { value: 0, level: 'admin', text: 'System Admins' },
   { value: 1, level: 'manager', text: 'Study Manager' },
   { value: 2, level: 'member', text: 'Member' },
 ]
-
-function NoOptionsMessage(props) {
-  return (
-    <Typography
-      color="textSecondary"
-      className={props.selectProps.classes.noOptionsMessage}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  )
-}
-function inputComponent({ inputRef, ...props }) {
-  return <div ref={inputRef} {...props} />
-}
-function Control(props) {
-  return (
-    <TextField
-      fullWidth
-      InputProps={{
-        inputComponent,
-        inputProps: {
-          className: props.selectProps.classes.input,
-          inputRef: props.innerRef,
-          children: props.children,
-          ...props.innerProps,
-        },
-        disableUnderline: true,
-      }}
-      {...props.selectProps.textFieldProps}
-    />
-  )
-}
-function Option(props) {
-  return (
-    <MenuItem
-      buttonRef={props.innerRef}
-      selected={props.isFocused}
-      component="div"
-      style={{
-        fontWeight: props.isSelected ? 500 : 400,
-      }}
-      {...props.innerProps}
-    >
-      <Typography color="textPrimary">{props.children}</Typography>
-    </MenuItem>
-  )
-}
-function Placeholder(props) {
-  return (
-    <Typography
-      color="textSecondary"
-      className={props.selectProps.classes.placeholder}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  )
-}
-function SingleValue(props) {
-  return (
-    <Typography
-      className={props.selectProps.classes.singleValue}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Typography>
-  )
-}
-function ValueContainer(props) {
-  return (
-    <div className={props.selectProps.classes.valueContainer}>
-      {props.children}
-    </div>
-  )
-}
-function MultiValue(props) {
-  return (
-    <Chip
-      tabIndex={-1}
-      label={props.children}
-      className={classNames(props.selectProps.classes.chip, {
-        [props.selectProps.classes.chipFocused]: props.isFocused,
-      })}
-      onDelete={(event) => {
-        props.removeProps.onClick()
-        props.removeProps.onMouseDown(event)
-      }}
-    />
-  )
-}
-function Menu(props) {
-  return (
-    <Paper
-      square
-      className={props.selectProps.classes.paper}
-      {...props.innerProps}
-    >
-      {props.children}
-    </Paper>
-  )
-}
-function DropdownIndicator() {
-  return <SearchIcon color="disabled" />
-}
-const indicatorSeparatorStyle = {
-  display: 'none',
-}
-
-const IndicatorSeparator = ({ innerProps }) => {
-  return <span style={indicatorSeparatorStyle} {...innerProps} />
-}
 
 class AdminPage extends Component {
   constructor(props) {
@@ -370,7 +252,6 @@ class AdminPage extends Component {
         resetUser: index,
       })
     }
-
     this.updateReset(uid, !reset, reset_key)
   }
   updateReset = (uid, force_reset, reset_key) => {
@@ -420,7 +301,6 @@ class AdminPage extends Component {
     let role = memberMenu[this.state.editLevel]['level']
     let uid = this.state.users[this.state.editUser]['uid']
     this.updateRole(uid, role)
-
     this.setState({
       editACL: [],
       editUser: -1,
@@ -445,7 +325,6 @@ class AdminPage extends Component {
     let uid = this.state.users[this.state.editUser]['uid']
     let role = memberMenu[this.state.editLevel]['level']
     let access = this.state.editACL.map((f) => f.value)
-
     this.setState({
       users: update(this.state.users, {
         [this.state.editUser]: {
@@ -512,13 +391,11 @@ class AdminPage extends Component {
       [name]: value,
     })
   }
-
   updateUser = async (uid, { account_expires }) => {
     const updateUserParams = !!account_expires
       ? { account_expires: moment(account_expires).format() }
       : { account_expires: null }
     const updatedUser = await api.admin.users.update(uid, updateUserParams)
-
     this.setState((previousState) => ({
       ...previousState,
       users: previousState.users.map((user) =>
@@ -528,18 +405,6 @@ class AdminPage extends Component {
   }
 
   render() {
-    const components = {
-      Option,
-      Control,
-      NoOptionsMessage,
-      Placeholder,
-      SingleValue,
-      MultiValue,
-      IndicatorSeparator,
-      ValueContainer,
-      Menu,
-      DropdownIndicator,
-    }
     const { classes } = this.props
     return (
       <>
@@ -759,11 +624,7 @@ class AdminPage extends Component {
           </DialogContent>
           <DialogActions>
             <Button onClick={this.closeAccess}>Cancel</Button>
-            <Button
-              color="primary"
-              keyboardFocused={true}
-              onClick={this.modifyACL}
-            >
+            <Button color="primary" onClick={this.modifyACL}>
               Submit
             </Button>
           </DialogActions>
@@ -788,11 +649,7 @@ class AdminPage extends Component {
             </DialogTitle>
             <DialogActions>
               <Button onClick={this.closeDelete}>Cancel</Button>
-              <Button
-                color="primary"
-                keyboardFocused={true}
-                onClick={this.confirmDelete}
-              >
+              <Button color="primary" onClick={this.confirmDelete}>
                 Delete
               </Button>
             </DialogActions>
@@ -836,5 +693,4 @@ class AdminPage extends Component {
     )
   }
 }
-
 export default AdminPage

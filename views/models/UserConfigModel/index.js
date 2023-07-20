@@ -77,11 +77,12 @@ const UserConfigModel = {
     }
   },
   message: {
-    success: 'Config Added Successfully',
+    successAdd: 'Config Added Successfully',
+    successUpdate: 'Config Updated Successfully ',
   },
 }
 
-const findCategoryColor = (categoryColors, colors) => {
+export const findCategoryColor = (categoryColors, colors) => {
   return colors.find(({ label }) =>
     categoryColors.every((el, i) => el === label[i])
   )

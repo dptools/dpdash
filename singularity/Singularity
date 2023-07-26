@@ -60,7 +60,7 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mo
     ## clone the DPdash digital phenotyping dashboard
     git clone https://github.com/PREDICT-DPACC/dpdash.git
     cd dpdash
-
+    mkdir app_build
     ## use version of node found in .nvmrc
     npm install -g n
     n auto

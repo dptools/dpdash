@@ -195,3 +195,31 @@ export const createColorList = (overrides = []) => [
   },
   ...overrides,
 ]
+
+export const createAnalysisConfig = (overrides = {}) => ({
+  label: '',
+  analysis: '',
+  color: [],
+  range: [],
+  variable: '',
+  category: '',
+  ...overrides,
+})
+
+export const createMatrixData = (overrides = {}) => ({
+  analysis: '',
+  category: '',
+  color: [],
+  data: [],
+  label: '',
+  range: [],
+  stat: [],
+  variable: '',
+  ...overrides,
+})
+
+export const createAssessmentsFromConfig = (overrides = {}) => ({
+  assessment: '',
+  collection: '',
+  ...overrides,
+})

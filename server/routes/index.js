@@ -2,22 +2,14 @@ import { Router } from 'express'
 import { ObjectId } from 'mongodb'
 import { connect } from 'amqplib/callback_api'
 import co from 'co'
-import { createHash } from 'crypto'
 import uuidV4 from 'uuid/v4'
-import {
-  getConfigSchema,
-  getConfigForUser,
-  getDashboardState,
-  filterSubjectsByConsentDate,
-} from '../utils/routerUtil'
-import { collections } from '../utils/mongoCollections'
+import { getConfigSchema } from '../utils/routerUtil'
 
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import ensureAdmin from '../utils/passport/ensure-admin'
 import ensureUser from '../utils/passport/ensure-user'
 
 import config from '../configs/config'
-import defaultUserConfig from '../configs/defaultUserConfig'
 import basePathConfig from '../configs/basePathConfig'
 import ApiUsersController from '../controllers/apiUsersController'
 import { v1Routes } from '../utils/routes'
@@ -114,47 +106,6 @@ router.get(
           })
         }
       })
-  }
-)
-
-router.get(
-  '/deepdive/:study/:subject/:day',
-  ensurePermission,
-  function (req, res) {}
-)
-
-//Dashboard page
-router.get(
-  '/api/v1/dashboards/:study/:subject',
-  ensurePermission,
-  async function (req, res) {
-    try {
-      const { appDb, dataDb } = req.app.locals
-      const defaultConfig = await getConfigForUser({
-        db: appDb,
-        user: req.user,
-        defaultConfig: defaultUserConfig,
-      })
-      const dashboardState = await getDashboardState({
-        db: dataDb,
-        study: req.params.study,
-        subject: req.params.subject,
-        defaultConfig,
-      })
-      return res.status(200).json({
-        data: {
-          subject: { sid: req.params.subject, project: req.params.study },
-          graph: {
-            matrixData: dashboardState.matrixData,
-            configurations: dashboardState.matrixConfig,
-            consentDate: dashboardState.consentDate,
-          },
-        },
-      })
-    } catch (err) {
-      console.error(err.message)
-      return res.status(500).send({ message: err.message })
-    }
   }
 )
 

@@ -112,8 +112,11 @@ const GraphPage = () => {
         fetchConfigurations(user.uid),
       ])
 
-      const maxObj = graphData.graph.matrixData.map((matrixData) =>
-        _.maxBy(matrixData.data, ({ day }) => day)
+      const maxObj = _.maxBy(
+        graphData.graph.matrixData.map((matrixData) =>
+          _.maxBy(matrixData.data, ({ day }) => day)
+        ),
+        'day'
       )
 
       setCounts(getCounts({ acl }))

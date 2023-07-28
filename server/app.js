@@ -24,6 +24,7 @@ import adminRouter from './routes/admin'
 import authRouter from './routes/auth'
 import chartsRouter from './routes/charts'
 import configurationsRouter from './routes/configurations'
+import dashboardsRouter from './routes/dashboards'
 import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 
@@ -201,6 +202,7 @@ app.use(`${basePath}/`, adminRouter)
 app.use(`${basePath}/`, authRouter)
 app.use(`${basePath}/`, configurationsRouter)
 app.use(`${basePath}/`, chartsRouter)
+app.use(`${basePath}/`, dashboardsRouter)
 app.use(`${basePath}/`, indexRouter)
 app.use(`${basePath}/`, usersRouter)
 app.use(

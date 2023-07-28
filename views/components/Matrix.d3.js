@@ -127,28 +127,23 @@ export default class Matrix {
           .append('svg:title')
           .filter(this.validDay)
           .text((d) => d[dataVariable])
-        if (dataEl.text == true) {
-          card
-            .enter()
-            .append('text')
-            .filter(this.validDay)
-            .text((d) => d[dataVariable])
-            .attr(
-              'x',
-              (d) => (d.day - this.startDay) * cellWidth + cellWidth / 2
-            )
-            .attr('y', () => idx * this.cardSize + (this.cardSize * 3) / 4)
-            .attr('font-size', this.halfCardSize)
-            .style('fill', (d) => {
-              let blockColor = WHITE
-              if (d[dataVariable] !== '' && d[dataVariable] !== undefined) {
-                blockColor = thresholdScale(d[dataVariable])
-              }
-              return getColor(blockColor, true)
-            })
-            .attr('font-family', 'Tahoma, Geneva, sans-serif')
-            .style('text-anchor', 'middle')
-        }
+        card
+          .enter()
+          .append('text')
+          .filter(this.validDay)
+          .text((d) => d[dataVariable])
+          .attr('x', (d) => (d.day - this.startDay) * cellWidth + cellWidth / 2)
+          .attr('y', () => idx * this.cardSize + (this.cardSize * 3) / 4)
+          .attr('font-size', this.halfCardSize)
+          .style('fill', (d) => {
+            const blockColor = !!d[dataVariable]
+              ? thresholdScale(d[dataVariable])
+              : WHITE
+
+            return getColor(blockColor, true)
+          })
+          .attr('font-family', 'Tahoma, Geneva, sans-serif')
+          .style('text-anchor', 'middle')
       }
     }
     this.maxYAxisWidth = margin.left

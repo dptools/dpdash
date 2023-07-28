@@ -31,6 +31,9 @@ export const v1Routes = {
       show: `${v1Root}/admin/users/:uid`,
     },
   },
+  dashboards: {
+    show: `${v1Root}/dashboards/:study/:subject`,
+  },
   users: {
     index: `${v1Root}/users`,
     show: userRoot,

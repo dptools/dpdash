@@ -1,7 +1,8 @@
 export const collections = {
-  studyDetails: 'studyDetails',
   charts: 'charts',
-  toc: 'toc',
-  users: 'users',
   configs: 'configs',
+  metadata: 'metadata',
+  toc: 'toc',
+  studyDetails: 'studyDetails',
+  users: 'users',
 }

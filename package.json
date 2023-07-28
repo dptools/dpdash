@@ -101,6 +101,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "concurrently": "^8.2.0",
     "connect-livereload": "^0.6.1",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "eslint": "^7.27.0",
     "eslint-plugin-react": "^7.24.0",

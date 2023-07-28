@@ -3,8 +3,9 @@ const webpack = require('webpack')
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 
-const outputDirectory = 'app_build'
+const outputDirectory = 'public'
 
 module.exports = {
   target: 'web',
@@ -61,6 +62,7 @@ module.exports = {
   output: {
     path: path.join(__dirname, outputDirectory),
     filename: 'js/bundle.js',
+    publicPath: '/',
   },
   resolve: {
     fallback: {
@@ -78,8 +80,11 @@ module.exports = {
       },
     }),
     new CleanWebpackPlugin(),
+    new CopyPlugin({
+      patterns: [{ from: 'assets', to: 'img' }],
+    }),
     new HtmlWebpackPlugin({
-      template: './public/index.html',
+      template: './template/template.html',
     }),
   ],
 }

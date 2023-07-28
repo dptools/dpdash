@@ -41,7 +41,7 @@ const app = express()
 
 if (process.env.NODE_ENV === 'development') {
   const liveReloadServer = livereload.createServer()
-  liveReloadServer.watch(path.join(__dirname, '../app_build'))
+  liveReloadServer.watch(path.join(__dirname, '../public'))
   liveReloadServer.server.once('connection', () => {
     setTimeout(() => {
       liveReloadServer.refresh('/*')
@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(connectLiveReload())
 }
 /** favicon setup */
-app.use(favicon(path.join(__dirname, '../public/favicon.ico')))
+app.use(favicon(path.join(__dirname, '../public/img/favicon.ico')))
 
 /** security setup */
 app.use(
@@ -91,7 +91,7 @@ logger.stream = {
 app.use(morgan('combined', { stream: logger.stream }))
 
 /** parsers setup */
-app.use(express.static('app_build'))
+app.use(express.static('public'))
 app.use(cookieParser(config.session.secret))
 app.use(bodyParser.json({ limit: '50mb', extended: true }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
@@ -208,9 +208,9 @@ app.use(
   express.static(path.join(__dirname, '../public/img'))
 )
 
-app.get('*', async (req, res) => {
+app.get('/*', async (req, res) => {
   return res.sendFile(
-    path.join(__dirname, '..', 'app_build', 'index.html'),
+    path.join(__dirname, '..', 'public', 'index.html'),
     (err) => {
       if (err) {
         res.status(500).send(err)

@@ -11,7 +11,7 @@ singularity run \
     -B ${state}:/data \
     -B ${state}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
     -B ${state}/dpdash/dist:/sw/apps/dpdash/dist \
-    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/app_build/js \
+    -B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
     -B ${data}:/project_data \
     ${DPDASH_IMG} \
     /sw/apps/dpdash/singularity/quit.sh

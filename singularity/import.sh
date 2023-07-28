@@ -18,6 +18,6 @@ singularity exec \
 -B ${dataDir}:/project_data \
 -B ${containerDataDir}/dpdash/configs/dashboard:/sw/apps/dpdash/server/configs \
 -B ${containerDataDir}/dpdash/dist:/sw/apps/dpdash/dist \
--B ${state}/dpdash/webpack-build:/sw/apps/dpdash/app_build/js \
+-B ${state}/dpdash/webpack-build:/sw/apps/dpdash/public/js \
 $DPDASH_IMG \
 /data/scripts/push.sh

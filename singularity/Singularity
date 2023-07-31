@@ -72,6 +72,8 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc" >> /etc/yum.repos.d/mo
     ## install DPdash dependencies
     npm install --legacy-peer-deps
     npm run transpile
+    npm run build
+
 
     cd ..
 

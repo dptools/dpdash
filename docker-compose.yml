@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  node-app:
+    image: node:16
+    working_dir: /src
+    depends_on:
+      - mongodb
+    ports:
+      - $SERVER_PORT:$SERVER_PORT
+    volumes:
+      - .:/src
+    command: npm run dev
+
+  mongodb:
+    image: mongo:4.4
+    restart: unless-stopped
+    ports:
+      - $MONGODB_PORT:$MONGODB_PORT
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: $MONGODB_ADMIN_USER
+      MONGO_INITDB_ROOT_PASSWORD: $MONGODB_ADMIN_PASSWORD
+    volumes:
+      - <path-to-your-/data/db>:/data/db

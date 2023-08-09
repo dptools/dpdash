@@ -18,7 +18,7 @@ import config from '../configs/config'
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(config.app.port)
+const port = process.env.SERVER_PORT || 8000
 app.set('port', port)
 
 /**
@@ -34,26 +34,6 @@ const server = createServer(app)
 server.listen(port, config.app.address)
 server.on('error', onError)
 server.on('listening', onListening)
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-  var port = parseInt(val, 10)
-
-  if (isNaN(port)) {
-    // named pipe
-    return val
-  }
-
-  if (port >= 0) {
-    // port number
-    return port
-  }
-
-  return false
-}
 
 /**
  * Create a rabbitmq connection

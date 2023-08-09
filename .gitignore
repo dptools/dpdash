@@ -14,6 +14,7 @@ node_modules
 # Local configs
 config.js
 .env
+.env.development
 !server/
 server/configs/*
 !server/configs/basePathConfig.js

@@ -19,7 +19,6 @@ import noCache from 'nocache'
 import livereload from 'livereload'
 import connectLiveReload from 'connect-livereload'
 
-import { getMongoURI } from './utils/mongoUtil'
 import adminRouter from './routes/admin'
 import authRouter from './routes/auth'
 import chartsRouter from './routes/charts'
@@ -109,13 +108,13 @@ app.use(methodOverride())
 
 /* database setup */
 let mongodb
-const mongoURI = getMongoURI({ settings: config.database.mongo })
+const mongoURI = process.env.MONGODB_URI
 const mongodbPromise = co(function* () {
   return yield MongoClient.connect(mongoURI, config.database.mongo.server)
 }).then(function (res) {
   mongodb = res.db()
   app.locals.appDb = res.db()
-  app.locals.dataDb = res.db(config.database.mongo.dataDB)
+  app.locals.dataDb = res.db('dpdata')
   res.db().collection('sessions').drop()
 
   return res

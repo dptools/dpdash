@@ -13,7 +13,7 @@
     "stop": "./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all",
     "logs": "./node_modules/pm2/bin/pm2 logs --lines 100",
     "restart": "NODE_ENV=production ./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all && ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
-    "serve:watch": "nodemon --exec babel-node server/bin/www.js --watch \"./server\"",
+    "serve:watch": "nodemon -r dotenv/config --exec babel-node server/bin/www.js --watch \"./server\" dotenv_config_path=./.env.development",
     "node": "DEBUG=* node ./dist/bin/www.js",
     "test": "jest"
   },
@@ -103,6 +103,7 @@
     "connect-livereload": "^0.6.1",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
+    "dotenv": "^16.3.1",
     "eslint": "^7.27.0",
     "eslint-plugin-react": "^7.24.0",
     "exports-loader": "^0.7.0",

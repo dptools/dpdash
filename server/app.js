@@ -10,7 +10,6 @@ import expressSession from 'express-session'
 import MongoStore from 'connect-mongo'
 import { MongoClient } from 'mongodb'
 import passport from 'passport'
-import ldapStrategy from 'passport-ldapauth'
 import { Strategy } from 'passport-local'
 import co from 'co'
 import bodyParser from 'body-parser'
@@ -26,14 +25,14 @@ import configurationsRouter from './routes/configurations'
 import dashboardsRouter from './routes/dashboards'
 import indexRouter from './routes/index'
 import usersRouter from './routes/users'
-
-import config from './configs/config'
-import basePathConfig from './configs/basePathConfig'
+import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
 
 const localStrategy = Strategy
-
-const basePath = basePathConfig || ''
-
+const isProduction = process.env.NODE_ENV === 'production'
+const cookieAttributes = {
+  secure: isProduction,
+  maxAge: 24 * 60 * 60 * 1000,
+}
 /* csrf protection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
 const csrfProtection = csrf({ cookie: true })
 const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
@@ -69,7 +68,7 @@ const logger = winston.createLogger({
   transports: [
     new winston.transports.File({
       level: 'verbose',
-      filename: config.app.logfile,
+      filename: process.env.LOG_FILE_PATH,
       handleExceptions: true,
       json: true,
       colorize: false,
@@ -92,7 +91,7 @@ app.use(morgan('combined', { stream: logger.stream }))
 
 /** parsers setup */
 app.use(express.static('public'))
-app.use(cookieParser(config.session.secret))
+app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(bodyParser.json({ limit: '50mb', extended: true }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
@@ -110,7 +109,10 @@ app.use(methodOverride())
 let mongodb
 const mongoURI = process.env.MONGODB_URI
 const mongodbPromise = co(function* () {
-  return yield MongoClient.connect(mongoURI, config.database.mongo.server)
+  return yield MongoClient.connect(mongoURI, {
+    ssl: isProduction,
+    useNewUrlParser: true,
+  })
 }).then(function (res) {
   mongodb = res.db()
   app.locals.appDb = res.db()
@@ -124,11 +126,11 @@ const mongodbPromise = co(function* () {
 app.set('trust proxy', 1)
 app.use(
   expressSession({
-    secret: config.session.secret,
-    saveUninitialized: config.session.saveUninitialized,
-    resave: config.session.resave,
-    proxy: config.session.proxy,
-    cookie: config.session.cookie,
+    secret: process.env.SESSION_SECRET,
+    saveUninitialized: false,
+    resave: true,
+    proxy: true,
+    cookie: cookieAttributes,
     store: MongoStore.create({
       clientPromise: mongodbPromise,
       autoRemove: 'native',
@@ -136,39 +138,25 @@ app.use(
   })
 )
 
-/** authenticator setup */
-if (config.auth.useLDAP) {
-  //passport ldap strategy
-  passport.use(
-    new ldapStrategy({
-      server: config.auth.ldap,
-      usernameField: config.auth.usernameField,
-      passwordField: config.auth.passwordField,
-    })
-  )
-}
-
 //passport local strategy
 passport.use(
   'local-login',
-  new localStrategy(
-    {
-      usernameField: config.auth.usernameField,
-      passwordField: config.auth.passwordField,
-    },
-    function (username, password, done) {
-      mongodb
-        .collection('users')
-        .findOne({ uid: username })
-        .then(function (user) {
-          if (!user) {
-            return done(null, false)
-          } else {
-            return done(null, user)
-          }
-        })
-    }
-  )
+  new localStrategy(PASSPORT_FIELDS_ATTRIBUTES, function (
+    username,
+    password,
+    done
+  ) {
+    mongodb
+      .collection('users')
+      .findOne({ uid: username })
+      .then(function (user) {
+        if (!user) {
+          return done(null, false)
+        } else {
+          return done(null, user)
+        }
+      })
+  })
 )
 
 //passport local registeration
@@ -176,8 +164,7 @@ passport.use(
   'local-signup',
   new localStrategy(
     {
-      usernameField: config.auth.usernameField,
-      passwordField: config.auth.passwordField,
+      ...PASSPORT_FIELDS_ATTRIBUTES,
       passReqToCallback: true,
     },
     function (req, username, password, done) {
@@ -197,17 +184,14 @@ passport.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.use(`${basePath}/`, adminRouter)
-app.use(`${basePath}/`, authRouter)
-app.use(`${basePath}/`, configurationsRouter)
-app.use(`${basePath}/`, chartsRouter)
-app.use(`${basePath}/`, dashboardsRouter)
-app.use(`${basePath}/`, indexRouter)
-app.use(`${basePath}/`, usersRouter)
-app.use(
-  `${basePath}/img`,
-  express.static(path.join(__dirname, '../public/img'))
-)
+app.use('/', adminRouter)
+app.use('/', authRouter)
+app.use('/', configurationsRouter)
+app.use('/', chartsRouter)
+app.use('/', dashboardsRouter)
+app.use('/', indexRouter)
+app.use('/', usersRouter)
+app.use('./img', express.static(path.join(__dirname, '../public/img')))
 
 app.get('/*', async (req, res) => {
   return res.sendFile(

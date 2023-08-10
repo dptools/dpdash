@@ -11,8 +11,9 @@ import path from 'path'
 import fs from 'fs'
 
 const debug = require('debug')('po:server')
-
-import config from '../configs/config'
+const rabbitOptions = {}
+const rabbitSync = { hours: [1], timezone: '' }
+const serverListenAddress = '0.0.0.0'
 
 /**
  * Get port from environment and store in Express.
@@ -31,23 +32,19 @@ const server = createServer(app)
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port, config.app.address)
+server.listen(port, serverListenAddress)
 server.on('error', onError)
 server.on('listening', onListening)
 
 /**
  * Create a rabbitmq connection
  */
-var amqpAddress = 'amqp://' + config.rabbitmq.username
-amqpAddress = amqpAddress + ':' + config.rabbitmq.password
-amqpAddress =
-  amqpAddress + '@' + config.rabbitmq.host + ':' + config.rabbitmq.port
-connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
+connect(process.env.RABBIT_ADDRESS, rabbitOptions, function (err, conn) {
   if (err) console.log(err)
   conn.createChannel(function (err, ch) {
     if (err) console.log(err)
     ch.assertQueue(
-      config.rabbitmq.consumerQueue,
+      process.env.RABBIT_CONSUMER_QUEUE,
       { durable: false },
       function (err, q) {
         if (err) console.log(err)
@@ -59,12 +56,11 @@ connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
 /*
  * Set up crons for data and acl import
  */
-for (const hour in config.rabbitmq.sync.hours) {
-  if (config.rabbitmq.sync.hours[hour] < 10) {
-    var syncTime = '00 00 0' + config.rabbitmq.sync.hours[hour] + ' * * 0-6'
-  } else {
-    var syncTime = '00 00 ' + config.rabbitmq.sync.hours[hour] + ' * * 0-6'
-  }
+for (const hour in rabbitSync.hours) {
+  const syncTime =
+    rabbitSync.hours[hour] < 10
+      ? '00 00 0' + rabbitSync.hours[hour] + ' * * 0-6'
+      : '00 00 ' + rabbitSync.hours[hour] + ' * * 0-6'
 
   const importerPath = path.join(__dirname, '..', 'utils', 'importer.js')
 
@@ -87,7 +83,7 @@ for (const hour in config.rabbitmq.sync.hours) {
         })
       },
       start: true,
-      timeZone: config.rabbitmq.sync.timezone,
+      timeZone: rabbitSync.timezone,
     })
   }
 }

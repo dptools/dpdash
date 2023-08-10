@@ -62,3 +62,8 @@ export const ALL_SUBJECTS_MONGO_PROJECTION = {
   _id: 0,
   subject: 1,
 }
+
+export const PASSPORT_FIELDS_ATTRIBUTES = {
+  usernameField: 'username',
+  passwordField: 'password',
+}

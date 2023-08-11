@@ -4,7 +4,9 @@ COPY package.json package-lock.json ./
 
 RUN npm install --legacy-peer-deps
 
-COPY . .
+COPY . /src
+
+WORKDIR /src
 
 CMD [ "npm", "run", "dev" ]
 

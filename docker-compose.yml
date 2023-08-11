@@ -11,6 +11,8 @@ services:
     env_file: .env.development
     ports:
       - 8000:8000
+    volumes:
+      - .:/src
     networks:
       - default
       - app-tier

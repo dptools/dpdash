@@ -18,17 +18,8 @@ const router = Router()
 
 const basePath = basePathConfig || ''
 
-var amqpAddress =
-  'amqp://' +
-  config.rabbitmq.username +
-  ':' +
-  config.rabbitmq.password +
-  '@' +
-  config.rabbitmq.host +
-  ':' +
-  config.rabbitmq.port
 let rabbitmq_conn
-connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
+connect(process.env.RABBIT_ADDRESS, config.rabbitmq.opts, function (err, conn) {
   if (err) console.log(err)
   rabbitmq_conn = conn
 })

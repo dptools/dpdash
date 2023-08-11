@@ -4,10 +4,8 @@ import uuidV4 from 'uuid/v4';
 
 function dataImport() {
   console.log('INFO - data - connecting to queue');
-  var amqpAddress = 'amqps://' + config.rabbitmq.username;
-  amqpAddress = amqpAddress + ':' + config.rabbitmq.password;
-  amqpAddress = amqpAddress + '@' + config.rabbitmq.host + ':' + config.rabbitmq.port;
-  connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
+
+  connect(process.env.RABBIT_ADDRESS, config.rabbitmq.opts, function (err, conn) {
     if (err) {
       console.log('ERROR - rabbimtq - ' + err);
       return;

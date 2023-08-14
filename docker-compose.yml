@@ -4,19 +4,49 @@ services:
   node-app:
     build:
       dockerfile: dev.server.Dockerfile
+      context: .
     depends_on:
       - mongodb
-    env_file:
-      - .env.development
+      - rabbitmq
+    env_file: .env.development
     ports:
-      - $SERVER_PORT:$SERVER_PORT
+      - 8000:8000
+    volumes:
+      - .:/src
+    networks:
+      - default
+      - app-tier
   mongodb:
     image: mongo:4.4
     restart: unless-stopped
-    ports:
-      - $MONGODB_PORT:$MONGODB_PORT
     environment:
-      MONGO_INITDB_ROOT_USERNAME: $MONGODB_ADMIN_USER
-      MONGO_INITDB_ROOT_PASSWORD: $MONGODB_ADMIN_PASSWORD
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ADMIN_PASSWORD}
     volumes:
-      - /data/db
+      - mongodb:/data/db
+    networks:
+      - app-tier
+  rabbitmq:
+    build:
+      dockerfile: dev.rabbitmq.Dockerfile
+      context: .
+      args:
+        - RABBIT_USERNAME=${RABBIT_USERNAME}
+        - RABBIT_PASSWORD=${RABBIT_PASSWORD}
+    hostname: 'app-tier'
+    healthcheck:
+      test: ["rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    environment:
+      - RABBITMQ_NODE_NAME=rabbit@app-tier
+    networks:
+      - app-tier
+networks:
+  app-tier:
+    driver: bridge
+volumes:
+  mongodb:
+    name: dpdash-mongodb
+    external: true

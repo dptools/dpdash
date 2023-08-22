@@ -16,6 +16,15 @@ describe('migrateAssessmentSubjectDayData', () => {
     mainDb = await connection.db('dpdmongo');
     dataDb = await connection.db('dpdata');
   });
+
+  afterEach(async () => {
+    await Promise.all((await mainDb.listCollections().toArray()).map(async (collection) => {
+      return mainDb.collection(collection.name).drop()
+    }))
+    await Promise.all((await dataDb.listCollections().toArray()).map(async (collection) => {
+      return dataDb.collection(collection.name).drop()
+    }))
+  })
   
   afterAll(async () => {
     await connection.close();
@@ -674,6 +683,8 @@ describe('migrateAssessmentSubjectDayData', () => {
       }
     }
 
+    await dataDb.createCollection('toc')
+
     await dataDb.collection('toc').insertOne({
       "CONFLICTING_FIELD": "foo",
       "study": "CA",
@@ -772,5 +783,260 @@ describe('migrateAssessmentSubjectDayData', () => {
 
     expect(error).not.toBe(dummyError)
     expect(error.message).toBe("Prevented write due to overwritten data in fake_collection_hash: CONFLICTING_FIELD")
+  })
+
+  it('skips tocs with duplicate collections', async () => {
+    await dataDb.createCollection('toc') 
+
+    await dataDb.collection('toc').insertMany([
+      {
+        "_id": new ObjectId("62b5d5223394ef5768b0cffd"),
+        "study": "CA",
+        "subject": "CA00007",
+        "assessment": "flowcheck",
+        "units": "day",
+        "start": "1",
+        "end": "1",
+        "extension": ".csv",
+        "glob": "/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day*.csv",
+        "collection": "test_collection",
+        "time_units": "day",
+        "time_start": 1,
+        "time_end": 1,
+        "path": "/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day1to1.csv",
+        "filetype": "text/csv",
+        "encoding": null,
+        "basename": "CA-CA00007-flowcheck-day1to1.csv",
+        "dirname": "/Users/ivanrts/Downloads/test_data",
+        "dirty": false,
+        "synced": true,
+        "mtime": 1654738581,
+        "size": 958,
+        "uid": 501,
+        "gid": 20,
+        "mode": 33252,
+        "role": "data",
+        "updated": new Date("2022-06-24T15:15:46.542Z"),
+      },
+      {
+        "_id": new ObjectId("62b5d5223394ef5768b0cffb"),
+        "study": "CA",
+        "subject": "CA00063",
+        "assessment": "flowcheck",
+        "units": "day",
+        "start": "1",
+        "end": "1",
+        "extension": ".csv",
+        "glob": "/Users/ivanrts/Downloads/test_data/CA-CA00063-flowcheck-day*.csv",
+        "collection": "test_collection",
+        "time_units": "day",
+        "time_start": 1,
+        "time_end": 1,
+        "path": "/Users/ivanrts/Downloads/test_data/CA-CA00063-flowcheck-day1to1.csv",
+        "filetype": "text/csv",
+        "encoding": null,
+        "basename": "CA-CA00063-flowcheck-day1to1.csv",
+        "dirname": "/Users/ivanrts/Downloads/test_data",
+        "dirty": false,
+        "synced": true,
+        "mtime": 1654738584,
+        "size": 485,
+        "uid": 501,
+        "gid": 20,
+        "mode": 33252,
+        "role": "data",
+        "updated": new Date("2022-06-24T15:15:46.423Z")
+      }
+  ])
+
+  await dataDb.createCollection('test_collection')
+
+  await dataDb.collection('test_collection').insertMany([
+    {
+      "_id": new ObjectId("62b5d5213394ef5768b0cf73"),
+      "day": 1,
+      "reftime": "",
+      "timeofday": "",
+      "weekday": "",
+      "subject_id": "CA00007",
+      "site": "CA",
+      "mtime": "2022-05-06",
+      "surveys_processed_GENERAL": "",
+      "surveys_raw_PROTECTED": 1,
+      "cnb_processed_GENERAL": "",
+      "cnb_raw_PROTECTED": 1,
+      "cnb_ss_processed_GENERAL": "",
+      "cnb_ss_raw_PROTECTED": 1,
+      "eeg_processed_GENERAL": "",
+      "eeg_raw_PROTECTED": 1,
+      "eeg_ss_processed_GENERAL": "",
+      "eeg_ss_raw_PROTECTED": 1,
+      "actigraphy_processed_GENERAL": "",
+      "actigraphy_raw_PROTECTED": 1,
+      "actigraphy_ss_processed_GENERAL": "",
+      "actigraphy_ss_raw_PROTECTED": 1,
+      "mri_processed_GENERAL": "",
+      "mri_raw_PROTECTED": "",
+      "mri_ss_processed_GENERAL": "",
+      "mri_ss_raw_PROTECTED": "",
+      "interview_audio_processed_GENERAL": 1,
+      "interview_audio_raw_PROTECTED": "",
+      "interview_video_processed_GENERAL": 1,
+      "interview_video_raw_PROTECTED": "",
+      "interview_transcript_processed_GENERAL": "",
+      "interview_transcript_raw_PROTECTED": "",
+      "interview_ss_processed_GENERAL": "",
+      "interview_ss_raw_PROTECTED": "",
+      "mind_phone_processed_GENERAL": "",
+      "mind_phone_raw_PROTECTED": "",
+      "mind_sensor_processed_GENERAL": "",
+      "mind_sensor_raw_PROTECTED": "",
+      "mind_ss_processed_GENERAL": "",
+      "mind_ss_raw_PROTECTED": "",
+      "surveys_processed_PROTECTED": "",
+      "cnb_processed_PROTECTED": "",
+      "cnb_ss_processed_PROTECTED": "",
+      "eeg_processed_PROTECTED": "",
+      "eeg_ss_processed_PROTECTED": "",
+      "actigraphy_processed_PROTECTED": "",
+      "actigraphy_ss_processed_PROTECTED": "",
+      "mri_processed_PROTECTED": "",
+      "mri_ss_processed_PROTECTED": "",
+      "interview_audio_processed_PROTECTED": "",
+      "interview_video_processed_PROTECTED": "",
+      "interview_transcript_processed_PROTECTED": "",
+      "interview_ss_processed_PROTECTED": "",
+      "mind_phone_processed_PROTECTED": "",
+      "mind_sensor_processed_PROTECTED": "",
+      "mind_ss_processed_PROTECTED": "",
+      "path": "/Users/ivanrts/Downloads/test_data/files-ProNET-flowcheck-day1to9999.csv"
+    },
+    {
+      "_id": new ObjectId("62b5d5213394ef5768b0cf75"),
+      "day": 3,
+      "reftime": "",
+      "timeofday": "",
+      "weekday": "",
+      "subject_id": "YA00015",
+      "site": "YA",
+      "mtime": "2022-05-06",
+      "surveys_processed_GENERAL": "",
+      "surveys_raw_PROTECTED": 1,
+      "cnb_processed_GENERAL": "",
+      "cnb_raw_PROTECTED": 1,
+      "cnb_ss_processed_GENERAL": "",
+      "cnb_ss_raw_PROTECTED": 1,
+      "eeg_processed_GENERAL": "",
+      "eeg_raw_PROTECTED": "",
+      "eeg_ss_processed_GENERAL": "",
+      "eeg_ss_raw_PROTECTED": "",
+      "actigraphy_processed_GENERAL": "",
+      "actigraphy_raw_PROTECTED": "",
+      "actigraphy_ss_processed_GENERAL": "",
+      "actigraphy_ss_raw_PROTECTED": 1,
+      "mri_processed_GENERAL": "",
+      "mri_raw_PROTECTED": "",
+      "mri_ss_processed_GENERAL": "",
+      "mri_ss_raw_PROTECTED": "",
+      "interview_audio_processed_GENERAL": 1,
+      "interview_audio_raw_PROTECTED": "",
+      "interview_video_processed_GENERAL": 1,
+      "interview_video_raw_PROTECTED": "",
+      "interview_transcript_processed_GENERAL": 1,
+      "interview_transcript_raw_PROTECTED": "",
+      "interview_ss_processed_GENERAL": "",
+      "interview_ss_raw_PROTECTED": "",
+      "mind_phone_processed_GENERAL": "",
+      "mind_phone_raw_PROTECTED": 1,
+      "mind_sensor_processed_GENERAL": "",
+      "mind_sensor_raw_PROTECTED": 2,
+      "mind_ss_processed_GENERAL": "",
+      "mind_ss_raw_PROTECTED": 1,
+      "surveys_processed_PROTECTED": "",
+      "cnb_processed_PROTECTED": "",
+      "cnb_ss_processed_PROTECTED": "",
+      "eeg_processed_PROTECTED": "",
+      "eeg_ss_processed_PROTECTED": "",
+      "actigraphy_processed_PROTECTED": "",
+      "actigraphy_ss_processed_PROTECTED": "",
+      "mri_processed_PROTECTED": "",
+      "mri_ss_processed_PROTECTED": "",
+      "interview_audio_processed_PROTECTED": "",
+      "interview_video_processed_PROTECTED": "",
+      "interview_transcript_processed_PROTECTED": "",
+      "interview_ss_processed_PROTECTED": "",
+      "mind_phone_processed_PROTECTED": "",
+      "mind_sensor_processed_PROTECTED": "",
+      "mind_ss_processed_PROTECTED": "",
+      "path": "/Users/ivanrts/Downloads/test_data/files-ProNET-flowcheck-day1to9999.csv"
+    },
+    {
+      "_id": new ObjectId("62b5d5213394ef5768b0cf76"),
+      "day": 4,
+      "reftime": "",
+      "timeofday": "",
+      "weekday": "",
+      "subject_id": "WU00085",
+      "site": "WU",
+      "mtime": "2022-05-06",
+      "surveys_processed_GENERAL": "",
+      "surveys_raw_PROTECTED": 1,
+      "cnb_processed_GENERAL": "",
+      "cnb_raw_PROTECTED": 1,
+      "cnb_ss_processed_GENERAL": "",
+      "cnb_ss_raw_PROTECTED": 1,
+      "eeg_processed_GENERAL": "",
+      "eeg_raw_PROTECTED": "",
+      "eeg_ss_processed_GENERAL": "",
+      "eeg_ss_raw_PROTECTED": "",
+      "actigraphy_processed_GENERAL": "",
+      "actigraphy_raw_PROTECTED": 1,
+      "actigraphy_ss_processed_GENERAL": "",
+      "actigraphy_ss_raw_PROTECTED": 1,
+      "mri_processed_GENERAL": "",
+      "mri_raw_PROTECTED": "",
+      "mri_ss_processed_GENERAL": "",
+      "mri_ss_raw_PROTECTED": "",
+      "interview_audio_processed_GENERAL": "",
+      "interview_audio_raw_PROTECTED": "",
+      "interview_video_processed_GENERAL": "",
+      "interview_video_raw_PROTECTED": "",
+      "interview_transcript_processed_GENERAL": "",
+      "interview_transcript_raw_PROTECTED": "",
+      "interview_ss_processed_GENERAL": "",
+      "interview_ss_raw_PROTECTED": "",
+      "mind_phone_processed_GENERAL": "",
+      "mind_phone_raw_PROTECTED": "",
+      "mind_sensor_processed_GENERAL": "",
+      "mind_sensor_raw_PROTECTED": "",
+      "mind_ss_processed_GENERAL": "",
+      "mind_ss_raw_PROTECTED": "",
+      "surveys_processed_PROTECTED": "",
+      "cnb_processed_PROTECTED": "",
+      "cnb_ss_processed_PROTECTED": "",
+      "eeg_processed_PROTECTED": "",
+      "eeg_ss_processed_PROTECTED": "",
+      "actigraphy_processed_PROTECTED": "",
+      "actigraphy_ss_processed_PROTECTED": "",
+      "mri_processed_PROTECTED": "",
+      "mri_ss_processed_PROTECTED": "",
+      "interview_audio_processed_PROTECTED": "",
+      "interview_video_processed_PROTECTED": "",
+      "interview_transcript_processed_PROTECTED": "",
+      "interview_ss_processed_PROTECTED": "",
+      "mind_phone_processed_PROTECTED": "",
+      "mind_sensor_processed_PROTECTED": "",
+      "mind_ss_processed_PROTECTED": "",
+      "path": "/Users/ivanrts/Downloads/test_data/files-ProNET-flowcheck-day1to9999.csv"
+    }
+  ])
+
+  const connection = await migrateAssessmentSubjectDayData();
+  await connection.close()
+
+  const assessmentSubjectDayData = await mainDb.collection('assessmentSubjectDayData').find({}).toArray()
+
+  expect(assessmentSubjectDayData.length).toBe(3)
+
   })
 })

@@ -12,6 +12,7 @@ export async function migrateAssessmentSubjectDayData() {
   const db = mongoConnection.db('dpdata')
   const tocCollection = db.collection('toc')
   
+  const collectionSet = new Set()
   const tocCursor = await tocCollection.find({})
 
   while (await tocCursor.hasNext()) {
@@ -25,7 +26,12 @@ export async function migrateAssessmentSubjectDayData() {
     toc['toc_path'] = toc['path']
     delete toc['path']
 
+    if (collectionSet.has(toc.collection)) {
+      continue
+    }
+
     const dayData = await db.collection(toc.collection).find({}).toArray()
+    collectionSet.add(toc.collection)
 
     new Set(dayData.map( d => Object.keys(d)).reduce((acc, keys) => acc.concat(keys), [])).forEach((key) => {
       if (toc[key] !== undefined  && dayData[0][key] !== toc[key]) {

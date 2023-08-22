@@ -15,8 +15,7 @@
     "restart": "NODE_ENV=production ./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all && ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
     "serve:watch": "nodemon -r dotenv/config --exec babel-node server/bin/www.js --watch \"./server\" dotenv_config_path=./.env.development",
     "node": "DEBUG=* node ./dist/bin/www.js",
-    "test": "jest",
-    "data:migrate_assessment_subject_day_data": "node ./scripts/data_migration/migrate_assessment_subject_day_data.js"
+    "test": "jest"
   },
   "babel": {
     "presets": [
@@ -96,7 +95,6 @@
     "@babel/preset-env": "^7.14.0",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
-    "@shelf/jest-mongodb": "^4.1.7",
     "babel-loader": "^8.2.1",
     "babel-plugin-react-html-attrs": "^3.0.5",
     "babel-polyfill": "^6.26.0",

@@ -26,9 +26,6 @@ services:
       - mongodb:/data/db
     networks:
       - app-tier
-      - default
-    ports:
-      - 27017:27017
   rabbitmq:
     build:
       dockerfile: dev.rabbitmq.Dockerfile

@@ -24,6 +24,7 @@ export dppy_config=/data/dpdash/configs/dppy.conf
 rm -f ~/.pm2/logs/*
 rm -f /data/dpdash/mongodb/logs/mongod.log
 rm -f /data/dpdash/mongodb/dbs/diagnostic.data/*
+rm -f /data/dpdash/supervisord/logs/*
 
 # start mongodb, celery, and rabbit
 echo "Starting superivsord..."

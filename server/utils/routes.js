@@ -30,6 +30,9 @@ export const v1Routes = {
     users: {
       show: `${v1Root}/admin/users/:uid`,
     },
+    studies: {
+      index: `${v1Root}/admin/search/studies`,
+    },
   },
   dashboards: {
     show: `${v1Root}/dashboards/:study/:subject`,

@@ -46,7 +46,6 @@ export const configStyles = (theme) => ({
   },
   placeholder: {
     position: 'absolute',
-    left: 2,
     fontSize: 16,
   },
   paper: {

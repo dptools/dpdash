@@ -43,6 +43,9 @@ export const apiRoutes = {
     users: {
       show: (uid) => `${apiPath}/admin/users/${uid}`,
     },
+    studies: {
+      all: `${apiPath}/admin/search/studies`,
+    },
   },
   chartData: {
     show: (chartId, queryParams) =>

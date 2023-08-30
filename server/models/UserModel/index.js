@@ -16,6 +16,13 @@ const UserModel = {
       .collection(collections.users)
       .find({}, { projection: userMongoProjection })
       .toArray(),
+  destroy: async (db, uid) => {
+    const { deletedCount } = await db
+      .collection(collections.users)
+      .deleteOne({ uid })
+
+    if (deletedCount !== 1) throw new Error('Unable to delete user')
+  },
   save: async (db, userAttributes) => {
     const newUser = UserModel.withDefaults(userAttributes)
 

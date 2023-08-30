@@ -60,20 +60,11 @@ const Router = (props) => {
               />
             }
           />
+          <Route path={routes.admin} element={<AdminPage />} />
           <Route path={routes.charts} element={<ChartsPage />} />
           <Route path={routes.newChart} element={<NewChartPage />} />
           <Route path={routes.editChartPage} element={<EditChartPage />} />
           <Route path={routes.viewChartPage} element={<ViewChartPage />} />
-          <Route
-            path={routes.admin}
-            element={
-              <AdminPage
-                user={props.user}
-                classes={props.classes}
-                theme={props.theme}
-              />
-            }
-          />
           <Route path={routes.editConfigPage} element={<EditConfigPage />} />
           <Route path={routes.newConfiguration} element={<NewConfigPage />} />
         </Route>

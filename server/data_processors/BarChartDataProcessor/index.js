@@ -38,13 +38,21 @@ class BarChartDataProcessor {
   }
 
   processData = async (subjects) => {
+    const subjectDayDataBySubject = (await this.db
+      .collection('assessmentSubjectDayData')
+      .aggregate([
+        { $match: { subject: { $in: subjects.map(s => s.subject) } } },
+        { $group: { _id: '$subject', data: { $push: '$$ROOT' } } },
+      ])
+      .toArray())
+      .reduce((acc, { _id, data }) => {
+        acc[_id] = data
+        return acc
+      }, {})
+
     for await (const subject of subjects) {
       const { study } = subject
-      const subjectDayData = await this.db
-        .collection(subject.collection)
-        .find({})
-        .toArray()
-
+      const subjectDayData = subjectDayDataBySubject[subject.subject] || []
       this.chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
         this._processFieldLabelValueMap(
           fieldLabelValueMap,

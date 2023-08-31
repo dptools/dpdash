@@ -1,62 +1,52 @@
 import {
   createChart,
-  createLabel,
+  createFieldLabelValue,
   createRequestWithUser,
   createResponse,
-  createSiteData,
-  createSubject,
+  createSubjectAssessment,
   createUser,
 } from '../../../test/fixtures'
 import chartsController from '.'
-import BarChartService from '../../services/BarChartService'
-import BarChartTableService from '../../services/BarChartTableService'
-import SubjectModel from '../../models/SubjectModel'
 import { DEFAULT_CHART_FILTERS } from '../../constants'
-
-jest.mock('../../services/BarChartService')
-jest.mock('../../services/BarChartTableService')
+import { ObjectId } from 'mongodb'
+import { collections } from '../../utils/mongoCollections'
 
 const consoleError = console.error
 
 describe('chartsController', () => {
+
   beforeEach(() => {
     console.error = jest.fn()
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     console.error = consoleError
   })
 
   describe(chartsController.show, () => {
-    const chart = createChart()
-    const mockCreateChart = jest.fn()
-    const mockCsvTableData = jest.fn()
-    const mockWebsiteTableData = jest.fn()
-    const mockSubjects = [createSubject()]
-    const mockDataBySite = [createSiteData()]
-    const mockLabels = [createLabel()]
-    const mockLegend = []
-    const request = createRequestWithUser({
-      params: { chart_id: chart.id },
-    })
     const response = createResponse()
 
-    beforeEach(() => {
-      BarChartService.mockImplementationOnce(() => {
-        return {
-          createChart: mockCreateChart,
-          legend: () => mockLegend,
-        }
-      })
-      BarChartTableService.mockImplementationOnce(() => {
-        return {
-          csvTableData: mockCsvTableData,
-          websiteTableData: mockWebsiteTableData,
-        }
-      })
-      jest
-        .spyOn(SubjectModel, 'allForAssessment')
-        .mockResolvedValueOnce(mockSubjects)
+    beforeEach(async () => {
+      await appDb.collection('assessmentSubjectDayData').insertMany([
+        createSubjectAssessment({
+          assessment: 'assessment',
+          collection: 'collection',
+          study: 'study',
+          subject: 'subject',
+          day: 1,
+          the_variable: 1,
+          sex_at_birth: 1,
+        }),
+        createSubjectAssessment({
+          assessment: 'assessment',
+          collection: 'collection',
+          study: 'study',
+          subject: 'subject',
+          day: 2,
+          the_variable: 0,
+          sex_at_birth: 1,
+        })
+      ])
     })
 
     afterEach(() => {
@@ -64,39 +54,245 @@ describe('chartsController', () => {
     })
 
     it('returns the view chart page', async () => {
-      const chartOwner = createUser()
-      const graphTable = { tableColumns: [], tableRows: [] }
-      const studyTotals = {
-        [mockSubjects[0].study]: {
-          count: 2,
-          targetValue: 2,
-        },
-      }
-      mockCreateChart.mockResolvedValueOnce({
-        dataBySite: mockDataBySite,
-        labels: mockLabels,
-        studyTotals,
+      await appDb.collection(collections.users).insertOne(createUser())
+      const chartOwner = await appDb.collection(collections.users).findOne()
+
+      await dataDb.collection(collections.charts).insertOne(createChart({
+        _id: new ObjectId(),
+        owner: chartOwner.uid,
+        variable: 'the_variable',
+        assessment: 'assessment',
+        fieldLabelValueMap: [
+          createFieldLabelValue({
+            value: 1,
+            label: 'one',
+            color: 'red',
+          }),
+          createFieldLabelValue({
+            value: 0,
+            label: 'zero',
+            color: 'blue',
+          }),
+        ],
+      }))
+      const chart = await dataDb.collection(collections.charts).findOne()
+
+      const request = createRequestWithUser({
+        params: { chart_id: chart._id.toString() },
       })
-      mockWebsiteTableData.mockReturnValueOnce(graphTable)
-      request.app.locals.dataDb.findOne.mockResolvedValueOnce(chart)
-      request.app.locals.appDb.findOne.mockResolvedValueOnce(chartOwner)
+      request.app.locals.dataDb = dataDb
+      request.app.locals.appDb = appDb
+      request.session.userAccess = ['study']
+
+      const queryParams = {
+        ...DEFAULT_CHART_FILTERS,
+        included_excluded: [
+          { name: 'Included', value: 'true' },
+          { name: 'Excluded', value: 'true' },
+          { name: 'Missing', value: 'true' },
+        ],
+      }
+      request.query = Object.keys(queryParams).reduce((acc, key) => {
+        for (let i = 0; i < queryParams[key].length; i++) {
+          const filter = queryParams[key][i]
+          acc.push([encodeURIComponent(`${key}[${i}][name]`), filter.name].join('='))
+          acc.push([encodeURIComponent(`${key}[${i}][value]`), filter.value].join('='))
+        }
+        return acc
+      }, []).join('&')
 
       await chartsController.show(request, response)
 
       expect(response.status).toHaveBeenCalledWith(200)
       expect(response.json).toHaveBeenCalledWith({
-        data: {
-          chart_id: chart.id,
-          dataBySite: mockDataBySite,
-          labels: mockLabels,
-          title: chart.title,
-          description: chart.description,
-          legend: mockLegend,
-          studyTotals,
-          filters: DEFAULT_CHART_FILTERS,
-          chartOwner,
-          graphTable,
-        },
+        "data": {
+          "chart_id": chart._id.toString(),
+          "dataBySite": [
+            {
+              "name": "study",
+              "counts": {
+                "one": 1,
+                "zero": 1,
+                "N/A": 0,
+                "Total": 2
+              },
+              "totalsForStudy": {
+                "count": 2
+              },
+              "percentages": {
+                "one": 50,
+                "zero": 50,
+                "N/A": 0
+              },
+              "targets": {}
+            },
+            {
+              "name": "Totals",
+              "counts": {
+                "one": 1,
+                "zero": 1,
+                "N/A": 0,
+                "Total": 2
+              },
+              "totalsForStudy": {
+                "count": 2,
+                "targetTotal": 0
+              },
+              "percentages": {
+                "one": 50,
+                "zero": 50,
+                "N/A": 0
+              },
+              "targets": {
+                "Total": 0
+              }
+            }
+          ],
+          "labels": [
+            {
+              "name": "one",
+              "color": "red"
+            },
+            {
+              "name": "zero",
+              "color": "blue"
+            }
+          ],
+          "title": "chart title",
+          "description": "chart description",
+          "legend": [
+            {
+              "name": "one",
+              "symbol": {
+                "type": "square",
+                "fill": "red"
+              }
+            },
+            {
+              "name": "zero",
+              "symbol": {
+                "type": "square",
+                "fill": "blue"
+              }
+            }
+          ],
+          "studyTotals": {
+            "Totals": {
+              "count": 2,
+              "targetTotal": 0
+            },
+            "study": {
+              "count": 2
+            }
+          },
+          "filters": {
+            "chrcrit_part": [
+              {
+                "name": "HC",
+                "value": "true"
+              },
+              {
+                "name": "CHR",
+                "value": "true"
+              },
+              {
+                "name": "Missing",
+                "value": "true"
+              }
+            ],
+            "included_excluded": [
+              {
+                "name": "Included",
+                "value": "true"
+              },
+              {
+                "name": "Excluded",
+                "value": "true"
+              },
+              {
+                "name": "Missing",
+                "value": "true"
+              }
+            ],
+            "sex_at_birth": [
+              {
+                "name": "Male",
+                "value": "true"
+              },
+              {
+                "name": "Female",
+                "value": "true"
+              },
+              {
+                "name": "Missing",
+                "value": "true"
+              }
+            ]
+          },
+          "chartOwner": {
+            "uid": "user-uid",
+            "display_name": "Display Name",
+            "icon": "icon"
+          },
+          "graphTable": {
+            "tableColumns": [
+              {
+                "name": "Site",
+                "color": "gray"
+              },
+              {
+                "name": "one",
+                "color": "red"
+              },
+              {
+                "name": "zero",
+                "color": "blue"
+              },
+              {
+                "name": "Total",
+                "color": "gray"
+              }
+            ],
+            "tableRows": [
+              [
+                {
+                  "data": "study",
+                  "color": "gray"
+                },
+                {
+                  "data": "1",
+                  "color": "red"
+                },
+                {
+                  "data": "1",
+                  "color": "blue"
+                },
+                {
+                  "data": "2",
+                  "color": "gray"
+                }
+              ],
+              [
+                {
+                  "data": "Totals",
+                  "color": "gray"
+                },
+                {
+                  "data": "1",
+                  "color": "red"
+                },
+                {
+                  "data": "1",
+                  "color": "blue"
+                },
+                {
+                  "data": "2",
+                  "color": "gray"
+                }
+              ]
+            ]
+          }
+        }
       })
     })
   })

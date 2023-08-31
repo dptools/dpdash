@@ -4,7 +4,6 @@ import {
   ALL_SUBJECTS_MONGO_PROJECTION,
   STUDIES_TO_OMIT,
 } from '../../constants'
-import { collections } from '../../utils/mongoCollections'
 import FiltersService from '../../services/FiltersService'
 
 export const intersectSubjectsFromFilters = (filters) => {
@@ -47,21 +46,27 @@ export const intersectSubjectsFromFilters = (filters) => {
 }
 
 const SubjectModel = {
-  allForAssessment: async (db, assessment, userAccess, filters) => {
+  allForAssessment: async (appDb, assessment, userAccess, filters) => {
     const filtersService = new FiltersService(filters, userAccess)
     const allFiltersSelected = filtersService.allFiltersActive()
     let allSubjects
 
     if (allFiltersSelected) {
-      allSubjects = await db
-        .collection(collections.toc)
-        .find(
-          {
-            assessment,
-            study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+      allSubjects = await appDb
+        .collection('assessmentSubjectDayData')
+        .aggregate([
+          { 
+            $match: {
+              assessment,
+              study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+            } 
           },
-          { projection: ALL_SUBJECTS_MONGO_PROJECTION }
-        )
+          { $group: { _id: '$subject', data: { $first: "$$ROOT" } } },
+          {
+            "$replaceRoot": { "newRoot": "$data" }
+          },
+          { $project: ALL_SUBJECTS_MONGO_PROJECTION }
+        ])
         .toArray()
     } else {
       const {
@@ -71,24 +76,25 @@ const SubjectModel = {
         activeFilters,
       } = filtersService.barChartMongoQueries()
       const filteredSubjects = []
-      const criteriaCursor = await db
-        .collection(collections.toc)
+
+      const criteriaCursor = await appDb
+        .collection('assessmentSubjectDayData')
         .aggregate(mongoAggregateQueryForFilters)
-      const intersectedSubjectsFromFilters = intersectSubjectsFromFilters(
-        await criteriaCursor.next()
-      )
+      const criteria = await criteriaCursor.next()
+
+      const intersectedSubjectsFromFilters = intersectSubjectsFromFilters(criteria)
+
       await Promise.all(
         Array.from(intersectedSubjectsFromFilters).map(
           async ([subject, collections]) => {
             const data = {}
             for (const { collection, filter } of collections) {
               if (filter === INCLUSION_EXCLUSION_CRITERIA_FORM) {
-                const subjectInclusionCriteriaData = await db
-                  .collection(collection)
+                const subjectInclusionCriteriaData = await appDb
+                  .collection('assessmentSubjectDayData')
                   .aggregate(mongoAggregateQueryForIncludedCriteria)
                 const inclusionCriteriaData =
                   await subjectInclusionCriteriaData.next()
-
                 Object.keys(inclusionCriteriaData).forEach(
                   (inclusionCriteriaKey) => {
                     data[inclusionCriteriaKey] =
@@ -98,13 +104,12 @@ const SubjectModel = {
               }
 
               if (filter === SOCIODEMOGRAPHICS_FORM) {
-                data.sex_at_birth = await db
-                  .collection(collection)
+                data.sex_at_birth = await appDb
+                  .collection('assessmentSubjectDayData')
                   .find(mongoQueryForSocioDemographics)
                   .toArray()
               }
             }
-
             const isSubjectInFilteredQuery = activeFilters
               .map((requestedFilter) => data[requestedFilter].length > 0)
               .every(Boolean)
@@ -114,15 +119,22 @@ const SubjectModel = {
         )
       )
 
-      allSubjects = await db
-        .collection(collections.toc)
-        .find(
-          {
-            assessment,
-            subject: { $in: filteredSubjects },
+      allSubjects = await appDb
+        .collection('assessmentSubjectDayData')
+        .aggregate([
+          { 
+            $match: {
+              assessment,
+              study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+              subject: { $in: filteredSubjects },
+            } 
           },
-          { projection: ALL_SUBJECTS_MONGO_PROJECTION }
-        )
+          { $group: { _id: '$subject', data: { $first: "$$ROOT" } } },
+          {
+            "$replaceRoot": { "newRoot": "$data" }
+          },
+          { $project: ALL_SUBJECTS_MONGO_PROJECTION }
+        ])
         .toArray()
     }
 

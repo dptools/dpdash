@@ -7,6 +7,7 @@ import SubjectModel from '../../models/SubjectModel'
 import BarChartService from '../../services/BarChartService'
 import BarChartTableService from '../../services/BarChartTableService'
 import CsvService from '../../services/CSVService'
+import { co } from 'co'
 
 const show = async (req, res, next) => {
   try {
@@ -14,21 +15,25 @@ const show = async (req, res, next) => {
     const { chart_id } = req.params
     const { userAccess } = req.session
     const parsedQueryParams = qs.parse(req.query)
-    const filters = parsedQueryParams.filters || DEFAULT_CHART_FILTERS
+    const filters = Object.keys(parsedQueryParams).length > 1 ? parsedQueryParams : DEFAULT_CHART_FILTERS
+
     const chart = await dataDb
       .collection(collections.charts)
-      .findOne({ _id: ObjectId(chart_id) })
+      .findOne({ _id: new ObjectId(chart_id) })
+    
     const subjects = await SubjectModel.allForAssessment(
-      dataDb,
+      appDb,
       chart.assessment,
       userAccess,
       filters
     )
-    const chartService = new BarChartService(dataDb, chart)
+
+    const chartService = new BarChartService(appDb, chart)
     const { dataBySite, labels, studyTotals } = await chartService.createChart(
       subjects,
       userAccess
     )
+
     const chartTableService = new BarChartTableService(dataBySite, labels)
     const websiteTable = chartTableService.websiteTableData()
     const chartOwner = await appDb.collection(collections.users).findOne(

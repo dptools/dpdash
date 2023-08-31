@@ -1,14 +1,13 @@
-import BarChartDataProcessor from '.'
 import {
   createChart,
-  createDb,
   createFieldLabelValue,
   createSubject,
   createSubjectDayData,
 } from '../../../test/fixtures'
 import { N_A, TOTALS_STUDY } from '../../constants'
+import BarChartDataProcessorV2 from '.'
 
-describe(BarChartDataProcessor, () => {
+describe(BarChartDataProcessorV2, () => {
   const allowedStudies = ['Site 1', 'Site 2']
   const chart = createChart({
     assessment: 'assessment',
@@ -45,56 +44,94 @@ describe(BarChartDataProcessor, () => {
     'Site 1': { count: 0, targetTotal: undefined },
     'Site 2': { count: 0, targetTotal: undefined },
   }
-  const db = createDb()
+
+  const subject1 = createSubject({ collection: '123', study: 'Site 1', subject: 'subject1' })
+  const subject2 = createSubject({ collection: '456', study: 'Site 2', subject: 'subject2' })
+  const subject3 = createSubject({ collection: '789', study: 'Site 1', subject: 'subject3' })
+  const subject4 = createSubject({ collection: '1011', study: 'Site 2', subject: 'subject4' })
+
+  const subject1DayData = [
+    {
+      ...subject1,
+      ...createSubjectDayData({
+        surveys_raw: 1,
+      }),
+    },
+    {
+      ...subject1,
+      ...createSubjectDayData({
+        surveys_raw: '',
+      })
+    }
+  ]
+
+  const subject2DayData = [
+    {
+      ...subject2,
+      ...createSubjectDayData({
+        surveys_raw: 2,
+      }),
+    },
+    {
+      ...subject2,
+      ...createSubjectDayData({
+        surveys_raw: '',
+      })
+    }
+  ]
+
+  const subject3DayData = [
+    {
+      ...subject3,
+      ...createSubjectDayData({
+        surveys_raw: '',
+      }),
+    },
+    {
+      ...subject3,
+      ...createSubjectDayData({
+        surveys_raw: '',
+      })
+    },
+  ]
+
+  const subject4DayData = [
+    {
+      ...subject4,
+      ...createSubjectDayData({
+        surveys_raw: 1,
+      }),
+    },
+    {
+      ...subject4,
+      ...createSubjectDayData({
+        surveys_raw: '',
+      })
+    }
+  ]
+
   const subjects = [
-    createSubject({ collection: '123', study: 'Site 1' }),
-    createSubject({ collection: '456', study: 'Site 2' }),
-    createSubject({ collection: '789', study: 'Site 1' }),
-    createSubject({ collection: '1011', study: 'Site 2' }),
+    subject1,
+    subject2,
+    subject3,
+    subject4,
+  ]
+
+  const subjectDayData = [
+    ...subject1DayData,
+    ...subject2DayData,
+    ...subject3DayData,
+    ...subject4DayData,
   ]
 
   describe('.processData', () => {
     it('returns processed data', async () => {
-      const service = new BarChartDataProcessor(db, chart, initialStudyTotals)
+      await appDb.collection('assessmentSubjectDayData').insertMany(subjectDayData)
 
-      // Site 1
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: 1,
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
-      // Site 2
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: 2,
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
-      // Site 1
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
-      // Site 2
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: 1,
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
+      const service = new BarChartDataProcessorV2(appDb, chart, initialStudyTotals)
 
       const processedData = await service.processData(subjects)
+
       const expectedLabelMap = {
         Good: { name: 'Good', color: 'good-color' },
         Bad: { name: 'Bad', color: 'bad-color' },

@@ -8,7 +8,7 @@ const ChartForm = ({ classes, handleSubmit, studies, initialValues }) => {
   const [formValues, setFormValues] = useState(initialValues)
 
   return (
-    <Form handleSubmit={(e) => handleSubmit(e, formValues)}>
+    <Form onSubmit={(e) => handleSubmit(e, formValues)}>
       <BarChartFields
         classes={classes}
         formValues={formValues}

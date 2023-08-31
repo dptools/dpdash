@@ -12,14 +12,16 @@ const ViewChartPage = () => {
   const { chart_id } = useParams()
   const [graph, setGraph] = useState(null)
 
-  const handleSubmit = (updatedFilters) => fetchGraph(chart_id, updatedFilters)
-  const fetchGraph = async (chart_id, filters) => {
-    return await fetch(apiRoutes.chartData.show(chart_id, filters))
-      .then((res) => res.json())
-      .then(({ data }) => {
-        setGraph(data)
-      })
+  const handleSubmit = (updatedFilters) => {
+    fetchGraph(chart_id, updatedFilters)
   }
+
+  const fetchGraph = async (chart_id, filters) => {
+    const res = await fetch(apiRoutes.chartData.show(chart_id, filters))
+    const json= await res.json()
+    setGraph(json.data)
+  }
+
   useEffect(() => {
     fetchGraph(chart_id)
   }, [])

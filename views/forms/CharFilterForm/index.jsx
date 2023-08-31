@@ -16,14 +16,14 @@ import {
 
 const ChartFilterForm = ({ initialValues, onSubmit, classes }) => {
   const [values, setValues] = useState(initialValues)
-  const onChange = (target, filterKey) => {
+  const onChange = (target, checked, filterKey) => {
     setValues({
       ...values,
       [filterKey]: values[filterKey].map((filter) =>
         filter.name === target.name
           ? {
               ...filter,
-              value: filter.value === TRUE_STRING ? FALSE_STRING : TRUE_STRING,
+              value: checked ? TRUE_STRING : FALSE_STRING,
             }
           : filter
       ),
@@ -32,8 +32,9 @@ const ChartFilterForm = ({ initialValues, onSubmit, classes }) => {
 
   return (
     <Form
-      handleSubmit={(e) => {
+      onSubmit={(e) => {
         e.preventDefault()
+        console.log(values)
         return onSubmit(values)
       }}
     >
@@ -59,7 +60,7 @@ const ChartFilterForm = ({ initialValues, onSubmit, classes }) => {
                         </InputLabel>
                         <Checkbox
                           checked={filter.value === TRUE_STRING}
-                          onChange={({ target }) => onChange(target, filterKey)}
+                          onChange={({ target }, checked) => onChange(target, checked, filterKey)}
                           name={filter.name}
                           id={filterID}
                           className={classes.filterCheckbox}

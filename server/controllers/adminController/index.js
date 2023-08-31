@@ -12,6 +12,18 @@ const AdminUsersController = {
       return res.status(400).json({ error: error.message })
     }
   },
+  destroy: async (req, res) => {
+    try {
+      const { appDb } = req.app.locals
+      const { uid } = req.params
+
+      await UserModel.destroy(appDb, uid)
+
+      return res.status(204).end()
+    } catch (error) {
+      return res.status(400).json({ error: error.message })
+    }
+  },
 }
 
 export default AdminUsersController

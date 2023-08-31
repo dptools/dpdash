@@ -54,6 +54,7 @@ export const createDb = (overrides = {}) => ({
   collection: jest.fn(function () {
     return this
   }),
+  distinct: jest.fn(),
   deleteOne: jest.fn(),
   insertOne: jest.fn(),
   find: jest.fn(function () {

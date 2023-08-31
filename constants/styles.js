@@ -37,3 +37,7 @@ export const presetColors = [
 
 export const baseGridWidth = 300
 export const baseInnerWidth = 768
+export const ADMIN_TABLE_ROW_HEIGHT = 48
+export const ADMIN_TABLE_MAX_WIDTH = 960
+export const ADMIN_TABLE_COLUMN_NUMBER = 6
+export const DRAWER_WIDTH = 200

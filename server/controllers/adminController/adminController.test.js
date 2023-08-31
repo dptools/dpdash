@@ -47,4 +47,41 @@ describe('AdminUsersController', () => {
       })
     })
   })
+
+  describe(AdminUsersController.destroy, () => {
+    const params = { uid: 'owl' }
+
+    describe('When successful', () => {
+      it('returns a status of 204', async () => {
+        const request = createRequestWithUser(params)
+        const response = createResponse()
+
+        request.app.locals.appDb.deleteOne.mockResolvedValueOnce({
+          deletedCount: 1,
+        })
+
+        await AdminUsersController.destroy(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(204)
+      })
+    })
+
+    describe('When unsuccessful', () => {
+      it('returns a status of 400 and an error message property when there is an error', async () => {
+        const request = createRequestWithUser(params)
+        const response = createResponse()
+
+        request.app.locals.appDb.deleteOne.mockRejectedValueOnce(
+          new Error('destroy error')
+        )
+
+        await AdminUsersController.destroy(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(400)
+        expect(response.json).toHaveBeenCalledWith({
+          error: 'destroy error',
+        })
+      })
+    })
+  })
 })

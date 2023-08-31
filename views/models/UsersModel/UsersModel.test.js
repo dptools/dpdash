@@ -32,4 +32,32 @@ describe('Models - UsersModel', () => {
       ])
     })
   })
+  describe(UsersModel.userFromFormValues, () => {
+    it('returns a user to be updated in the database from a form', () => {
+      const updatedUser = createUser({
+        access: [
+          { value: 'CA', label: 'CA' },
+          { value: 'YA', label: 'YA' },
+        ],
+        role: { value: 'admin' },
+      })
+      const user = createUser({ access: ['CA', 'YA'], role: 'admin' })
+
+      expect(UsersModel.userFromFormValues(updatedUser)).toEqual(user)
+    })
+  })
+  describe(UsersModel.formValuesFromUser, () => {
+    it('returns a user to be used as form values', () => {
+      const user = createUser({ access: ['CA', 'YA'], role: 'admin' })
+      const formValues = createUser({
+        access: [
+          { value: 'CA', label: 'CA' },
+          { value: 'YA', label: 'YA' },
+        ],
+        role: { value: 'admin' },
+      })
+
+      expect(UsersModel.formValuesFromUser(user)).toEqual(formValues)
+    })
+  })
 })

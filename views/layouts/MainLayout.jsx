@@ -26,8 +26,12 @@ const MainLayout = ({ classes, theme }) => {
 
   const toggleDrawer = () => setOpenDrawer(!openDrawer)
   const fetchUsers = async () => {
-    const usersList = await api.users.loadAll()
-    setUsers(usersList)
+    try {
+      const usersList = await api.users.loadAll()
+      setUsers(usersList)
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
+    }
   }
 
   useEffect(() => {
@@ -58,6 +62,7 @@ const MainLayout = ({ classes, theme }) => {
             navigate,
             setNotification,
             setUser,
+            setUsers,
             theme,
             user,
             users,

@@ -56,7 +56,7 @@ function dataImport() {
           config.database.mongo.host,
           config.database.mongo.port,
           config.database.mongo.authSource,
-          config.database.mongo.dataDB
+          config.database.mongo.dataDb
         ];
         message.kwargs = {};
         message.retries = 0;

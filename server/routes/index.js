@@ -138,7 +138,7 @@ router
                 config.database.mongo.host,
                 config.database.mongo.port,
                 config.database.mongo.authSource,
-                config.database.mongo.dataDB,
+                config.database.mongo.dataDb,
               ],
               q.queue
             )

@@ -5,9 +5,9 @@ import {
   createSubjectDayData,
 } from '../../../test/fixtures'
 import { N_A, TOTALS_STUDY } from '../../constants'
-import BarChartDataProcessorV2 from '.'
+import BarChartDataProcessor from '.'
 
-describe(BarChartDataProcessorV2, () => {
+describe(BarChartDataProcessor, () => {
   const allowedStudies = ['Site 1', 'Site 2']
   const chart = createChart({
     assessment: 'assessment',
@@ -128,7 +128,7 @@ describe(BarChartDataProcessorV2, () => {
     it('returns processed data', async () => {
       await appDb.collection('assessmentSubjectDayData').insertMany(subjectDayData)
 
-      const service = new BarChartDataProcessorV2(appDb, chart, initialStudyTotals)
+      const service = new BarChartDataProcessor(appDb, chart, initialStudyTotals)
 
       const processedData = await service.processData(subjects)
 

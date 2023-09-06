@@ -37,9 +37,10 @@ const AuthController = {
 
       const { appDb } = req.app.locals
       const encryptPassword = hash(password)
+
       const user = await UserModel.findOne(appDb, {
-        uid: username,
-        reset_key,
+        uid: String(username),
+        reset_key: String(reset_key),
       })
 
       if (!user) return res.status(400).json({ error: 'User not found' })
@@ -49,6 +50,7 @@ const AuthController = {
         reset_key: '',
         force_reset_pw: false,
       }
+
       const updatedUser = await UserModel.update(
         appDb,
         username,

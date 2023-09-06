@@ -88,7 +88,7 @@ const AccountPage = () => {
   return (
     <>
       <div className={classnames(classes.content, classes.form)}>
-        <Form handleSubmit={(e) => handleSubmit(e)}>
+        <Form onSubmit={(e) => handleSubmit(e)}>
           <div className={classes.userAvatar}>
             <input
               accept="image/*"

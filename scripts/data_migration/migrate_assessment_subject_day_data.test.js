@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 
 import { migrateAssessmentSubjectDayData } from './migrate_assessment_subject_day_data';
 
@@ -367,48 +367,29 @@ describe('migrateAssessmentSubjectDayData', () => {
 
     expect(assessmentSubjectDayData.length).toBe(7)
 
+    const assessmentSubjectRange = await appDb.collection('assessmentSubjectRange').find({}).toArray()
+
+    expect(assessmentSubjectRange.length).toBe(2)
+    
     const assessmentSubjectDayDataForToc = await appDb.collection('assessmentSubjectDayData').find({
       collection: "bc9008bc6383ddc371a01dec9098a80c5633a8716b70537cdbd1c1282c290448"
     }).toArray()
     const day1 = assessmentSubjectDayDataForToc.find(d => d.day === 1)
     expect(day1).toMatchObject(
       {
-        // Include the _id field and any fields with weird comparison properties
-        ...day1,
-        // Override with the values we actually want to test
+        _id: day1._id,
         study: 'CA',
         subject: 'CA00007',
         assessment: 'flowcheck',
         units: 'day',
-        start: '1',
-        end: '1',
-        extension: '.csv',
-        glob: '/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day*.csv',
         collection: 'bc9008bc6383ddc371a01dec9098a80c5633a8716b70537cdbd1c1282c290448',
         time_units: 'day',
-        time_start: 1,
-        time_end: 1,
-        filetype: 'text/csv',
-        encoding: null,
-        basename: 'CA-CA00007-flowcheck-day1to1.csv',
-        dirname: '/Users/ivanrts/Downloads/test_data',
-        dirty: false,
-        synced: true,
-        size: 958,
-        uid: 501,
-        gid: 20,
-        mode: 33252,
-        role: 'data',
-        toc_id: new ObjectId("62b5d5223394ef5768b0cffd"),
-        toc_mtime: 1654738581,
-        toc_path: '/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day1to1.csv',
         day: 1,
         reftime: '',
         timeofday: '',
         weekday: '',
         subject_id: 'CA00007',
         site: 'CA',
-        mtime: '2022-05-06',
         surveys_processed_GENERAL: '',
         surveys_raw_PROTECTED: 1,
         cnb_processed_GENERAL: '',
@@ -470,36 +451,13 @@ describe('migrateAssessmentSubjectDayData', () => {
         subject: 'CA00007',
         assessment: 'flowcheck',
         units: 'day',
-        start: '1',
-        end: '1',
-        extension: '.csv',
-        glob: '/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day*.csv',
-        collection: 'bc9008bc6383ddc371a01dec9098a80c5633a8716b70537cdbd1c1282c290448',
         time_units: 'day',
-        time_start: 1,
-        time_end: 1,
-        filetype: 'text/csv',
-        encoding: null,
-        basename: 'CA-CA00007-flowcheck-day1to1.csv',
-        dirname: '/Users/ivanrts/Downloads/test_data',
-        dirty: false,
-        synced: true,
-        size: 958,
-        uid: 501,
-        gid: 20,
-        mode: 33252,
-        role: 'data',
-        updated: new Date("2022-06-24T15:15:46.542Z"),
-        toc_id: new ObjectId("62b5d5223394ef5768b0cffd"),
-        toc_mtime: 1654738581,
-        toc_path: '/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day1to1.csv',
         day: 4,
         reftime: '',
         timeofday: '',
         weekday: '',
         subject_id: 'WU00085',
         site: 'WU',
-        mtime: '2022-05-06',
         surveys_processed_GENERAL: '',
         surveys_raw_PROTECTED: 1,
         cnb_processed_GENERAL: '',
@@ -561,36 +519,13 @@ describe('migrateAssessmentSubjectDayData', () => {
         subject: 'CA00007',
         assessment: 'flowcheck',
         units: 'day',
-        start: '1',
-        end: '1',
-        extension: '.csv',
-        glob: '/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day*.csv',
-        collection: 'bc9008bc6383ddc371a01dec9098a80c5633a8716b70537cdbd1c1282c290448',
         time_units: 'day',
-        time_start: 1,
-        time_end: 1,
-        filetype: 'text/csv',
-        encoding: null,
-        basename: 'CA-CA00007-flowcheck-day1to1.csv',
-        dirname: '/Users/ivanrts/Downloads/test_data',
-        dirty: false,
-        synced: true,
-        size: 958,
-        uid: 501,
-        gid: 20,
-        mode: 33252,
-        role: 'data',
-        updated: new Date("2022-06-24T15:15:46.542Z"),
-        toc_id: new ObjectId("62b5d5223394ef5768b0cffd"),
-        toc_mtime: 1654738581,
-        toc_path: '/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day1to1.csv',
         day: 3,
         reftime: '',
         timeofday: '',
         weekday: '',
         subject_id: 'YA00015',
         site: 'YA',
-        mtime: '2022-05-06',
         surveys_processed_GENERAL: '',
         surveys_raw_PROTECTED: 1,
         cnb_processed_GENERAL: '',
@@ -643,120 +578,6 @@ describe('migrateAssessmentSubjectDayData', () => {
         legacy_id: new ObjectId("62b5d5213394ef5768b0cf75")
       }
     )
-  })
-
-  it('throws an error when data would be overwritten', async () => {
-    const dummyError = new Error('dummy error')
-
-    const getError = async (call) => {
-      try {
-        await call()
-        throw dummyError
-      } catch (error) {
-        return error
-      }
-    }
-
-    await dataDb.createCollection('toc')
-
-    await dataDb.collection('toc').insertOne({
-      "CONFLICTING_FIELD": "foo",
-      "study": "CA",
-      "subject": "CA00007",
-      "assessment": "flowcheck",
-      "units": "day",
-      "start": "1",
-      "end": "1",
-      "extension": ".csv",
-      "glob": "/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day*.csv",
-      "collection": "fake_collection_hash",
-      "time_units": "day",
-      "time_start": 1,
-      "time_end": 1,
-      "path": "/Users/ivanrts/Downloads/test_data/CA-CA00007-flowcheck-day1to1.csv",
-      "filetype": "text/csv",
-      "encoding": null,
-      "basename": "CA-CA00007-flowcheck-day1to1.csv",
-      "dirname": "/Users/ivanrts/Downloads/test_data",
-      "dirty": false,
-      "synced": true,
-      "mtime": 1654738581,
-      "size": 958,
-      "uid": 501,
-      "gid": 20,
-      "mode": 33252,
-      "role": "data",
-      "updated": new Date("2022-06-24T15:15:46.542Z"),
-    })
-
-    await dataDb.createCollection('fake_collection_hash')
-
-    await dataDb.collection('fake_collection_hash').insertOne(
-      {
-        "CONFLICTING_FIELD": "bar",
-        "day": 1,
-        "reftime": "",
-        "timeofday": "",
-        "weekday": "",
-        "subject_id": "CA00007",
-        "site": "CA",
-        "mtime": "2022-05-06",
-        "surveys_processed_GENERAL": "",
-        "surveys_raw_PROTECTED": 1,
-        "cnb_processed_GENERAL": "",
-        "cnb_raw_PROTECTED": 1,
-        "cnb_ss_processed_GENERAL": "",
-        "cnb_ss_raw_PROTECTED": 1,
-        "eeg_processed_GENERAL": "",
-        "eeg_raw_PROTECTED": 1,
-        "eeg_ss_processed_GENERAL": "",
-        "eeg_ss_raw_PROTECTED": 1,
-        "actigraphy_processed_GENERAL": "",
-        "actigraphy_raw_PROTECTED": 1,
-        "actigraphy_ss_processed_GENERAL": "",
-        "actigraphy_ss_raw_PROTECTED": 1,
-        "mri_processed_GENERAL": "",
-        "mri_raw_PROTECTED": "",
-        "mri_ss_processed_GENERAL": "",
-        "mri_ss_raw_PROTECTED": "",
-        "interview_audio_processed_GENERAL": 1,
-        "interview_audio_raw_PROTECTED": "",
-        "interview_video_processed_GENERAL": 1,
-        "interview_video_raw_PROTECTED": "",
-        "interview_transcript_processed_GENERAL": "",
-        "interview_transcript_raw_PROTECTED": "",
-        "interview_ss_processed_GENERAL": "",
-        "interview_ss_raw_PROTECTED": "",
-        "mind_phone_processed_GENERAL": "",
-        "mind_phone_raw_PROTECTED": "",
-        "mind_sensor_processed_GENERAL": "",
-        "mind_sensor_raw_PROTECTED": "",
-        "mind_ss_processed_GENERAL": "",
-        "mind_ss_raw_PROTECTED": "",
-        "surveys_processed_PROTECTED": "",
-        "cnb_processed_PROTECTED": "",
-        "cnb_ss_processed_PROTECTED": "",
-        "eeg_processed_PROTECTED": "",
-        "eeg_ss_processed_PROTECTED": "",
-        "actigraphy_processed_PROTECTED": "",
-        "actigraphy_ss_processed_PROTECTED": "",
-        "mri_processed_PROTECTED": "",
-        "mri_ss_processed_PROTECTED": "",
-        "interview_audio_processed_PROTECTED": "",
-        "interview_video_processed_PROTECTED": "",
-        "interview_transcript_processed_PROTECTED": "",
-        "interview_ss_processed_PROTECTED": "",
-        "mind_phone_processed_PROTECTED": "",
-        "mind_sensor_processed_PROTECTED": "",
-        "mind_ss_processed_PROTECTED": "",
-        "path": "/Users/ivanrts/Downloads/test_data/files-ProNET-flowcheck-day1to9999.csv"
-      }
-    )
-    
-    const error = await getError(migrateAssessmentSubjectDayData)
-
-    expect(error).not.toBe(dummyError)
-    expect(error.message).toBe("Prevented write due to overwritten data in fake_collection_hash: CONFLICTING_FIELD")
   })
 
   it('skips tocs with duplicate collections', async () => {

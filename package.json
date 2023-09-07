@@ -15,7 +15,8 @@
     "restart": "NODE_ENV=production ./node_modules/pm2/bin/pm2 stop all && ./node_modules/pm2/bin/pm2 delete all && ./node_modules/pm2/bin/pm2 start dist/bin/www.js",
     "serve:watch": "nodemon -r dotenv/config --exec babel-node server/bin/www.js --watch \"./server\" dotenv_config_path=./.env.development",
     "node": "DEBUG=* node ./dist/bin/www.js",
-    "test": "jest"
+    "test": "jest",
+    "migrate:assessment_subject_data": "MONGODB_URI=$MONGODB_URI node ./scripts/data_migration/migrate_assessment_subject_day_data.js"
   },
   "babel": {
     "presets": [

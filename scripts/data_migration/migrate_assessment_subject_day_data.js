@@ -1,8 +1,9 @@
 const { MongoClient } = require('mongodb')
 
-const COLLECTION_NAME = 'assessmentSubjectDayData'
+const DAY_DATA_COLLECTION = 'assessmentSubjectDayData'
+const ASSESSMENT_RANGE_COLLECTION = 'assessmentSubjectRange'
 
-export async function migrateAssessmentSubjectDayData() {  
+async function migrateAssessmentSubjectDayData() {  
   const mongoConnection = await MongoClient.connect(process.env.MONGODB_URI, {
     ssl: process.env.NODE_ENV === 'production',
     useNewUrlParser: true,
@@ -18,13 +19,6 @@ export async function migrateAssessmentSubjectDayData() {
   while (await tocCursor.hasNext()) {
     const assessmentSubjectDays = []
     const toc = await tocCursor.next()
-    
-    toc['toc_id'] = toc['_id']
-    delete toc['_id']
-    toc['toc_mtime'] = toc['mtime']
-    delete toc['mtime']
-    toc['toc_path'] = toc['path']
-    delete toc['path']
 
     if (collectionSet.has(toc.collection)) {
       continue
@@ -32,26 +26,24 @@ export async function migrateAssessmentSubjectDayData() {
 
     const dayData = await db.collection(toc.collection).find({}).toArray()
     collectionSet.add(toc.collection)
-
-    new Set(dayData.map( d => Object.keys(d)).reduce((acc, keys) => acc.concat(keys), [])).forEach((key) => {
-      if (toc[key] !== undefined  && dayData[0][key] !== toc[key]) {
-        mongoConnection.close()
-        throw new Error(`Prevented write due to overwritten data in ${toc.collection}: ${key}`)
-      }
-    })
     
     for (const day of dayData) {
       day['legacy_id'] = day['_id']
       delete day['_id']
-
+      const { study, subject, assessment, collection, units, time_units } = toc
       const assessmentSubjectDay = {
-        ...toc,
         ...day,
+        study,
+        subject,
+        assessment,
+        collection,
+        units,
+        time_units
       }
       assessmentSubjectDays.push(assessmentSubjectDay)      
     }
 
-    const collection = appDb.collection(COLLECTION_NAME)
+    const collection = appDb.collection(DAY_DATA_COLLECTION)
     
     const assessmentSubjectDaysToSkip = await collection.find({ legacy_id: {
       $in: assessmentSubjectDays.map( d => d.legacy_id)
@@ -62,10 +54,44 @@ export async function migrateAssessmentSubjectDayData() {
     if (assessmentSubjectDaysToAdd.length > 0) {
       await collection.insertMany(assessmentSubjectDaysToAdd)
     }
+
+    await appDb.collection(ASSESSMENT_RANGE_COLLECTION).insertOne({
+      legacy_id: toc._id,
+      study: toc.study,
+      subject: toc.subject,
+      assessment: toc.assessment,
+      units: toc.units,
+      start: toc.start,
+      end: toc.end,
+      collection: toc.collection,
+      time_units: toc.time_units,
+      time_start: toc.time_start,
+      time_end: toc.time_end,
+      uid: toc.uid,
+      gid: toc.gid,
+      mode: toc.mode,
+      role: toc.role,
+      updated: toc.updated,
+      dirty: toc.dirty,
+      synced: toc.synced,
+      fileMetadata: {
+        extension: toc.extension,
+        glob: toc.glob,
+        path: toc.path,
+        filetype: toc.filetype,
+        encoding: toc.encoding,
+        basename: toc.basename,
+        dirname: toc.dirname,
+        mtime: toc.mtime,
+        size: toc.size,
+      }
+    })
   }
 
   return mongoConnection
 }
+
+module.exports = { migrateAssessmentSubjectDayData }
 
 if (process.env.NODE_ENV !== 'test') {
   migrateAssessmentSubjectDayData()

@@ -2,7 +2,13 @@ import React, { useState } from 'react'
 import { MuiThemeProvider, withStyles } from '@material-ui/core/styles'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Snackbar from '@material-ui/core/Snackbar'
-import { AuthContext, NotificationContext, ThemeContext } from './contexts'
+import {
+  AuthContext,
+  ConfigurationsContext,
+  NotificationContext,
+  ThemeContext,
+  SidebarContext,
+} from './contexts'
 import Router from './routes'
 import { styles } from './styles'
 import { NOTIFICATION_DEFAULT } from '../constants'
@@ -10,6 +16,8 @@ import { NOTIFICATION_DEFAULT } from '../constants'
 import 'react-virtualized/styles.css'
 
 const App = (props) => {
+  const [configurations, setConfigurations] = useState([])
+  const [openSidebar, setOpenSidebar] = useState(true)
   const [notification, setNotification] = useState(NOTIFICATION_DEFAULT)
   const [user, setUser] = useState(null)
   const handleNotificationClose = () => setNotification(NOTIFICATION_DEFAULT)
@@ -20,17 +28,23 @@ const App = (props) => {
       <ThemeContext.Provider
         value={{ classes: props.classes, theme: props.theme }}
       >
-        <NotificationContext.Provider value={[notification, setNotification]}>
-          <AuthContext.Provider value={[user, setUser]}>
-            <Router {...props} user={user} setUser={setUser} />
-            <Snackbar
-              open={notification.open}
-              message={notification.message}
-              autoHideDuration={2000}
-              onClose={handleNotificationClose}
-            />
-          </AuthContext.Provider>
-        </NotificationContext.Provider>
+        <SidebarContext.Provider value={[openSidebar, setOpenSidebar]}>
+          <NotificationContext.Provider value={[notification, setNotification]}>
+            <ConfigurationsContext.Provider
+              value={[configurations, setConfigurations]}
+            >
+              <AuthContext.Provider value={[user, setUser]}>
+                <Router {...props} user={user} setUser={setUser} />
+                <Snackbar
+                  open={notification.open}
+                  message={notification.message}
+                  autoHideDuration={2000}
+                  onClose={handleNotificationClose}
+                />
+              </AuthContext.Provider>
+            </ConfigurationsContext.Provider>
+          </NotificationContext.Provider>
+        </SidebarContext.Provider>
       </ThemeContext.Provider>
     </MuiThemeProvider>
   )

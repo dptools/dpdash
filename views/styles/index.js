@@ -35,7 +35,6 @@ export const styles = (theme) => ({
     [theme.breakpoints.up('md')]: {
       width: `calc(100% - ${drawerWidth}px)`,
     },
-    borderLeft: '1px solid rgba(0, 0, 0, 0.12)',
     backgroundColor: 'white',
     color: 'rgba(0, 0, 0, 0.54)',
     boxShadow: 'none',

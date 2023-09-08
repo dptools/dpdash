@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import moment from 'moment'
 import classNames from 'classnames'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
@@ -14,6 +15,7 @@ const MainLayout = ({ classes, theme }) => {
   const [, setNotification] = useContext(NotificationContext)
   const [user, setUser] = useContext(AuthContext)
   const [users, setUsers] = useState([])
+  const [subjects, setSubjects] = useState([])
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
@@ -34,8 +36,36 @@ const MainLayout = ({ classes, theme }) => {
     }
   }
 
+  const processDates = (options) => {
+    const momentSetting = {
+      sameDay: '[Today]',
+      nextDay: '[Tomorrow]',
+      nextWeek: 'dddd',
+      lastDay: '[Yesterday]',
+      lastWeek: '[Last] dddd',
+      sameElse: 'MM/DD/YYYY',
+    }
+    const nowT = moment().local()
+    for (var i = 0; i < options.length; i++) {
+      var row = options[i]
+      var syncedT = moment.utc(row.synced).local()
+      var syncedL = moment(syncedT.format('YYYY-MM-DD')).calendar(
+        null,
+        momentSetting
+      )
+      var days = nowT.diff(syncedT, 'days')
+      var color = days > 14 ? '#de1d16' : '#14c774'
+      options[i]['synced'] = syncedL
+      options[i]['lastSyncedColor'] = color
+    }
+    return options
+  }
   useEffect(() => {
     fetchSubjects().then((acl) => {
+      const extractSubjectsFromAcl = processDates(
+        acl.map(({ subjects }) => subjects).flat()
+      )
+      setSubjects(extractSubjectsFromAcl)
       setSideBarState(getCounts({ acl }))
     })
     fetchUsers()
@@ -63,6 +93,7 @@ const MainLayout = ({ classes, theme }) => {
             setNotification,
             setUser,
             setUsers,
+            subjects,
             theme,
             user,
             users,

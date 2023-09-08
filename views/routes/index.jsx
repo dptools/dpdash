@@ -9,7 +9,7 @@ import EditChartPage from '../pages/EditChartPage'
 import EditConfigPage from '../pages/EditConfigPage'
 import GraphPage from '../pages/GraphPage'
 import LoginPage from '../pages/LoginPage'
-import MainPage from '../pages/MainPage'
+import HomePage from '../pages/HomePage'
 import MainLayout from '../layouts/MainLayout'
 import NewChartPage from '../pages/NewChartPage'
 import NewConfigPage from '../pages/NewConfigPage'
@@ -40,16 +40,7 @@ const Router = (props) => {
         >
           <Route path={routes.dashboard()} element={<GraphPage />} />
           <Route path={routes.configs} element={<ConfigPage />} />
-          <Route
-            path={routes.main}
-            element={
-              <MainPage
-                user={props.user}
-                classes={props.classes}
-                theme={props.theme}
-              />
-            }
-          />
+          <Route path={routes.main} element={<HomePage />} />
           <Route
             path={routes.userAccount}
             element={

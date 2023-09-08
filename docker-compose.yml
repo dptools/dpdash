@@ -11,6 +11,7 @@ services:
     env_file: .env.development
     ports:
       - 8000:8000
+      - 35729:35729
     volumes:
       - .:/src
     networks:
@@ -26,6 +27,8 @@ services:
       - mongodb:/data/db
     networks:
       - app-tier
+    ports:
+      - 27017:27017
   rabbitmq:
     build:
       dockerfile: dev.rabbitmq.Dockerfile
@@ -35,7 +38,7 @@ services:
         - RABBIT_PASSWORD=${RABBIT_PASSWORD}
     hostname: 'app-tier'
     healthcheck:
-      test: ["rabbitmq-diagnostics", "-q", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
       interval: 30s
       timeout: 30s
       retries: 3

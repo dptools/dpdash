@@ -8,5 +8,5 @@ RUN npm install --legacy-peer-deps
 
 CMD [ "npm", "run", "dev" ]
 
-EXPOSE 8000
+EXPOSE 8000 35729
 

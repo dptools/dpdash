@@ -24,6 +24,7 @@ import chartsRouter from './routes/charts'
 import configurationsRouter from './routes/configurations'
 import dashboardsRouter from './routes/dashboards'
 import indexRouter from './routes/index'
+import participantsRouter from './routes/participants'
 import usersRouter from './routes/users'
 import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
 
@@ -40,7 +41,7 @@ const app = express()
 
 if (process.env.NODE_ENV === 'development') {
   const liveReloadServer = livereload.createServer()
-  liveReloadServer.watch(path.join(__dirname, '../public'))
+  liveReloadServer.watch(path.join(__dirname, '..', 'public', 'js'))
   liveReloadServer.server.once('connection', () => {
     setTimeout(() => {
       liveReloadServer.refresh('/*')
@@ -190,6 +191,7 @@ app.use('/', configurationsRouter)
 app.use('/', chartsRouter)
 app.use('/', dashboardsRouter)
 app.use('/', indexRouter)
+app.use('/', participantsRouter)
 app.use('/', usersRouter)
 app.use('./img', express.static(path.join(__dirname, '../public/img')))
 

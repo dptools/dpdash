@@ -224,3 +224,12 @@ export const createAssessmentsFromConfig = (overrides = {}) => ({
   collection: '',
   ...overrides,
 })
+
+export const createMetadataParticipant = (overrides = {}) => ({
+  subject: '',
+  synced: '',
+  days: 1,
+  study: '',
+  lastSyncedColor: '',
+  ...overrides,
+})

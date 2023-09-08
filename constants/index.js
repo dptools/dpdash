@@ -1,7 +1,7 @@
 import {
   ADMIN_TABLE_COLUMN_NUMBER,
   ADMIN_TABLE_MAX_WIDTH,
-  ADMIN_TABLE_ROW_HEIGHT,
+  TABLE_ROW_HEIGHT,
   baseGridWidth,
   baseInnerWidth,
   colors,
@@ -24,7 +24,7 @@ import {
 export {
   ADMIN_TABLE_COLUMN_NUMBER,
   ADMIN_TABLE_MAX_WIDTH,
-  ADMIN_TABLE_ROW_HEIGHT,
+  TABLE_ROW_HEIGHT,
   baseGridWidth,
   baseInnerWidth,
   colors,

@@ -7,6 +7,7 @@ import { UsersModel, StudiesModel } from '../models'
 import { components } from '../forms/ControlledReactSelect/components'
 import api from '../api'
 import AdminForm from '../forms/AdminForm'
+import * as TableHelpers from '../components/VirtualTables/helpers'
 
 const AdminPage = () => {
   const usersKey = 'users'
@@ -98,18 +99,7 @@ const AdminPage = () => {
     }
   }
   const getUserValues = (rowIndex) => getValues(usersKey)[rowIndex]
-  const rowClassName = ({ index }) => {
-    if (index < 0) {
-      return 'headerRow AdminTableHeader'
-    } else {
-      const rowClass = 'AdminTableRow'
-      return index % 2 === 0 ? 'evenRow ' + rowClass : 'oddRow ' + rowClass
-    }
-  }
-  const calculateRowCount = () =>
-    searchOptionsValue.length
-      ? setRowCount(searchOptionsValue.length)
-      : setRowCount(users.length)
+
   const updateUserInForm = (rowIndex, updatedUser) =>
     update(rowIndex, updatedUser)
 
@@ -135,7 +125,7 @@ const AdminPage = () => {
 
     setSearchOptions(searchOptionsFromUsers)
     setValue(usersKey, createFormValuesFromUsers)
-    calculateRowCount()
+    setRowCount(TableHelpers.calculateRowCount(users, searchOptionsValue))
   }, [users, searchOptionsValue])
 
   return (
@@ -167,7 +157,7 @@ const AdminPage = () => {
         openResetKeyFields={openResetKeyModal}
         resetKey={resetKeyValue}
         rowCount={rowCount}
-        rowClassName={rowClassName}
+        rowClassName={TableHelpers.rowClassName}
         user={user}
         users={fields}
         userValues={

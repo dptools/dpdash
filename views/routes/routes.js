@@ -64,6 +64,9 @@ export const apiRoutes = {
     show: (study = ':study', subject = ':subject') =>
       `${apiPath}/dashboards/${study}/${subject}`,
   },
+  participants: {
+    index: `${apiPath}/participants`,
+  },
   users: {
     index: `${apiPath}/users`,
     show: (uid) => `${apiPath}/users/${uid}`,

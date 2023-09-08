@@ -1,7 +1,7 @@
 import React from 'react'
 import Form from '../Form'
 import UserResetKeyFields from '../UserResetKeyFormFields'
-import AdminUsersTable from '../../components/AdminUsersTable'
+import AdminUsersTable from '../../components/VirtualTables/AdminUsersTable'
 import UserPriviligeFields from '../UserPriviligeFormFields'
 
 const AdminForm = ({

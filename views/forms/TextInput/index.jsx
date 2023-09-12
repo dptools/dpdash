@@ -16,7 +16,8 @@ const TextInput = (props) => {
           {...rest}
           onChange={(e) => {
             field.onChange(e)
-            props.onChange()
+
+            if (onChange) onChange()
           }}
         />
       )}

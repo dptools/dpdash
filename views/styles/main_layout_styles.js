@@ -7,6 +7,7 @@ const baseImageProps = {
   alignContent: 'center',
   alignItems: 'center',
   paddingTop: '16px',
+  borderRight: '1px solid rgba(0, 0, 0, 0.12)',
 }
 export const mainLayoutStyles = (theme) => ({
   logoContainer: {

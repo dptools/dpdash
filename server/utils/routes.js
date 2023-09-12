@@ -37,6 +37,9 @@ export const v1Routes = {
   dashboards: {
     show: `${v1Root}/dashboards/:study/:subject`,
   },
+  participants: {
+    index: `${v1Root}/participants`,
+  },
   users: {
     index: `${v1Root}/users`,
     show: userRoot,

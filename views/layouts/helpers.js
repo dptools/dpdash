@@ -1,6 +1,9 @@
 import { routes } from '../routes/routes'
 
-export const headerTitle = (pathname) => {
+export const headerTitle = (pathname, params) => {
+  if (pathname.includes(routes.dashboards))
+    return `${params.study} - ${params.subject}`
+
   switch (pathname) {
     case routes.configs:
       return 'Configurations'

@@ -5,14 +5,7 @@ import FileSaver from 'file-saver'
 import Button from '@material-ui/core/Button'
 import * as _ from 'lodash'
 
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
 import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-
-import DrawerComponent from '../components/Drawer'
-import Drawer from '@material-ui/core/Drawer'
-
 import SaveIcon from '@material-ui/icons/Save'
 import Tooltip from '@material-ui/core/Tooltip'
 
@@ -22,21 +15,22 @@ import Dialog from '@material-ui/core/Dialog'
 import Functions from '@material-ui/icons/Functions'
 
 import SelectConfigurationForm from '../components/SelectConfigurationForm'
-
-import getCounts from '../fe-utils/countUtil'
-import { fetchSubjects, fetchConfigurations } from '../fe-utils/fetchUtil'
-import { preparePreferences } from '../fe-utils/preferencesUtil'
-import basePathConfig from '../../server/configs/basePathConfig'
-import { apiRoutes } from '../routes/routes'
 import Matrix from '../components/Matrix.d3'
 import GraphPageTable from '../components/GraphPageTable'
 import api from '../api'
 
-const basePath = basePathConfig || ''
 const cardSize = 20
 
 const GraphPage = () => {
-  const { user, classes, theme } = useOutletContext()
+  const {
+    configurations,
+    user,
+    classes,
+    theme,
+    setOpenSidebar,
+    setUser,
+    setNotification,
+  } = useOutletContext()
   const el = React.useRef()
   const canvasRef = React.useRef()
   const graphRef = React.createRef()
@@ -44,18 +38,12 @@ const GraphPage = () => {
   const [graphRendered, setGraphRendered] = React.useState(0)
   const [graph, setGraph] = React.useState({
     configurations: [],
-    consentDate: '2022-03-05',
+    consentDate: '',
     matrixData: [],
   })
   const [graphDimensions, setGraphDimensions] = React.useState({
     height: window.innerHeight,
     width: window.innerWidth,
-  })
-  const [mobileOpen, setMobileOpen] = React.useState(false)
-  const [counts, setCounts] = React.useState({
-    totalSubjects: 0,
-    totalStudies: 0,
-    totalDays: 0,
   })
   const [dayData, setDayData] = React.useState({
     startFromTheLastDay: false,
@@ -64,66 +52,55 @@ const GraphPage = () => {
     maxDay: 1,
   })
   const [openStat, setOpenStat] = React.useState(false)
-  const [preferences, setPreferences] = React.useState(user.preferences)
-  const [configurationsList, setConfigurationsList] = React.useState([])
-  const downloadPng = () => {
+  const downloadPng = () =>
     canvasRef.current.toBlob((blob) => {
       FileSaver.saveAs(blob, `${subject}.png`)
     })
-  }
+
   const handleResize = () => {
     setGraphDimensions({
-      height: window.innerHeight - 30,
+      height: window.innerHeight,
       width: window.innerWidth,
     })
   }
   const closeStat = () => setOpenStat(false)
-  const fetchGraph = () => api.dashboard.load(study, subject)
-  const handleDrawerToggle = () => setMobileOpen(!mobileOpen)
+  const fetchGraph = async () => await api.dashboard.load(study, subject)
   const updateUserPreferences = async (configurationId) => {
-    const { uid } = user
-    const selectedUserPreference = preparePreferences(
-      configurationId,
-      preferences
+    try {
+      const { uid } = user
+      const userAttributes = {
+        preferences: {
+          config: configurationId,
+        },
+      }
+      const updatedUser = await api.users.update(uid, userAttributes)
+      const graphData = await fetchGraph()
+
+      setUser(updatedUser)
+      setGraph(graphData.graph)
+      updateMaxDay(graphData.graph)
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
+    }
+  }
+  const updateMaxDay = (graph) => {
+    const maxObj = _.maxBy(
+      graph.matrixData.map((matrixData) =>
+        _.maxBy(matrixData.data, ({ day }) => day)
+      ),
+      'day'
     )
 
-    return window
-      .fetch(apiRoutes.preferences(uid), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          preferences: selectedUserPreference,
-        }),
-      })
-      .then(() => fetchGraph())
-      .then((graphData) => {
-        setGraph(graphData.graph)
-        setPreferences({ ...preferences, config: configurationId })
-      })
+    setDayData({ ...dayData, maxDay: maxObj.day || 1 })
   }
   const onMount = async () => {
     try {
-      const [graphData, acl, configurations] = await Promise.all([
-        fetchGraph(),
-        fetchSubjects(),
-        fetchConfigurations(user.uid),
-      ])
+      const graphData = await fetchGraph()
 
-      const maxObj = _.maxBy(
-        graphData.graph.matrixData.map((matrixData) =>
-          _.maxBy(matrixData.data, ({ day }) => day)
-        ),
-        'day'
-      )
-
-      setCounts(getCounts({ acl }))
-      setConfigurationsList(configurations.data)
       setGraph(graphData.graph)
-      setDayData({ ...dayData, maxDay: maxObj.day || 1 })
+      updateMaxDay(graphData.graph)
       renderMatrix()
+
       if (!HTMLCanvasElement.prototype.toBlob) {
         Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
           value: function (callback, type, quality) {
@@ -139,7 +116,7 @@ const GraphPage = () => {
         })
       }
     } catch (e) {
-      console.error(e.message)
+      setNotification({ open: true, message: e.message })
     }
   }
   const renderMatrix = () => {
@@ -173,6 +150,7 @@ const GraphPage = () => {
   }
 
   React.useEffect(() => {
+    setOpenSidebar(false)
     onMount()
 
     return () => {
@@ -222,104 +200,34 @@ const GraphPage = () => {
   }, [graph.matrixData])
 
   return (
-    <div className={classes.root}>
-      <AppBar className={classes.appBar}>
-        <Toolbar
-          variant="dense"
-          style={{
-            paddingLeft: '16px',
-          }}
+    <>
+      <div className={classes.graphToolbar}>
+        <div className={classes.configDropDownContainer}>
+          <SelectConfigurationForm
+            configurations={configurations}
+            onChange={updateUserPreferences}
+            currentPreference={user.preferences}
+            classes={classes}
+          />
+        </div>
+        <IconButton
+          color="default"
+          aria-label="Open Stat"
+          onClick={() => setOpenStat(true)}
         >
-          <IconButton
-            color="default"
-            aria-label="Open drawer"
-            onClick={handleDrawerToggle}
-          >
-            <img
-              width="24px"
-              height="24px"
-              src={`${basePath}/img/favicon.png`}
-            />
-          </IconButton>
-          <Typography
-            variant="title"
-            color="inherit"
-            style={{
-              color: 'default',
-              fontSize: '18px',
-              letterSpacing: '1.25px',
-              flexGrow: 1,
-            }}
-          >
-            {subject + ' - ' + study}
-          </Typography>
-          <div className={classes.configDropDownContainer}>
-            <Typography className={classes.dropDownText}>
-              Configuration
-            </Typography>
-            <SelectConfigurationForm
-              configurations={configurationsList}
-              onChange={updateUserPreferences}
-              currentPreference={preferences}
-              classes={classes}
-            />
-          </div>
-          <IconButton
-            color="default"
-            aria-label="Open Stat"
-            onClick={() => setOpenStat(true)}
-          >
-            <Functions />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      <Drawer
-        variant="temporary"
-        anchor={theme.direction === 'rtl' ? 'right' : 'left'}
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        classes={{
-          paper: classes.drawerPaper,
-        }}
-        ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
-        }}
-      >
-        <DrawerComponent
-          classes={classes}
-          totalStudies={counts.totalStudies}
-          totalSubjects={counts.totalSubjects}
-          totalDays={counts.totalDays}
-          user={user}
-        />
-      </Drawer>
-      <div
-        className={classes.content}
-        style={{
-          padding: '12px',
-          marginTop: '48px',
-          overflowY: 'scroll',
-        }}
-      >
+          <Functions />
+        </IconButton>
+      </div>
+      <div className={classes.graph_content}>
         <div className="Matrix">
           <div className="graph" ref={el} />
         </div>
-        <div
-          style={{
-            right: 10,
-            bottom: 10,
-            position: 'fixed',
-          }}
-        >
+        <div className={classes.graphImageButton}>
           <Button
             variant="fab"
             onClick={downloadPng}
             id="downloadPng"
             focusRipple={true}
-            style={{
-              marginBottom: '6px',
-            }}
           >
             <Tooltip title="Download as PNG">
               <SaveIcon />
@@ -328,11 +236,7 @@ const GraphPage = () => {
         </div>
       </div>
       <Dialog modal={false} open={openStat} onClose={closeStat}>
-        <DialogContent
-          style={{
-            padding: '0',
-          }}
-        >
+        <DialogContent className={classes.graphTable}>
           <GraphPageTable
             matrixData={graph.matrixData}
             maxDay={dayData.maxDay}
@@ -346,7 +250,7 @@ const GraphPage = () => {
         </DialogActions>
       </Dialog>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-    </div>
+    </>
   )
 }
 

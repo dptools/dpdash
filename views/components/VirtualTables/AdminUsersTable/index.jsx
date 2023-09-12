@@ -4,27 +4,27 @@ import Settings from '@material-ui/icons/Settings'
 import Clear from '@material-ui/icons/Clear'
 import LockOpen from '@material-ui/icons/LockOpen'
 import moment from 'moment'
-import TextInput from '../../forms/TextInput'
+import TextInput from '../../../forms/TextInput'
 import IconButton from '@material-ui/core/IconButton'
-import ControlledCheckbox from '../../forms/ControlledCheckbox'
+import ControlledCheckbox from '../../../forms/ControlledCheckbox'
 import {
   ADMIN_TABLE_COLUMN_NUMBER,
   ADMIN_TABLE_MAX_WIDTH,
-  ADMIN_TABLE_ROW_HEIGHT,
+  TABLE_ROW_HEIGHT,
   DRAWER_WIDTH,
-} from '../../../constants'
-import './AdminUsersTable.css'
+} from '../../../../constants'
+import '../Table.css'
 
 const AdminUsersTable = (props) => {
   return (
     <Table
-      headerHeight={ADMIN_TABLE_ROW_HEIGHT}
-      headerClassName="AdminTableHeader"
+      headerHeight={TABLE_ROW_HEIGHT}
+      headerClassName="TableHeader"
       height={props.height}
       rowClassName={props.rowClassName}
       rowCount={props.rowCount}
       rowGetter={({ index }) => props.users.find((_, i) => i === index)}
-      rowHeight={ADMIN_TABLE_ROW_HEIGHT}
+      rowHeight={TABLE_ROW_HEIGHT}
       sort={props.sort}
       sortBy={props.sortBy}
       sortDirection={props.sortDirection}

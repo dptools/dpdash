@@ -129,17 +129,6 @@ const duplicateChart = async (chart_id) => {
   return res.json()
 }
 
-const fetchConfigurations = async (uid) => {
-  const res = await window.fetch(apiRoutes.configs(uid), {
-    ...defaultApiOptions,
-    method: 'GET',
-  })
-
-  if (res.status !== 200) return new Error(res.message)
-
-  return res.json()
-}
-
 const fetchPreferences = async (uid) => {
   const res = await window.fetch(apiRoutes.preferences(uid), {
     ...defaultApiOptions,
@@ -186,7 +175,6 @@ export {
   editChart,
   getChart,
   duplicateChart,
-  fetchConfigurations,
   fetchPreferences,
   shareChart,
   fetchGraphTableCSV,

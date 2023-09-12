@@ -1,7 +1,7 @@
 import React from 'react'
-import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
+import { TextField } from '@material-ui/core'
 
 const SelectConfigurationForm = ({
   configurations,
@@ -10,9 +10,11 @@ const SelectConfigurationForm = ({
   classes,
 }) => {
   return (
-    <form autoComplete='off' className={classes.configForm}>
+    <form autoComplete="off" className={classes.configForm}>
       <FormControl className={classes.configFormControl}>
-        <Select
+        <TextField
+          select
+          label="Configurations"
           value={currentPreference.config}
           onChange={(e) => onChange(e.target.value)}
           inputProps={{
@@ -25,7 +27,7 @@ const SelectConfigurationForm = ({
               {configuration.name}
             </MenuItem>
           ))}
-        </Select>
+        </TextField>
       </FormControl>
     </form>
   )

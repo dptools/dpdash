@@ -5,7 +5,14 @@ const UsersController = {
     try {
       const { appDb } = req.app.locals
       const { uid } = req.params
-      const updatedUser = await UserModel.update(appDb, uid, req.body)
+      const { company, department, display_name, mail, title } = req.body
+      const updatedUser = await UserModel.update(appDb, uid, {
+        company: String(company),
+        department: String(department),
+        display_name: String(display_name),
+        mail: String(mail),
+        title: String(title),
+      })
 
       return res.status(200).json({ data: updatedUser })
     } catch (error) {

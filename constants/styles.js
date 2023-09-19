@@ -20,6 +20,7 @@ export const colors = {
   gray: 'rgba(0, 0, 0, 0.54)',
   gray68: '#adadad',
   sasquatch: 'rgb(255, 64, 129)',
+  container_grey: '#f9f9f9',
 }
 
 export const presetColors = [
@@ -41,3 +42,4 @@ export const TABLE_ROW_HEIGHT = 48
 export const ADMIN_TABLE_MAX_WIDTH = 960
 export const ADMIN_TABLE_COLUMN_NUMBER = 6
 export const DRAWER_WIDTH = 200
+export const MIN_WIDTH = 620

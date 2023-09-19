@@ -8,7 +8,6 @@ import ConfigPage from '../pages/ConfigPage'
 import EditChartPage from '../pages/EditChartPage'
 import EditConfigPage from '../pages/EditConfigPage'
 import GraphPage from '../pages/GraphPage'
-import LoginPage from '../pages/LoginPage'
 import HomePage from '../pages/HomePage'
 import MainLayout from '../layouts/MainLayout'
 import NewChartPage from '../pages/NewChartPage'
@@ -16,6 +15,7 @@ import NewConfigPage from '../pages/NewConfigPage'
 import ResetPasswordPage from '../pages/ResetPasswordPage'
 import RegisterPage from '../pages/RegisterPage'
 import ViewChartPage from '../pages/ViewChartPage'
+import SignInPage from '../pages/SignInPage'
 
 const Router = (props) => {
   return (
@@ -27,7 +27,7 @@ const Router = (props) => {
         />
         <Route
           path={routes.login}
-          element={<LoginPage setUser={props.setUser} />}
+          element={<SignInPage classes={props.classes} />}
         />
         <Route path={routes.register} element={<RegisterPage />} />
         <Route path={routes.resetpw} element={<ResetPasswordPage />} />

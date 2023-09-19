@@ -7,6 +7,7 @@ import {
   colors,
   DRAWER_WIDTH,
   presetColors,
+  MIN_WIDTH,
 } from './styles'
 import {
   DISALLOWED_STUDIES,
@@ -34,6 +35,7 @@ export {
   FALSE_STRING,
   EMAIL_REGEX,
   FILTER_CATEGORIES,
+  MIN_WIDTH,
   N_A,
   NOTIFICATION_DEFAULT,
   ROLE_OPTIONS,

@@ -106,7 +106,6 @@ const mongodbPromise = MongoClient.connect(mongoURI, {
   ssl: false,
   useNewUrlParser: true,
 }).then(function (res) {
-  console.log(res)
   app.locals.connection = res
   mongodb = res.db()
   app.locals.appDb = res.db()

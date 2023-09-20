@@ -103,7 +103,7 @@ app.use(methodOverride())
 let mongodb
 const mongoURI = process.env.MONGODB_URI
 const mongodbPromise = MongoClient.connect(mongoURI, {
-  ssl: isProduction,
+  ssl: false,
   useNewUrlParser: true,
 }).then(function (res) {
   console.log(res)

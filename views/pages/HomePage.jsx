@@ -57,6 +57,7 @@ const HomePage = () => {
         } else values[study].push(value)
       } else values[study] = [value]
       const userAttributes = {
+        ...user,
         preferences: { ...preferences, [key]: values },
       }
       const updatedUser = await api.users.update(uid, userAttributes)

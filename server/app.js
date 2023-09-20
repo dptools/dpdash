@@ -11,7 +11,6 @@ import MongoStore from 'connect-mongo'
 import { MongoClient } from 'mongodb'
 import passport from 'passport'
 import { Strategy } from 'passport-local'
-import co from 'co'
 import bodyParser from 'body-parser'
 import methodOverride from 'method-override'
 import noCache from 'nocache'
@@ -68,13 +67,6 @@ morgan.token('remote-user', function (req, res) {
 })
 const logger = winston.createLogger({
   transports: [
-    new winston.transports.File({
-      level: 'verbose',
-      filename: process.env.LOG_FILE_PATH,
-      handleExceptions: true,
-      json: true,
-      colorize: false,
-    }),
     new winston.transports.Console({
       level: 'debug',
       handleExceptions: true,
@@ -110,18 +102,21 @@ app.use(methodOverride())
 /* database setup */
 let mongodb
 const mongoURI = process.env.MONGODB_URI
-const mongodbPromise = co(function* () {
-  return yield MongoClient.connect(mongoURI, {
-    ssl: isProduction,
-    useNewUrlParser: true,
-  })
+const mongodbPromise = MongoClient.connect(mongoURI, {
+  ssl: isProduction,
+  useNewUrlParser: true,
 }).then(function (res) {
+  console.log(res)
+  app.locals.connection = res
   mongodb = res.db()
   app.locals.appDb = res.db()
   app.locals.dataDb = res.db('dpdata')
   res.db().collection('sessions').drop()
 
   return res
+}, function (err) {
+  console.log('error connecting to mongodb')
+  console.log(err)
 })
 
 /** session store setup */

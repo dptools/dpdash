@@ -33,7 +33,10 @@ const Router = (props) => {
           path={routes.register}
           element={<RegisterPage classes={props.classes} />}
         />
-        <Route path={routes.resetpw} element={<ResetPasswordPage />} />
+        <Route
+          path={routes.resetpw}
+          element={<ResetPasswordPage classes={props.classes} />}
+        />
         <Route
           element={
             <AuthenticatedRoute>

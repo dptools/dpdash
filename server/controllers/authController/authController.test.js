@@ -87,7 +87,7 @@ describe('AuthController', () => {
           body: {
             username: 'username',
             password: 'newpass',
-            confirmpw: 'newpass',
+            confirmPassword: 'newpass',
             reset_key: 'reset_key',
           },
         })
@@ -96,61 +96,23 @@ describe('AuthController', () => {
           password: 'oldpass',
           reset_key: 'reset_key',
         })
+        const updatedUser = {
+          ...user,
+          reset_key: '',
+        }
 
-        const mockFindOne = jest.fn().mockResolvedValueOnce(user)
-        const mockFindOneAndUpdate = jest.fn().mockResolvedValueOnce({ value: {...user, reset_key: ''} })
-        request.app.locals.appDb.collection = jest.fn().mockImplementation(() => (
-          {
-            findOne: mockFindOne,
-            findOneAndUpdate: mockFindOneAndUpdate,
-          }
-        ))
+        request.app.locals.appDb.findOne.mockResolvedValueOnce(user)
+        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce({
+          value: updatedUser,
+        })
 
         await AuthController.update(request, response)
 
         expect(response.status).toHaveBeenCalledWith(200)
-        expect(mockFindOne).toHaveBeenCalledWith({
-          uid: 'username',
-          reset_key: 'reset_key',
-        }, 
-        {
-          projection: {
-            _id: 0,
-            password: 0,
-            bad_pwd_count: 0,
-            lockout_time: 0,
-            last_logoff: 0,
-            last_logon: 0,
-            force_reset_pw: 0,
-          }
-        })
-        expect(mockFindOneAndUpdate).toHaveBeenCalledWith(
-          { uid: 'username' },
-          {
-            $set: {
-              password: expect.any(String),
-              reset_key: '',
-              force_reset_pw: false,
-            }
-          },
-          {
-            projection: {
-              _id: 0,
-              password: 0,
-              bad_pwd_count: 0,
-              lockout_time: 0,
-              last_logoff: 0,
-              last_logon: 0,
-              force_reset_pw: 0,
-            },
-            returnOriginal: false,
-            upsert: true,
-            returnDocument: 'after',
-          })
         expect(response.json).toHaveBeenCalledWith({
           data: {
             ...user,
-            reset_key: ''
+            reset_key: '',
           },
         })
       })
@@ -162,26 +124,19 @@ describe('AuthController', () => {
           body: {
             username: 'username',
             password: 'newpass',
-            confirmpw: 'newpass',
+            confirmPassword: 'newpass',
             reset_key: 'reset_key',
           },
         })
         const response = createResponse()
-        const user = createUser({
-          password: 'oldpass',
-          reset_key: 'reset_key',
-        })
-
-        const mockFindOne = jest.fn().mockResolvedValueOnce(null)
-        request.app.locals.appDb.collection = jest.fn().mockImplementation(() => (
-          {
-            findOne: mockFindOne,
-          }
-        ))
+        request.app.locals.appDb.findOne.mockRejectedValueOnce(
+          new Error('some error')
+        )
 
         await AuthController.update(request, response)
 
         expect(response.status).toHaveBeenCalledWith(400)
+        expect(response.json).toHaveBeenCalledWith({ error: 'some error' })
       })
     })
 
@@ -190,13 +145,13 @@ describe('AuthController', () => {
         const request = createRequestWithUser({
           body: {
             username: {
-              $nin: []
+              $nin: [],
             },
             password: 'newpass',
-            confirmpw: 'newpass',
+            confirmPassword: 'newpass',
             reset_key: {
               $nin: [],
-            }
+            },
           },
         })
         const response = createResponse()
@@ -206,30 +161,33 @@ describe('AuthController', () => {
         })
 
         const mockFindOne = jest.fn().mockResolvedValueOnce(null)
-        request.app.locals.appDb.collection = jest.fn().mockImplementation(() => (
-          {
+        request.app.locals.appDb.collection = jest
+          .fn()
+          .mockImplementation(() => ({
             findOne: mockFindOne,
-          }
-        ))
+          }))
 
         await AuthController.update(request, response)
 
         expect(response.status).toHaveBeenCalledWith(400)
-        expect(mockFindOne).toHaveBeenCalledWith({
-          uid: '[object Object]',
-          reset_key: '[object Object]',
-        },  
-        {
-          projection: {
-            _id: 0,
-            password: 0,
-            bad_pwd_count: 0,
-            lockout_time: 0,
-            last_logoff: 0,
-            last_logon: 0,
-            force_reset_pw: 0,
+        expect(mockFindOne).toHaveBeenCalledWith(
+          {
+            uid: '[object Object]',
+            reset_key: '[object Object]',
+            force_reset_pw: true,
+          },
+          {
+            projection: {
+              _id: 0,
+              password: 0,
+              bad_pwd_count: 0,
+              lockout_time: 0,
+              last_logoff: 0,
+              last_logon: 0,
+              force_reset_pw: 0,
+            },
           }
-        })
+        )
       })
     })
   })

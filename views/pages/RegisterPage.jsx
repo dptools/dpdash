@@ -3,12 +3,13 @@ import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardMedia, Typography } from '@material-ui/core'
 import RegistrationForm from '../forms/RegisterForm'
-import { NotificationContext } from '../contexts'
+import { NotificationContext, DimensionsContext } from '../contexts'
 import { MIN_WIDTH, VALIDATION_EMAIL_REGEX } from '../../constants'
 import api from '../api'
 
 const RegisterPage = ({ classes }) => {
-  const [width, setWidth] = useState(window.innerWidth)
+  const [width] = useContext(DimensionsContext)
+  const [, setNotification] = useContext(NotificationContext)
   const [errors, setErrors] = useState({
     password: { error: false, message: '' },
     email: { error: false, message: '' },
@@ -23,7 +24,6 @@ const RegisterPage = ({ classes }) => {
       fullName: '',
     },
   })
-  const [, setNotification] = useContext(NotificationContext)
   const navigate = useNavigate()
   const handleFormSubmit = async (data) => {
     switch (true) {
@@ -66,16 +66,6 @@ const RegisterPage = ({ classes }) => {
         })
     }
   }
-
-  const handleResize = () => setWidth(window.innerWidth)
-
-  useEffect(() => {
-    handleResize()
-
-    window.addEventListener('resize', handleResize)
-
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
 
   return (
     <div>

@@ -16,3 +16,6 @@ export const ROLE_OPTIONS = [
   { value: 'manager', label: 'Study Manager' },
   { value: 'member', label: 'Member' },
 ]
+export const VALIDATION_EMAIL_REGEX = new RegExp(
+  /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/g
+)

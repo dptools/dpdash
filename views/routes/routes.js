@@ -34,6 +34,7 @@ export const apiRoutes = {
     logout: `${apiPath}/logout`,
     me: `${apiPath}/me`,
     resetPassword: `${apiPath}/resetpw`,
+    signup: `${apiPath}/signup`,
   },
   admin: {
     users: {

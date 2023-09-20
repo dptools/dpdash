@@ -7,6 +7,9 @@ const auth = {
   me: async () => http.get(apiRoutes.auth.me),
   resetPassword: async (resetAttributes) =>
     http.post(apiRoutes.auth.resetPassword, resetAttributes),
+  signup: async (newUser) => {
+    http.post(apiRoutes.auth.signup, newUser)
+  },
 }
 
 export default auth

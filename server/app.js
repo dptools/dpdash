@@ -22,6 +22,7 @@ import adminRouter from './routes/admin'
 import authRouter from './routes/auth'
 import chartsRouter from './routes/charts'
 import configurationsRouter from './routes/configurations'
+import countsRouter from './routes/counts'
 import dashboardsRouter from './routes/dashboards'
 import indexRouter from './routes/index'
 import participantsRouter from './routes/participants'
@@ -187,8 +188,9 @@ app.use(passport.session())
 
 app.use('/', adminRouter)
 app.use('/', authRouter)
-app.use('/', configurationsRouter)
 app.use('/', chartsRouter)
+app.use('/', configurationsRouter)
+app.use('/', countsRouter)
 app.use('/', dashboardsRouter)
 app.use('/', indexRouter)
 app.use('/', participantsRouter)

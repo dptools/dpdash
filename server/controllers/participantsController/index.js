@@ -1,3 +1,5 @@
+import qs from 'qs'
+import { DEFAULT_PARTICIPANTS_SORT } from '../../constants'
 import ParticipantsModel from '../../models/ParticipantsModel'
 import UserModel from '../../models/UserModel'
 
@@ -5,8 +7,13 @@ const ParticipantsController = {
   index: async (req, res) => {
     try {
       const { dataDb, appDb } = req.app.locals
+      const parsedQueryParams = qs.parse(req.query) || DEFAULT_PARTICIPANTS_SORT
       const user = await UserModel.findOne(appDb, { uid: req.user })
-      const participants = await ParticipantsModel.index(dataDb, user.access)
+      const participants = await ParticipantsModel.index(
+        dataDb,
+        user,
+        parsedQueryParams
+      )
 
       return res.status(200).json({ data: participants })
     } catch (error) {

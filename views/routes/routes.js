@@ -1,16 +1,13 @@
 import qs from 'qs'
-import basePathConfig from '../../server/configs/basePathConfig'
 
-const basePath = basePathConfig || ''
-const apiPath = `${basePath}/api/v1`
+const apiPath = '/api/v1'
 
 export const routes = {
-  basePath,
   home: `/`,
   userAccount: '/user-account',
   configs: '/configs',
   editConfigPage: '/config/:config_id/edit',
-  dashboards: `${basePath}/dashboard`,
+  dashboards: `/dashboard`,
   dashboard: (study = ':study', subject = ':subject') =>
     `${routes.dashboards}/${study}/${subject}`,
   charts: '/charts',
@@ -27,8 +24,7 @@ export const routes = {
   main: '/main',
   chartCsv: (chart_id, queryParams) => routes.chart(chart_id, queryParams),
   editConfiguration: (configId) => `/config/${configId}/edit`,
-  viewConfiguration: (configId) =>
-    `${basePath}/u/configure?s=view&id=${configId}`,
+  viewConfiguration: (configId) => `/u/configure?s=view&id=${configId}`,
   newConfiguration: '/configs/new',
 }
 
@@ -60,12 +56,18 @@ export const apiRoutes = {
     configurationFileUpload: (uid) =>
       `${apiRoutes.configurations.userConfigurations(uid)}/file`,
   },
+  counts: {
+    index: `${apiPath}/counts`,
+  },
   dashboards: {
     show: (study = ':study', subject = ':subject') =>
       `${apiPath}/dashboards/${study}/${subject}`,
   },
   participants: {
-    index: `${apiPath}/participants`,
+    index: (queryParams) =>
+      queryParams
+        ? `${apiPath}/participants?${qs.stringify(queryParams)}`
+        : `${apiPath}/participants`,
   },
   users: {
     index: `${apiPath}/users`,

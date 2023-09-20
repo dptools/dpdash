@@ -1,3 +1,4 @@
+export const ASC = 'ASC'
 export const N_A = 'N/A'
 export const TOTALS_STUDY = 'Totals'
 export const EMPTY_VALUE = ''
@@ -66,4 +67,9 @@ export const ALL_SUBJECTS_MONGO_PROJECTION = {
 export const PASSPORT_FIELDS_ATTRIBUTES = {
   usernameField: 'username',
   passwordField: 'password',
+}
+
+export const DEFAULT_PARTICIPANTS_SORT = {
+  sortyBy: 'subject',
+  sortDirection: ASC,
 }

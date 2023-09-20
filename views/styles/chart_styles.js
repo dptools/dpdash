@@ -1,6 +1,12 @@
 import { colors } from '../../constants'
 
 export const chartStyles = (theme) => ({
+  chartListContainer: {
+    height: '100vh',
+  },
+  chartFormContainer: {
+    backgroundColor: 'white',
+  },
   textInput: {
     marginTop: '8px',
     marginBottom: '8px',

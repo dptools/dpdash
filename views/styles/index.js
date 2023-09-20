@@ -54,5 +54,5 @@ export const styles = (theme) => ({
     letterSpacing: '1.25px',
     flexGrow: 1,
   },
-  sideBar: { borderRight: '1px solid rgba(0, 0, 0, 0.12)' },
+  sideBar: { borderRight: '1px solid rgba(0, 0, 0, 0.12)', height: 'auto' },
 })

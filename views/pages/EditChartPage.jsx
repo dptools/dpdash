@@ -11,7 +11,7 @@ import api from '../api'
 
 const EditChartPage = () => {
   const { chart_id } = useParams()
-  const { user, classes, navigate } = useOutletContext()
+  const { user, classes, navigate, setNotification } = useOutletContext()
   const [loading, setLoading] = useState(true)
   const { handleSubmit, control, watch } = useForm({
     defaultValues: async () => await getChart(),
@@ -27,22 +27,31 @@ const EditChartPage = () => {
     },
   })
   const handleformSubmit = async (formValues) => {
-    const data = await api.charts.chart.update(chart_id, formValues)
+    try {
+      const data = await api.charts.chart.update(chart_id, formValues)
 
-    if (data.modifiedCount === 1) navigate(routes.viewChart(chart_id))
+      navigate(routes.viewChart(data._id))
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
+    }
   }
+
   const getChart = async () => {
-    const data = await api.charts.chart.show(chart_id)
+    try {
+      const data = await api.charts.chart.show(chart_id)
 
-    setLoading(false)
+      setLoading(false)
 
-    return data
+      return data
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
+    }
   }
 
   if (loading) return <div>Loading...</div>
 
   return (
-    <>
+    <div className={classes.chartFormContainer}>
       <ChartForm
         classes={classes}
         control={control}
@@ -52,7 +61,7 @@ const EditChartPage = () => {
         fields={fields}
         fieldsValue={watch('fieldLabelValueMap')}
       />
-    </>
+    </div>
   )
 }
 

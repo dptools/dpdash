@@ -41,7 +41,7 @@ const NewChartPage = () => {
   }
 
   return (
-    <>
+    <div className={classes.chartFormContainer}>
       <ChartForm
         classes={classes}
         onSubmit={handleSubmit(handleFormSubmit)}
@@ -51,7 +51,7 @@ const NewChartPage = () => {
         onRemove={removeField}
         fieldsValue={watch('fieldLabelValueMap')}
       />
-    </>
+    </div>
   )
 }
 

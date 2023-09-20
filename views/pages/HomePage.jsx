@@ -33,7 +33,6 @@ const HomePage = () => {
   const handleUserUpdate = async (e) => {
     try {
       const { name, value } = e.target
-      console.log({ name, value })
       const [key, study] = name.split('-')
       const values = preferences[key] || {}
 
@@ -48,7 +47,6 @@ const HomePage = () => {
         ...user,
         preferences: { ...preferences, [key]: values },
       }
-      console.log(userAttributes, 'WHAT IS THIS')
       const updatedUser = await api.users.update(uid, userAttributes)
       const participantsList = await fetchParticipants({
         sortBy,

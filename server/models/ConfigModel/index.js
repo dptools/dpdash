@@ -18,7 +18,7 @@ const ConfigModel = {
       .findOneAndUpdate(
         { _id: new ObjectId(configId) },
         { $set: configAttributes },
-        { returnOriginal: false }
+        { returnOriginal: false, upsert: true, returnDocument: 'after' }
       )
 
     if (!value) {

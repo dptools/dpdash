@@ -15,6 +15,7 @@ export const createChart = (overrides = {}) => ({
   assessment: 'flowcheck',
   description: 'chart description',
   fieldLabelValueMap: [createFieldLabelValue()],
+  owner: 'user',
   ...overrides,
 })
 

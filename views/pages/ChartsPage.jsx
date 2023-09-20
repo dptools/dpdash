@@ -22,9 +22,9 @@ const ChartsPage = () => {
       await api.charts.chartsShare.create(chart_id, sharedWith)
 
       const updatedChart = { ...chartToShare, sharedWith }
-      const updatedChartList = chartList.map((chart) => {
-        return chart._id === updatedChart._id ? updatedChart : chart
-      })
+      const updatedChartList = chartList.map((chart) =>
+        chart._id === updatedChart._id ? updatedChart : chart
+      )
 
       setChartList(updatedChartList)
       options.closeDialog ? closeDialog() : setChartToShare(updatedChart)
@@ -79,7 +79,7 @@ const ChartsPage = () => {
   }, [users])
 
   return (
-    <>
+    <div className={classes.chartListContainer}>
       <ChartList
         handleShareChart={handleShareChart}
         chartList={chartList}
@@ -98,7 +98,7 @@ const ChartsPage = () => {
         />
       )}
       <AddNewChart onNewChart={newChart} />
-    </>
+    </div>
   )
 }
 

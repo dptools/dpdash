@@ -1,12 +1,12 @@
 const getDefaultStyles = (theme) => ({
   root: {
     flexGrow: 1,
-    height: '100vh',
     zIndex: 1,
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
     width: '100%',
+    backgroundColor: colors.configWhite,
   },
   content: {
     flexGrow: 1,

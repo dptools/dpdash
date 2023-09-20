@@ -1,80 +1,135 @@
 import { ObjectId } from 'mongodb'
-import qs from 'qs'
+import ChartsModel from '../../models/ChartsModel'
+import UserModel from '../../models/UserModel'
+import { defaultTargetValueMap } from '../../utils/defaultTargetValueMap'
 
-import { collections } from '../../utils/mongoCollections'
-import { DEFAULT_CHART_FILTERS } from '../../constants'
-import SubjectModel from '../../models/SubjectModel'
-import BarChartService from '../../services/BarChartService'
-import BarChartTableService from '../../services/BarChartTableService'
-import CsvService from '../../services/CSVService'
+const chartsController = {
+  create: async (req, res) => {
+    try {
+      const {
+        fieldLabelValueMap,
+        title,
+        variable,
+        assessment,
+        description,
+        public: isPublic,
+      } = req.body
+      const { dataDb } = req.app.locals
 
-const show = async (req, res, next) => {
-  try {
-    const { dataDb, appDb } = req.app.locals
-    const { chart_id } = req.params
-    const { userAccess } = req.session
-    const parsedQueryParams = qs.parse(req.query)
-    const filters = parsedQueryParams.filters || DEFAULT_CHART_FILTERS
-    const chart = await dataDb
-      .collection(collections.charts)
-      .findOne({ _id: ObjectId(chart_id) })
-    const subjects = await SubjectModel.allForAssessment(
-      dataDb,
-      chart.assessment,
-      userAccess,
-      filters
-    )
-    const chartService = new BarChartService(dataDb, chart)
-    const { dataBySite, labels, studyTotals } = await chartService.createChart(
-      subjects,
-      userAccess
-    )
-    const chartTableService = new BarChartTableService(dataBySite, labels)
-    const websiteTable = chartTableService.websiteTableData()
-    const chartOwner = await appDb.collection(collections.users).findOne(
-      { uid: chart.owner },
-      {
-        projection: {
-          _id: 0,
-          display_name: 1,
-          icon: 1,
-          uid: 1,
-        },
+      const { insertedId } = await ChartsModel.create(dataDb, {
+        title,
+        variable,
+        assessment,
+        description,
+        fieldLabelValueMap,
+        public: isPublic,
+        owner: req.user,
+      })
+
+      return res.status(200).json({ data: { chart_id: insertedId } })
+    } catch (error) {
+      return res.status(400).json({ message: error.message })
+    }
+  },
+  index: async (req, res) => {
+    try {
+      const chartList = []
+      const { dataDb, appDb } = req.app.locals
+      const chartListCursor = await ChartsModel.index(dataDb, {
+        $or: [{ owner: req.user }, { sharedWith: req.user }, { public: true }],
+      })
+
+      while (await chartListCursor.hasNext()) {
+        const chart = await chartListCursor.next()
+
+        chart.chartOwner = await UserModel.findOne(appDb, { uid: chart.owner })
+        chartList.push(chart)
       }
-    )
 
-    if (req.headers['content-type'] === 'text/csv') {
-      res.header('Content-Type', 'text/csv')
-
-      const csvTableData = chartTableService.csvTableData()
-      const csvService = new CsvService(csvTableData)
-      const csvStream = csvService.toReadableStream().pipe(res)
-      csvStream.on('error', (err) => next(err))
-      csvStream.on('end', () => res.end())
-
-      return res.send()
+      return res.status(200).json({ data: chartList })
+    } catch (error) {
+      return res.status(400).json({ error: error.message })
     }
+  },
+  destroy: async (req, res) => {
+    try {
+      const { chart_id } = req.params
+      const { dataDb } = req.app.locals
+      const { owner } = await ChartsModel.show(dataDb, {
+        _id: new ObjectId(chart_id),
+      })
 
-    const graph = {
-      chart_id,
-      dataBySite,
-      labels,
-      title: chart.title,
-      description: chart.description,
-      legend: chartService.legend(),
-      studyTotals,
-      filters,
-      chartOwner,
-      graphTable: websiteTable,
+      if (owner !== req.user)
+        return res
+          .status(422)
+          .json({ message: 'Only the owner can delete a chart' })
+
+      await ChartsModel.destroy(dataDb, chart_id)
+
+      return res.status(204).end()
+    } catch (error) {
+      return res.status(400).json({ error: error.message })
     }
-    return res.status(200).json({ data: graph })
-  } catch (err) {
-    console.error(err.stack)
+  },
+  show: async (req, res) => {
+    try {
+      const { dataDb } = req.app.locals
+      const { chart_id } = req.params
+      const { userAccess } = req.session
+      const chart = await ChartsModel.show(dataDb, {
+        _id: new ObjectId(chart_id),
+        owner: req.user,
+      })
 
-    return res.status(500).send({ message: err.message })
-  }
+      if (!chart) return res.status(400).json({ error: 'Chart not found.' })
+
+      const targetValuesMap = defaultTargetValueMap(userAccess)
+      chart.fieldLabelValueMap = chart.fieldLabelValueMap.map((fieldValue) => {
+        const updateTargetValues = {
+          ...targetValuesMap,
+          ...fieldValue.targetValues,
+        }
+        fieldValue.targetValues = updateTargetValues
+
+        return fieldValue
+      })
+
+      return res.status(200).json({ data: chart })
+    } catch (error) {
+      return res.status(400).json({ error: error.message })
+    }
+  },
+  update: async (req, res) => {
+    try {
+      const { dataDb } = req.app.locals
+      const { chart_id } = req.params
+      const {
+        title,
+        variable,
+        assessment,
+        description,
+        fieldLabelValueMap,
+        public: isPublic,
+      } = req.body
+      const { value } = await ChartsModel.update(
+        dataDb,
+        { _id: ObjectId(chart_id) },
+        {
+          title,
+          variable,
+          assessment,
+          description,
+          fieldLabelValueMap,
+          public: isPublic,
+          updatedAt: new Date().toISOString(),
+        }
+      )
+
+      return res.status(200).json({ data: value })
+    } catch (error) {
+      return res.status(400).json({ error: error.message })
+    }
+  },
 }
 
-export default {
-  show,
-}
+export default chartsController

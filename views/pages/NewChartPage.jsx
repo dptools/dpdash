@@ -1,43 +1,55 @@
 import React from 'react'
 import { useOutletContext } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
 
+import useArrayFormFields from '../hooks/useArrayFormFields'
 import ChartForm from '../forms/ChartForm'
-import { createChart } from '../fe-utils/fetchUtil'
 import { targetValuesFields } from '../fe-utils/targetValuesUtil'
 import { routes } from '../routes/routes'
 import { colors } from '../../constants/styles'
+import api from '../api'
 
-const initialValues = (user) => ({
-  title: '',
-  description: '',
-  assessment: '',
-  variable: '',
-  fieldLabelValueMap: [
-    {
+const NewChartPage = () => {
+  const { user, classes, navigate, setNotification } = useOutletContext()
+  const { handleSubmit, control, watch } = useForm({
+    defaultValues: {
+      title: '',
+      description: '',
+      assessment: '',
+      variable: '',
+      public: false,
+    },
+  })
+  const { fields, addNewField, removeField } = useArrayFormFields({
+    control,
+    name: 'fieldLabelValueMap',
+    defaultFieldValue: {
       value: '',
       label: '',
       color: colors.dark_sky_blue,
       targetValues: targetValuesFields(user.access),
     },
-  ],
-  public: false,
-})
+  })
+  const handleFormSubmit = async (formValues) => {
+    try {
+      const data = await api.charts.chart.create(formValues)
 
-const NewChartPage = () => {
-  const { user, classes, navigate } = useOutletContext()
-  const handleSubmit = async (e, formValues) => {
-    e.preventDefault()
-    const { data } = await createChart(formValues)
-    navigate(routes.viewChart(data.chart_id))
+      navigate(routes.viewChart(data.chart_id))
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
+    }
   }
 
   return (
     <>
       <ChartForm
         classes={classes}
-        handleSubmit={handleSubmit}
-        initialValues={initialValues(user)}
-        studies={user.access}
+        onSubmit={handleSubmit(handleFormSubmit)}
+        control={control}
+        fields={fields}
+        onAddNewFields={addNewField}
+        onRemove={removeField}
+        fieldsValue={watch('fieldLabelValueMap')}
       />
     </>
   )

@@ -4,19 +4,13 @@ import { useOutletContext } from 'react-router-dom'
 import ChartList from '../components/ChartList'
 import AddNewChart from '../components/Graphs/AddNewChart'
 import ShareChart from '../components/ShareCharts'
-import {
-  getCharts,
-  deleteChart,
-  duplicateChart,
-  fetchUsernames,
-  shareChart,
-} from '../fe-utils/fetchUtil'
 import { routes } from '../routes/routes'
+import api from '../api'
 
 const NULL_CHART = {}
 
 const ChartsPage = () => {
-  const { user, classes, navigate } = useOutletContext()
+  const { user, classes, navigate, setNotification, users } = useOutletContext()
   const [chartToShare, setChartToShare] = useState(NULL_CHART)
   const [chartList, setChartList] = useState([])
   const [usernames, setUsernames] = useState([])
@@ -24,11 +18,9 @@ const ChartsPage = () => {
   const closeDialog = () => setChartToShare(NULL_CHART)
   const handleShareChart = (chart) => setChartToShare(chart)
   const shareWithUsers = async (chart_id, sharedWith, options = {}) => {
-    const {
-      data: { ok },
-    } = await shareChart(chart_id, sharedWith)
+    try {
+      await api.charts.chartsShare.create(chart_id, sharedWith)
 
-    if (ok === 1) {
       const updatedChart = { ...chartToShare, sharedWith }
       const updatedChartList = chartList.map((chart) => {
         return chart._id === updatedChart._id ? updatedChart : chart
@@ -36,41 +28,55 @@ const ChartsPage = () => {
 
       setChartList(updatedChartList)
       options.closeDialog ? closeDialog() : setChartToShare(updatedChart)
+      setNotification({ open: true, message: 'Shared chart with user' })
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
     }
   }
   const removeChart = async (id) => {
-    const deleted = await deleteChart(id)
+    try {
+      await api.charts.chart.destroy(id)
 
-    if (deleted.data > 0) {
       await loadCharts()
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
     }
   }
   const onDuplicateChart = async (id) => {
-    const { data: duplicateChartId } = await duplicateChart(id)
-
-    if (!!duplicateChartId) {
+    try {
+      await api.charts.chartsDuplicate.create(id)
       await loadCharts()
+
+      setNotification({ open: true, message: 'Chart is now duplicated.' })
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
     }
   }
   const loadCharts = async () => {
-    const { data: charts } = await getCharts()
-    setChartList(charts)
+    try {
+      const data = await api.charts.chart.index()
+
+      setChartList(data)
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
+    }
   }
   const newChart = () => navigate(routes.newChart)
 
   useEffect(() => {
     loadCharts()
-    fetchUsernames().then((data) => {
-      const apiUsernames = data
-        .filter((username) => username !== user.uid)
-        .map((username) => ({
-          value: username,
-          label: username,
-        }))
-
-      setUsernames(apiUsernames)
-    })
   }, [])
+
+  useEffect(() => {
+    const apiUsernames = users
+      .filter(({ uid }) => uid !== user.uid)
+      .map(({ uid }) => ({
+        value: uid,
+        label: uid,
+      }))
+
+    setUsernames(apiUsernames)
+  }, [users])
 
   return (
     <>

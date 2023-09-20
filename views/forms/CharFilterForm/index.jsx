@@ -1,51 +1,27 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Button,
-  Checkbox,
   List,
   ListItem,
   Typography,
   InputLabel,
 } from '@material-ui/core'
 import Form from '../Form'
-import {
-  FILTER_CATEGORIES,
-  TRUE_STRING,
-  FALSE_STRING,
-} from '../../../constants'
+import { FILTER_CATEGORIES, TRUE_STRING } from '../../../constants'
+import ControlledCheckbox from '../ControlledCheckbox'
 
-const ChartFilterForm = ({ initialValues, onSubmit, classes }) => {
-  const [values, setValues] = useState(initialValues)
-  const onChange = (target, filterKey) => {
-    setValues({
-      ...values,
-      [filterKey]: values[filterKey].map((filter) =>
-        filter.name === target.name
-          ? {
-              ...filter,
-              value: filter.value === TRUE_STRING ? FALSE_STRING : TRUE_STRING,
-            }
-          : filter
-      ),
-    })
-  }
-
+const ChartFilterForm = ({ initialValues, onSubmit, classes, control }) => {
   return (
-    <Form
-      handleSubmit={(e) => {
-        e.preventDefault()
-        return onSubmit(values)
-      }}
-    >
+    <Form onSubmit={onSubmit}>
       <div className={classes.filterForm}>
-        {Object.keys(values).map((filterKey) => {
+        {Object.keys(initialValues).map((filterKey) => {
           return (
             <div key={filterKey}>
               <Typography variant="subtitle2" className={classes.filterText}>
                 {FILTER_CATEGORIES[filterKey]}
               </Typography>
               <div className={classes.filtersContainer}>
-                {values[filterKey].map((filter) => {
+                {initialValues[filterKey].map((filter, index) => {
                   const filterID = `${filterKey}-${filter.name}`
 
                   return (
@@ -57,10 +33,10 @@ const ChartFilterForm = ({ initialValues, onSubmit, classes }) => {
                         >
                           {filter.name}
                         </InputLabel>
-                        <Checkbox
+                        <ControlledCheckbox
                           checked={filter.value === TRUE_STRING}
-                          onChange={({ target }) => onChange(target, filterKey)}
-                          name={filter.name}
+                          control={control}
+                          name={`${filterKey}.${index}.value`}
                           id={filterID}
                           className={classes.filterCheckbox}
                         />

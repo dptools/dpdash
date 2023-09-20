@@ -30,11 +30,11 @@ const ShareChart = ({
   return (
     <Dialog open onClose={handleClose} fullScreen={true}>
       <DialogTitle
-        id='alert-dialog-title'
+        id="alert-dialog-title"
         disableTypography={true}
         className={classes.dialogTitle}
       >
-        <Typography variant='title' className={classes.dialogTypography}>
+        <Typography variant="title" className={classes.dialogTypography}>
           Share your chart
         </Typography>
       </DialogTitle>
@@ -43,7 +43,7 @@ const ShareChart = ({
           multiple
           value={sharedWith}
           onChange={(event) => setSharedWith(event.target.value)}
-          input={<Input id='select-multiple' />}
+          input={<Input id="select-multiple" />}
           MenuProps={menuProps}
           fullWidth
           renderValue={(selected) => (
@@ -61,7 +61,7 @@ const ShareChart = ({
                     if (
                       chart.sharedWith.find((username) => username === value)
                     ) {
-                      return handleChange(chart, updatedSharedWith, {
+                      return handleChange(chart._id, updatedSharedWith, {
                         closeDialog: false,
                       })
                     }
@@ -86,7 +86,7 @@ const ShareChart = ({
           Cancel
         </Button>
         <Button
-          variant='outlined'
+          variant="outlined"
           className={classes.dialogShareButton}
           onClick={() =>
             handleChange(chart._id, sharedWith, { closeDialog: true })

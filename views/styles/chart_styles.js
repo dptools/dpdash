@@ -36,7 +36,10 @@ export const chartStyles = (theme) => ({
   },
   icon: {
     padding: '15px',
-    marginBottom: '10px',
+    marginTop: '20px',
+    width: '45%',
+    height: '45%',
+    border: 'solid red 1px',
   },
   textButton: {
     color: colors.neutral_blue,

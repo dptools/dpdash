@@ -49,10 +49,10 @@ export const intersectSubjectsFromFilters = (filters) => {
 const SubjectModel = {
   allForAssessment: async (db, assessment, userAccess, filters) => {
     const filtersService = new FiltersService(filters, userAccess)
-    const allFiltersSelected = filtersService.allFiltersActive()
+    const allFiltersDeselected = filtersService.allFiltersInactive()
     let allSubjects
 
-    if (allFiltersSelected) {
+    if (allFiltersDeselected) {
       allSubjects = await db
         .collection(collections.toc)
         .find(

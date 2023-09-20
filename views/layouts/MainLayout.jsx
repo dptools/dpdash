@@ -79,7 +79,6 @@ const MainLayout = ({ classes, theme }) => {
   return (
     <div className={classes.root}>
       <Header
-        configurations={configurations}
         onToggleSidebar={toggleSidebar}
         title={headerTitle(pathname, params)}
         isAccountPage={false}

@@ -22,7 +22,6 @@ export const routes = {
   login: '/login',
   logout: '/logout',
   main: '/main',
-  chartCsv: (chart_id, queryParams) => routes.chart(chart_id, queryParams),
   editConfiguration: (configId) => `/config/${configId}/edit`,
   viewConfiguration: (configId) => `/u/configure?s=view&id=${configId}`,
   newConfiguration: '/configs/new',
@@ -45,6 +44,9 @@ export const apiRoutes = {
     },
   },
   chartData: {
+    show: (chartId) => `${apiPath}/charts/${chartId}/data`,
+  },
+  chartCsv: {
     show: (chartId, queryParams) =>
       queryParams
         ? `${apiPath}/charts/${chartId}/data?${qs.stringify(queryParams)}`
@@ -74,23 +76,17 @@ export const apiRoutes = {
     index: `${apiPath}/users`,
     show: (uid) => `${apiPath}/users/${uid}`,
   },
-  chart: (chart_id) => `${apiPath}/charts/${chart_id}`,
-  charts: `${apiPath}/charts`,
-  chartDuplicate: `${apiPath}/charts/duplicate`,
-  subjects: (studies) => `${apiPath}/subjects?q=${JSON.stringify(studies)}`,
-  studyDetail: (study_id) => `${apiPath}/study-details/${study_id}`,
-  studyDetails: `${apiPath}/study-details`,
-  configs: (uid) => `${apiPath}/users/${uid}/configs`,
-  preferences: (uid) => `${apiPath}/users/${uid}/preferences`,
-  searchStudies: `${apiPath}/search/studies`,
-  subject: `${apiPath}/subjects`,
-  shareChart: (chart_id) => `${apiPath}/charts/${chart_id}/share`,
-  updateUser: (uid) => `${apiPath}/admin/users/${uid}`,
-}
-
-export const defaultApiOptions = {
-  headers: {
-    'Content-Type': 'application/json',
+  chart: {
+    show: (chart_id) => `${apiPath}/charts/${chart_id}`,
+    index: `${apiPath}/charts`,
   },
-  credentials: 'same-origin',
+  shareChart: {
+    show: (chart_id) => `${apiPath}/charts/${chart_id}/share`,
+  },
+  duplicateChart: {
+    show: `${apiPath}/charts/duplicate`,
+  },
+  subjects: (studies) => `${apiPath}/subjects?q=${JSON.stringify(studies)}`,
+  preferences: (uid) => `${apiPath}/users/${uid}/preferences`,
+  subject: `${apiPath}/subjects`,
 }

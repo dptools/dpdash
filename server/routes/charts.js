@@ -92,14 +92,12 @@ router
         .deleteOne({ _id: ObjectId(chart_id) })
 
       if (deletedChart.deletedCount > 0) {
-        return res.status(200).json({ data: deletedChart.deletedCount })
+        return res.status(204).end()
       } else {
         return res.status(400).json({ message: 'Chart information not found' })
       }
     } catch (error) {
-      console.error(error)
-
-      return res.status(500).json({ message: error.message })
+      return res.status(400).json({ message: error.message })
     }
   })
   .get(ensureAuthenticated, async (req, res) => {
@@ -218,7 +216,7 @@ router
         )
 
       return updatedChart.modifiedCount === 1
-        ? res.status(200).json({ data: result })
+        ? res.status(200).json({ data: updatedChart })
         : res.status(404).json({ message: 'Chart could not be shared' })
     } catch (error) {
       return res.status(404).json({ message: 'Chart could not be shared' })

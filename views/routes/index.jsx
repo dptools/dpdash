@@ -29,8 +29,14 @@ const Router = (props) => {
           path={routes.login}
           element={<SignInPage classes={props.classes} />}
         />
-        <Route path={routes.register} element={<RegisterPage />} />
-        <Route path={routes.resetpw} element={<ResetPasswordPage />} />
+        <Route
+          path={routes.register}
+          element={<RegisterPage classes={props.classes} />}
+        />
+        <Route
+          path={routes.resetpw}
+          element={<ResetPasswordPage classes={props.classes} />}
+        />
         <Route
           element={
             <AuthenticatedRoute>

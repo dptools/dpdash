@@ -204,31 +204,6 @@ router.get('/api/v1/search/studies', ensureAuthenticated, function (req, res) {
   })
 })
 
-router.get('/api/v1/subjects', ensureAuthenticated, function (req, res) {
-  const { dataDb } = req.app.locals
-  dataDb
-    .collection('metadata')
-    .aggregate([
-      { $match: { study: { $in: JSON.parse(req.query.q) } } },
-      {
-        $addFields: {
-          numOfSubjects: { $size: { $ifNull: ['$subjects', []] } },
-        },
-      },
-      { $sort: { study: 1 } },
-    ])
-    .toArray(function (err, subjects) {
-      if (err) {
-        console.log(err)
-        return res.status(502).send([])
-      } else if (!subjects) {
-        return res.status(502).send([])
-      } else {
-        return res.status(200).json(subjects)
-      }
-    })
-})
-
 router.get(v1Routes.users.index, ensureAdmin, ApiUsersController.index)
 router.get('/api/v1/search/users', ensureAuthenticated, function (req, res) {
   const { appDb } = req.app.locals

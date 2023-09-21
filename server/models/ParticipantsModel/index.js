@@ -1,24 +1,59 @@
 import { collections } from '../../utils/mongoCollections'
+import { ASC } from '../../constants'
 
 const subjects = '$subjects'
+const subject = '$subject'
+
 const ParticipantsModel = {
-  index: async (db, sites) =>
+  index: async (db, user, queryParams) =>
     await db
       .collection(collections.metadata)
-      .aggregate(allParticipantsQuery(sites))
+      .aggregate(allParticipantsQuery(user, queryParams))
       .toArray(),
 }
 
-const allParticipantsQuery = (sites) => [
-  { $match: { study: { $in: sites } } },
-  {
-    $addFields: {
-      numOfSubjects: { $size: { $ifNull: [subjects, []] } },
+const allParticipantsQuery = (user, queryParams) => {
+  const { star, complete } = user.preferences
+  const starred = star ? Object.values(star).flat() : []
+  const completed = completed ? Object.values(complete).flat() : []
+  const { sortBy, sortDirection, searchSubjects } = queryParams
+  const direction = sortDirection === ASC ? 1 : -1
+  const sort = { $sort: { star: -1, [sortBy]: direction } }
+  const query = [
+    { $match: { study: { $in: user.access } } },
+    { $unwind: subjects },
+    { $replaceRoot: { newRoot: subjects } },
+    {
+      $project: {
+        subject: 1,
+        days: 1,
+        study: 1,
+        star: {
+          $in: [subject, starred],
+        },
+        complete: {
+          $in: [subject, completed],
+        },
+      },
     },
-  },
-  { $sort: { study: 1 } },
-  { $unwind: subjects },
-  { $replaceRoot: { newRoot: subjects } },
-]
+  ]
+
+  if (searchSubjects?.length)
+    query.push({
+      $match: {
+        $or: [
+          {
+            subject: {
+              $in: searchSubjects,
+            },
+          },
+        ],
+      },
+    })
+
+  query.push(sort)
+
+  return query
+}
 
 export default ParticipantsModel

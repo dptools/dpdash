@@ -19,12 +19,25 @@ export const v1Routes = {
     signup: `${v1Root}/signup`,
     resetpw: `${v1Root}/resetpw`,
   },
-  charts: {
+  chartsData: {
     show: `${v1Root}/charts/:chart_id/data`,
+  },
+  charts: {
+    show: `${v1Root}/charts/:chart_id`,
+    index: `${v1Root}/charts`,
+  },
+  chartsDuplicate: {
+    index: `${v1Root}/charts/duplicate`,
+  },
+  chartsShare: {
+    index: `${v1Root}/charts/:chart_id/share`,
   },
   config: {
     index: `${userRoot}/configs`,
     show: `${userRoot}/configs/:config_id`,
+  },
+  counts: {
+    index: `${v1Root}/counts`,
   },
   admin: {
     users: {

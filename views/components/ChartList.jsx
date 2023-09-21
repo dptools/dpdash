@@ -59,7 +59,7 @@ const ChartList = ({
                       variant="subtitle2"
                       className={classes.chartListOwnerName}
                     >
-                      {chart.chartOwner.name}
+                      {chart.chartOwner.display_name}
                     </Typography>
                   </span>
                 </TableCell>

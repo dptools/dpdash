@@ -1,18 +1,18 @@
 import { Controller } from 'react-hook-form'
 import { Checkbox } from '@material-ui/core'
 
-const ControlledCheckbox = (props) => {
+const ControlledCheckbox = ({ name, control, onChange, checked }) => {
   return (
     <Controller
-      name={props.name}
-      control={props.control}
+      name={name}
+      control={control}
       render={({ field }) => (
         <Checkbox
-          checked={field.value}
           onChange={(e) => {
             field.onChange(e)
-            props.onChange()
+            if (onChange) onChange()
           }}
+          defaultChecked={checked}
         />
       )}
     />

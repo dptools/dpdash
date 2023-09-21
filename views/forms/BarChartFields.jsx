@@ -1,200 +1,147 @@
 import React from 'react'
 import Delete from '@material-ui/icons/Delete'
-import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import { IconButton } from '@material-ui/core'
 import Typography from '@material-ui/core/Typography'
 import ColorPicker from '../components/ColorPicker'
-import Checkbox from '@material-ui/core/Checkbox'
 import InputLabel from '@material-ui/core/InputLabel'
 import Tooltip from '@material-ui/core/Tooltip'
+import TextInput from './TextInput'
+import ControlledCheckbox from './ControlledCheckbox'
 
-import { colors, presetColors } from '../../constants'
+import { presetColors } from '../../constants'
 
-import { targetValuesFields } from '../fe-utils/targetValuesUtil'
-
-const BarChartFields = ({ classes, formValues, setFormValues, studies }) => {
-  const updateFormValues = (e) =>
-    setFormValues({
-      ...formValues,
-      [e.target.name]:
-        e.target.type !== 'checkbox' ? e.target.value : e.target.checked,
-    })
-  const addValueAndLabelField = () =>
-    setFormValues((prevState) => ({
-      ...prevState,
-      fieldLabelValueMap: [
-        ...prevState.fieldLabelValueMap,
-        {
-          value: '',
-          label: '',
-          color: colors.dark_sky_blue,
-          targetValues: targetValuesFields(studies),
-        },
-      ],
-    }))
-  const removeValueAndLabelField = (id) =>
-    setFormValues((prevState) => ({
-      ...prevState,
-      fieldLabelValueMap: prevState.fieldLabelValueMap.filter(
-        (_, index) => index !== id
-      ),
-    }))
-  const handleValueAndLabelFieldUpdate = (e, id) =>
-    setFormValues((prevState) => ({
-      ...prevState,
-      fieldLabelValueMap: prevState.fieldLabelValueMap.map((field, idx) =>
-        id === idx ? { ...field, [e.target.name]: e.target.value } : field
-      ),
-    }))
-  const handleTargetValues = (e, id) => {
-    setFormValues((prevState) => ({
-      ...prevState,
-      fieldLabelValueMap: prevState.fieldLabelValueMap.map((field, idx) => {
-        if (id === idx) {
-          field.targetValues[e.target.name] = e.target.value
-          return field
-        } else {
-          return field
-        }
-      }),
-    }))
-  }
-  const handleColorChange = (color, id) =>
-    setFormValues((prevState) => ({
-      ...prevState,
-      fieldLabelValueMap: prevState.fieldLabelValueMap.map((field, idx) =>
-        id === idx ? { ...field, color } : field
-      ),
-    }))
-
+const BarChartFields = ({
+  classes,
+  control,
+  fields,
+  onRemove,
+  onAddNewFields,
+  fieldsValue,
+}) => {
   return (
     <>
-      <TextField
+      <TextInput
         className={classes.textInput}
         label="Title"
         name="title"
-        onChange={updateFormValues}
-        value={formValues.title}
         required
         fullWidth
+        control={control}
       />
-      <TextField
+      <TextInput
         label="Description"
         name="description"
         multiline
         rowsMax={4}
-        value={formValues.description}
-        onChange={updateFormValues}
         className={classes.textInput}
         fullWidth
         required
+        control={control}
       />
-      <TextField
+      <TextInput
         className={classes.textInput}
         label="Assessment"
         name="assessment"
-        onChange={updateFormValues}
-        value={formValues.assessment}
         required
         fullWidth
+        control={control}
       />
-      <TextField
+      <TextInput
         label="Variable Name"
         name="variable"
         className={classes.textInput}
-        onChange={updateFormValues}
-        value={formValues.variable}
         required
         fullWidth
+        control={control}
       />
       <div className={classes.formLabelRow}>
         <InputLabel htmlFor="public_checkbox" className={classes.publicText}>
           Public
         </InputLabel>
-        <Checkbox
-          checked={formValues.public}
-          onChange={updateFormValues}
+        <ControlledCheckbox
+          control={control}
           name="public"
           color="default"
           id="public_checkbox"
           aria-label
         />
       </div>
-      {formValues.fieldLabelValueMap.map((field, idx) => (
-        <React.Fragment key={idx}>
-          <div className={classes.formLabelRow}>
-            <Tooltip
-              disableFocusListener
-              title="Leave blank to count empty values"
-            >
-              <TextField
-                label="Value"
-                name="value"
-                onChange={(e) => handleValueAndLabelFieldUpdate(e, idx)}
-                className={`
-                ${classes.formLabelCol} 
+      {fields.map((field, index) => {
+        const { id, targetValues } = field
+        return (
+          <React.Fragment key={id}>
+            <div className={classes.formLabelRow}>
+              <Tooltip
+                disableFocusListener
+                title="Leave blank to count empty values"
+              >
+                <TextInput
+                  label="Value"
+                  name={`fieldLabelValueMap.${index}.value`}
+                  className={`
+                ${classes.formLabelCol}
                 ${classes.variableListInput}
               `}
-                value={field.value}
+                  control={control}
+                />
+              </Tooltip>
+              <TextInput
+                label="Label"
+                control={control}
+                name={`fieldLabelValueMap.${index}.label`}
+                className={classes.variableListInput}
+                required
               />
-            </Tooltip>
-            <TextField
-              label="Label"
-              name="label"
-              className={classes.variableListInput}
-              onChange={(e) => handleValueAndLabelFieldUpdate(e, idx)}
-              value={field.label}
-              required
-            />
-            <ColorPicker
-              classes={classes}
-              handleColorChange={handleColorChange}
-              idx={idx}
-              color={field.color}
-              presetColors={presetColors}
-            />
-            <Button
-              type="button"
-              variant="text"
-              onClick={() => removeValueAndLabelField(idx)}
-              className={classes.deleteContainer}
-            >
-              <Delete className={classes.icon} />
-            </Button>
-          </div>
-          <div className={classes.formLabelRow}>
-            <Typography variant="h6" color="textSecondary">
-              Targets
-            </Typography>
-          </div>
-          {Object.keys(field.targetValues).map((study) => (
-            <div key={idx + study} className={classes.formLabelRow}>
-              <Typography
-                variant="subtitle1"
-                gutterBottom={false}
-                color="textSecondary"
-                className={classes.targetValueContainer}
+              <ColorPicker
+                control={control}
+                classes={classes}
+                name={`fieldLabelValueMap.${index}.color`}
+                color={fieldsValue[index].color || field.color}
+                presetColors={presetColors}
+              />
+              <IconButton
+                aria-label="delete"
+                onClick={() => onRemove(index)}
+                className={classes.deleteContainer}
               >
-                {study}:
-              </Typography>
-              <TextField
-                name={study}
-                value={field.targetValues[study]}
-                onChange={(e) => handleTargetValues(e, idx)}
-              />
+                <Delete className={classes.icons} />
+              </IconButton>
             </div>
-          ))}
-          <div className={classes.formLabelRow}>
-            <br />
-          </div>
-        </React.Fragment>
-      ))}
+            <div className={classes.formLabelRow}>
+              <Typography variant="h6" color="textSecondary">
+                Targets
+              </Typography>
+            </div>
+            {Object.keys(targetValues).map((study, idx) => (
+              <div key={idx + study} className={classes.formLabelRow}>
+                <Typography
+                  variant="subtitle1"
+                  gutterBottom={false}
+                  color="textSecondary"
+                  className={classes.targetValueContainer}
+                >
+                  {study}
+                </Typography>
+                <TextInput
+                  control={control}
+                  name={`fieldLabelValueMap.${index}.targetValues.${study}`}
+                  fullWidth={false}
+                />
+              </div>
+            ))}
+            <div className={classes.formLabelRow}>
+              <br />
+            </div>
+          </React.Fragment>
+        )
+      })}
       <div className={classes.addLabelContainer}>
         <Button
           variant="text"
           type="button"
           className={classes.textButton}
-          onClick={addValueAndLabelField}
+          onClick={() => onAddNewFields()}
         >
           + Add label and value group combination
         </Button>

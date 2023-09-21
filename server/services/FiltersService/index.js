@@ -21,7 +21,7 @@ class FiltersService {
     this.userAccess = userAccess
   }
 
-  allFiltersActive = () => {
+  allFiltersInactive = () => {
     return deepEqual(this.filters, ALL_FILTERS_ACTIVE)
   }
 

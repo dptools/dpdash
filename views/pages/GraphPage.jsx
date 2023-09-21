@@ -69,7 +69,9 @@ const GraphPage = () => {
     try {
       const { uid } = user
       const userAttributes = {
+        ...user,
         preferences: {
+          ...user.preferences,
           config: configurationId,
         },
       }

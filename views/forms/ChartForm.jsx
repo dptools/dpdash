@@ -1,24 +1,22 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Button from '@material-ui/core/Button'
 
 import Form from './Form'
 import BarChartFields from './BarChartFields'
 
-const ChartForm = ({ classes, handleSubmit, studies, initialValues }) => {
-  const [formValues, setFormValues] = useState(initialValues)
-
+const ChartForm = ({ classes, onSubmit, fields, control, ...rest }) => {
   return (
-    <Form handleSubmit={(e) => handleSubmit(e, formValues)}>
+    <Form onSubmit={onSubmit}>
       <BarChartFields
         classes={classes}
-        formValues={formValues}
-        setFormValues={setFormValues}
-        studies={studies}
+        control={control}
+        fields={fields}
+        {...rest}
       />
       <div className={classes.submitButtonContainer}>
         <Button
-          type='submit'
-          variant='contained'
+          type="submit"
+          variant="contained"
           className={classes.textButton}
         >
           Submit Form

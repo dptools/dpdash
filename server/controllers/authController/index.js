@@ -30,27 +30,29 @@ const AuthController = {
   },
   update: async (req, res) => {
     try {
-      const { password, confirmpw, reset_key, username } = req.body
+      const { password, confirmPassword, reset_key, username } = req.body
 
-      if (password !== confirmpw)
+      if (password !== confirmPassword)
         return res.status(400).json({ error: 'passwords do not match' })
 
       const { appDb } = req.app.locals
       const encryptPassword = hash(password)
-
       const user = await UserModel.findOne(appDb, {
         uid: String(username),
         reset_key: String(reset_key),
+        force_reset_pw: true,
       })
 
-      if (!user) return res.status(400).json({ error: 'User not found' })
+      if (!user)
+        return res.status(400).json({
+          error: 'User not found or there is a problem with the reset key',
+        })
 
       const userAttributes = {
         password: encryptPassword,
         reset_key: '',
         force_reset_pw: false,
       }
-
       const updatedUser = await UserModel.update(
         appDb,
         username,
@@ -59,7 +61,7 @@ const AuthController = {
 
       return res.status(200).json({ data: updatedUser })
     } catch (error) {
-      return res.status(500).json({ error: error.message })
+      return res.status(400).json({ error: error.message })
     }
   },
 }

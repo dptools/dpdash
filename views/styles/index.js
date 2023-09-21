@@ -5,6 +5,7 @@ import { graphPageStyles } from './graph_page_styles'
 import { studyDetailStyles } from './study_details'
 import { mainLayoutStyles } from './main_layout_styles'
 import { loginStyles } from './login_page_styles'
+import { registerStyles } from './register_page_styles'
 import { shareFormStyles } from './share_form_styles'
 
 const drawerWidth = 200
@@ -18,6 +19,7 @@ export const styles = (theme) => ({
   ...accountPageStyles(theme),
   ...shareFormStyles(theme),
   ...loginStyles(theme),
+  ...registerStyles(theme),
   selectedFontWeight: {
     fontWeight: 500,
   },
@@ -52,5 +54,5 @@ export const styles = (theme) => ({
     letterSpacing: '1.25px',
     flexGrow: 1,
   },
-  sideBar: { borderRight: '1px solid rgba(0, 0, 0, 0.12)' },
+  sideBar: { borderRight: '1px solid rgba(0, 0, 0, 0.12)', height: 'auto' },
 })

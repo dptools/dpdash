@@ -122,6 +122,7 @@ const ConfigPage = () => {
   const updateConfiguration = async (configId, configAttributes) => {
     try {
       await api.userConfigurations.update(uid, configId, configAttributes)
+
       updateUserPreferences(configId)
       loadAllConfigurations(uid)
     } catch (error) {
@@ -131,14 +132,15 @@ const ConfigPage = () => {
   const updateUserPreferences = async (configId) => {
     try {
       const userAttributes = {
+        ...user,
         preferences: {
           ...preferences,
           config: preferences.config === configId ? '' : configId,
         },
       }
+      const updatedUser = await api.users.update(uid, userAttributes)
 
-      const user = await api.users.update(uid, userAttributes)
-      setUser(user)
+      setUser(updatedUser)
     } catch (error) {
       handleNotification(error.message)
     }

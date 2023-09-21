@@ -15,6 +15,7 @@ export const createChart = (overrides = {}) => ({
   assessment: 'flowcheck',
   description: 'chart description',
   fieldLabelValueMap: [createFieldLabelValue()],
+  owner: 'user',
   ...overrides,
 })
 
@@ -62,6 +63,12 @@ export const createDb = (overrides = {}) => ({
   }),
   findOne: jest.fn(),
   findOneAndUpdate: jest.fn(),
+  limit: jest.fn(function () {
+    return this
+  }),
+  sort: jest.fn(function () {
+    return this
+  }),
   toArray: jest.fn(),
   updateOne: jest.fn(),
   ...overrides,

@@ -10,9 +10,8 @@ import {
   Button,
 } from '@material-ui/core'
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
-import { fetchGraphTableCSV } from '../../fe-utils/fetchUtil'
 
-const GraphTable = ({ graph, classes }) => {
+const GraphTable = ({ graph, classes, onGetCsv }) => {
   if (!graph) return null
 
   const { tableColumns, tableRows } = graph.graphTable
@@ -23,13 +22,7 @@ const GraphTable = ({ graph, classes }) => {
         <Button
           variant="outlined"
           color="secondary"
-          onClick={() =>
-            fetchGraphTableCSV(
-              graph.chart_id,
-              { filters: graph.filters },
-              graph.title
-            )
-          }
+          onClick={() => onGetCsv(graph.chart_id, graph.filters, graph.title)}
         >
           <ArrowDropDownIcon className={classes.tableCsvIcon} />
           Export as CSV
@@ -38,8 +31,8 @@ const GraphTable = ({ graph, classes }) => {
       <Table>
         <TableHead>
           <TableRow>
-            {tableColumns.map(({ name }) => (
-              <TableCell align="center" key={name}>
+            {tableColumns.map(({ name }, idx) => (
+              <TableCell align="center" key={name + '-' + idx}>
                 {name}
               </TableCell>
             ))}
@@ -48,10 +41,14 @@ const GraphTable = ({ graph, classes }) => {
         <TableBody>
           {tableRows.map((row, index) => {
             return (
-              <TableRow hover key={tableColumns[index] + index}>
+              <TableRow hover key={tableColumns[index] + '-' + index}>
                 {row.map(({ data, color }, i) => {
                   return (
-                    <TableCell align="center" style={{ color }} key={i}>
+                    <TableCell
+                      align="center"
+                      style={{ color }}
+                      key={data + '-' + i + '-' + color}
+                    >
                       {data}
                     </TableCell>
                   )

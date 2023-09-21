@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react'
-import moment from 'moment'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import classNames from 'classnames'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 
 import api from '../api'
-import getCounts from '../fe-utils/countUtil'
-import { fetchSubjects } from '../fe-utils/fetchUtil'
 import {
   AuthContext,
   ConfigurationsContext,
@@ -26,7 +23,6 @@ const MainLayout = ({ classes, theme }) => {
   const [openSidebar, setOpenSidebar] = useContext(SidebarContext)
   const [user, setUser] = useContext(AuthContext)
   const [users, setUsers] = useState([])
-  const [subjects, setSubjects] = useState([])
   const [drawerVariant, setDrawerVariant] = useState(PERSISTENT_SIDEBAR)
   const { pathname } = useLocation()
   const params = useParams()
@@ -61,39 +57,18 @@ const MainLayout = ({ classes, theme }) => {
       setDrawerVariant(PERSISTENT_SIDEBAR)
     }
   }
+  const fetchCounts = async () => {
+    const { numOfSites, maxDay, numOfParticipants } = await api.counts.all()
 
-  const processDates = (options) => {
-    const momentSetting = {
-      sameDay: '[Today]',
-      nextDay: '[Tomorrow]',
-      nextWeek: 'dddd',
-      lastDay: '[Yesterday]',
-      lastWeek: '[Last] dddd',
-      sameElse: 'MM/DD/YYYY',
-    }
-    const nowT = moment().local()
-    for (var i = 0; i < options.length; i++) {
-      var row = options[i]
-      var syncedT = moment.utc(row.synced).local()
-      var syncedL = moment(syncedT.format('YYYY-MM-DD')).calendar(
-        null,
-        momentSetting
-      )
-      var days = nowT.diff(syncedT, 'days')
-      var color = days > 14 ? '#de1d16' : '#14c774'
-      options[i]['synced'] = syncedL
-      options[i]['lastSyncedColor'] = color
-    }
-    return options
-  }
-  useEffect(() => {
-    fetchSubjects().then((acl) => {
-      const extractSubjectsFromAcl = processDates(
-        acl.map(({ subjects }) => subjects).flat()
-      )
-      setSubjects(extractSubjectsFromAcl)
-      setSideBarState(getCounts({ acl }))
+    setSideBarState({
+      totalDays: maxDay,
+      totalStudies: numOfSites,
+      totalSubjects: numOfParticipants,
     })
+  }
+
+  useEffect(() => {
+    fetchCounts()
     fetchUsers()
     loadAllConfigurations()
   }, [])
@@ -104,7 +79,6 @@ const MainLayout = ({ classes, theme }) => {
   return (
     <div className={classes.root}>
       <Header
-        configurations={configurations}
         onToggleSidebar={toggleSidebar}
         title={headerTitle(pathname, params)}
         isAccountPage={false}
@@ -130,7 +104,6 @@ const MainLayout = ({ classes, theme }) => {
             setNotification,
             setUser,
             setUsers,
-            subjects,
             theme,
             user,
             users,

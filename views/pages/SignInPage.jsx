@@ -1,15 +1,19 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Card, CardMedia, CardContent, Typography } from '@material-ui/core'
 import { routes } from '../routes/routes'
 import api from '../api'
-import { AuthContext, NotificationContext } from '../contexts'
+import {
+  AuthContext,
+  DimensionsContext,
+  NotificationContext,
+} from '../contexts'
 import { MIN_WIDTH } from '../../constants'
 import LoginForm from '../forms/LoginForm'
 
 const SignInPage = ({ classes }) => {
-  const [width, setWidth] = useState(0)
+  const [width] = useContext(DimensionsContext)
   const [showPassword, setShowPassword] = useState(false)
   const { handleSubmit, control } = useForm({
     defaultValues: {
@@ -17,7 +21,7 @@ const SignInPage = ({ classes }) => {
       password: '',
     },
   })
-  const [_, setUser] = useContext(AuthContext)
+  const [, setUser] = useContext(AuthContext)
   const [, setNotification] = useContext(NotificationContext)
   const navigate = useNavigate()
   const handleFormSubmit = async (data) => {
@@ -30,15 +34,6 @@ const SignInPage = ({ classes }) => {
       setNotification({ open: true, message: error.message })
     }
   }
-  const handleResize = () => setWidth(window.innerWidth)
-
-  useEffect(() => {
-    handleResize()
-
-    window.addEventListener('resize', handleResize)
-
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
 
   return (
     <div className={classes.login_container}>

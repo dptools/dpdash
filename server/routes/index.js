@@ -1,7 +1,6 @@
 import { Router } from 'express'
 import { ObjectId } from 'mongodb'
 import { connect } from 'amqplib/callback_api'
-import co from 'co'
 import uuidV4 from 'uuid/v4'
 import { getConfigSchema } from '../utils/routerUtil'
 
@@ -17,12 +16,6 @@ import { v1Routes } from '../utils/routes'
 const router = Router()
 
 const basePath = basePathConfig || ''
-
-let rabbitmq_conn
-connect(process.env.RABBIT_ADDRESS, config.rabbitmq.opts, function (err, conn) {
-  if (err) console.log(err)
-  rabbitmq_conn = conn
-})
 
 //Admin privilege checking middleware
 
@@ -59,95 +52,6 @@ function ensurePermission(req, res, next) {
       }
     )
 }
-
-//deepdive page
-router.get(
-  '/api/v1/studies/:study/subjects/:subject/deepdive/:day',
-  ensurePermission,
-  function (req, res) {
-    const { dataDb } = req.app.locals
-    dataDb
-      .collection('toc')
-      .find({
-        study: req.params.study,
-        subject: req.params.subject,
-        assessment: {
-          $regex: /^Deepdive/,
-        },
-      })
-      .toArray(function (err, docs) {
-        if (err) {
-          console.log(err)
-          return res.status(502).send([])
-        } else if (docs.length == 0) {
-          return res.status(404).send([])
-        } else {
-          co(function* () {
-            var dataPiece = []
-            for (var doc = 0; doc < docs.length; doc++) {
-              var data = yield dataDb
-                .collection(docs[doc].collection)
-                .find({
-                  day: parseInt(req.params.day),
-                })
-                .toArray()
-              Array.prototype.push.apply(dataPiece, data)
-            }
-            return res.status(201).send(dataPiece)
-          })
-        }
-      })
-  }
-)
-
-router
-  .route('/resync/:study/:subject')
-  .post(ensureAuthenticated, function (req, res) {
-    var rootdir = config.app.rootDir
-    var syncdir =
-      rootdir + '/' + req.params.study + '/' + req.params.subject + '/'
-    if (rabbitmq_conn) {
-      rabbitmq_conn.createChannel(function (err, ch) {
-        if (err) {
-          console.log(err)
-          try {
-            connect(amqpAddress, config.rabbitmq.opts, function (err, conn) {
-              rabbitmq_conn = conn
-            })
-          } catch (err) {
-            console.log(err)
-            process.exit(1)
-          }
-        }
-        ch.assertQueue(
-          config.rabbitmq.consumerQueue,
-          { durable: false },
-          function (err, q) {
-            var correlationId = uuidV4()
-            publisher(
-              rabbitmq_conn,
-              ch,
-              correlationId,
-              [
-                syncdir,
-                rootdir,
-                '',
-                '',
-                config.database.mongo.username,
-                config.database.mongo.password,
-                config.database.mongo.host,
-                config.database.mongo.port,
-                config.database.mongo.authSource,
-                config.database.mongo.dataDB,
-              ],
-              q.queue
-            )
-            return res.status(201).send({ correlationId: correlationId })
-          }
-        )
-      })
-    }
-  })
 
 function publisher(conn, ch, correlationId, args, replyTo) {
   var message = {}

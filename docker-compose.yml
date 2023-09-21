@@ -7,7 +7,6 @@ services:
       context: .
     depends_on:
       - mongodb
-      - rabbitmq
     env_file: .env.development
     ports:
       - 8000:8000
@@ -29,23 +28,6 @@ services:
       - app-tier
     ports:
       - 27017:27017
-  rabbitmq:
-    build:
-      dockerfile: dev.rabbitmq.Dockerfile
-      context: .
-      args:
-        - RABBIT_USERNAME=${RABBIT_USERNAME}
-        - RABBIT_PASSWORD=${RABBIT_PASSWORD}
-    hostname: 'app-tier'
-    healthcheck:
-      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    environment:
-      - RABBITMQ_NODE_NAME=rabbit@app-tier
-    networks:
-      - app-tier
 networks:
   app-tier:
     driver: bridge

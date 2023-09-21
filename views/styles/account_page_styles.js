@@ -1,6 +1,12 @@
 import { colors } from '../../constants'
 
 export const accountPageStyles = (theme) => ({
+  account_page_container: {
+    height: '100vh',
+    backgroundColor: colors.configWhite,
+    paddingTop: theme.spacing.unit * 10,
+    paddingLeft: theme.spacing.unit * 3,
+  },
   form: {
     padding: '12px',
   },

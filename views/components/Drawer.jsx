@@ -23,10 +23,7 @@ const DrawerComponent = (props) => {
   return (
     <>
       <div className={props.classes.logoContainer}>
-        <img
-          style={{ height: '100%' }}
-          src={`${routes.basePath}/img/dpdash.png`}
-        />
+        <img style={{ height: '100%' }} src={'/img/dpdash.png'} />
       </div>
       <div className={props.classes.avatarContainer}>
         {getAvatar({ user: props.user })}

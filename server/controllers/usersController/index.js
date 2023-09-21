@@ -5,14 +5,22 @@ const UsersController = {
     try {
       const { appDb } = req.app.locals
       const { uid } = req.params
-      const { company, department, display_name, mail, title, preferences } =
-        req.body
+      const {
+        company,
+        department,
+        display_name,
+        icon,
+        mail,
+        title,
+        preferences,
+      } = req.body
       const updatedUser = await UserModel.update(appDb, uid, {
         company: String(company),
         department: String(department),
         display_name: String(display_name),
         mail: String(mail),
         title: String(title),
+        icon: String(icon),
         preferences,
       })
 

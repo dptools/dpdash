@@ -17,7 +17,7 @@ const TextInput = (props) => {
           onChange={(e) => {
             field.onChange(e)
 
-            if (onChange) onChange()
+            if (onChange) onChange(e)
           }}
         />
       )}

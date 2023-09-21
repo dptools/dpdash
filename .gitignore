@@ -29,10 +29,3 @@ public/css
 dist
 
 app_build
-
-# Local stuff
-state
-data
-image
-singularity/tool-versions
-singularity/.tool-versions

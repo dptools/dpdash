@@ -17,6 +17,7 @@ import noCache from 'nocache'
 import livereload from 'livereload'
 import connectLiveReload from 'connect-livereload'
 
+import assessmentData from './routes/assessmentData'
 import adminRouter from './routes/admin'
 import authRouter from './routes/auth'
 import chartsRouter from './routes/charts'
@@ -25,6 +26,7 @@ import countsRouter from './routes/counts'
 import dashboardsRouter from './routes/dashboards'
 import indexRouter from './routes/index'
 import participantsRouter from './routes/participants'
+import siteMetadata from './routes/siteMetadata'
 import usersRouter from './routes/users'
 import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
 
@@ -180,6 +182,7 @@ passport.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use('/', assessmentData)
 app.use('/', adminRouter)
 app.use('/', authRouter)
 app.use('/', chartsRouter)
@@ -188,6 +191,7 @@ app.use('/', countsRouter)
 app.use('/', dashboardsRouter)
 app.use('/', indexRouter)
 app.use('/', participantsRouter)
+app.use('/', siteMetadata)
 app.use('/', usersRouter)
 app.use('./img', express.static(path.join(__dirname, '../public/img')))
 

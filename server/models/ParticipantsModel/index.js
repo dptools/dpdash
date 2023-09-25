@@ -15,7 +15,7 @@ const ParticipantsModel = {
 const allParticipantsQuery = (user, queryParams) => {
   const { star, complete } = user.preferences
   const starred = star ? Object.values(star).flat() : []
-  const completed = completed ? Object.values(complete).flat() : []
+  const completed = complete ? Object.values(complete).flat() : []
   const { sortBy, sortDirection, searchSubjects } = queryParams
   const direction = sortDirection === ASC ? 1 : -1
   const sort = { $sort: { star: -1, [sortBy]: direction } }

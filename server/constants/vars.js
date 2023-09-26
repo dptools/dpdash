@@ -70,6 +70,6 @@ export const PASSPORT_FIELDS_ATTRIBUTES = {
 }
 
 export const DEFAULT_PARTICIPANTS_SORT = {
-  sortyBy: 'subject',
+  sortBy: 'subject',
   sortDirection: ASC,
 }

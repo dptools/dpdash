@@ -79,7 +79,7 @@ const HomePage = () => {
     const participantsList = await fetchParticipants({
       sortBy,
       sortDirection,
-      searchSubjects: normalizeSearchSubjects(searchSubjects),
+      searchSubjects: normalizeSearchSubjects(e),
     })
 
     setParticipants(participantsList)

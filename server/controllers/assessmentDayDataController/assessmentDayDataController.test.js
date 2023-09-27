@@ -94,10 +94,10 @@ describe('assessmentDayDataController', () => {
         const request = createRequest({ body: importedData })
         const response = createResponse()
 
-        request.app.locals.appDb.find.mockImplementationOnce()
-        request.app.locals.appDb.findOneAndUpdate.mockImplementationOnce()
-        request.app.locals.appDb.updateOne.mockImplementationOnce()
-        request.app.locals.appDb.insertMany.mockImplementationOnce()
+        request.app.locals.dataDb.find.mockImplementationOnce()
+        request.app.locals.dataDb.findOneAndUpdate.mockImplementationOnce()
+        request.app.locals.dataDb.updateOne.mockImplementationOnce()
+        request.app.locals.dataDb.insertMany.mockImplementationOnce()
 
         await AssessmentDayDataController.create(request, response)
 
@@ -112,7 +112,7 @@ describe('assessmentDayDataController', () => {
         const request = createRequest({ body: importedData })
         const response = createResponse()
 
-        request.app.locals.appDb.toArray.mockRejectedValueOnce(
+        request.app.locals.dataDb.toArray.mockRejectedValueOnce(
           new Error('some error')
         )
 

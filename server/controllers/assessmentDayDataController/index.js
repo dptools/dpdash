@@ -5,7 +5,7 @@ import AssessmentDayDataService from '../../services/AssessmentDayDataService'
 const AssessmentDayDataController = {
   create: async (req, res) => {
     try {
-      const { appDb } = req.app.locals
+      const { dataDb } = req.app.locals
 
       const { metadata, subject_assessments } = req.body
 
@@ -18,7 +18,7 @@ const AssessmentDayDataController = {
         subject,
       }
       const storedAssessmentData = await AssessmentDayDataModel.all(
-        appDb,
+        dataDb,
         collection
       )
       const assessmentDataService = new AssessmentDayDataService(
@@ -28,11 +28,11 @@ const AssessmentDayDataController = {
       const newAssessmentData = assessmentDataService.filterNewData()
       const updatedData = assessmentDataService.filterUpdatedData()
 
-      await ToCModel.upsert(appDb, query, metadata)
+      await ToCModel.upsert(dataDb, query, metadata)
 
       if (newAssessmentData.length)
         await AssessmentDayDataModel.saveMany(
-          appDb,
+          dataDb,
           collection,
           newAssessmentData
         )
@@ -40,7 +40,7 @@ const AssessmentDayDataController = {
         const { day } = participantData
 
         await AssessmentDayDataModel.update(
-          appDb,
+          dataDb,
           collection,
           { day },
           participantData

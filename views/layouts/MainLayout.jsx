@@ -55,6 +55,7 @@ const MainLayout = ({ classes, theme }) => {
       setDrawerVariant(TEMPORARY_SIDEBAR)
     } else {
       setDrawerVariant(PERSISTENT_SIDEBAR)
+      setOpenSidebar(true)
     }
   }
   const fetchCounts = async () => {

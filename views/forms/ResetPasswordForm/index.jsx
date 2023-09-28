@@ -8,6 +8,7 @@ const ResetPasswordForm = ({
   control,
   errors,
   navigate,
+  onInputChange,
 }) => {
   return (
     <Form onSubmit={onSubmit}>
@@ -25,6 +26,7 @@ const ResetPasswordForm = ({
         type="password"
         required={true}
         margin="normal"
+        onChange={(e) => onInputChange(e)}
         error={errors.password.error}
         helperText={errors.password.message}
       />
@@ -33,6 +35,9 @@ const ResetPasswordForm = ({
         name="confirmPassword"
         type="password"
         label="Confirm Password"
+        onChange={(e) => onInputChange(e)}
+        error={errors.confirmPassword.error}
+        helperText={errors.confirmPassword.message}
         required={true}
         margin="normal"
       />
@@ -42,8 +47,6 @@ const ResetPasswordForm = ({
         control={control}
         required={true}
         margin="normal"
-        error={errors.reset_key.error}
-        helperText={errors.reset_key.message}
       />
 
       <div className={classes.register_container_button}>

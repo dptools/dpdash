@@ -17,5 +17,5 @@ export const ROLE_OPTIONS = [
   { value: 'member', label: 'Member' },
 ]
 export const VALIDATION_EMAIL_REGEX = new RegExp(
-  /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/g
+  /^[\w-\.]+@([\w-]+\.)+[\w-]{2,63}$/g
 )

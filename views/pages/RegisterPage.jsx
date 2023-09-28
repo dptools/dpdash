@@ -13,7 +13,7 @@ const RegisterPage = ({ classes }) => {
   const [errors, setErrors] = useState({
     password: { error: false, message: '' },
     email: { error: false, message: '' },
-    username: { error: false, message: '' },
+    confirmPassword: { error: false, message: '' },
   })
   const { handleSubmit, control } = useForm({
     defaultValues: {
@@ -26,47 +26,78 @@ const RegisterPage = ({ classes }) => {
   })
   const navigate = useNavigate()
   const handleFormSubmit = async (data) => {
-    switch (true) {
-      case data.password !== data.confirmPassword:
+    try {
+      if (data.password !== data.confirmPassword) {
         setErrors({
           ...errors,
           password: { error: true, message: 'passwords do not match' },
         })
 
-        break
-      case data.password.length < 8 || data.confirmPassword.length < 8:
+        return
+      } else {
         setErrors({
           ...errors,
-          password: {
-            error: true,
-            message: 'passwords must be a minimum of 8 characters',
-          },
-        })
-
-        break
-      case !VALIDATION_EMAIL_REGEX.test(data.email):
-        setErrors({
-          ...errors,
-          email: { error: true, message: 'incorrect email format' },
-        })
-
-        break
-      default:
-        setErrors({
           password: { error: false, message: '' },
-          email: { error: false, message: '' },
         })
+      }
 
+      const isFormReadyToBeSubmitted = Object.values(errors).every(
+        (value) => value.error === false
+      )
+
+      if (isFormReadyToBeSubmitted) {
         await api.auth.signup(data)
-
         setNotification({
           open: true,
           message:
             'Account has been created, please wait for an Admin to provide access.',
         })
+      } else {
+        setNotification({
+          open: true,
+          message: 'There are still errors in your form.',
+        })
+      }
+    } catch (error) {
+      setNotification({
+        open: true,
+        message: error.message,
+      })
     }
   }
+  const handleChange = (e) => {
+    const { name, value } = e.target
 
+    if (name === 'email') {
+      if (VALIDATION_EMAIL_REGEX.test(value)) {
+        setErrors({
+          ...errors,
+          email: { error: false, message: '' },
+        })
+      } else if (!VALIDATION_EMAIL_REGEX.test(value)) {
+        setErrors({
+          ...errors,
+          email: { error: true, message: 'incorrect email format' },
+        })
+      }
+    }
+    if (name === 'password' || name === 'confirmPassword') {
+      if (value.length < 8) {
+        setErrors({
+          ...errors,
+          [name]: {
+            error: true,
+            message: 'passwords must be a minimum of 8 characters',
+          },
+        })
+      } else {
+        setErrors({
+          ...errors,
+          [name]: { error: false, message: '' },
+        })
+      }
+    }
+  }
   return (
     <div>
       <Card>
@@ -87,6 +118,7 @@ const RegisterPage = ({ classes }) => {
                 onSubmit={handleSubmit(handleFormSubmit)}
                 errors={errors}
                 navigate={navigate}
+                onInputChange={handleChange}
               />
             </div>
 

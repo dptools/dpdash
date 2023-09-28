@@ -18,7 +18,7 @@ const ResetPasswordPage = ({ classes }) => {
   const [, setNotification] = useContext(NotificationContext)
   const [errors, setErrors] = useState({
     password: { error: false, message: '' },
-    reset_key: { error: false, message: '' },
+    confirmPassword: { error: false, message: '' },
   })
   const { handleSubmit, control } = useForm({
     defaultValues: {
@@ -29,53 +29,65 @@ const ResetPasswordPage = ({ classes }) => {
     },
   })
   const navigate = useNavigate()
-
   const handleFormSubmit = async (resetAttributes) => {
     try {
-      switch (true) {
-        case resetAttributes.password !== resetAttributes.confirmPassword:
-          setErrors({
-            ...errors,
-            password: { error: true, message: 'passwords do not match' },
-          })
+      if (resetAttributes.password !== resetAttributes.confirmPassword) {
+        setErrors({
+          ...errors,
+          password: { error: true, message: 'passwords do not match' },
+          confirmPassword: { error: true, message: 'passwords do not match' },
+        })
 
-          break
-        case resetAttributes.password.length < 8 ||
-          resetAttributes.confirmPassword.length < 8:
-          setErrors({
-            ...errors,
-            password: {
-              error: true,
-              message: 'passwords must be a minimum of 8 characters',
-            },
-          })
+        return
+      } else if (resetAttributes.password === resetAttributes.confirmPassword) {
+        setErrors({
+          ...errors,
+          password: { error: false, message: '' },
+          confirmPassword: { error: false, message: '' },
+        })
+      }
 
-          break
+      const isFormReadyToBeSubmitted = Object.values(errors).every(
+        (value) => value.error === false
+      )
 
-        case resetAttributes.reset_key.length < 1:
-          setErrors({
-            ...errors,
-            reset_key: {
-              error: true,
-            },
-          })
-        default:
-          setErrors({
-            password: { error: false, message: '' },
-            reset_key: { error: false, message: '' },
-          })
+      if (isFormReadyToBeSubmitted) {
+        await api.auth.resetPassword(resetAttributes)
 
-          await api.auth.resetPassword(resetAttributes)
+        navigate(routes.login)
 
-          navigate(routes.login)
-
-          setNotification({
-            open: true,
-            message: 'Password has been updated successfully',
-          })
+        setNotification({
+          open: true,
+          message: 'Password has been updated successfully.',
+        })
+      } else {
+        setNotification({
+          open: true,
+          message: 'Please fix any errors in the form.',
+        })
       }
     } catch (error) {
       setNotification({ open: true, message: error.message })
+    }
+  }
+  const handleChange = (e) => {
+    const { name, value } = e.target
+
+    if (name === 'password' || name === 'confirmPassword') {
+      if (value.length < 8) {
+        setErrors({
+          ...errors,
+          [name]: {
+            error: true,
+            message: 'passwords must be a minimum of 8 characters',
+          },
+        })
+      } else {
+        setErrors({
+          ...errors,
+          [name]: { error: false, message: '' },
+        })
+      }
     }
   }
   return (
@@ -98,6 +110,7 @@ const ResetPasswordPage = ({ classes }) => {
                 onSubmit={handleSubmit(handleFormSubmit)}
                 errors={errors}
                 navigate={navigate}
+                onInputChange={handleChange}
               />
             </div>
 

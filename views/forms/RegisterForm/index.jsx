@@ -2,7 +2,14 @@ import Form from '../Form'
 import TextInput from '../TextInput'
 import { Button } from '@material-ui/core'
 
-const RegistrationForm = ({ classes, onSubmit, control, errors, navigate }) => {
+const RegistrationForm = ({
+  classes,
+  onSubmit,
+  control,
+  errors,
+  navigate,
+  onInputChange,
+}) => {
   return (
     <Form onSubmit={onSubmit}>
       <TextInput
@@ -19,6 +26,7 @@ const RegistrationForm = ({ classes, onSubmit, control, errors, navigate }) => {
         label="Password"
         required={true}
         margin="normal"
+        onChange={(e) => onInputChange(e)}
         error={errors.password.error}
         helperText={errors.password.message}
       />
@@ -27,7 +35,10 @@ const RegistrationForm = ({ classes, onSubmit, control, errors, navigate }) => {
         type="password"
         name="confirmPassword"
         label="Confirm Password"
+        onChange={(e) => onInputChange(e)}
         required={true}
+        error={errors.confirmPassword.error}
+        helperText={errors.confirmPassword.message}
         margin="normal"
       />
       <TextInput
@@ -36,6 +47,7 @@ const RegistrationForm = ({ classes, onSubmit, control, errors, navigate }) => {
         control={control}
         required={true}
         margin="normal"
+        onChange={(e) => onInputChange(e)}
       />
       <TextInput
         name="email"
@@ -43,6 +55,7 @@ const RegistrationForm = ({ classes, onSubmit, control, errors, navigate }) => {
         control={control}
         required={true}
         margin="normal"
+        onChange={(e) => onInputChange(e)}
         error={errors.email.error}
         helperText={errors.email.message}
       />

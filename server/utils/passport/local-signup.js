@@ -25,17 +25,16 @@ export default (req, res, next) => {
         const hashedPW = hash(password)
         const account_expires = moment().add(1, 'years').format()
         const configAttributes = { owner: uid, readers: [uid] }
+        const configuration = await ConfigModel.save(appDb, configAttributes)
         const newUserAttributes = {
           uid,
           display_name,
           password: hashedPW,
           mail: email,
           account_expires,
-          preferences: {},
+          preferences: { config: configuration._id.toString() },
         }
         const newUser = await UserModel.save(appDb, newUserAttributes)
-
-        await ConfigModel.save(appDb, configAttributes)
 
         return res.status(200).json({ data: newUser })
       } catch (error) {

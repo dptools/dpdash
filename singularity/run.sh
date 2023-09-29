@@ -22,7 +22,7 @@ export dppy_config=/data/dpdash/configs/dppy.conf
 
 # clear previous logs
 rm -f ~/.pm2/logs/*
-rm -f /data/dpdash/mongodb/logs/mongod.log
+rm -f `find /data/dpdash/ -type f -name "*log"`
 rm -f /data/dpdash/mongodb/dbs/diagnostic.data/*
 rm -f /data/dpdash/supervisord/logs/*
 
@@ -30,7 +30,11 @@ rm -f /data/dpdash/supervisord/logs/*
 echo "Starting superivsord..."
 supervisord -c /data/dpdash/configs/supervisord.conf
 
-# sleep 100 seconds
+# mongod is the one that takes most time to start and causes
+# https://github.com/AMP-SCZ/dpdash/issues/407
+# so let's wait for mongod to start
+while [ -z `pgrep -f mongod` ]; do sleep 30; done
+# sleep more for safeguard
 sleep 100
 
 cd /sw/apps/dpdash

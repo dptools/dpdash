@@ -17,7 +17,7 @@ export const graphPageStyles = (theme) => ({
   configLabel: { marginTop: '25px', marginLeft: '30px' },
   graphToolbar: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     width: '80%',
     marginLeft: '210px',
   },

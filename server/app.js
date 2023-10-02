@@ -91,14 +91,6 @@ app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(bodyParser.json({ limit: '50mb', extended: true }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
-/* csrf protection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
-app.get('/form', csrfProtection, function (req, res) {
-  res.render('send', { csrfToken: req.csrfToken() })
-})
-app.post('/process', parseForm, csrfProtection, function (req, res) {
-  res.send('Processing data ...')
-})
-
 app.use(methodOverride())
 
 /* database setup */
@@ -107,18 +99,21 @@ const mongoURI = process.env.MONGODB_URI
 const mongodbPromise = MongoClient.connect(mongoURI, {
   ssl: false,
   useNewUrlParser: true,
-}).then(function (res) {
-  app.locals.connection = res
-  mongodb = res.db()
-  app.locals.appDb = res.db()
-  app.locals.dataDb = res.db('dpdata')
-  res.db().collection('sessions').drop()
+}).then(
+  function (res) {
+    app.locals.connection = res
+    mongodb = res.db()
+    app.locals.appDb = res.db()
+    app.locals.dataDb = res.db('dpdata')
+    res.db().collection('sessions').drop()
 
-  return res
-}, function (err) {
-  console.log('error connecting to mongodb')
-  console.log(err)
-})
+    return res
+  },
+  function (err) {
+    console.log('error connecting to mongodb')
+    console.log(err)
+  }
+)
 
 /** session store setup */
 app.set('trust proxy', 1)
@@ -206,43 +201,11 @@ app.get('/*', async (req, res) => {
   )
 })
 
-/** error handlers setup */
-
-//catch 404 and forward to error handler
-app.use(function (req, res, next) {
-  if (req.accepts('html')) {
-    res.status(404)
-    return
-  }
-
-  if (req.accepts('json')) {
-    res.status(404).json({ error: '404: Page not found.' })
-    return
-  }
-
-  res.status(404).type('txt').send('ERROR 404: Page not found.')
-
-  next(err)
-})
-
 //catch any other error
 app.use(function (err, req, res, next) {
-  console.log(err)
-  var errStatus = err.status || 500
-  var errMessage = ''
-  switch (errStatus) {
-    case 400:
-      errMessage = 'Bad Request'
-      break
-    case 401:
-      errMessage = 'Unauthorized'
-      break
-    case 403:
-      errMessage = 'Forbidden'
-      break
-    case 500:
-      errMessage = 'Internal Server Error'
-      break
+  if (err) {
+    console.error(err)
+    return res.status(err.status).json({ error: err.message })
   }
 })
 

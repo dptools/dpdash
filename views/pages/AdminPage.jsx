@@ -49,13 +49,15 @@ const AdminPage = () => {
   const handleResetPassword = async (rowIndex) => {
     try {
       const resetKey = crypto.randomUUID()
-      const userId = getUserValues(rowIndex).uid
+      const userValues = getUserValues(rowIndex)
+      const { uid } = userValues
+      const userFromValues = UsersModel.userFromFormValues(userValues)
       const userAttributes = {
-        ...user,
+        ...userFromValues,
         force_reset_pw: true,
         reset_key: resetKey,
       }
-      const updatedUser = await api.admin.users.update(userId, userAttributes)
+      const updatedUser = await api.admin.users.update(uid, userAttributes)
       const formValues = UsersModel.formValuesFromUser(updatedUser)
 
       setValue(`users.${rowIndex}`, formValues)

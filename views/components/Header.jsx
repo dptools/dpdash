@@ -4,10 +4,7 @@ import { AppBar, IconButton, Toolbar, Typography } from '@material-ui/core/'
 import ColorLens from '@material-ui/icons/ColorLens'
 import Person from '@material-ui/icons/Person'
 import { ThemeContext } from '../contexts/ThemeContext'
-import basePathConfig from '../../server/configs/basePathConfig'
 import { routes } from '../routes/routes'
-
-const basePath = basePathConfig || ''
 
 const Header = ({ onToggleSidebar, isAccountPage, title }) => {
   const { classes } = useContext(ThemeContext)
@@ -21,7 +18,7 @@ const Header = ({ onToggleSidebar, isAccountPage, title }) => {
           aria-label="Open drawer"
           onClick={onToggleSidebar}
         >
-          <img width="24px" height="24px" src={`${basePath}/img/favicon.png`} />
+          <img width="24px" height="24px" src={`/img/favicon.png`} />
         </IconButton>
         <Typography variant="title" color="inherit" className={classes.title}>
           {title}

@@ -2,9 +2,6 @@ import * as d3 from 'd3'
 
 import { getColor } from '../../server/utils/invertColor'
 import { stringToDate } from '../../server/utils/dateConverter'
-import basePathConfig from '../../server/configs/basePathConfig'
-
-const basePath = basePathConfig || ''
 
 const margin = {
   top: 30,
@@ -465,12 +462,7 @@ export default class Matrix {
     this.filteredXAxisTop()
       .attr('font-size', this.halfCardSize)
       .style('fill', (d) => (d.marker === 'N/A' ? WHITE : DARK_GREY))
-      .on('click', (d) => {
-        const day = d.day
-        const link = `/deepdive/${this.study}/${this.subject}/${day}`
 
-        window.open(`${basePath}${link}`, '_blank')
-      })
     this.xAxisTop.selectAll('path').attr('stroke-opacity', 0)
     this.xAxisTop.selectAll('line').attr('stroke-opacity', 0)
   }

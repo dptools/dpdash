@@ -72,6 +72,7 @@ export const createDb = (overrides = {}) => ({
   }),
   toArray: jest.fn(),
   updateOne: jest.fn(),
+  stream: jest.fn(),
   ...overrides,
 })
 

@@ -25,9 +25,9 @@ const allParticipantsQuery = (user, queryParams) => {
     { $replaceRoot: { newRoot: subjects } },
     {
       $project: {
-        subject: 1,
+        subject: '$Subject ID',
         days: 1,
-        study: 1,
+        study: '$Study',
         star: {
           $in: [subject, starred],
         },

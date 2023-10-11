@@ -36,9 +36,6 @@ const cookieAttributes = {
   secure: isProduction,
   maxAge: 24 * 60 * 60 * 1000,
 }
-/* csrf protection according to http://expressjs.com/en/resources/middleware/csurf.html#simple-express-example */
-const csrfProtection = csrf({ cookie: true })
-const parseForm = bodyParser.urlencoded({ limit: '50mb', extended: true })
 const app = express()
 
 if (process.env.NODE_ENV === 'development') {
@@ -88,7 +85,7 @@ app.use(morgan('combined', { stream: logger.stream }))
 /** parsers setup */
 app.use(express.static('public'))
 app.use(cookieParser(process.env.SESSION_SECRET))
-app.use(bodyParser.json({ limit: '50mb', extended: true }))
+app.use(bodyParser.json({ limit: '500mb', extended: true }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 app.use(methodOverride())

@@ -3,7 +3,7 @@ import {
   createRequest,
   createResponse,
   createSiteMetadata,
-} from '../../../test/fixtures'
+} from '../../../../test/fixtures'
 
 describe('siteMetadataController', () => {
   describe(SiteMetadataController.create, () => {
@@ -32,7 +32,7 @@ describe('siteMetadataController', () => {
         const request = createRequest({ body })
         const response = createResponse()
 
-        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce()
+        request.app.locals.dataDb.findOneAndUpdate.mockResolvedValueOnce()
 
         await SiteMetadataController.create(request, response)
 
@@ -68,7 +68,7 @@ describe('siteMetadataController', () => {
         const request = createRequest({ body })
         const response = createResponse()
 
-        request.app.locals.appDb.findOneAndUpdate.mockRejectedValueOnce(
+        request.app.locals.dataDb.findOneAndUpdate.mockRejectedValueOnce(
           new Error('some error')
         )
 

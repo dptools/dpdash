@@ -5,7 +5,6 @@ import {
   STUDIES_TO_OMIT,
 } from '../../constants'
 import { collections } from '../../utils/mongoCollections'
-import FiltersService from '../../services/FiltersService'
 
 export const intersectSubjectsFromFilters = (filters) => {
   const intersectedSubjects = new Map()
@@ -47,8 +46,7 @@ export const intersectSubjectsFromFilters = (filters) => {
 }
 
 const SubjectModel = {
-  allForAssessment: async (db, assessment, userAccess, filters) => {
-    const filtersService = new FiltersService(filters, userAccess)
+  allForAssessment: async (db, assessment, filtersService) => {
     const allFiltersDeselected = filtersService.allFiltersInactive()
     let allSubjects
 
@@ -58,7 +56,7 @@ const SubjectModel = {
         .find(
           {
             assessment,
-            study: { $in: userAccess, $nin: STUDIES_TO_OMIT },
+            study: { $in: filtersService.sites, $nin: STUDIES_TO_OMIT },
           },
           { projection: ALL_SUBJECTS_MONGO_PROJECTION }
         )

@@ -2,32 +2,36 @@ import { ObjectId } from 'mongodb'
 import qs from 'qs'
 
 import { collections } from '../../utils/mongoCollections'
-import { DEFAULT_CHART_FILTERS } from '../../constants'
 import SubjectModel from '../../models/SubjectModel'
 import BarChartService from '../../services/BarChartService'
 import BarChartTableService from '../../services/BarChartTableService'
 import CsvService from '../../services/CSVService'
+import StudiesModel from '../../models/StudiesModel'
+import FiltersService from '../../services/FiltersService'
 
 const show = async (req, res, next) => {
   try {
     const { dataDb, appDb } = req.app.locals
+    const userSites = StudiesModel.sanitizeAndSort(req.session.userAccess)
     const { chart_id } = req.params
-    const { userAccess } = req.session
     const parsedQueryParams = qs.parse(req.query)
-    const filters = parsedQueryParams.filters || DEFAULT_CHART_FILTERS
+    const filtersService = new FiltersService(
+      parsedQueryParams.filters,
+      userSites
+    )
     const chart = await dataDb
       .collection(collections.charts)
       .findOne({ _id: ObjectId(chart_id) })
+    const chartService = new BarChartService(dataDb, chart)
+    const filters = filtersService.filters
     const subjects = await SubjectModel.allForAssessment(
       dataDb,
       chart.assessment,
-      userAccess,
-      filters
+      filtersService
     )
-    const chartService = new BarChartService(dataDb, chart)
     const { dataBySite, labels, studyTotals } = await chartService.createChart(
       subjects,
-      userAccess
+      filters.sites
     )
     const chartTableService = new BarChartTableService(dataBySite, labels)
     const websiteTable = chartTableService.websiteTableData()
@@ -66,6 +70,7 @@ const show = async (req, res, next) => {
       filters,
       chartOwner,
       graphTable: websiteTable,
+      userSites,
     }
     return res.status(200).json({ data: graph })
   } catch (err) {

@@ -11,7 +11,7 @@ import chartsDataController from '.'
 import BarChartService from '../../services/BarChartService'
 import BarChartTableService from '../../services/BarChartTableService'
 import SubjectModel from '../../models/SubjectModel'
-import { DEFAULT_CHART_FILTERS } from '../../constants'
+import FiltersService from '../../services/FiltersService'
 
 jest.mock('../../services/BarChartService')
 jest.mock('../../services/BarChartTableService')
@@ -77,6 +77,7 @@ describe('chartsDataController', () => {
         labels: mockLabels,
         studyTotals,
       })
+      const filtersService = new FiltersService()
       mockWebsiteTableData.mockReturnValueOnce(graphTable)
       request.app.locals.dataDb.findOne.mockResolvedValueOnce(chart)
       request.app.locals.appDb.findOne.mockResolvedValueOnce(chartOwner)
@@ -93,9 +94,10 @@ describe('chartsDataController', () => {
           description: chart.description,
           legend: mockLegend,
           studyTotals,
-          filters: DEFAULT_CHART_FILTERS,
+          filters: filtersService.filters,
           chartOwner,
           graphTable,
+          userSites: [],
         },
       })
     })

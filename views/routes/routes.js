@@ -15,7 +15,10 @@ export const routes = {
   editChart: (chartId) => `/charts/${chartId}/edit`,
   editChartPage: '/charts/:chart_id/edit',
   viewChartPage: '/charts/:chart_id',
-  viewChart: (chartId) => `/charts/${chartId}`,
+  viewChart: (chartId, queryParams) =>
+    queryParams
+      ? `/charts/${chartId}?${qs.stringify(queryParams)}`
+      : `/charts/${chartId}`,
   admin: '/admin',
   register: '/register',
   resetpw: '/reset-password',

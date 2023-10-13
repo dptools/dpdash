@@ -10,7 +10,10 @@ export const FILTER_CATEGORIES = {
 export const TRUE_STRING = 'true'
 export const FALSE_STRING = 'false'
 export const EMAIL_REGEX = '[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$'
-export const NOTIFICATION_DEFAULT = { open: false, message: '' }
+export const NOTIFICATION_DEFAULT = {
+  open: false,
+  message: '',
+}
 export const ROLE_OPTIONS = [
   { value: 'admin', label: 'System Admins' },
   { value: 'manager', label: 'Study Manager' },

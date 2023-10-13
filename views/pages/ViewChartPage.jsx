@@ -1,24 +1,44 @@
 import React, { useEffect, useState } from 'react'
+import qs from 'qs'
 import FileSaver from 'file-saver'
-import { useParams, useOutletContext } from 'react-router-dom'
+import {
+  useParams,
+  useOutletContext,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { Typography } from '@material-ui/core'
 import BarGraph from '../components/BarGraph'
 import GraphTable from '../components/GraphTable'
 import UserAvatar from '../components/UserAvatar'
 import ChartFilterForm from '../forms/CharFilterForm'
-import { apiRoutes } from '../routes/routes'
+import { apiRoutes, routes } from '../routes/routes'
 import api from '../api'
+import StudiesModel from '../models/StudiesModel'
 
 const ViewChartPage = () => {
-  const { classes } = useOutletContext()
+  const { classes, setNotification } = useOutletContext()
+  const { search } = useLocation()
   const { chart_id } = useParams()
+  const navigate = useNavigate()
   const [graph, setGraph] = useState(null)
   const { handleSubmit, control, reset } = useForm()
   const handleFormSubmit = async (updatedFilters) => {
-    const graph = await fetchGraph(chart_id, updatedFilters)
+    if (!updatedFilters.sites.length) {
+      setNotification({
+        open: true,
+        message: 'Please select a site to view data',
+      })
+    } else {
+      const sites = updatedFilters.sites.map((obj) => obj.value)
+      const queryParams = {
+        filters: { ...updatedFilters, sites },
+      }
+      const newRoute = routes.viewChart(chart_id, queryParams)
 
-    setGraph(graph)
+      navigate(newRoute)
+    }
   }
   const fetchGraph = async (chart_id, filters) =>
     await api.charts.chartsData.show(chart_id, { filters })
@@ -40,11 +60,16 @@ const ViewChartPage = () => {
   }
 
   useEffect(() => {
-    fetchGraph(chart_id).then((graph) => {
-      setGraph(graph)
-      reset(graph.filters)
+    const parsedQuery = qs.parse(search.replace(/^\?/, ''))
+
+    fetchGraph(chart_id, parsedQuery.filters).then((newGraph) => {
+      setGraph(newGraph)
+      reset({
+        ...newGraph.filters,
+        sites: StudiesModel.dropdownSelectOptions(newGraph.filters.sites),
+      })
     })
-  }, [])
+  }, [chart_id, search])
 
   if (!graph) return <div>Loading...</div>
   return (
@@ -62,8 +87,12 @@ const ViewChartPage = () => {
       )}
       <div className={classes.filterFormContainer}>
         <ChartFilterForm
-          initialValues={graph.filters}
+          initialValues={{
+            ...graph.filters,
+            sites: StudiesModel.dropdownSelectOptions(graph.filters.sites),
+          }}
           onSubmit={handleSubmit(handleFormSubmit)}
+          siteOptions={StudiesModel.dropdownSelectOptions(graph.userSites)}
           classes={classes}
           control={control}
         />

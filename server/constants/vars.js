@@ -11,52 +11,6 @@ export const SOCIODEMOGRAPHICS_FORM = 'form_sociodemographics'
 export const TOTAL_LABEL = 'Total'
 export const SITE = 'Site'
 
-export const ALL_FILTERS_ACTIVE = {
-  chrcrit_part: [
-    { name: 'HC', value: FALSE_STRING },
-    { name: 'CHR', value: FALSE_STRING },
-    { name: 'Missing', value: FALSE_STRING },
-  ],
-  included_excluded: [
-    { name: 'Included', value: FALSE_STRING },
-    { name: 'Excluded', value: FALSE_STRING },
-    { name: 'Missing', value: FALSE_STRING },
-  ],
-  sex_at_birth: [
-    { name: 'Male', value: FALSE_STRING },
-    { name: 'Female', value: FALSE_STRING },
-    { name: 'Missing', value: FALSE_STRING },
-  ],
-}
-
-export const DEFAULT_CHART_FILTERS = {
-  chrcrit_part: [
-    { name: 'HC', value: TRUE_STRING },
-    { name: 'CHR', value: TRUE_STRING },
-    { name: 'Missing', value: TRUE_STRING },
-  ],
-  included_excluded: [
-    { name: 'Included', value: TRUE_STRING },
-    { name: 'Excluded', value: FALSE_STRING },
-    { name: 'Missing', value: FALSE_STRING },
-  ],
-  sex_at_birth: [
-    { name: 'Male', value: TRUE_STRING },
-    { name: 'Female', value: TRUE_STRING },
-    { name: 'Missing', value: TRUE_STRING },
-  ],
-}
-
-export const FILTER_TO_MONGO_VALUE_MAP = {
-  HC: 2,
-  CHR: 1,
-  Missing: '',
-  Included: 1,
-  Excluded: 0,
-  Male: 1,
-  Female: 2,
-}
-
 export const ALL_SUBJECTS_MONGO_PROJECTION = {
   collection: 1,
   study: 1,

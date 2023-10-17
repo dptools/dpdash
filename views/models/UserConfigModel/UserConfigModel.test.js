@@ -21,6 +21,7 @@ describe('Models - User Config', () => {
         UserConfigModel.defaultConfigValues,
         UserConfigModel.defaultConfigValues,
       ],
+      public: false,
     })
 
     it('returns config form values as user config object', async () => {
@@ -55,6 +56,7 @@ describe('Models - User Config', () => {
         owner: 'owl',
         readers: ['fang', 'talon', 'mabel'],
         type: 'matrix',
+        public: false,
       })
     })
   })
@@ -86,6 +88,7 @@ describe('Models - User Config', () => {
         owner: 'owl',
         readers: ['fang', 'talon', 'owl'],
         type: 'matrix',
+        public: true,
       }
       const formFields = await UserConfigModel.processConfigToFormFields(
         currentConfiguration,
@@ -104,6 +107,7 @@ describe('Models - User Config', () => {
             UserConfigModel.defaultConfigValues,
             UserConfigModel.defaultConfigValues,
           ],
+          public: true,
         })
       )
     })

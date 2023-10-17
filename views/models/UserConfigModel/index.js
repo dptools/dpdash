@@ -17,6 +17,7 @@ const UserConfigModel = {
     configType: 'matrix',
     readers: [],
     config: [],
+    public: false,
     ...overrides,
   }),
   processNewConfig: async (formValues, colors, owner) => {
@@ -37,6 +38,7 @@ const UserConfigModel = {
         owner,
         type: formValues.configType,
         readers: formValues.readers.map(({ value }) => value),
+        public: formValues.public,
       }
     } catch (error) {
       throw new Error('There was a problem processing the form')
@@ -44,7 +46,14 @@ const UserConfigModel = {
   },
   processConfigToFormFields: async (currentConfig, colors) => {
     try {
-      const { name, type, owner, readers, config } = currentConfig
+      const {
+        name,
+        type,
+        owner,
+        readers,
+        config,
+        public: publicConfig,
+      } = currentConfig
       const configKey = Object.keys(config)[0]
       const configCategoryFields = config[configKey].map(
         ({ category, analysis, variable, label, range, color }) => {
@@ -60,7 +69,6 @@ const UserConfigModel = {
           }
         }
       )
-
       return {
         configName: name,
         configType: type,
@@ -71,6 +79,7 @@ const UserConfigModel = {
           isFixed: reader === owner,
         })),
         config: configCategoryFields,
+        public: publicConfig,
       }
     } catch (error) {
       throw new Error('There was an error processing the configuration')

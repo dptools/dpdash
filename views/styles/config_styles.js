@@ -108,6 +108,9 @@ export const configStyles = (theme) => ({
     alignItems: 'center',
     padding: '4px',
   },
+  configurationInputContainer: {
+    paddingBottom: '15px',
+  },
   configurationCategoryCard: {
     padding: '12px',
     marginBottom: '4px',

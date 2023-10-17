@@ -65,7 +65,11 @@ const loadAllConfigurationsMongoQuery = (userId) => {
   const $display_name = '$display_name'
 
   return [
-    { $match: { readers: userId } },
+    {
+      $match: {
+        $or: [{ readers: userId }, { public: true }],
+      },
+    },
     {
       $lookup: {
         from: users,

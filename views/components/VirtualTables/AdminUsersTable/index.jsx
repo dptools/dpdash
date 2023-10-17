@@ -71,15 +71,17 @@ const AdminUsersTable = (props) => {
       />
       <Column
         className="CellStyles"
-        cellRenderer={({ cellData, rowIndex }) => (
-          <TextInput
-            control={props.control}
-            name={`users.${rowIndex}.account_expires`}
-            type="date"
-            value={moment(cellData).format('YYYY-MM-DD')}
-            onChange={() => props.onUpdateUser(rowIndex)}
-          />
-        )}
+        cellRenderer={({ cellData, rowIndex, rowData }) =>
+          rowData.role.value === 'admin' ? null : (
+            <TextInput
+              control={props.control}
+              name={`users.${rowIndex}.account_expires`}
+              type="date"
+              value={moment(cellData).format('YYYY-MM-DD')}
+              onChange={() => props.onUpdateUser(rowIndex)}
+            />
+          )
+        }
         dataKey="account_expires"
         label="Account Expiration"
         width={props.width / 4}

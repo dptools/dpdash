@@ -27,3 +27,5 @@ export const DEFAULT_PARTICIPANTS_SORT = {
   sortBy: 'subject',
   sortDirection: ASC,
 }
+
+export const ADMIN_ROLE = 'admin'

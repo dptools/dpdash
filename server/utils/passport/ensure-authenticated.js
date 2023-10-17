@@ -9,10 +9,15 @@ export default async function ensureAuthenticated(req, res, next) {
     const { appDb } = req.app.locals
     const uid = req.user
     const user = await UserModel.findOne(appDb, { uid })
-    const { account_expires, blocked, access } = user
+    const { account_expires, blocked, access, role } = user
 
     switch (true) {
-      case isAccountExpired(account_expires):
+      case isAccountExpired(account_expires, role):
+        await req.session.destroy()
+        await req.logout()
+
+        res.clearCookie('connect.sid')
+
         return res.status(401).json({ error: 'Account is expired' })
       case !!blocked:
         return res

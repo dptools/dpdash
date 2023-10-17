@@ -10,6 +10,7 @@ import {
   MIN_WIDTH,
 } from './styles'
 import {
+  ADMIN_ROLE,
   DISALLOWED_STUDIES,
   EMAIL_REGEX,
   VALIDATION_EMAIL_REGEX,
@@ -24,6 +25,7 @@ import {
 } from './vars'
 
 export {
+  ADMIN_ROLE,
   ADMIN_TABLE_COLUMN_NUMBER,
   ADMIN_TABLE_MAX_WIDTH,
   TABLE_ROW_HEIGHT,

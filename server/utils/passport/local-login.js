@@ -40,9 +40,14 @@ export default (req, res, _, user) => {
       const { role, display_name, mail, icon, access, account_expires } =
         userInfo
 
-      if (isAccountExpired(account_expires))
-        return res.status(401).json({ error: 'Account is expired' })
+      if (isAccountExpired(account_expires, role)) {
+        await req.session.destroy()
+        await req.logout()
 
+        res.clearCookie('connect.sid')
+
+        return res.status(401).json({ error: 'Account is expired' })
+      }
       req.session.role = role
       req.session.display_name = display_name
       req.session.mail = mail

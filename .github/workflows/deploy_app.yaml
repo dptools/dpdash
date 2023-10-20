@@ -25,7 +25,7 @@ jobs:
   build-and-deploy:
     name: Build and Deploy Docker Image
     runs-on: ubuntu-latest
-    if: ${{ startsWith(var.ROLE_ARN, 'arn:aws:iam') }}
+    if: ${{ startsWith(vars.ROLE_ARN, 'arn:aws:iam') }}
     steps:
       - name: checkout
         uses: actions/checkout@v3

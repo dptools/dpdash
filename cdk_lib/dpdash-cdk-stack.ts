@@ -145,10 +145,10 @@ export class DpdashCdkStack extends cdk.Stack {
       )
       
       new ecs_patterns.ApplicationLoadBalancedFargateService(this, `${APP_NAME}DevAppService`, {
-        vpc: vpc,
         serviceName: 'dpDashDevService',
         loadBalancerName: 'dpDashDevLoadBalancer',
         cluster: new ecs.Cluster(this, `${APP_NAME}DevCluster`, {
+          vpc,
           clusterName: 'dpDashDevCluster',
         }),
         taskImageOptions: {

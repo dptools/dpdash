@@ -29,3 +29,8 @@ public/css
 dist
 
 app_build
+
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out

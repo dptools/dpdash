@@ -1,0 +1,68 @@
+name: Deploy App
+on: 
+  pnl-devel: [push]
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node: ['16.x']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Use Node ${{ matrix.node }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install deps
+        run: npm ci --legacy-peer-deps
+      - name: Test
+        run: npm run test
+  build-and-deploy:
+    name: Build and Deploy Docker Image
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(var.ROLE_ARN, 'arn:aws:iam') }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ vars.ROLE_ARN }}
+          role-session-name: dppc-ghactions-session
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: dppc-registry
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+      - name: Update ECS Task
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: dpdash
+          IMAGE_TAG: ${{ github.sha }}
+          CLUSTER_NAME: dpDashDevCluster
+          TASK_NAME: dpDashDevTaskDefinition
+          SERVICE_NAME: dpDashDevService
+        run:
+          | # Grab JSON of current DP Dash task definition, replace container image field with the new container and fix up the JSON, then upload the task and update the service with the new task
+          export ECR_IMAGE="$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+          export TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_NAME" --region="us-east-1")
+          export NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" --arg COMMAND "bundle exec sidekiq -c 2" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | .containerDefinitions[1].image = $IMAGE | .containerDefinitions[1].command = $COMMAND / " " | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
+          export NEW_REVISION=$(aws ecs register-task-definition --region "us-east-1" --cli-input-json "${NEW_TASK_DEFINITION}")
+          export NEW_REVISION_DATA=$(echo $NEW_REVISION | jq '.taskDefinition.revision')
+          export NEW_SERVICE=$(aws ecs update-service --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --task-definition "$TASK_NAME" --force-new-deployment)
+          echo "done"
+          echo "DP Dash, Revision: ${NEW_REVISION_DATA}, Image: $REGISTRY/$REPOSITORY:$IMAGE_TAG"

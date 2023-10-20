@@ -9,7 +9,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    if: ${{ startsWith(var.ROLE_ARN, 'arn:aws:iam') }}
+    if: ${{ startsWith(vars.ROLE_ARN, 'arn:aws:iam') }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -21,5 +21,5 @@ jobs:
     - name: Install dependencies
       run: npm ci
     - name: Deploy Dev
-      if: ${{ startsWith(var.DEV_CERT_ARN, 'arn:aws:acm') }}
+      if: ${{ startsWith(vars.DEV_CERT_ARN, 'arn:aws:acm') }}
       run: DEV_CERT_ARN=${{ vars.DEV_CERT_ARN }} npm run deploy -- --require-approval never

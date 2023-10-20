@@ -1,6 +1,8 @@
 name: Deploy App
 on: 
-  pnl-devel: [push]
+  push:
+    branches:
+      - pnl-devel
 jobs:
   test:
     name: Test on Node ${{ matrix.node }} and ${{ matrix.os }}

@@ -55,8 +55,8 @@ npm run bootstrap
 Create secret values in AWS encrypted SSM Parameter store:
 
 ```bash
-export DPDASH_MONGODB_ADMIN_USER=dpdash
-export DPDASH_IMPORT_API_USERS=dev-api-user
+export DPDASH_MONGODB_ADMIN_USER_DEV=dpdash
+export DPDASH_IMPORT_API_USERS_DEV=dev-api-user
 ./bin/generate-secrets.sh
 ```
 

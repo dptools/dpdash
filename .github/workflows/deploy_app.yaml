@@ -38,7 +38,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.ROLE_ARN }}
-          role-session-name: dppc-ghactions-session
+          role-session-name: dpdash-ghactions-session
           aws-region: us-east-1
 
       - name: Login to Amazon ECR
@@ -48,7 +48,7 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: dppc-registry
+          REPOSITORY: dpdash
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .

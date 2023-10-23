@@ -142,7 +142,11 @@ export class DpdashCdkStack extends cdk.Stack {
             type: 'ROOT',
             keyAlgorithm: 'RSA_2048',
             signingAlgorithm: 'SHA256WITHRSA',
-            subject: {},
+            subject: {
+              country: 'US',
+              initials: 'DG',
+              generationQualifier: 'DBG',
+            },
           }).attrArn,
         )
       })  

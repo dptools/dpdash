@@ -1,5 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
-import * as acmpca from 'aws-cdk-lib/aws-acmpca';
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as efs from "aws-cdk-lib/aws-efs";
@@ -119,50 +119,56 @@ export class DpdashCdkStack extends cdk.Stack {
         sourceVolume: "mongo-data",
       });
 
-
-      const mongoDevService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, `${APP_NAME}MongoService`, {
-        vpc: vpc,
-        cpu: 512,
+      const mongoDevFargateService = new ecs.FargateService(this, `${APP_NAME}DevMongoFargateService`, {
+        cluster: new ecs.Cluster(this, `${APP_NAME}DevMongoCluster`, {
+          vpc,
+          clusterName: 'dpDashDevMongoCluster',
+        }),
         taskDefinition: mongoTaskDefinition,
-        taskSubnets: {
-          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-        },
-        listenerPort: 27017,
-        maxHealthyPercent: 100,
-        minHealthyPercent: 0,
         desiredCount: 1,
         assignPublicIp: false,
-        publicLoadBalancer: false,
       });
 
-      const mongoDevCertificate = new certificate_manager.PrivateCertificate(this, `${APP_NAME}DevMongoCertificate`, {
-        domainName: mongoDevService.loadBalancer.loadBalancerDnsName,
-        certificateAuthority: acmpca.CertificateAuthority.fromCertificateAuthorityArn(this, `${APP_NAME}DevMongoCertificateAuthority`,
-          new acmpca.CfnCertificateAuthority(this, `${APP_NAME}DevMongoCfnCertificateAuthority`, {
-            type: 'ROOT',
-            keyAlgorithm: 'RSA_2048',
-            signingAlgorithm: 'SHA256WITHRSA',
-            subject: {
-              country: 'US',
-              initials: 'DG',
-              generationQualifier: 'DBG',
-            },
-          }).attrArn,
-        )
-      })  
+      const mongoNetworkLoadBalancer = new elbv2.NetworkLoadBalancer(this, `${APP_NAME}DevMongoNetworkLoadBalancer`, {
+        vpc,
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+        },
+        internetFacing: false,
+      });
+
+      const mongoNlbListener = mongoNetworkLoadBalancer.addListener(`${APP_NAME}DevMongoListener`, {
+        port: 27017,
+        protocol: elbv2.Protocol.TCP,
+      });
+
+      const mongoDevServiceTarget = mongoDevFargateService.loadBalancerTarget({
+        containerName: `${APP_NAME}DevMongoContainer`,
+        containerPort: 27017,
+      });      
+
+      mongoNlbListener.addTargets(`${APP_NAME}DevMongoListenerTarget`, {
+        port: 27017,
+        protocol: elbv2.Protocol.TCP,
+        targets: [mongoDevServiceTarget],
+      });
+
+
+      const mongoDevServiceLbSg = new ec2.SecurityGroup(this, "NLBSecurityGroup", { vpc });
+
+      const cfnlb = mongoNetworkLoadBalancer.node.defaultChild as elbv2.CfnLoadBalancer;
       
-
-      mongoDevService.listener.addCertificates(`${APP_NAME}DevMongoCertificate`, [
-        mongoDevCertificate,
-      ])
-  
-      mongoDevService.targetGroup.configureHealthCheck({
-        port: "27017",
-      });
+      cfnlb.addPropertyOverride("SecurityGroups", [mongoDevServiceLbSg.securityGroupId]);
 
       efsSecurityGroup.addIngressRule(
-          mongoDevService.service.connections.securityGroups[0],
+          mongoDevFargateService.connections.securityGroups[0],
           ec2.Port.tcp(2049) // Enable NFS service within security group
+      )
+
+      mongoDevFargateService.connections.allowFrom(
+        mongoDevServiceLbSg,
+        ec2.Port.tcp(27017),
+        "Allow inbound access from MongoDb NLB"
       )
 
       const appTaskDefinition = new ecs.FargateTaskDefinition(this, `${APP_NAME}DevAppTaskDefinition`, {
@@ -173,7 +179,7 @@ export class DpdashCdkStack extends cdk.Stack {
         image: ecs.ContainerImage.fromEcrRepository(dpdashRepository, "latest"),
         portMappings: [{ containerPort: 8000}],
         environment: {
-          MONGODB_HOST: mongoDevService.loadBalancer.loadBalancerDnsName,
+          MONGODB_HOST: mongoNetworkLoadBalancer.loadBalancerDnsName,
         },
         secrets: {
           MONGODB_USER: secrets.mongoDbUserDev,
@@ -202,7 +208,11 @@ export class DpdashCdkStack extends cdk.Stack {
         },
       });
 
-      mongoDevService.loadBalancer.connections.allowFrom(dpDashDevService.service, ec2.Port.tcp(27017), "Allow dpDashDevService to connect to MongoDb");
+      mongoDevServiceLbSg.addIngressRule(
+        dpDashDevService.service.connections.securityGroups[0],
+        ec2.Port.tcp(27017),
+        "Allow inbound access to MongoDb"
+      )
     } else {
       throw new Error("CertificateArn is not defined")
     }

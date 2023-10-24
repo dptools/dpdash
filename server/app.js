@@ -92,7 +92,7 @@ app.use(methodOverride())
 
 /* database setup */
 let mongodb
-const mongoURI = process.env.MONGODB_URI
+const mongoURI = process.env.MONGODB_URI || `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/dpdmongo?authSource=admin`
 const mongodbPromise = MongoClient.connect(mongoURI, {
   ssl: false,
   useNewUrlParser: true,

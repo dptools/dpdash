@@ -12,7 +12,7 @@ const ControlledCheckbox = ({ name, control, onChange, checked }) => {
             field.onChange(e)
             if (onChange) onChange()
           }}
-          defaultChecked={checked || field.value}
+          defaultChecked={checked}
         />
       )}
     />

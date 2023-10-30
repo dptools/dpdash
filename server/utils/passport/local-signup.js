@@ -5,6 +5,7 @@ import { hash } from '../crypto/hash'
 
 import UserModel from '../../models/UserModel'
 import ConfigModel from '../../models/ConfigModel'
+import RegistrationMailer from '../../mailer/RegistrationMailer'
 
 export default (req, res, next) => {
   passport.authenticate(
@@ -35,6 +36,9 @@ export default (req, res, next) => {
           preferences: { config: configuration._id.toString() },
         }
         const newUser = await UserModel.save(appDb, newUserAttributes)
+        const registrationMailer = new RegistrationMailer(user)
+
+        registrationMailer.sendMail()
 
         return res.status(200).json({ data: newUser })
       } catch (error) {

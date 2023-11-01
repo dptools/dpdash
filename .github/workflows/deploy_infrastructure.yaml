@@ -21,5 +21,4 @@ jobs:
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
     - name: Deploy Dev
-      if: ${{ startsWith(vars.DEV_CERT_ARN, 'arn:aws:acm') }}
-      run: DEV_CERT_ARN=${{ vars.DEV_CERT_ARN }} npm run deploy -- --require-approval never
+      run: DEV_CERT_ARN=${{ vars.DEV_CERT_ARN }} EMAIL_DOMAIN=${{ vars.EMAIL_DOMAIN }} npm run deploy -- --require-approval never

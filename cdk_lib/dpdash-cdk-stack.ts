@@ -20,30 +20,30 @@ export class DpdashCdkStack extends cdk.Stack {
     let devCertArn
     let sesIdentityArn
 
-    if (!process.env.EMAIL_DOMAIN) {
-      throw new Error('EMAIL_DOMAIN environment variable is required');
+    if (!process.env.BASE_DOMAIN) {
+      throw new Error('BASE_DOMAIN environment variable is required');
     }
 
     if (process.env.DEV_CERT_ARN) {
       devCertArn = process.env.DEV_CERT_ARN;
-      sesIdentityArn = `aws:arn:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${process.env.EMAIL_DOMAIN}}`
+      sesIdentityArn = `aws:arn:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${process.env.BASE_DOMAIN}}`
     } else {
       const hostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {
-        zoneName: process.env.EMAIL_DOMAIN,
+        zoneName: process.env.BASE_DOMAIN,
       });
 
       const devHostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {
-        zoneName: `staging.${process.env.EMAIL_DOMAIN}`,
+        zoneName: `staging.${process.env.BASE_DOMAIN}`,
       });
 
       const devCert = new certificate_manager.Certificate(this, `${APP_NAME}DevCertificate`, {
-        domainName: `staging.${process.env.EMAIL_DOMAIN}`,
+        domainName: `staging.${process.env.BASE_DOMAIN}`,
         validation: certificate_manager.CertificateValidation.fromDns(devHostedZone),
       });
 
       const identity = new ses.EmailIdentity(this, 'Identity', {
         identity: ses.Identity.publicHostedZone(hostedZone),
-        mailFromDomain: process.env.EMAIL_DOMAIN,
+        mailFromDomain: process.env.BASE_DOMAIN,
       });
 
       devCertArn = devCert.certificateArn;

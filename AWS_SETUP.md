@@ -116,7 +116,7 @@ Navigate to your Github repository and select the Settings tab. Open the "Secret
 
 Create 2 variables:
 1. Create the variable ROLE_ARN with a value of the ARN of your Role from Step 3.
-2. Create the variable EMAIL_DOMAIN with the root domain you will use to host the app (e.g. `dpdash.com`). If you use an outside DNS rather than Route53, this will be the domain used in Step 2.
+2. Create the variable BASE_DOMAIN with the root domain you will use to host the app (e.g. `dpdash.com`). If you use an outside DNS rather than Route53, this will be the domain used in Step 2.
 
 If you keep your domain outside of Route53, create one more variable:
 

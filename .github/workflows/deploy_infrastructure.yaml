@@ -22,4 +22,3 @@ jobs:
       run: npm ci --legacy-peer-deps
     - name: Deploy Dev
       run: DEV_CERT_ARN=${{ vars.DEV_CERT_ARN }} BASE_DOMAIN=${{ vars.BASE_DOMAIN }} npm run deploy -- --require-approval never
-BASE_DOMAIN=dpdash.l.org npm run deploy

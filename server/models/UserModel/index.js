@@ -25,8 +25,8 @@ const UserModel = {
   },
   save: async (db, userAttributes) => {
     const newUser = UserModel.withDefaults(userAttributes)
-
-    return await db.collection(collections.users).insertOne(newUser)
+    const { insertedId } = await db.collection(collections.users).insertOne(newUser)
+    return await db.collection(collections.users).findOne({ _id: insertedId })
   },
   findOne: async (db, userAttributes) => {
     const user = await db

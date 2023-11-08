@@ -1,18 +1,20 @@
+import { SES } from '@aws-sdk/client-ses'
+
 export default class BaseMailer {
   constructor({ to, from }) {
     this.to = to
     this.from = from
   }
 
-  sendMail() {
-    return this.mailService.sendEmail(this.emailParams).promise()
+  async sendMail() {
+    return this.mailService.sendEmail(await this.emailParams())
   }
 
   get mailService() {
-    return new AWS.SES({ apiVersion: '2010-12-01' })
+    return new SES({ apiVersion: '2010-12-01', region: 'us-east-1' })
   }
 
-  get emailParams() {
+  async emailParams() {
     return {
       Destination: {
         ToAddresses: this.to,
@@ -22,7 +24,7 @@ export default class BaseMailer {
         Body: {
           Html: {
             Charset: 'UTF-8',
-            Data: this.body,
+            Data: await this.body(),
           },
         },
         Subject: {

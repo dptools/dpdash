@@ -10,16 +10,15 @@ export default class RegistrationMailer extends BaseMailer {
     this.redirectUrl = process.env.HOME_URL
   }
 
-  get body() {
+  async body() {
     const registrationEmailTemplate = path.join(
       __dirname,
-      'mailer',
       'templates',
       'registrationTemplate.ejs'
     )
 
-    return renderFile(registrationEmailTemplate, {
-      ...user,
+    return await renderFile(registrationEmailTemplate, {
+      ...this.user,
       redirect: this.redirectUrl,
     })
   }

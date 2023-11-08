@@ -3,9 +3,7 @@ import UserModel from '../../models/UserModel'
 import { hash } from '../../utils/crypto/hash'
 
 const AuthController = {
-  create: async (req, res, next) => {
-    return LocalSignup(req, res, next)
-  },
+  create: LocalSignup,
   destroy: async (req, res) => {
     try {
       await req.session.destroy()

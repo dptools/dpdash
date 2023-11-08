@@ -36,9 +36,9 @@ export default (req, res, next) => {
           preferences: { config: configuration._id.toString() },
         }
         const newUser = await UserModel.save(appDb, newUserAttributes)
-        const registrationMailer = new RegistrationMailer(user)
+        const registrationMailer = new RegistrationMailer(newUser)
 
-        registrationMailer.sendMail()
+        await registrationMailer.sendMail()
 
         return res.status(200).json({ data: newUser })
       } catch (error) {

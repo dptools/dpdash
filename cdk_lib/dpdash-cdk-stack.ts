@@ -20,13 +20,13 @@ export class DpdashCdkStack extends cdk.Stack {
     let devCertArn
     let sesIdentityArn
 
-    if (!process.env.BASE_DOMAIN) {
-      throw new Error('BASE_DOMAIN environment variable is required');
+    if (!process.env.BASE_DOMAIN || !process.env.ADMIN_EMAIL || !process.env.EMAIL_SENDER) {
+      throw new Error('Missing required environment variables: BASE_DOMAIN, ADMIN_EMAIL, EMAIL_SENDER');
     }
 
     if (process.env.DEV_CERT_ARN) {
       devCertArn = process.env.DEV_CERT_ARN;
-      sesIdentityArn = `aws:arn:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${process.env.BASE_DOMAIN}}`
+      sesIdentityArn = `arn:aws:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${process.env.BASE_DOMAIN}`
     } else {
       const hostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {
         zoneName: process.env.BASE_DOMAIN,
@@ -47,7 +47,7 @@ export class DpdashCdkStack extends cdk.Stack {
       });
 
       devCertArn = devCert.certificateArn;
-      sesIdentityArn = `aws:arn:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${identity.emailIdentityName}`
+      sesIdentityArn = `arn:aws:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${identity.emailIdentityName}`
     }
     const secrets = {
       mongoDbUserDev: ecs.Secret.fromSsmParameter(ssm.StringParameter.fromSecureStringParameterAttributes(this, `${APP_NAME}MongoDbUser`, {
@@ -224,6 +224,9 @@ export class DpdashCdkStack extends cdk.Stack {
       portMappings: [{ containerPort: 8000}],
       environment: {
         MONGODB_HOST: mongoNetworkLoadBalancer.loadBalancerDnsName,
+        ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+        EMAIL_SENDER: process.env.EMAIL_SENDER,
+        HOME_URL: `https://staging.${process.env.BASE_DOMAIN}`,
       },
       secrets: {
         MONGODB_USER: secrets.mongoDbUserDev,

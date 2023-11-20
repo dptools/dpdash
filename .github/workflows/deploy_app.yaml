@@ -66,7 +66,7 @@ jobs:
           | # Grab JSON of current DP Dash task definition, replace container image field with the new container and fix up the JSON, then upload the task and update the service with the new task
           export ECR_IMAGE="$REGISTRY/$REPOSITORY:$IMAGE_TAG"
           export TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_NAME" --region="us-east-1")
-          export NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" --arg COMMAND "bundle exec sidekiq -c 2" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | .containerDefinitions[1].image = $IMAGE | .containerDefinitions[1].command = $COMMAND / " " | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
+          export NEW_TASK_DEFINITION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
           export NEW_REVISION=$(aws ecs register-task-definition --region "us-east-1" --cli-input-json "${NEW_TASK_DEFINITION}")
           export NEW_REVISION_DATA=$(echo $NEW_REVISION | jq '.taskDefinition.revision')
           export NEW_SERVICE=$(aws ecs update-service --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --task-definition "$TASK_NAME" --force-new-deployment)

@@ -5,7 +5,7 @@
   "scripts": {
     "build": "NODE_ENV=production webpack",
     "build:watch": "webpack --watch",
-    "transpile": "npx babel ./server --out-dir dist",
+    "transpile": "npx babel ./server --out-dir dist && cp -r ./server/mailer/templates ./dist/mailer/templates",
     "dev": "NODE_ENV=development concurrently \"npm run serve:watch\" \"npm run build:watch\"",
     "start": "NODE_ENV=production start dist/bin/www.js",
     "server": "nodemon --exec babel-node server/bin/www.js",

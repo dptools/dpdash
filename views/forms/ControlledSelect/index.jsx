@@ -1,4 +1,4 @@
-import { Select } from '@material-ui/core'
+import { Select } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
 const ControlledSelectInput = ({ children, name, control, value, ...rest }) => {

@@ -7,38 +7,29 @@ import {
   useLocation,
   useNavigate,
 } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { Typography } from '@material-ui/core'
+import { Typography } from '@mui/material'
+
 import BarGraph from '../components/BarGraph'
 import GraphTable from '../components/GraphTable'
 import UserAvatar from '../components/UserAvatar'
-import ChartFilterForm from '../forms/CharFilterForm'
+import ChartFilterForm from '../forms/ChartFilterForm'
 import { apiRoutes, routes } from '../routes/routes'
 import api from '../api'
 import StudiesModel from '../models/StudiesModel'
 
 const ViewChartPage = () => {
-  const { classes, setNotification } = useOutletContext()
   const { search } = useLocation()
   const { chart_id } = useParams()
   const navigate = useNavigate()
   const [graph, setGraph] = useState(null)
-  const { handleSubmit, control, reset } = useForm()
-  const handleFormSubmit = async (updatedFilters) => {
-    if (!updatedFilters.sites.length) {
-      setNotification({
-        open: true,
-        message: 'Please select a site to view data',
-      })
-    } else {
-      const sites = updatedFilters.sites.map((obj) => obj.value)
-      const queryParams = {
-        filters: { ...updatedFilters, sites },
-      }
-      const newRoute = routes.viewChart(chart_id, queryParams)
-
-      navigate(newRoute)
+  const onSubmit = async (formValues) => {
+    const filters = {
+      ...formValues,
+      sites: formValues.sites.map((option) => option.value),
     }
+    const newRoute = routes.viewChart(chart_id, { filters })
+
+    navigate(newRoute)
   }
   const fetchGraph = async (chart_id, filters) =>
     await api.charts.chartsData.show(chart_id, { filters })
@@ -58,52 +49,48 @@ const ViewChartPage = () => {
 
     return res
   }
+  const siteOptions = graph
+    ? StudiesModel.dropdownSelectOptions(graph.userSites)
+    : []
 
   useEffect(() => {
     const parsedQuery = qs.parse(search.replace(/^\?/, ''))
 
     fetchGraph(chart_id, parsedQuery.filters).then((newGraph) => {
       setGraph(newGraph)
-      reset({
-        ...newGraph.filters,
-        sites: StudiesModel.dropdownSelectOptions(newGraph.filters.sites),
-      })
     })
   }, [chart_id, search])
 
   if (!graph) return <div>Loading...</div>
+
   return (
     <>
       {graph.description && (
-        <div className={classes.viewChartRow}>
-          <div className={classes.chartAvatarContainer}>
+        <div>
+          <div>
             <UserAvatar user={graph.chartOwner} />
-            <Typography variant="subtitle2" className={classes.chartAvatarName}>
+            <Typography variant="subtitle2">
               {graph.chartOwner.display_name}
             </Typography>
           </div>
           <Typography variant="subtitle1">{graph.description}</Typography>
         </div>
       )}
-      <div className={classes.filterFormContainer}>
+      <div>
         <ChartFilterForm
           initialValues={{
             ...graph.filters,
-            sites: StudiesModel.dropdownSelectOptions(graph.filters.sites),
+            sites: siteOptions.filter((option) =>
+              graph.filters.sites.includes(option.value)
+            ),
           }}
-          onSubmit={handleSubmit(handleFormSubmit)}
-          siteOptions={StudiesModel.dropdownSelectOptions(graph.userSites)}
-          classes={classes}
-          control={control}
+          onSubmit={onSubmit}
+          siteOptions={siteOptions}
         />
       </div>
-      <BarGraph graph={graph} classes={classes} />
+      <BarGraph graph={graph} />
       {!!graph.dataBySite.length && (
-        <GraphTable
-          graph={graph}
-          classes={classes}
-          onGetCsv={fetchGraphTableCSV}
-        />
+        <GraphTable graph={graph} onGetCsv={fetchGraphTableCSV} />
       )}
     </>
   )

@@ -17,7 +17,7 @@ import { sortDataBySite, sanitizeSiteData } from './helpers'
 
 import { routes } from '../../routes/routes'
 
-const BarGraph = ({ graph, classes }) => {
+const BarGraph = ({ graph }) => {
   const siteData = sortDataBySite(graph.dataBySite)
 
   if (!siteData.length) {
@@ -48,12 +48,7 @@ const BarGraph = ({ graph, classes }) => {
           <Label value="Percent" angle={-90} />
         </YAxis>
         <Tooltip
-          content={
-            <BarGraphTooltip
-              studyTotals={graph.studyTotals}
-              classes={classes}
-            />
-          }
+          content={<BarGraphTooltip studyTotals={graph.studyTotals} />}
         />
         {graph.labels.map((label) => {
           return (

@@ -1,82 +1,92 @@
-import Form from '../Form'
+import { Button } from '@mui/material'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+
 import TextInput from '../TextInput'
-import { Button } from '@material-ui/core'
 
-const RegistrationForm = ({
-  classes,
-  onSubmit,
-  control,
-  errors,
-  navigate,
-  onInputChange,
-}) => {
+const schema = yup.object({
+  username: yup.string().required(),
+  password: yup.string().required().min(8),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('password'), null], 'passwords do not match'),
+  fullName: yup.string().required(),
+  mail: yup.string().required().email(),
+})
+
+const RegistrationForm = ({ initialValues, onCancel, onSubmit }) => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    defaultValues: initialValues,
+    resolver: yupResolver(schema),
+  })
+
   return (
-    <Form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <TextInput
         control={control}
-        name="username"
+        errors={errors.username}
+        fullWidth
         label="Username"
-        required={true}
-        margin="normal"
+        name="username"
+        required
       />
       <TextInput
         control={control}
-        type="password"
-        name="password"
+        errors={errors.password}
+        fullWidth
+        inputProps={{ 'data-testid': 'pw' }}
         label="Password"
-        required={true}
-        margin="normal"
-        onChange={(e) => onInputChange(e)}
-        error={errors.password.error}
-        helperText={errors.password.message}
-      />
-      <TextInput
-        control={control}
+        name="password"
+        required
         type="password"
-        name="confirmPassword"
+      />
+      <TextInput
+        control={control}
+        errors={errors.confirmPassword}
+        fullWidth
+        inputProps={{ 'data-testid': 'confirm-pw' }}
         label="Confirm Password"
-        onChange={(e) => onInputChange(e)}
-        required={true}
-        error={errors.confirmPassword.error}
-        helperText={errors.confirmPassword.message}
-        margin="normal"
+        name="confirmPassword"
+        required
+        type="password"
       />
       <TextInput
-        name="fullName"
+        control={control}
+        errors={errors.fullName}
+        fullWidth
         label="Full Name"
-        control={control}
-        required={true}
-        margin="normal"
-        onChange={(e) => onInputChange(e)}
+        name="fullName"
+        required
       />
       <TextInput
-        name="email"
-        label="Email"
         control={control}
-        required={true}
-        margin="normal"
-        onChange={(e) => onInputChange(e)}
-        error={errors.email.error}
-        helperText={errors.email.message}
+        errors={errors.mail}
+        fullWidth
+        label="Email"
+        name="mail"
+        required
+        sx={{ pb: '16.5px' }}
       />
 
-      <div className={classes.register_container_button}>
-        <Button
-          color="primary"
-          onClick={() => navigate(`/login`)}
-          className={classes.register_cancel_button}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="outlined"
-          type="submit"
-          className={classes.register_submit_button}
-        >
-          Submit
-        </Button>
-      </div>
-    </Form>
+      <Button
+        variant="outlined"
+        type="submit"
+        fullWidth
+        sx={{
+          backgroundColor: 'primary.dark',
+          color: 'common.white',
+          borderRadius: '8px',
+          textTransform: 'none',
+        }}
+      >
+        Sign up
+      </Button>
+    </form>
   )
 }
 

@@ -5,7 +5,10 @@ const ConfigurationsController = {
   create: async (req, res) => {
     try {
       const { appDb } = req.app.locals
-      const newConfiguration = await ConfigModel.save(appDb, req.body)
+      const newConfiguration = await ConfigModel.save(appDb, {
+        ...req.body,
+        created: new Date().toUTCString(),
+      })
 
       return res.status(200).json({ data: newConfiguration })
     } catch (error) {
@@ -40,11 +43,10 @@ const ConfigurationsController = {
     try {
       const { appDb } = req.app.locals
       const { config_id } = req.params
-      const updatedConfiguration = await ConfigModel.update(
-        appDb,
-        config_id,
-        req.body
-      )
+      const updatedConfiguration = await ConfigModel.update(appDb, config_id, {
+        ...req.body,
+        updatedAt: new Date().toISOString(),
+      })
 
       return res.status(200).json({ data: updatedConfiguration })
     } catch (error) {

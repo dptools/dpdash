@@ -1,0 +1,14 @@
+.HeroFooter_container {
+  bottom: 0;
+  display: flex;
+  gap: 60px;
+  left: 0;
+  padding: 24px 72px;
+  position: fixed;
+  right: 0;
+}
+
+.HeroFooter_linksContainer {
+  display: flex;
+  gap: 84px;
+}

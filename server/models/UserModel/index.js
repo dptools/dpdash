@@ -25,7 +25,10 @@ const UserModel = {
   },
   save: async (db, userAttributes) => {
     const newUser = UserModel.withDefaults(userAttributes)
-    const { insertedId } = await db.collection(collections.users).insertOne(newUser)
+    const { insertedId } = await db
+      .collection(collections.users)
+      .insertOne(newUser)
+
     return await db.collection(collections.users).findOne({ _id: insertedId })
   },
   findOne: async (db, userAttributes) => {
@@ -72,6 +75,7 @@ const UserModel = {
     force_reset_pw: false,
     realms: [''],
     icon: '',
+    iconFileName: '',
     access: [],
     blocked: false,
     role: 'member',

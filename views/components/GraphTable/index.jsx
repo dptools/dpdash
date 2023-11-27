@@ -8,23 +8,23 @@ import {
   Paper,
   Toolbar,
   Button,
-} from '@material-ui/core'
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
+} from '@mui/material'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 
-const GraphTable = ({ graph, classes, onGetCsv }) => {
+const GraphTable = ({ graph, onGetCsv }) => {
   if (!graph) return null
 
   const { tableColumns, tableRows } = graph.graphTable
 
   return (
-    <Paper className={classes.graphTableContainer}>
+    <Paper>
       <Toolbar>
         <Button
           variant="outlined"
           color="secondary"
           onClick={() => onGetCsv(graph.chart_id, graph.filters, graph.title)}
         >
-          <ArrowDropDownIcon className={classes.tableCsvIcon} />
+          <ArrowDropDownIcon />
           Export as CSV
         </Button>
       </Toolbar>

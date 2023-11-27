@@ -1,19 +1,34 @@
-import Form from '../Form'
-import TextInput from '../TextInput'
-import { Button } from '@material-ui/core'
+import { Button } from '@mui/material'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
-const ResetPasswordForm = ({
-  classes,
-  onSubmit,
-  control,
-  errors,
-  navigate,
-  onInputChange,
-}) => {
+import TextInput from '../TextInput'
+
+const schema = yup.object({
+  username: yup.string().required(),
+  password: yup.string().required().min(8),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('password'), null], 'passwords do not match'),
+  reset_key: yup.string().required(),
+})
+
+const ResetPasswordForm = ({ initialValues, onCancel, onSubmit }) => {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    defaultValues: initialValues,
+    resolver: yupResolver(schema),
+  })
   return (
-    <Form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <TextInput
         control={control}
+        errors={errors.username}
+        fullWidth
         name="username"
         label="Username"
         required={true}
@@ -21,51 +36,45 @@ const ResetPasswordForm = ({
       />
       <TextInput
         control={control}
+        errors={errors.password}
+        fullWidth
+        inputProps={{ 'data-testid': 'pw' }}
         name="password"
         label="Password"
         type="password"
         required={true}
         margin="normal"
-        onChange={(e) => onInputChange(e)}
-        error={errors.password.error}
-        helperText={errors.password.message}
       />
       <TextInput
         control={control}
+        errors={errors.confirmPassword}
+        fullWidth
+        inputProps={{ 'data-testid': 'confirm-pw' }}
         name="confirmPassword"
         type="password"
         label="Confirm Password"
-        onChange={(e) => onInputChange(e)}
-        error={errors.confirmPassword.error}
-        helperText={errors.confirmPassword.message}
         required={true}
         margin="normal"
       />
       <TextInput
-        name="reset_key"
-        label="Reset Key"
         control={control}
-        required={true}
+        errors={errors.reset_key}
+        fullWidth
+        label="Reset Key"
         margin="normal"
+        name="reset_key"
+        required={true}
       />
 
-      <div className={classes.register_container_button}>
-        <Button
-          color="primary"
-          onClick={() => navigate(`/login`)}
-          className={classes.register_cancel_button}
-        >
+      <div>
+        <Button color="primary" onClick={() => onCancel()}>
           Cancel
         </Button>
-        <Button
-          variant="outlined"
-          type="submit"
-          className={classes.register_submit_button}
-        >
+        <Button variant="outlined" type="submit">
           Submit
         </Button>
       </div>
-    </Form>
+    </form>
   )
 }
 

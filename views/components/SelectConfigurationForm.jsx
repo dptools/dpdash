@@ -1,17 +1,16 @@
 import React from 'react'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import { TextField } from '@material-ui/core'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import { TextField } from '@mui/material'
 
 const SelectConfigurationForm = ({
   configurations,
   onChange,
   currentPreference,
-  classes,
 }) => {
   return (
-    <form autoComplete="off" className={classes.configForm}>
-      <FormControl className={classes.configFormControl}>
+    <form autoComplete="off">
+      <FormControl>
         <TextField
           select
           label="Configurations"

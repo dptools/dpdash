@@ -2,17 +2,17 @@ import React from 'react'
 import { useOutletContext, useParams } from 'react-router-dom'
 import FileSaver from 'file-saver'
 
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 import * as _ from 'lodash'
 
-import IconButton from '@material-ui/core/IconButton'
-import SaveIcon from '@material-ui/icons/Save'
-import Tooltip from '@material-ui/core/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import SaveIcon from '@mui/icons-material/Save'
+import Tooltip from '@mui/material/Tooltip'
 
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import Dialog from '@material-ui/core/Dialog'
-import Functions from '@material-ui/icons/Functions'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import Dialog from '@mui/material/Dialog'
+import Functions from '@mui/icons-material/Functions'
 
 import SelectConfigurationForm from '../components/SelectConfigurationForm'
 import Matrix from '../components/Matrix.d3'
@@ -25,7 +25,6 @@ const GraphPage = () => {
   const {
     configurations,
     user,
-    classes,
     theme,
     setOpenSidebar,
     setUser,
@@ -203,13 +202,12 @@ const GraphPage = () => {
 
   return (
     <>
-      <div className={classes.graphToolbar}>
-        <div className={classes.configDropDownContainer}>
+      <div>
+        <div>
           <SelectConfigurationForm
             configurations={configurations}
             onChange={updateUserPreferences}
             currentPreference={user.preferences}
-            classes={classes}
           />
         </div>
         <IconButton
@@ -220,11 +218,11 @@ const GraphPage = () => {
           <Functions />
         </IconButton>
       </div>
-      <div className={classes.graph_content}>
+      <div>
         <div className="Matrix">
           <div className="graph" ref={el} />
         </div>
-        <div className={classes.graphImageButton}>
+        <div>
           <Button
             variant="fab"
             onClick={downloadPng}
@@ -238,7 +236,7 @@ const GraphPage = () => {
         </div>
       </div>
       <Dialog modal={false} open={openStat} onClose={closeStat}>
-        <DialogContent className={classes.graphTable}>
+        <DialogContent>
           <GraphPageTable
             matrixData={graph.matrixData}
             maxDay={dayData.maxDay}

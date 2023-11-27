@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { useOutletContext } from 'react-router-dom'
-import NoSsr from '@material-ui/core/NoSsr'
+import NoSsr from '@mui/material/NoSsr'
 import Select from 'react-select'
+
 import { UsersModel, StudiesModel } from '../models'
 import { components } from '../forms/ControlledReactSelect/components'
 import api from '../api'
@@ -11,7 +12,7 @@ import * as TableHelpers from '../components/VirtualTables/helpers'
 
 const AdminPage = () => {
   const usersKey = 'users'
-  const { user, classes, setNotification, users, setUsers } = useOutletContext()
+  const { user, setNotification, users, setUsers } = useOutletContext()
 
   const [searchOptions, setSearchOptions] = useState([])
   const [rowCount, setRowCount] = useState(0)
@@ -139,7 +140,6 @@ const AdminPage = () => {
       <NoSsr>
         <Select
           autoFocus={true}
-          classes={classes}
           components={components}
           isMulti
           onChange={(e) => setSearchOptionsValue(e)}
@@ -149,7 +149,6 @@ const AdminPage = () => {
         />
       </NoSsr>
       <AdminForm
-        classes={classes}
         control={control}
         currentRowIndex={currentRowIndex}
         height={dimensions.height}

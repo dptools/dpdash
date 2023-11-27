@@ -1,6 +1,6 @@
 {
   "name": "po",
-  "version": "0.0.0",
+  "version": "2.1.0",
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production webpack",
@@ -11,13 +11,21 @@
     "server": "nodemon --exec babel-node server/bin/www.js",
     "serve:watch": "nodemon -r dotenv/config --exec babel-node server/bin/www.js --watch \"./server\" dotenv_config_path=./.env.development",
     "node": "DEBUG=* node ./dist/bin/www.js",
-    "test": "jest",
+    "test": "concurrently \"npm run test:ui\" \"npm run test:server\"",
+    "test:ui": "jest --env=jsdom --config=jestUIConfig.js views/",
+    "test:server": "jest server/",
     "bootstrap": "cdk bootstrap",
     "deploy": "cdk deploy"
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ]
+  },
   "babel": {
     "presets": [
-      "@babel/preset-env"
+      "@babel/preset-env",
+      "@babel/preset-react"
     ],
     "plugins": [
       "@babel/plugin-transform-runtime",
@@ -27,8 +35,11 @@
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.437.0",
-    "@material-ui/core": "^3.3.0",
-    "@material-ui/icons": "^3.0.1",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@hookform/resolvers": "^3.3.2",
+    "@mui/icons-material": "^5.14.15",
+    "@mui/material": "^5.14.15",
     "aws-cdk-lib": "2.100.0",
     "body-parser": "^1.18.3",
     "classnames": "^2.2.6",
@@ -46,7 +57,6 @@
     "express-session": "^1.15.6",
     "file-saver": "^2.0.0-rc.4",
     "helmet": "^3.14.0",
-    "http-errors": "~1.6.2",
     "lodash": "^4.17.21",
     "method-override": "^3.0.0",
     "moment": "^2.22.2",
@@ -63,7 +73,7 @@
     "react-router-dom": "^6.13.0",
     "react-select": "^2.1.0",
     "react-virtualized": "^9.21.0",
-    "recharts": "^2.0.9",
+    "recharts": "^2.9.0",
     "serve-favicon": "^2.5.0",
     "source-map-support": "^0.5.21",
     "uuid": "^3.3.2",
@@ -83,6 +93,9 @@
     "@babel/preset-env": "^7.14.0",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
+    "@testing-library/jest-dom": "^6.1.4",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/user-event": "^14.5.1",
     "@types/jest": "^29.5.5",
     "@types/node": "20.7.1",
     "aws-cdk": "^2.100.0",
@@ -97,10 +110,10 @@
     "dotenv": "^16.3.1",
     "eslint": "^7.27.0",
     "eslint-plugin-react": "^7.24.0",
-    "exports-loader": "^0.7.0",
     "html-webpack-plugin": "^5.5.3",
-    "imports-loader": "^0.8.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^29.2.2",
+    "jest-environment-jsdom": "^29.7.0",
     "livereload": "^0.9.3",
     "nodemon": "^2.0.16",
     "style-loader": "^3.3.3",

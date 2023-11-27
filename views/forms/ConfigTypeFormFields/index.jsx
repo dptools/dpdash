@@ -1,14 +1,14 @@
 import React from 'react'
-import { InputLabel, Typography } from '@material-ui/core'
+import { InputLabel, Typography } from '@mui/material'
 import TextInput from '../TextInput'
 import ControlledReactSelect from '../ControlledReactSelect'
 import ControlledCheckbox from '../ControlledCheckbox'
 
 const ConfigTypeFormFields = (props) => {
-  const { control, friendsList, classes } = props
+  const { control, friendsList } = props
 
   return (
-    <div className={classes.configurationInputContainer}>
+    <div>
       <TextInput
         name="configName"
         placeholder="Configuration Name"
@@ -23,10 +23,8 @@ const ConfigTypeFormFields = (props) => {
         placeholder={'matrix'}
         fullWidth={false}
       />
-      <div className={classes.formLabelRow}>
-        <InputLabel htmlFor="public_checkbox" className={classes.publicText}>
-          Public
-        </InputLabel>
+      <div>
+        <InputLabel htmlFor="public_checkbox">Public</InputLabel>
         <ControlledCheckbox
           control={control}
           name="public"
@@ -38,7 +36,6 @@ const ConfigTypeFormFields = (props) => {
       <Typography variant="subtitle2">Shared with:</Typography>
       <ControlledReactSelect
         name="readers"
-        classes={classes}
         control={control}
         options={friendsList}
         placeholder="Shared with"

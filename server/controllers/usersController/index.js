@@ -10,6 +10,7 @@ const UsersController = {
         department,
         display_name,
         icon,
+        iconFileName,
         mail,
         title,
         preferences,
@@ -21,6 +22,7 @@ const UsersController = {
         mail: String(mail),
         title: String(title),
         icon: String(icon),
+        iconFileName: String(iconFileName),
         preferences,
       })
 

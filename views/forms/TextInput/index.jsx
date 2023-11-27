@@ -1,26 +1,26 @@
-import TextField from '@material-ui/core/TextField'
-import { Controller } from 'react-hook-form'
+import React from 'react'
+import TextField from '@mui/material/TextField'
+import { useController } from 'react-hook-form'
 
 const TextInput = (props) => {
-  const { name, control, onChange, ...rest } = props
+  const { errors } = props
+  const { field } = useController(props)
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <TextField
-          fullWidth={true}
-          margin="dense"
-          {...field}
-          {...rest}
-          onChange={(e) => {
-            field.onChange(e)
-
-            if (onChange) onChange(e)
-          }}
-        />
-      )}
+    <TextField
+      aria-invalid={!!errors ? 'true' : 'false'}
+      aria-label={props.label}
+      fullWidth={props.fullWidth}
+      helperText={errors?.message}
+      InputLabelProps={{ shrink: true }}
+      inputProps={props.inputProps}
+      label={props.label}
+      margin={props.margin || 'normal'}
+      required={props.required}
+      type={props.type}
+      placeholder={props.placeholder}
+      sx={props.sx}
+      {...field}
     />
   )
 }

@@ -1,28 +1,18 @@
 import React from 'react'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 
-import Form from './Form'
 import BarChartFields from './BarChartFields'
 
-const ChartForm = ({ classes, onSubmit, fields, control, ...rest }) => {
+const ChartForm = ({ onSubmit, fields, control, ...rest }) => {
   return (
-    <Form onSubmit={onSubmit}>
-      <BarChartFields
-        classes={classes}
-        control={control}
-        fields={fields}
-        {...rest}
-      />
-      <div className={classes.submitButtonContainer}>
-        <Button
-          type="submit"
-          variant="contained"
-          className={classes.textButton}
-        >
+    <form onSubmit={onSubmit}>
+      <BarChartFields control={control} fields={fields} {...rest} />
+      <div>
+        <Button type="submit" variant="contained">
           Submit Form
         </Button>
       </div>
-    </Form>
+    </form>
   )
 }
 

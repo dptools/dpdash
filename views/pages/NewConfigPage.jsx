@@ -4,7 +4,6 @@ import { useOutletContext } from 'react-router-dom'
 
 import api from '../api'
 import useArrayFormFields from '../hooks/useArrayFormFields'
-import useGrid from '../hooks/useGrid'
 import ConfigForm from '../forms/ConfigForm'
 import { UserConfigModel, UsersModel } from '../models'
 import { colorList } from '../fe-utils/colorList'
@@ -12,7 +11,7 @@ import { colorList } from '../fe-utils/colorList'
 const colors = colorList()
 
 const NewConfigPage = () => {
-  const { user, classes, users, setNotification } = useOutletContext()
+  const { user, users, setNotification } = useOutletContext()
   const { uid } = user
   const defaultValues = UserConfigModel.defaultFormValues({
     readers: [{ value: uid, label: uid, isFixed: true }],
@@ -25,7 +24,6 @@ const NewConfigPage = () => {
     name: 'config',
     defaultFieldValue,
   })
-  const gridState = useGrid()
   const friendsList = UsersModel.createUserFriendList(users, user)
 
   const handleFormData = async (formValues) => {
@@ -52,12 +50,10 @@ const NewConfigPage = () => {
   return (
     <>
       <ConfigForm
-        classes={classes}
         colors={colors}
         control={control}
         fields={fields}
         friendsList={friendsList}
-        gridState={gridState}
         onAddNewField={addNewField}
         onCopy={onCopy}
         onSubmit={handleSubmit(handleFormData)}

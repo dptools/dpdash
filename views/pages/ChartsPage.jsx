@@ -1,22 +1,23 @@
 import React, { useState, useEffect } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { Box, Button } from '@mui/material'
+import { Link, useOutletContext } from 'react-router-dom'
 
-import ChartList from '../components/ChartList'
-import AddNewChart from '../components/Graphs/AddNewChart'
+import api from '../api'
+import ChartsTable from '../tables/ChartsTable'
+import PageHeader from '../components/PageHeader'
 import ShareChart from '../components/ShareCharts'
 import { routes } from '../routes/routes'
-import api from '../api'
 
 const NULL_CHART = {}
 
 const ChartsPage = () => {
-  const { user, classes, navigate, setNotification, users } = useOutletContext()
+  const { user, setNotification, users } = useOutletContext()
   const [chartToShare, setChartToShare] = useState(NULL_CHART)
   const [chartList, setChartList] = useState([])
   const [usernames, setUsernames] = useState([])
 
   const closeDialog = () => setChartToShare(NULL_CHART)
-  const handleShareChart = (chart) => setChartToShare(chart)
+  const onShare = (chart) => setChartToShare(chart)
   const shareWithUsers = async (chart_id, sharedWith, options = {}) => {
     try {
       await api.charts.chartsShare.create(chart_id, sharedWith)
@@ -33,21 +34,19 @@ const ChartsPage = () => {
       setNotification({ open: true, message: error.message })
     }
   }
-  const removeChart = async (id) => {
+  const onDelete = async (chart) => {
     try {
-      await api.charts.chart.destroy(id)
+      await api.charts.chart.destroy(chart._id)
 
       await loadCharts()
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }
   }
-  const onDuplicateChart = async (id) => {
+  const onDuplicate = async (chart) => {
     try {
-      await api.charts.chartsDuplicate.create(id)
+      await api.charts.chartsDuplicate.create(chart._id)
       await loadCharts()
-
-      setNotification({ open: true, message: 'Chart is now duplicated.' })
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }
@@ -61,7 +60,6 @@ const ChartsPage = () => {
       setNotification({ open: true, message: error.message })
     }
   }
-  const newChart = () => navigate(routes.newChart)
 
   useEffect(() => {
     loadCharts()
@@ -79,14 +77,27 @@ const ChartsPage = () => {
   }, [users])
 
   return (
-    <div className={classes.chartListContainer}>
-      <ChartList
-        handleShareChart={handleShareChart}
-        chartList={chartList}
-        removeChart={removeChart}
-        onDuplicateChart={onDuplicateChart}
+    <Box sx={{ p: '20px' }}>
+      <PageHeader
+        title="Charts"
+        cta={
+          <Button
+            component={Link}
+            to={routes.newChart}
+            variant="contained"
+            size="small"
+            sx={{ backgroundColor: 'primary.dark', textTransform: 'none' }}
+          >
+            New chart
+          </Button>
+        }
+      />
+      <ChartsTable
+        onShare={onShare}
+        charts={chartList}
+        onDelete={onDelete}
+        onDuplicate={onDuplicate}
         user={user}
-        classes={classes}
       />
       {!!chartToShare._id && (
         <ShareChart
@@ -94,11 +105,9 @@ const ChartsPage = () => {
           usernames={usernames}
           handleChange={shareWithUsers}
           handleClose={closeDialog}
-          classes={classes}
         />
       )}
-      <AddNewChart onNewChart={newChart} />
-    </div>
+    </Box>
   )
 }
 

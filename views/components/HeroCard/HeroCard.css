@@ -1,0 +1,14 @@
+.HeroCard_container {
+  box-shadow: 0 0 0 0;
+  width: 565px;
+}
+
+.HeroCard_image {
+  height: 106px;
+  width: 476px;
+}
+
+.HeroCard_button {
+  text-transform: none;
+  border-radius: 8px;
+}

@@ -4,7 +4,7 @@ COPY . /src
 
 WORKDIR /src
 
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 ENV NODE_OPTIONS=--openssl-legacy-provider
 

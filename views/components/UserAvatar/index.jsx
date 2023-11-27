@@ -1,6 +1,6 @@
 import React from 'react'
-import Avatar from '@material-ui/core/Avatar'
-import Person from '@material-ui/icons/AccountCircle'
+import Avatar from '@mui/material/Avatar'
+import Person from '@mui/icons-material/AccountCircle'
 import { colors } from '../../../constants'
 
 const DEFAULT_AVATAR_STYLE = { width: 60, height: 60 }

@@ -11,7 +11,7 @@ import { colorList } from '../fe-utils/colorList'
 const colors = colorList()
 
 const EditConfigPage = () => {
-  const { user, classes, setNotification, users } = useOutletContext()
+  const { user, setNotification, users } = useOutletContext()
   const [loading, setLoading] = useState(true)
   const { config_id } = useParams()
   const { uid } = user
@@ -70,7 +70,6 @@ const EditConfigPage = () => {
 
   return (
     <ConfigForm
-      classes={classes}
       colors={colors}
       control={control}
       fields={fields}

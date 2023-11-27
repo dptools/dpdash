@@ -1,10 +1,11 @@
 import { useContext } from 'react'
 import Select from 'react-select'
 import { components } from './components'
-import { Controller } from 'react-hook-form'
+import { useController } from 'react-hook-form'
 import { NotificationContext } from '../../contexts'
 
-const ControlledReactSelect = ({ name, control, options, ...rest }) => {
+const ControlledReactSelect = (props) => {
+  const { field } = useController(props)
   const [, setNotification] = useContext(NotificationContext)
 
   const onChange = (options, actionMeta, field) => {
@@ -31,20 +32,12 @@ const ControlledReactSelect = ({ name, control, options, ...rest }) => {
   }
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => (
-        <Select
-          {...rest}
-          {...field}
-          options={options}
-          onChange={(options, actionMeta) =>
-            onChange(options, actionMeta, field)
-          }
-          components={components}
-        />
-      )}
+    <Select
+      {...field}
+      options={props.options}
+      onChange={(options, actionMeta) => onChange(options, actionMeta, field)}
+      components={components}
+      isMulti
     />
   )
 }

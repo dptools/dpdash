@@ -1,0 +1,10 @@
+.SignInPageRegister_link {
+  text-decoration: none;
+  padding-left: 6px;
+  color: var(--primary-main);
+}
+
+.SignInPageResetPW_link {
+  padding-top: 16px;
+  text-decoration: none;
+}

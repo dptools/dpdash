@@ -1,14 +1,14 @@
 import React from 'react'
-import Select from '@material-ui/core/Select'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Chip from '@material-ui/core/Chip'
-import MenuItem from '@material-ui/core/MenuItem'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import Input from '@material-ui/core/Input'
+import Select from '@mui/material/Select'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import Chip from '@mui/material/Chip'
+import MenuItem from '@mui/material/MenuItem'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Input from '@mui/material/Input'
 
 const menuProps = {
   PaperProps: {
@@ -18,27 +18,15 @@ const menuProps = {
   },
 }
 
-const ShareChart = ({
-  chart,
-  usernames,
-  handleChange,
-  handleClose,
-  classes,
-}) => {
+const ShareChart = ({ chart, usernames, handleChange, handleClose }) => {
   const [sharedWith, setSharedWith] = React.useState(chart.sharedWith || [])
 
   return (
     <Dialog open onClose={handleClose} fullScreen={true}>
-      <DialogTitle
-        id="alert-dialog-title"
-        disableTypography={true}
-        className={classes.dialogTitle}
-      >
-        <Typography variant="title" className={classes.dialogTypography}>
-          Share your chart
-        </Typography>
+      <DialogTitle id="alert-dialog-title" disableTypography={true}>
+        <Typography variant="title">Share your chart</Typography>
       </DialogTitle>
-      <DialogContent className={classes.dialogContent}>
+      <DialogContent>
         <Select
           multiple
           value={sharedWith}
@@ -82,12 +70,9 @@ const ShareChart = ({
         </Select>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} className={classes.dialogCancelButton}>
-          Cancel
-        </Button>
+        <Button onClick={handleClose}>Cancel</Button>
         <Button
           variant="outlined"
-          className={classes.dialogShareButton}
           onClick={() =>
             handleChange(chart._id, sharedWith, { closeDialog: true })
           }

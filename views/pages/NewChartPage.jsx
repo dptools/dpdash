@@ -10,7 +10,7 @@ import { colors } from '../../constants/styles'
 import api from '../api'
 
 const NewChartPage = () => {
-  const { user, classes, navigate, setNotification } = useOutletContext()
+  const { user, navigate, setNotification } = useOutletContext()
   const { handleSubmit, control, watch } = useForm({
     defaultValues: {
       title: '',
@@ -41,9 +41,8 @@ const NewChartPage = () => {
   }
 
   return (
-    <div className={classes.chartFormContainer}>
+    <div>
       <ChartForm
-        classes={classes}
         onSubmit={handleSubmit(handleFormSubmit)}
         control={control}
         fields={fields}

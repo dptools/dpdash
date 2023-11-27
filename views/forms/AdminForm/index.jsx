@@ -1,11 +1,10 @@
 import React from 'react'
-import Form from '../Form'
+
 import UserResetKeyFields from '../UserResetKeyFormFields'
 import AdminUsersTable from '../../components/VirtualTables/AdminUsersTable'
 import UserPriviligeFields from '../UserPriviligeFormFields'
 
 const AdminForm = ({
-  classes,
   control,
   currentRowIndex,
   height,
@@ -26,9 +25,8 @@ const AdminForm = ({
   width,
 }) => {
   return (
-    <Form>
+    <form>
       <AdminUsersTable
-        classes={classes}
         users={users}
         control={control}
         height={height}
@@ -42,7 +40,6 @@ const AdminForm = ({
         user={user}
       />
       <UserPriviligeFields
-        classes={classes}
         open={openAccessFields}
         currentRowIndex={currentRowIndex}
         onClose={onClose}
@@ -56,7 +53,7 @@ const AdminForm = ({
         resetKey={resetKey}
         onClose={onClose}
       />
-    </Form>
+    </form>
   )
 }
 

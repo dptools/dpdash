@@ -13,7 +13,7 @@ const AuthenticatedRoute = ({ children }) => {
       const currentUser = await api.auth.me()
       setUser(currentUser)
     } catch (error) {
-      navigate(routes.login)
+      navigate(routes.signin)
     }
   }
 

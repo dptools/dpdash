@@ -4,59 +4,49 @@ import AccountPage from '../pages/AccountPage'
 import AdminPage from '../pages/AdminPage'
 import AuthenticatedRoute from '../hoc/AuthenticatedRoute'
 import ChartsPage from '../pages/ChartsPage'
-import ConfigPage from '../pages/ConfigPage'
 import EditChartPage from '../pages/EditChartPage'
 import EditConfigPage from '../pages/EditConfigPage'
 import GraphPage from '../pages/GraphPage'
-import HomePage from '../pages/HomePage'
+import HeroLayout from '../layouts/HeroLayout'
 import MainLayout from '../layouts/MainLayout'
 import NewChartPage from '../pages/NewChartPage'
 import NewConfigPage from '../pages/NewConfigPage'
+import ParticipantsPage from '../pages/ParticipantsPage'
 import ResetPasswordPage from '../pages/ResetPasswordPage'
-import RegisterPage from '../pages/RegisterPage'
+import RegistrationPage from '../pages/RegistrationPage'
 import ViewChartPage from '../pages/ViewChartPage'
 import SignInPage from '../pages/SignInPage'
+import ConfigurationsPage from '../pages/ConfigurationsPage'
 
-const Router = (props) => {
+const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path={routes.home}
-          element={<Navigate to={routes.login} replace={true} />}
-        />
-        <Route
-          path={routes.login}
-          element={<SignInPage classes={props.classes} />}
-        />
-        <Route
-          path={routes.register}
-          element={<RegisterPage classes={props.classes} />}
-        />
-        <Route
-          path={routes.resetpw}
-          element={<ResetPasswordPage classes={props.classes} />}
-        />
+        <Route element={<HeroLayout />}>
+          <Route
+            path={routes.home}
+            element={<Navigate to={routes.signin} replace={true} />}
+          />
+          <Route path={routes.signin} element={<SignInPage />} />
+          <Route path={routes.register} element={<RegistrationPage />} />
+          <Route path={routes.resetpw} element={<ResetPasswordPage />} />
+        </Route>
+
         <Route
           element={
             <AuthenticatedRoute>
-              <MainLayout classes={props.classes} theme={props.theme} />
+              <MainLayout />
             </AuthenticatedRoute>
           }
         >
           <Route path={routes.dashboard()} element={<GraphPage />} />
-          <Route path={routes.configs} element={<ConfigPage />} />
-          <Route path={routes.main} element={<HomePage />} />
           <Route
-            path={routes.userAccount}
-            element={
-              <AccountPage
-                user={props.user}
-                classes={props.classes}
-                theme={props.theme}
-              />
-            }
+            path={routes.configurations}
+            element={<ConfigurationsPage />}
           />
+          <Route path={routes.userAccount} element={<AccountPage />} />
+          <Route path={routes.main} element={<ParticipantsPage />} />
+          <Route path={routes.participants} element={<ParticipantsPage />} />
           <Route path={routes.admin} element={<AdminPage />} />
           <Route path={routes.charts} element={<ChartsPage />} />
           <Route path={routes.newChart} element={<NewChartPage />} />

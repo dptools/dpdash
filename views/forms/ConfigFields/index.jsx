@@ -1,10 +1,9 @@
 import React from 'react'
-import { GridList } from '@material-ui/core'
+import { ImageList } from '@mui/material'
 import ConfigAssessmentFormFields from '../ConfigAssessmentFormFields'
 import ConfigTypeFormFields from '../ConfigTypeFormFields'
 
 const ConfigFormFields = ({
-  classes,
   control,
   colors,
   fields,
@@ -15,22 +14,13 @@ const ConfigFormFields = ({
 }) => {
   return (
     <>
-      <ConfigTypeFormFields
-        control={control}
-        friendsList={friendsList}
-        classes={classes}
-      />
-      <GridList
-        cellHeight="auto"
-        className={classes.configurationListGrid}
-        cols={gridState.columns}
-      >
+      <ConfigTypeFormFields control={control} friendsList={friendsList} />
+      <ImageList cols={4}>
         {fields.map((field, index) => {
           const { id, ...rest } = field
 
           return (
             <ConfigAssessmentFormFields
-              classes={classes}
               colors={colors}
               control={control}
               index={index}
@@ -38,12 +28,11 @@ const ConfigFormFields = ({
               id={id}
               onCopy={onCopy}
               onRemove={onRemove}
-              width={gridState.gridWidth}
               {...rest}
             />
           )
         })}
-      </GridList>
+      </ImageList>
     </>
   )
 }

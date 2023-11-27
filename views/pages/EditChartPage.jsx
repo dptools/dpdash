@@ -11,7 +11,7 @@ import api from '../api'
 
 const EditChartPage = () => {
   const { chart_id } = useParams()
-  const { user, classes, navigate, setNotification } = useOutletContext()
+  const { user, navigate, setNotification } = useOutletContext()
   const [loading, setLoading] = useState(true)
   const { handleSubmit, control, watch } = useForm({
     defaultValues: async () => await getChart(),
@@ -51,9 +51,8 @@ const EditChartPage = () => {
   if (loading) return <div>Loading...</div>
 
   return (
-    <div className={classes.chartFormContainer}>
+    <div>
       <ChartForm
-        classes={classes}
         control={control}
         onSubmit={handleSubmit(handleformSubmit)}
         onAddNewFields={addNewField}

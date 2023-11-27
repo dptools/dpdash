@@ -1,9 +1,4 @@
-import {
-  Typography,
-  DialogTitle,
-  DialogContent,
-  Dialog,
-} from '@material-ui/core'
+import { Typography, DialogTitle, DialogContent, Dialog } from '@mui/material'
 
 const Modal = (props) => {
   return (

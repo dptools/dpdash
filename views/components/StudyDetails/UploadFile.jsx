@@ -1,14 +1,13 @@
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Add from '@material-ui/icons/Add';
+import Button from '@mui/material/Button'
+import Tooltip from '@mui/material/Tooltip'
+import Add from '@mui/icons-material/Add'
 
-const UploadFile = ({ classes, handleChangeFile }) => {
-
+const UploadFile = ({ handleChangeFile }) => {
   return (
-    <div className={ classes.uploadButtonContainer }>
+    <div>
       <input
-        accept='.json'
-        name='file'
+        accept=".json"
+        name="file"
         id="raised-button-file"
         multiple
         type="file"

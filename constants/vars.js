@@ -19,6 +19,12 @@ export const ROLE_OPTIONS = [
   { value: 'manager', label: 'Study Manager' },
   { value: 'member', label: 'Member' },
 ]
+
+export const SORT_DIRECTION = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+}
+
 export const VALIDATION_EMAIL_REGEX = new RegExp(
   /^[\w-\.]+@([\w-]+\.)+[\w-]{2,63}$/g
 )

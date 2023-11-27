@@ -8,8 +8,9 @@ export const createFieldLabelValue = (overrides = {}) => ({
   ...overrides,
 })
 
+let chartID = 0
 export const createChart = (overrides = {}) => ({
-  _id: 'chart-id',
+  _id: (chartID++).toString(),
   title: 'chart title',
   variable: 'surveys_raw_PROTECTED',
   assessment: 'flowcheck',

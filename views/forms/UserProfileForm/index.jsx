@@ -1,99 +1,80 @@
-import Form from '../Form'
-import { Button, Tooltip } from '@material-ui/core'
-import TextInput from '../TextInput'
-import getAvatar from '../../fe-utils/avatarUtil'
-import { EMAIL_REGEX } from '../../../constants'
-import { Controller } from 'react-hook-form'
+import React, { useEffect, useRef, useState } from 'react'
+import { Button } from '@mui/material'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
-const UserProfileForm = ({ classes, control, onSubmit, setUser, user }) => {
+import { borderRadius } from '../../../constants'
+import UserProfileImage from './UserProfileImage'
+import UserProfileFormFields from './UserProfileFormFields'
+import { FileModel } from '../../models'
+
+const schema = yup.object({
+  company: yup.string(),
+  department: yup.string(),
+  display_name: yup.string().required(),
+  icon: yup.string(),
+  mail: yup.string().email().required(),
+  title: yup.string(),
+})
+
+const UserProfileForm = ({ initialValues, onSubmit }) => {
+  const { handleSubmit, control, watch, setValue } = useForm({
+    defaultValues: initialValues,
+    resolver: yupResolver(schema),
+    mode: 'onChange',
+  })
+  const fileInput = useRef()
+  const iconFile = watch('iconFile')
+  const [iconSrc, setIconSrc] = useState()
+  const [iconName, setIconName] = useState()
+
+  useEffect(() => {
+    if (iconFile) {
+      setIconName(iconFile.name)
+      FileModel.toDataURL(iconFile).then(setIconSrc)
+    } else {
+      setIconSrc(undefined)
+    }
+  }, [iconFile])
+
+  const onRemoveIcon = () => {
+    setValue('iconFileName', '')
+    setValue('iconFile', null)
+    setIconName('')
+
+    fileInput.current.value = ''
+  }
   return (
-    <Form onSubmit={onSubmit}>
-      <Controller
-        control={control}
-        name="icon"
-        render={({ field: { value, onChange, ...field } }) => {
-          return (
-            <div className={classes.userAvatar}>
-              <input
-                accept="image/*"
-                id="icon"
-                multiple
-                type="file"
-                className={classes.userAvatarInput}
-                {...field}
-                value={value?.fileName}
-                onChange={(event) => {
-                  const { files } = event.target
-
-                  if (files[0]) {
-                    const reader = new FileReader()
-
-                    reader.readAsDataURL(files[0])
-                    reader.onload = (e) => {
-                      setUser({ ...user, icon: e.target.result })
-                      onChange(e.target.result)
-                    }
-                  }
-                }}
-              />
-              <label htmlFor="icon">
-                <span className={classes.userAvatarContainer}>
-                  <Tooltip title="Edit Profile Photo">
-                    {getAvatar({ user })}
-                  </Tooltip>
-                </span>
-              </label>
-            </div>
-          )
-        }}
-      />
-      <TextInput
-        control={control}
-        className={classes.formInputSpacing}
-        label="Full Name"
-        name="display_name"
-        fullWidth={true}
-      />
-      <TextInput
-        control={control}
-        className={classes.formInputSpacing}
-        label="Email"
-        type="email"
-        pattern={EMAIL_REGEX}
-        name="mail"
-        fullWidth={true}
-      />
-      <TextInput
-        control={control}
-        className={classes.formInputSpacing}
-        label="Title"
-        name="title"
-        fullWidth={true}
-      />
-      <TextInput
-        control={control}
-        className={classes.formInputSpacing}
-        label="Department"
-        name="department"
-        fullWidth={true}
-      />
-      <TextInput
-        control={control}
-        className={classes.formInputSpacing}
-        label="Company"
-        name="company"
-        fullWidth={true}
-      />
-      <div className={classes.formSubmitButtonContainer}>
-        <Button
-          className={classes.formSubmitButton}
-          variant="outlined"
-          type="submit"
-        >
-          Save
-        </Button>
-      </div>
-    </Form>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <UserProfileImage
+          control={control}
+          iconFileName={iconName}
+          fileInputRef={fileInput}
+          onRemoveIcon={onRemoveIcon}
+          iconSrc={iconSrc}
+        />
+        <UserProfileFormFields control={control} />
+        <div>
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{
+              textTransform: 'none',
+              backgroundColor: 'primary.light',
+              borderRadius: borderRadius[8],
+              mb: '40px',
+              '&:hover': {
+                backgroundColor: 'primary.dark',
+              },
+            }}
+          >
+            Save changes
+          </Button>
+        </div>
+      </form>
+    </>
   )
 }
 

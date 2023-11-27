@@ -1,11 +1,10 @@
 import React from 'react'
-import { MenuItem } from '@material-ui/core'
+import { MenuItem } from '@mui/material'
 import ConfigurationCategoryCard from '../../components/ConfigurationCategoryCard'
 import TextInput from '../TextInput'
 import ControlledSelectInput from '../ControlledSelect'
 
 const ConfigAssessmentFormFields = ({
-  classes,
   control,
   colors,
   index,
@@ -17,12 +16,10 @@ const ConfigAssessmentFormFields = ({
   return (
     <ConfigurationCategoryCard
       key={id + 'card'}
-      classes={classes}
       formIndex={index}
       onCopy={onCopy}
       onRemove={onRemove}
       rowNum={index + 1}
-      width={width}
     >
       <TextInput
         key={id + 'category'}
@@ -56,10 +53,9 @@ const ConfigAssessmentFormFields = ({
       >
         {colors.map(({ value, label }, colorsIndex) => (
           <MenuItem value={value} key={`${id}-${colorsIndex}-${index}`}>
-            <div className={classes.configPaletteContainer}>
+            <div>
               {label.map((palette) => (
                 <span
-                  className={classes.configColorBlock}
                   style={{
                     backgroundColor: palette,
                   }}

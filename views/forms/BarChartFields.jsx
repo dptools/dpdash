@@ -1,18 +1,17 @@
 import React from 'react'
-import Delete from '@material-ui/icons/Delete'
-import Button from '@material-ui/core/Button'
-import { IconButton } from '@material-ui/core'
-import Typography from '@material-ui/core/Typography'
+import Delete from '@mui/icons-material/Delete'
+import Button from '@mui/material/Button'
+import { IconButton } from '@mui/material'
+import Typography from '@mui/material/Typography'
 import ColorPicker from '../components/ColorPicker'
-import InputLabel from '@material-ui/core/InputLabel'
-import Tooltip from '@material-ui/core/Tooltip'
+import InputLabel from '@mui/material/InputLabel'
+import Tooltip from '@mui/material/Tooltip'
 import TextInput from './TextInput'
 import ControlledCheckbox from './ControlledCheckbox'
 
 import { presetColors } from '../../constants'
 
 const BarChartFields = ({
-  classes,
   control,
   fields,
   onRemove,
@@ -22,7 +21,6 @@ const BarChartFields = ({
   return (
     <>
       <TextInput
-        className={classes.textInput}
         label="Title"
         name="title"
         required
@@ -34,13 +32,11 @@ const BarChartFields = ({
         name="description"
         multiline
         rowsMax={4}
-        className={classes.textInput}
         fullWidth
         required
         control={control}
       />
       <TextInput
-        className={classes.textInput}
         label="Assessment"
         name="assessment"
         required
@@ -50,15 +46,12 @@ const BarChartFields = ({
       <TextInput
         label="Variable Name"
         name="variable"
-        className={classes.textInput}
         required
         fullWidth
         control={control}
       />
-      <div className={classes.formLabelRow}>
-        <InputLabel htmlFor="public_checkbox" className={classes.publicText}>
-          Public
-        </InputLabel>
+      <div>
+        <InputLabel htmlFor="public_checkbox">Public</InputLabel>
         <ControlledCheckbox
           control={control}
           name="public"
@@ -71,7 +64,7 @@ const BarChartFields = ({
         const { id, targetValues } = field
         return (
           <React.Fragment key={id}>
-            <div className={classes.formLabelRow}>
+            <div>
               <Tooltip
                 disableFocusListener
                 title="Leave blank to count empty values"
@@ -79,10 +72,6 @@ const BarChartFields = ({
                 <TextInput
                   label="Value"
                   name={`fieldLabelValueMap.${index}.value`}
-                  className={`
-                ${classes.formLabelCol}
-                ${classes.variableListInput}
-              `}
                   control={control}
                 />
               </Tooltip>
@@ -90,36 +79,29 @@ const BarChartFields = ({
                 label="Label"
                 control={control}
                 name={`fieldLabelValueMap.${index}.label`}
-                className={classes.variableListInput}
                 required
               />
               <ColorPicker
                 control={control}
-                classes={classes}
                 name={`fieldLabelValueMap.${index}.color`}
                 color={fieldsValue[index].color || field.color}
                 presetColors={presetColors}
               />
-              <IconButton
-                aria-label="delete"
-                onClick={() => onRemove(index)}
-                className={classes.deleteContainer}
-              >
-                <Delete className={classes.icons} />
+              <IconButton aria-label="delete" onClick={() => onRemove(index)}>
+                <Delete />
               </IconButton>
             </div>
-            <div className={classes.formLabelRow}>
+            <div>
               <Typography variant="h6" color="textSecondary">
                 Targets
               </Typography>
             </div>
             {Object.keys(targetValues).map((study, idx) => (
-              <div key={idx + study} className={classes.formLabelRow}>
+              <div key={idx + study}>
                 <Typography
                   variant="subtitle1"
                   gutterBottom={false}
                   color="textSecondary"
-                  className={classes.targetValueContainer}
                 >
                   {study}
                 </Typography>
@@ -130,19 +112,14 @@ const BarChartFields = ({
                 />
               </div>
             ))}
-            <div className={classes.formLabelRow}>
+            <div>
               <br />
             </div>
           </React.Fragment>
         )
       })}
-      <div className={classes.addLabelContainer}>
-        <Button
-          variant="text"
-          type="button"
-          className={classes.textButton}
-          onClick={() => onAddNewFields()}
-        >
+      <div>
+        <Button variant="text" type="button" onClick={() => onAddNewFields()}>
           + Add label and value group combination
         </Button>
       </div>

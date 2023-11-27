@@ -1,11 +1,11 @@
 import React from 'react'
 import { Column, Table } from 'react-virtualized'
-import Settings from '@material-ui/icons/Settings'
-import Clear from '@material-ui/icons/Clear'
-import LockOpen from '@material-ui/icons/LockOpen'
+import Settings from '@mui/icons-material/Settings'
+import Clear from '@mui/icons-material/Clear'
+import LockOpen from '@mui/icons-material/LockOpen'
 import moment from 'moment'
 import TextInput from '../../../forms/TextInput'
-import IconButton from '@material-ui/core/IconButton'
+import IconButton from '@mui/material/IconButton'
 import ControlledCheckbox from '../../../forms/ControlledCheckbox'
 import {
   ADMIN_TABLE_COLUMN_NUMBER,

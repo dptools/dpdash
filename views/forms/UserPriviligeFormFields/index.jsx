@@ -1,6 +1,6 @@
 import Modal from '../../components/Modal'
-import Subheader from '@material-ui/core/ListSubheader'
-import { Button, DialogActions, MenuItem, NoSsr } from '@material-ui/core'
+import Subheader from '@mui/material/ListSubheader'
+import { Button, DialogActions, MenuItem, NoSsr } from '@mui/material'
 import { components } from '../ControlledReactSelect/components'
 import ControlledSelectInput from '../ControlledSelect'
 import ControlledReactSelect from '../ControlledReactSelect'
@@ -10,7 +10,6 @@ import './UserPriviligeFields.css'
 const UserPriviligeFields = ({
   currentRowIndex,
   control,
-  classes,
   options,
   open,
   onClose,
@@ -42,7 +41,6 @@ const UserPriviligeFields = ({
         <NoSsr>
           <ControlledReactSelect
             control={control}
-            classes={classes}
             name={`users.${currentRowIndex}.access`}
             options={options}
             components={components}

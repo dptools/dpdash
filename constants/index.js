@@ -19,10 +19,12 @@ import {
   N_A,
   NOTIFICATION_DEFAULT,
   ROLE_OPTIONS,
+  SORT_DIRECTION,
   TOTAL_LABEL,
   TOTALS,
   TRUE_STRING,
 } from './vars'
+import { THEME, borderRadius, fontSize, lineHeight } from './theme'
 
 export {
   ADMIN_ROLE,
@@ -31,6 +33,7 @@ export {
   TABLE_ROW_HEIGHT,
   baseGridWidth,
   baseInnerWidth,
+  borderRadius,
   colors,
   DRAWER_WIDTH,
   DISALLOWED_STUDIES,
@@ -38,12 +41,16 @@ export {
   FALSE_STRING,
   EMAIL_REGEX,
   FILTER_CATEGORIES,
+  fontSize,
+  lineHeight,
   MIN_WIDTH,
   N_A,
   NOTIFICATION_DEFAULT,
   ROLE_OPTIONS,
+  SORT_DIRECTION,
   TOTAL_LABEL,
   TOTALS,
+  THEME,
   TRUE_STRING,
   VALIDATION_EMAIL_REGEX,
 }

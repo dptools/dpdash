@@ -41,5 +41,5 @@ export const baseInnerWidth = 768
 export const TABLE_ROW_HEIGHT = 48
 export const ADMIN_TABLE_MAX_WIDTH = 960
 export const ADMIN_TABLE_COLUMN_NUMBER = 6
-export const DRAWER_WIDTH = 200
+export const DRAWER_WIDTH = 248
 export const MIN_WIDTH = 620

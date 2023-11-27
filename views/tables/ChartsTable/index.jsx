@@ -1,11 +1,16 @@
 import React from 'react'
 import { Typography } from '@mui/material'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import ShareIcon from '@mui/icons-material/Share'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
 
 import { routes } from '../../routes/routes'
 import Table from '../Table'
-import TableMenu from './TableMenu'
+import TableMenu from '../Table/TableMenu'
+import ChartModel from '../../models/ChartModel'
 
 export const DATE_FORMAT = 'MM/DD/YYYY'
 const ChartsTable = ({
@@ -56,13 +61,37 @@ const ChartsTable = ({
           ? moment(chart[property]).format(DATE_FORMAT)
           : ''
       case 'info':
+        const chartOwnedByUser = ChartModel.isOwnedByUser(chart, user)
+
         return (
           <TableMenu
-            chart={chart}
-            onDelete={onDelete}
-            onDuplicate={onDuplicate}
-            onShare={onShare}
-            user={user}
+            id={chart._id}
+            menuItems={[
+              {
+                Icon: EditIcon,
+                component: Link,
+                testID: 'edit',
+                disabled: !chartOwnedByUser,
+                to: routes.editChart(chart._id),
+                text: 'Edit',
+              },
+              {
+                Icon: DeleteIcon,
+                onClick: () => onDelete(chart),
+                disabled: !chartOwnedByUser,
+                text: 'Delete',
+              },
+              {
+                Icon: ContentCopyIcon,
+                onClick: () => onDuplicate(chart),
+                text: 'Duplicate',
+              },
+              {
+                Icon: ShareIcon,
+                onClick: () => onShare(chart),
+                text: 'Share',
+              },
+            ]}
           />
         )
       default:

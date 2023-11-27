@@ -13,7 +13,6 @@
 .SidebarLink_link-active {
   display: flex;
   text-decoration: none;
-  padding: 6px;
   &:visited&:focus {
     text-decoration: none;
   }

@@ -1,9 +1,16 @@
 import React from 'react'
+import { Chip } from '@mui/material'
+import {
+  Share,
+  Delete,
+  ContentCopy,
+  Edit,
+  SettingsApplications,
+} from '@mui/icons-material'
 
 import Table from '../Table'
-import TableMenu from './TableMenu'
-import { Chip } from '@mui/material'
 import { borderRadius, fontSize } from '../../../constants'
+import TableMenu from '../Table/TableMenu'
 
 const ConfigurationsTable = (props) => {
   const {
@@ -56,13 +63,37 @@ const ConfigurationsTable = (props) => {
       case 'info':
         return (
           <TableMenu
-            isOwner={ownsConfig}
-            onShare={onShare}
-            configuration={configuration}
-            onDefaultChange={onDefaultChange}
-            onDelete={onDelete}
-            onDuplicate={onDuplicate}
-            onEdit={onEdit}
+            id={configuration._id}
+            menuItems={[
+              {
+                disabled: !ownsConfig,
+                onClick: () => onEdit(configuration._id),
+                Icon: Edit,
+                text: 'Edit',
+              },
+              {
+                disabled: !ownsConfig,
+                onClick: () => onShare(configuration),
+                Icon: Share,
+                text: 'Share',
+              },
+              {
+                disabled: !ownsConfig,
+                onClick: () => onDelete(configuration._id),
+                Icon: Delete,
+                text: 'Delete',
+              },
+              {
+                onClick: () => onDuplicate(configuration),
+                Icon: ContentCopy,
+                text: 'Duplicate',
+              },
+              {
+                onClick: () => onDefaultChange(configuration._id),
+                Icon: SettingsApplications,
+                text: 'Set as default',
+              },
+            ]}
           />
         )
 

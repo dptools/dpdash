@@ -48,23 +48,18 @@ describe(ChartsTable, () => {
     tableRow: (tableRow) => screen.getByTestId(`row-${tableRow}`),
   }
   const actions = {
-    openTableRowMenu: async (tableRow) => {
-      return await userEvent.click(
-        screen.getByRole('button', {
-          name: `open menu for ${charts[tableRow].title}`,
-        })
-      )
-    },
-    deleteChart: async (tableRow) => {
-      await actions.openTableRowMenu(tableRow)
+    openTableRowMenu: async (chart) =>
+      await userEvent.click(screen.getByTestId(chart._id)),
+    deleteChart: async (chart) => {
+      await actions.openTableRowMenu(chart)
       await userEvent.click(elements.deleteBtn())
     },
-    duplicateChart: async (tableRow) => {
-      await actions.openTableRowMenu(tableRow)
+    duplicateChart: async (chart) => {
+      await actions.openTableRowMenu(chart)
       await userEvent.click(elements.duplicateBtn())
     },
-    shareChart: async (tableRow) => {
-      await actions.openTableRowMenu(tableRow)
+    shareChart: async (chart) => {
+      await actions.openTableRowMenu(chart)
       await userEvent.click(elements.shareBtn())
     },
   }
@@ -112,7 +107,7 @@ describe(ChartsTable, () => {
   it('renders a menu of chart actions', async () => {
     renderChart()
 
-    await actions.openTableRowMenu(1)
+    await actions.openTableRowMenu(charts[1])
 
     expect(elements.editLink()).toHaveAttribute(
       'href',
@@ -128,7 +123,7 @@ describe(ChartsTable, () => {
       const props = { ...defaultProps, onDelete: jest.fn() }
 
       renderChart(props)
-      await actions.deleteChart(0)
+      await actions.deleteChart(charts[0])
 
       expect(props.onDelete).toHaveBeenCalledWith(charts[0])
     })
@@ -137,7 +132,7 @@ describe(ChartsTable, () => {
       const props = { ...defaultProps, onDuplicate: jest.fn() }
 
       renderChart(props)
-      await actions.duplicateChart(0)
+      await actions.duplicateChart(charts[0])
 
       expect(props.onDuplicate).toHaveBeenCalledWith(charts[0])
     })
@@ -146,7 +141,7 @@ describe(ChartsTable, () => {
       const props = { ...defaultProps, onShare: jest.fn() }
 
       renderChart(props)
-      await actions.shareChart(0)
+      await actions.shareChart(charts[0])
 
       expect(props.onShare).toHaveBeenCalledWith(charts[0])
     })
@@ -160,7 +155,7 @@ describe(ChartsTable, () => {
       renderChart(props)
 
       try {
-        await actions.deleteChart(1)
+        await actions.deleteChart(charts[1])
       } catch {
         expect(props.onDelete).not.toHaveBeenCalled()
       }
@@ -170,7 +165,7 @@ describe(ChartsTable, () => {
       const props = { ...defaultProps, onDuplicate: jest.fn() }
 
       renderChart(props)
-      await actions.duplicateChart(1)
+      await actions.duplicateChart(charts[1])
 
       expect(props.onDuplicate).toHaveBeenCalledWith(charts[1])
     })
@@ -179,7 +174,7 @@ describe(ChartsTable, () => {
       const props = { ...defaultProps, onShare: jest.fn() }
 
       renderChart(props)
-      await actions.shareChart(1)
+      await actions.shareChart(charts[1])
 
       expect(props.onShare).toHaveBeenCalledWith(charts[1])
     })

@@ -4,7 +4,6 @@ import Button from '@mui/material/Button'
 import { IconButton } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import ColorPicker from '../components/ColorPicker'
-import InputLabel from '@mui/material/InputLabel'
 import Tooltip from '@mui/material/Tooltip'
 import TextInput from './TextInput'
 import ControlledCheckbox from './ControlledCheckbox'
@@ -51,13 +50,13 @@ const BarChartFields = ({
         control={control}
       />
       <div>
-        <InputLabel htmlFor="public_checkbox">Public</InputLabel>
         <ControlledCheckbox
           control={control}
           name="public"
           color="default"
           id="public_checkbox"
           aria-label
+          label="Public"
         />
       </div>
       {fields.map((field, index) => {

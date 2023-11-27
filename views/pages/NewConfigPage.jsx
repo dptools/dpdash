@@ -7,6 +7,7 @@ import useArrayFormFields from '../hooks/useArrayFormFields'
 import ConfigForm from '../forms/ConfigForm'
 import { UserConfigModel, UsersModel } from '../models'
 import { colorList } from '../fe-utils/colorList'
+import { Typography, Box } from '@mui/material'
 
 const colors = colorList()
 
@@ -48,7 +49,8 @@ const NewConfigPage = () => {
     addNewField(getValues(`config[${configCategoryIndex}]`))
 
   return (
-    <>
+    <Box sx={{ p: '30px' }}>
+      <Typography variant="h6">New Configuration</Typography>
       <ConfigForm
         colors={colors}
         control={control}
@@ -59,7 +61,7 @@ const NewConfigPage = () => {
         onSubmit={handleSubmit(handleFormData)}
         onRemove={removeField}
       />
-    </>
+    </Box>
   )
 }
 

@@ -1,12 +1,5 @@
 import React from 'react'
-import {
-  Card,
-  CardActions,
-  CardHeader,
-  CardContent,
-  Divider,
-  IconButton,
-} from '@mui/material'
+import { Card, CardActions, CardContent, IconButton } from '@mui/material'
 import { Delete, ContentCopy } from '@mui/icons-material'
 
 const ConfigurationCategoryCard = ({
@@ -17,9 +10,7 @@ const ConfigurationCategoryCard = ({
   rowNum,
 }) => {
   return (
-    <Card sx={{ maxWidth: '552px' }}>
-      <CardHeader subheader={'Row ' + rowNum}></CardHeader>
-      <Divider />
+    <Card>
       <CardContent>{children}</CardContent>
       <CardActions>
         <IconButton aria-label="delete" onClick={() => onRemove(formIndex)}>

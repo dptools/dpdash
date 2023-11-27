@@ -20,6 +20,7 @@ const TextInput = (props) => {
       type={props.type}
       placeholder={props.placeholder}
       sx={props.sx}
+      disabled={props.disabled}
       {...field}
     />
   )

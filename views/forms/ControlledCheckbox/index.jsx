@@ -1,15 +1,46 @@
 import React from 'react'
 import { Controller } from 'react-hook-form'
-import { Checkbox } from '@mui/material'
+import { Checkbox, FormControlLabel } from '@mui/material'
 
-const ControlledCheckbox = ({ name, control, onChange, checked }) => {
-  return (
+const ControlledCheckbox = ({
+  name,
+  control,
+  onChange,
+  checked,
+  label,
+  ...props
+}) => {
+  return label ? (
+    <FormControlLabel
+      control={
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <Checkbox
+              {...field}
+              {...props}
+              onChange={(e) => {
+                field.onChange(e)
+                if (onChange) onChange(e)
+              }}
+              inputProps={{ name, 'aria-label': name }}
+              defaultChecked={checked}
+            />
+          )}
+        />
+      }
+      label={label}
+      labelPlacement={props.labelPlacement || 'start'}
+    />
+  ) : (
     <Controller
       name={name}
       control={control}
       render={({ field }) => (
         <Checkbox
           {...field}
+          {...props}
           onChange={(e) => {
             field.onChange(e)
             if (onChange) onChange(e)

@@ -4,6 +4,8 @@ import ConfigurationCategoryCard from '../../components/ConfigurationCategoryCar
 import TextInput from '../TextInput'
 import ControlledSelectInput from '../ControlledSelect'
 
+import './ConfigAssessmentFormFields.css'
+
 const ConfigAssessmentFormFields = ({
   control,
   colors,
@@ -11,54 +13,50 @@ const ConfigAssessmentFormFields = ({
   id,
   onCopy,
   onRemove,
-  width,
 }) => {
   return (
     <ConfigurationCategoryCard
-      key={id + 'card'}
       formIndex={index}
       onCopy={onCopy}
       onRemove={onRemove}
       rowNum={index + 1}
     >
       <TextInput
-        key={id + 'category'}
         control={control}
         name={`config.${index}.category`}
         label="Category"
+        fullWidth
       />
       <TextInput
-        key={id + 'analysis'}
         control={control}
         name={`config.${index}.analysis`}
         label="Assessment"
+        fullWidth
       />
       <TextInput
-        key={id + 'variable'}
         control={control}
         name={`config.${index}.variable`}
         label="Variable"
       />
       <TextInput
-        key={id + 'label'}
         control={control}
         name={`config.${index}.label`}
         label="Label"
       />
       <ControlledSelectInput
-        key={id + 'color'}
         control={control}
         name={`config.${index}.color`}
         value={221}
+        fullWidth
       >
         {colors.map(({ value, label }, colorsIndex) => (
           <MenuItem value={value} key={`${id}-${colorsIndex}-${index}`}>
-            <div>
+            <div className="ColorPaletteDropdown">
               {label.map((palette) => (
                 <span
-                  style={{
-                    backgroundColor: palette,
-                  }}
+                  key={palette}
+                  style={{ backgroundColor: palette }}
+                  className="ColorPaletteBlock"
                 ></span>
               ))}
             </div>
@@ -67,14 +65,12 @@ const ConfigAssessmentFormFields = ({
       </ControlledSelectInput>
       <div>
         <TextInput
-          key={id + 'min'}
           control={control}
           fullWidth={false}
           label="Min"
           name={`config.${index}.min`}
         />
         <TextInput
-          key={id + 'max'}
           control={control}
           fullWidth={false}
           label="Max"

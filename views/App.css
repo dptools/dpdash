@@ -1,7 +1,11 @@
 :root {
   --primary-light: #addbff;
   --primary-main: #2196f3;
-  --text-secondary: #054DA7;
+  --text-secondary: #054da7;
+}
+
+.Link--unstyled {
+  text-decoration: none;
 }
 
 .Link--unstyled {

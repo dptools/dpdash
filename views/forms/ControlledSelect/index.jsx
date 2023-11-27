@@ -1,7 +1,7 @@
 import { Select } from '@mui/material'
 import { Controller } from 'react-hook-form'
 
-const ControlledSelectInput = ({ children, name, control, value, ...rest }) => {
+const ControlledSelectInput = ({ name, control, value, ...rest }) => {
   return (
     <Controller
       name={name}
@@ -13,9 +13,7 @@ const ControlledSelectInput = ({ children, name, control, value, ...rest }) => {
           fullWidth
           value={field.value.value || value}
           onChange={(e) => field.onChange({ value: e.target.value })}
-        >
-          {children}
-        </Select>
+        />
       )}
     />
   )

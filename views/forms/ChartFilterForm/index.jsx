@@ -36,14 +36,12 @@ const ChartFilterForm = ({ initialValues, onSubmit, siteOptions }) => {
                     return (
                       <List key={filterID} component="div" disablePadding>
                         <ListItem>
-                          <InputLabel htmlFor={filterID}>
-                            {filter.name}
-                          </InputLabel>
                           <ControlledCheckbox
                             checked={filter.value === TRUE_STRING}
                             control={control}
                             name={`${filterKey}.${index}.value`}
                             id={filterID}
+                            label={filter.name}
                           />
                         </ListItem>
                       </List>

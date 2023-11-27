@@ -41,6 +41,7 @@ const ControlledMultiSelect = (props) => {
           renderTags={(tagValue, getTagProps) =>
             tagValue.map((option, index) => (
               <Chip
+                key={option.label}
                 label={option.label}
                 {...getTagProps({ index })}
                 disabled={option.isFixed}

@@ -13,7 +13,7 @@ const UserConfigModel = {
     max: '1',
   },
   defaultFormValues: (overrides = {}) => ({
-    configName: 'default',
+    configName: '',
     configType: 'matrix',
     readers: [],
     config: [],

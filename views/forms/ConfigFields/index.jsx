@@ -1,5 +1,5 @@
 import React from 'react'
-import { ImageList } from '@mui/material'
+import { Grid } from '@mui/material'
 import ConfigAssessmentFormFields from '../ConfigAssessmentFormFields'
 import ConfigTypeFormFields from '../ConfigTypeFormFields'
 
@@ -8,32 +8,32 @@ const ConfigFormFields = ({
   colors,
   fields,
   friendsList,
-  gridState,
   onCopy,
   onRemove,
 }) => {
   return (
-    <>
+    <React.Fragment>
       <ConfigTypeFormFields control={control} friendsList={friendsList} />
-      <ImageList cols={4}>
+      <Grid container columnSpacing={1} rowSpacing={3}>
         {fields.map((field, index) => {
           const { id, ...rest } = field
 
           return (
-            <ConfigAssessmentFormFields
-              colors={colors}
-              control={control}
-              index={index}
-              key={id}
-              id={id}
-              onCopy={onCopy}
-              onRemove={onRemove}
-              {...rest}
-            />
+            <Grid item xs={12} md={5} lg={4} key={id}>
+              <ConfigAssessmentFormFields
+                colors={colors}
+                control={control}
+                index={index}
+                id={id}
+                onCopy={onCopy}
+                onRemove={onRemove}
+                {...rest}
+              />
+            </Grid>
           )
         })}
-      </ImageList>
-    </>
+      </Grid>
+    </React.Fragment>
   )
 }
 

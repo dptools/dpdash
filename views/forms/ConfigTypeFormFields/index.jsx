@@ -1,46 +1,47 @@
 import React from 'react'
-import { InputLabel, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import TextInput from '../TextInput'
-import ControlledReactSelect from '../ControlledReactSelect'
+import ControlledMultiSelect from '../ControlledMultiSelect'
 import ControlledCheckbox from '../ControlledCheckbox'
 
 const ConfigTypeFormFields = (props) => {
   const { control, friendsList } = props
 
   return (
-    <div>
+    <div style={{ width: '50%' }}>
       <TextInput
         name="configName"
-        placeholder="Configuration Name"
+        label="Configuration Name"
         margin="normal"
         control={control}
+        required
+        fullWidth
       />
       <TextInput
         name="configType"
         control={control}
         disabled={true}
-        value={'matrix'}
-        placeholder={'matrix'}
-        fullWidth={false}
+        value="matrix"
+        label="matrix"
+        fullWidth
       />
-      <div>
-        <InputLabel htmlFor="public_checkbox">Public</InputLabel>
+      <Typography variant="subtitle2">Shared with:</Typography>
+      <ControlledMultiSelect
+        name="readers"
+        control={control}
+        options={friendsList}
+        isMulti
+      />
+      <div style={{ paddingTop: '15px' }}>
         <ControlledCheckbox
           control={control}
           name="public"
           color="default"
           id="public_checkbox"
+          label="Public"
           aria-label
         />
       </div>
-      <Typography variant="subtitle2">Shared with:</Typography>
-      <ControlledReactSelect
-        name="readers"
-        control={control}
-        options={friendsList}
-        placeholder="Shared with"
-        isMulti
-      />
     </div>
   )
 }

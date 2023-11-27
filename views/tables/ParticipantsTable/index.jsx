@@ -13,6 +13,7 @@ const ParticipantsTable = (props) => {
     sortable,
     sortDirection,
     sortProperty,
+    maxRows,
   } = props
   const handleRequestSort = (_event, property) => {
     const isAsc =
@@ -75,6 +76,7 @@ const ParticipantsTable = (props) => {
       sortDirection={sortDirection}
       sortProperty={sortProperty}
       handleRequestSort={handleRequestSort}
+      maxRows={maxRows}
     />
   )
 }

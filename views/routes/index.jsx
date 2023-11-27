@@ -17,6 +17,7 @@ import RegistrationPage from '../pages/RegistrationPage'
 import ViewChartPage from '../pages/ViewChartPage'
 import SignInPage from '../pages/SignInPage'
 import ConfigurationsPage from '../pages/ConfigurationsPage'
+import DashboardPage from '../pages/DashboardPage'
 
 const Router = () => {
   return (
@@ -45,7 +46,7 @@ const Router = () => {
             element={<ConfigurationsPage />}
           />
           <Route path={routes.userAccount} element={<AccountPage />} />
-          <Route path={routes.main} element={<ParticipantsPage />} />
+          <Route path={routes.main} element={<DashboardPage />} />
           <Route path={routes.participants} element={<ParticipantsPage />} />
           <Route path={routes.admin} element={<AdminPage />} />
           <Route path={routes.charts} element={<ChartsPage />} />

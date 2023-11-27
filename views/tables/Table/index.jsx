@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 
 import TableHead from './TableHead'
+import { max } from 'lodash'
 
 const firstCellStyles = (cellIndex) => {
   if (cellIndex !== 0) {
@@ -45,7 +46,10 @@ const Table = (props) => {
     sortDirection,
     sortProperty,
     handleRequestSort,
+    maxRows
   } = props
+
+  const rows = maxRows && data.length > maxRows ? data.slice(0, maxRows) : data
 
   return (
     <TableContainer>
@@ -60,12 +64,12 @@ const Table = (props) => {
           headCells={headers}
         />
         <TableBody>
-          {data.map((rowData, rowIndex) => (
+          {rows.map((rowData, rowIndex) => (
             <TableRow data-testid={`row-${rowIndex}`}>
               {headers.map((header, cellIndex) => (
                 <TableCell
                   align={header.dataAlign}
-                  key={header.dataProperty}
+                  key={`${header.dataProperty}-${rowIndex}-${cellIndex}`}
                   sx={{
                     borderBottomWidth: 1,
                     borderBottomColor: 'grey.100',

@@ -243,6 +243,19 @@ export const createMetadataParticipant = (overrides = {}) => ({
   lastSyncedColor: '',
   ...overrides,
 })
+
+export const createParticipantRow = (overrides = {}) => ({
+    "subject": "CA00066",
+    "days": 1,
+    "study": "CA",
+    "star": true,
+    "complete": true
+})
+
+export const createParticipantList = (length = 10, overrides = {}) => (
+  Array(length).fill(createParticipantRow(overrides))
+)
+
 export const createFilters = (overrides = {}) => ({
   chrcrit_part: [
     { name: 'HC', value: 'true' },
@@ -366,3 +379,4 @@ export const createSiteMetadata = (overrides = {}) => ({
   participants: [],
   ...overrides,
 })
+

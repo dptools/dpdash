@@ -20,6 +20,7 @@ const ChartsTable = ({
   onDuplicate,
   onShare,
   user,
+  maxRows,
 }) => {
   const headers = [
     {
@@ -99,7 +100,7 @@ const ChartsTable = ({
     }
   }
 
-  return <Table cellRenderer={cellRenderer} data={charts} headers={headers} />
+  return <Table cellRenderer={cellRenderer} data={charts} headers={headers} maxRows={maxRows} />
 }
 
 export default ChartsTable

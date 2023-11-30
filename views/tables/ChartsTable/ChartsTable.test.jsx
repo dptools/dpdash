@@ -15,16 +15,23 @@ describe(ChartsTable, () => {
       title: 'first chart',
       updatedAt: '2023-06-28T15:43:23.789Z',
       owner: user.uid,
+      chartOwner: { display_name: 'John Johnson' },
     }),
     createChart({
       title: 'second chart',
       updatedAt: '2022-11-10T00:01:04.713Z',
       owner: 'foo',
+      chartOwner: {
+        display_name: 'Jane Janeson',
+      },
     }),
     createChart({
       title: 'third chart',
       updatedAt: '2022-10-11T16:33:46.485Z',
       owner: 'bar',
+      chartOwner: {
+        display_name: 'Jack Jackson',
+      },
     }),
   ]
   const defaultProps = {
@@ -71,7 +78,7 @@ describe(ChartsTable, () => {
       within(elements.tableRow(0)).getByText(charts[0].title)
     ).toBeInTheDocument()
     expect(
-      within(elements.tableRow(0)).getByText(charts[0].owner)
+      within(elements.tableRow(0)).getByText(charts[0].chartOwner.display_name)
     ).toBeInTheDocument()
     expect(
       within(elements.tableRow(0)).getByText(
@@ -83,7 +90,7 @@ describe(ChartsTable, () => {
       within(elements.tableRow(1)).getByText(charts[1].title)
     ).toBeInTheDocument()
     expect(
-      within(elements.tableRow(1)).getByText(charts[1].owner)
+      within(elements.tableRow(1)).getByText(charts[1].chartOwner.display_name)
     ).toBeInTheDocument()
     expect(
       within(elements.tableRow(1)).getByText(
@@ -95,7 +102,7 @@ describe(ChartsTable, () => {
       within(elements.tableRow(2)).getByText(charts[2].title)
     ).toBeInTheDocument()
     expect(
-      within(elements.tableRow(2)).getByText(charts[2].owner)
+      within(elements.tableRow(2)).getByText(charts[2].chartOwner.display_name)
     ).toBeInTheDocument()
     expect(
       within(elements.tableRow(2)).getByText(

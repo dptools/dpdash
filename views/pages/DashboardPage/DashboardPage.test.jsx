@@ -1,45 +1,67 @@
-import React from 'react'
-import { render, screen, within, waitFor } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { screen, within, waitFor } from '@testing-library/react'
 
-import { AuthContext, NotificationContext } from '../../contexts'
-import { createParticipantList, createUser } from '../../../test/fixtures'
+import {
+  createParticipantList,
+  createUser,
+  createChart,
+} from '../../../test/fixtures'
+import renderPage from '../../../test/PageRenderer'
 
 import DashboardPage from '.'
 
 const mockUser = createUser()
 const mockParticipants = createParticipantList()
+const mockedUsers = [
+  mockUser,
+  createUser({ uid: 'foo' }),
+  createUser({ uid: 'bar' }),
+]
+const mockedCharts = [
+  createChart({ chartOwner: { display_name: 'Jane' } }),
+  createChart({
+    title: 'chart two',
+    owner: 'foo',
+    chartOwner: { display_name: 'Jack' },
+  }),
+  createChart({
+    title: 'bar chart',
+    owner: 'bar',
+    chartOwner: { display_name: 'Bert' },
+  }),
+]
 
-jest.mock('react-router-dom', () => {
-  return {
-    ...jest.requireActual('react-router-dom'),
-    useOutletContext: () => {
-      return {
-        user: mockUser
-      }
+jest.mock(
+  'react-router-dom',
+  () => {
+    return {
+      ...jest.requireActual('react-router-dom'),
+      useOutletContext: () => {
+        return {
+          user: mockUser,
+          setNotification: jest.fn(),
+          users: mockedUsers,
+        }
+      },
     }
-  }
-}, { })
+  },
+  {}
+)
 
-jest.mock('../../api', () =>{
+jest.mock('../../api', () => {
   return {
     participants: {
-      all: () => Promise.resolve(mockParticipants)
+      all: () => Promise.resolve(mockParticipants),
+    },
+    charts: {
+      chart: {
+        index: () => mockedCharts,
+      },
     },
   }
 })
 describe('Dashboard Page', () => {
-  
   test('Dashboard Page renders', async () => {
-    render(
-      <MemoryRouter>
-        <NotificationContext.Provider value={[{}, jest.fn()]}>
-          <AuthContext.Provider value={[{}, jest.fn()]}>
-            <DashboardPage />
-          </AuthContext.Provider>
-        </NotificationContext.Provider>
-      </MemoryRouter>
-    )
+    renderPage(DashboardPage)
 
     await waitFor(() => {
       expect(screen.getByText('Dashboard')).toBeInTheDocument()
@@ -47,19 +69,24 @@ describe('Dashboard Page', () => {
   })
 
   test('Dashboard Page shows 5 rows of Participants', async () => {
-    render(
-      <MemoryRouter>
-        <NotificationContext.Provider value={[{}, jest.fn()]}>
-          <AuthContext.Provider value={[{}, jest.fn()]}>
-            <DashboardPage />
-          </AuthContext.Provider>
-        </NotificationContext.Provider>
-      </MemoryRouter>
-    )
+    renderPage(DashboardPage)
 
     await waitFor(() => {
-      const participantRows = within(screen.getAllByRole('table')[0]).getAllByRole('row')
+      const participantRows = within(
+        screen.getAllByRole('table')[0]
+      ).getAllByRole('row')
       expect(participantRows.length).toBe(6)
+    })
+  })
+
+  test('Renders Charts table', async () => {
+    renderPage(DashboardPage)
+
+    await waitFor(() => {
+      const chartsTableRows = within(
+        screen.getAllByRole('table')[1]
+      ).getAllByRole('row')
+      expect(chartsTableRows.length).toBe(4)
     })
   })
 })

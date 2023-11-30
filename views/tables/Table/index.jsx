@@ -45,7 +45,7 @@ const Table = (props) => {
     sortDirection,
     sortProperty,
     handleRequestSort,
-    maxRows
+    maxRows,
   } = props
 
   const rows = maxRows && data.length > maxRows ? data.slice(0, maxRows) : data

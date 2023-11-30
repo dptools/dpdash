@@ -47,6 +47,8 @@ const ChartsTable = ({
   ]
   const cellRenderer = (chart, property) => {
     switch (property) {
+      case 'owner':
+        return chart['chartOwner'].display_name
       case 'title':
         const viewChart = routes.viewChart(chart._id)
 
@@ -100,7 +102,14 @@ const ChartsTable = ({
     }
   }
 
-  return <Table cellRenderer={cellRenderer} data={charts} headers={headers} maxRows={maxRows} />
+  return (
+    <Table
+      cellRenderer={cellRenderer}
+      data={charts}
+      headers={headers}
+      maxRows={maxRows}
+    />
+  )
 }
 
 export default ChartsTable

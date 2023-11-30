@@ -13,7 +13,7 @@ import './AccountPage.css'
 
 const AccountPage = () => {
   const { user, setUser, setNotification } = useOutletContext()
-  const { display_name, icon, iconFileName, mail, title } = user
+  const { display_name, icon, iconFileName, mail, title, preferences } = user
   const iconFile =
     !!icon && !!iconFileName
       ? FileModel.fromDataURL(icon, iconFileName)
@@ -24,9 +24,9 @@ const AccountPage = () => {
       const { iconFile, ...formData } = userProfileValues
       const icon = iconFile ? await FileModel.toDataURL(iconFile) : ''
       const iconFileName = iconFile ? iconFile.name : ''
-
       const updatedUser = await api.users.update(user.uid, {
         ...formData,
+        preferences,
         icon,
         iconFileName,
       })

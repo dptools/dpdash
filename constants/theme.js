@@ -47,6 +47,7 @@ export const fontSize = {
   12: '0.75rem',
   14: '0.875rem',
   18: '1.15rem',
+  20: '1.20rem',
 }
 
 export const lineHeight = {

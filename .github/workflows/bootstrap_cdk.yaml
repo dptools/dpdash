@@ -21,4 +21,4 @@ jobs:
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
     - name: Bootstrap CDK
-      run: DEV_CERT_ARN=${{ vars.DEV_CERT_ARN }} BASE_DOMAIN=${{ vars.BASE_DOMAIN }} npm run bootstrap -- --require-approval never
+      run: EMAIL_SENDER=${{ vars.EMAIL_SENDER }} ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }} BASE_DOMAIN=${{ vars.BASE_DOMAIN }} npm run bootstrap -- --require-approval never

@@ -28,8 +28,8 @@ export class DpdashCdkStack extends cdk.Stack {
       devCertArn = process.env.DEV_CERT_ARN;
       sesIdentityArn = `arn:aws:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${process.env.BASE_DOMAIN}`
     } else {
-      const hostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {
-        zoneName: process.env.BASE_DOMAIN,
+      const hostedZone = route53.HostedZone.fromLookup(this, `${APP_NAME}HostedZone`, {
+        domainName: process.env.BASE_DOMAIN,
       });
 
       const devHostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {

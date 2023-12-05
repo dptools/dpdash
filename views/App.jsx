@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   CssBaseline,
   StyledEngineProvider,
@@ -6,6 +6,9 @@ import {
   ThemeProvider,
   Snackbar
 } from '@mui/material'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+
 import {
   AuthContext,
   ConfigurationsContext,
@@ -14,7 +17,6 @@ import {
 import Router from './routes'
 import { NOTIFICATION_DEFAULT, THEME } from '../constants'
 
-import 'react-virtualized/styles.css'
 import './App.css'
 
 const theme = createTheme(THEME)
@@ -32,18 +34,20 @@ const App = () => {
         value={[configurations, setConfigurations]}
       >
         <AuthContext.Provider value={[user, setUser]}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <StyledEngineProvider injectFirst>
-              <Router user={user} setUser={setUser} />
-              <Snackbar
-                open={notification.open}
-                message={notification.message}
-                autoHideDuration={2000}
-                onClose={handleNotificationClose}
-              />
-            </StyledEngineProvider>
-          </ThemeProvider>
+          <LocalizationProvider dateAdapter={AdapterMoment}>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <StyledEngineProvider injectFirst>
+                <Router user={user} setUser={setUser} />
+                <Snackbar
+                  open={notification.open}
+                  message={notification.message}
+                  autoHideDuration={2000}
+                  onClose={handleNotificationClose}
+                />
+              </StyledEngineProvider>
+            </ThemeProvider>
+          </LocalizationProvider>
         </AuthContext.Provider>
       </ConfigurationsContext.Provider>
     </NotificationContext.Provider>

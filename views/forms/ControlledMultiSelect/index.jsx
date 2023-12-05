@@ -1,6 +1,6 @@
 import React from 'react'
 import { Controller } from 'react-hook-form'
-import { Autocomplete, Chip, TextField } from '@mui/material'
+import { MultiSelect } from '../MultiSelect'
 
 const ControlledMultiSelect = (props) => {
   const onChange = (value, reason, field) => {
@@ -30,44 +30,7 @@ const ControlledMultiSelect = (props) => {
       name={props.name}
       control={props.control}
       render={({ field, fieldState }) => (
-        <Autocomplete
-          id={props.name}
-          fullWidth={props.fullWidth}
-          getOptionDisabled={(option) => option.isFixed}
-          isOptionEqualToValue={(option, value) => option.value === value.value}
-          multiple
-          onChange={(_, data, reason) => onChange(data, reason, field)}
-          options={props.options}
-          renderTags={(tagValue, getTagProps) =>
-            tagValue.map((option, index) => (
-              <Chip
-                key={option.label}
-                label={option.label}
-                {...getTagProps({ index })}
-                disabled={option.isFixed}
-              />
-            ))
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              aria-invalid={!!fieldState.error ? 'true' : 'false'}
-              label={props.label}
-              helperText={fieldState.error?.message}
-              InputProps={{
-                ...params.InputProps,
-                startAdornment: (
-                  <>
-                    {props.startAdornment}
-                    {params.InputProps.startAdornment}
-                  </>
-                ),
-              }}
-              placeholder={props.placeholder}
-            />
-          )}
-          value={field.value}
-        />
+        <MultiSelect field={field} fieldState={fieldState} onChange={onChange} {...props}></MultiSelect> 
       )}
     />
   )

@@ -81,7 +81,7 @@ const Table = (props) => {
                     ...lastCellStyles(cellIndex, headers),
                   }}
                 >
-                  {cellRenderer(rowData, header.dataProperty)}
+                  {cellRenderer(rowData, header.dataProperty, rowIndex)}
                 </TableCell>
               ))}
             </TableRow>

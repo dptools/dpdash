@@ -6,6 +6,7 @@ import RegistrationForm from '../../forms/RegisterForm'
 import { NotificationContext } from '../../contexts'
 import api from '../../api'
 import { routes } from '../../routes/routes'
+import { fontSize } from '../../../constants'
 
 import './RegistrationPage.css'
 
@@ -31,7 +32,13 @@ const RegistrationPage = () => {
       <Typography variant="h4" sx={{ pb: '16px', pt: '16px' }}>
         Sign Up
       </Typography>
-      <Typography variant="body1" sx={{ pb: '16px', pt: '16px' }}>
+      <Typography
+        variant="body1"
+        sx={{
+          py: '16px',
+          fontSize: { xs: fontSize[14] },
+        }}
+      >
         Already have a DPDash account?
         <Link to={routes.signin} className="RegistrationPageSignInLink">
           Sign in

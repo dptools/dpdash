@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Box, Button } from '@mui/material'
+import { Box, Button, useMediaQuery } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import { useOutletContext, Link } from 'react-router-dom'
 
@@ -9,8 +9,10 @@ import { UsersModel } from '../../models'
 import api from '../../api'
 import ShareConfigurationForm from '../../forms/ShareConfigurationForm'
 import { routes } from '../../routes/routes'
+import { fontSize } from '../../../constants'
 
 const ConfigurationsPage = () => {
+  const isMobile = useMediaQuery('(max-width:900px)')
   const {
     configurations,
     navigate,
@@ -123,10 +125,14 @@ const ConfigurationsPage = () => {
         cta={
           <Button
             component={Link}
-            endIcon={<Add />}
+            endIcon={isMobile ? '' : <Add />}
             to={routes.newConfiguration}
             size="small"
-            sx={{ backgroundColor: 'primary.dark', textTransform: 'none' }}
+            sx={{
+              backgroundColor: 'primary.dark',
+              textTransform: 'none',
+              fontSize: { xs: fontSize[9], sm: fontSize[16] },
+            }}
             variant="contained"
           >
             New Configuration

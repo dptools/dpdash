@@ -27,13 +27,13 @@ const AccountPageHeader = () => {
         variant="outlined"
         sx={{
           borderRadius: borderRadius[8],
-          fontSize: fontSize[14],
-          alignSelf: 'flex-start',
-          mt: '-10px',
+          fontSize: { xs: fontSize[12], lg: fontSize[14] },
+          alignSelf: { lg: 'flex-start', xs: 'center' },
+          mt: { lg: '-10px' },
           textTransform: 'none',
           color: 'primary.dark',
           borderColor: 'primary.light',
-          p: '2px 12px',
+          p: { lg: '2px 12px' },
           '& .MuiSvgIcon-root': {
             height: '20px',
             width: '20px',

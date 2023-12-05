@@ -4,10 +4,13 @@ import SidebarLogo from './SidebarLogo'
 import SideNavigation from './SideNavigation'
 import SidebarFooter from './SidebarFooter'
 
-const Sidebar = ({ user, sidebarOpen, onLogout }) => {
+const Sidebar = ({ user, sidebarOpen, onLogout, isMobile, onClose }) => {
+  const status = isMobile ? 'temporary' : 'permanent'
+
   return (
     <Drawer
-      variant="permanent"
+      onClose={onClose}
+      variant={status}
       open={sidebarOpen}
       sx={{ height: '100vh' }}
       PaperProps={{

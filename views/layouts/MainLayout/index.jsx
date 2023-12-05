@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
+import { IconButton, useMediaQuery } from '@mui/material'
+import { Menu } from '@mui/icons-material'
 
 import Sidebar from '../../components/Sidebar'
 import {
@@ -12,10 +14,12 @@ import { routes } from '../../routes/routes'
 import './MainLayout.css'
 
 const MainLayout = () => {
+  const isMobile = useMediaQuery('(max-width:900px)')
   const [configurations, setConfigurations] = useContext(ConfigurationsContext)
   const [, setNotification] = useContext(NotificationContext)
   const [user, setUser] = useContext(AuthContext)
   const [users, setUsers] = useState([])
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const navigate = useNavigate()
   const fetchUsers = async () => {
     try {
@@ -48,10 +52,29 @@ const MainLayout = () => {
     fetchUsers()
     loadAllConfigurations()
   }, [])
-
+  const handleDrawerOpen = () => setDrawerOpen(!drawerOpen)
+  const handleClose = () => setDrawerOpen(false)
   return (
     <div className="MainLayout_container">
-      <Sidebar sidebarOpen={true} user={user} onLogout={handleLogout} />
+      {isMobile && (
+        <IconButton
+          color="primary"
+          aria-label="open drawer"
+          onClick={handleDrawerOpen}
+          edge="start"
+          style={{ position: 'fixed' }}
+          size="small"
+        >
+          <Menu />
+        </IconButton>
+      )}
+      <Sidebar
+        sidebarOpen={drawerOpen}
+        user={user}
+        onLogout={handleLogout}
+        isMobile={isMobile}
+        onClose={handleClose}
+      />
 
       <main className="MainLayout_main">
         <Outlet

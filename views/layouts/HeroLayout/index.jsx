@@ -12,7 +12,15 @@ const HeroLayout = () => {
       <Box className="HeroLayout_main">
         <HeroCard />
 
-        <Box sx={{ width: '458px', boxShadow: 5, px: '64px', py: '50px' }}>
+        <Box
+          sx={{
+            width: { md: '458px', xs: '350px' },
+            boxShadow: 5,
+            mt: { sm: '30px', xs: '15px' },
+            px: { md: '64px', xs: '32px' },
+            py: { xs: '25px', md: '50px' },
+          }}
+        >
           <Outlet />
         </Box>
       </Box>

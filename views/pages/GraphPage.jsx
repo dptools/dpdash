@@ -7,7 +7,6 @@ import * as _ from 'lodash'
 
 import IconButton from '@mui/material/IconButton'
 import SaveIcon from '@mui/icons-material/Save'
-import Tooltip from '@mui/material/Tooltip'
 
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -229,9 +228,7 @@ const GraphPage = () => {
             id="downloadPng"
             focusRipple={true}
           >
-            <Tooltip title="Download as PNG">
-              <SaveIcon />
-            </Tooltip>
+            <SaveIcon />
           </Button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 export const N_A = 'N/A'
 export const TOTAL_LABEL = 'Total'
 export const TOTALS = 'Totals'
-export const DISALLOWED_STUDIES = ['combined', 'files']
+export const DISALLOWED_STUDIES = ['combined', 'files', 'ProNET']
 export const FILTER_CATEGORIES = {
   chrcrit_part: 'Cohort',
   included_excluded: 'Included Criteria',

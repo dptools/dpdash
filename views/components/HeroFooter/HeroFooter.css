@@ -4,11 +4,32 @@
   gap: 60px;
   left: 0;
   padding: 24px 72px;
-  position: fixed;
   right: 0;
 }
 
 .HeroFooter_linksContainer {
   display: flex;
-  gap: 84px;
+  gap: 40px;
+}
+
+@media screen and (max-width: 500px) {
+  .HeroFooter_container {
+    flex-direction: column-reverse;
+    position: static;
+    gap: 20px;
+    padding: 20px;
+  }
+  .HeroFooter_linksContainer {
+    gap: 20px;
+    flex-direction: column;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .HeroFooter_container {
+    position: fixed;
+  }
+  .HeroFooter_linksContainer {
+    gap: 84px;
+  }
 }

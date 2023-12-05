@@ -1,5 +1,4 @@
 import Button from '@mui/material/Button'
-import Tooltip from '@mui/material/Tooltip'
 import Add from '@mui/icons-material/Add'
 
 const UploadFile = ({ handleChangeFile }) => {
@@ -21,9 +20,7 @@ const UploadFile = ({ handleChangeFile }) => {
           focusRipple
           style={{ marginBottom: '8px' }}
         >
-          <Tooltip title="Upload Details">
-            <Add />
-          </Tooltip>
+          <Add />
         </Button>
       </label>
     </div>

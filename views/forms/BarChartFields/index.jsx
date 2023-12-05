@@ -1,14 +1,13 @@
 import React from 'react'
 import Delete from '@mui/icons-material/Delete'
-import Button from '@mui/material/Button'
-import { IconButton } from '@mui/material'
-import Typography from '@mui/material/Typography'
-import ColorPicker from '../components/ColorPicker'
-import Tooltip from '@mui/material/Tooltip'
-import TextInput from './TextInput'
-import ControlledCheckbox from './ControlledCheckbox'
+import { Button, Typography } from '@mui/material'
+import ColorPicker from '../../components/ColorPicker/'
+import TextInput from '../TextInput'
+import ControlledCheckbox from '../ControlledCheckbox'
 
-import { presetColors } from '../../constants'
+import { presetColors } from '../../../constants'
+
+import './BarChartFields.css'
 
 const BarChartFields = ({
   control,
@@ -64,43 +63,48 @@ const BarChartFields = ({
         return (
           <React.Fragment key={id}>
             <div>
-              <Tooltip
-                disableFocusListener
-                title="Leave blank to count empty values"
+              <Button
+                aria-label="delete"
+                onClick={() => onRemove(index)}
+                endIcon={<Delete />}
+                variant="outline"
               >
-                <TextInput
-                  label="Value"
-                  name={`fieldLabelValueMap.${index}.value`}
-                  control={control}
-                />
-              </Tooltip>
+                Delete Targets
+              </Button>
+            </div>
+            <div className="BarChartFieldsValueLabel">
+              <TextInput
+                label="Value"
+                name={`fieldLabelValueMap.${index}.value`}
+                control={control}
+                size="small"
+                fullWidth={false}
+              />
               <TextInput
                 label="Label"
                 control={control}
                 name={`fieldLabelValueMap.${index}.label`}
                 required
+                size="small"
+                fullWidth={false}
               />
-              <ColorPicker
-                control={control}
-                name={`fieldLabelValueMap.${index}.color`}
-                color={fieldsValue[index].color || field.color}
-                presetColors={presetColors}
-              />
-              <IconButton aria-label="delete" onClick={() => onRemove(index)}>
-                <Delete />
-              </IconButton>
             </div>
-            <div>
-              <Typography variant="h6" color="textSecondary">
-                Targets
-              </Typography>
-            </div>
+            <ColorPicker
+              control={control}
+              name={`fieldLabelValueMap.${index}.color`}
+              color={fieldsValue[index].color || field.color}
+              presetColors={presetColors}
+            />
+            <Typography variant="h6" color="textSecondary" sx={{ py: '20px' }}>
+              Targets
+            </Typography>
             {Object.keys(targetValues).map((study, idx) => (
-              <div key={idx + study}>
+              <div key={idx + study} className="BarChartFieldsTargetValues">
                 <Typography
                   variant="subtitle1"
                   gutterBottom={false}
                   color="textSecondary"
+                  sx={{ pr: '10px' }}
                 >
                   {study}
                 </Typography>
@@ -108,12 +112,11 @@ const BarChartFields = ({
                   control={control}
                   name={`fieldLabelValueMap.${index}.targetValues.${study}`}
                   fullWidth={false}
+                  size="small"
+                  margin="dense"
                 />
               </div>
             ))}
-            <div>
-              <br />
-            </div>
           </React.Fragment>
         )
       })}

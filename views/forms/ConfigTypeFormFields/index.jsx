@@ -4,11 +4,13 @@ import TextInput from '../TextInput'
 import ControlledMultiSelect from '../ControlledMultiSelect'
 import ControlledCheckbox from '../ControlledCheckbox'
 
+import './ConfigTypeFormFields.css'
+
 const ConfigTypeFormFields = (props) => {
   const { control, friendsList } = props
 
   return (
-    <div style={{ width: '50%' }}>
+    <div className="ConfigTypeFormFields">
       <TextInput
         name="configName"
         label="Configuration Name"

@@ -1,54 +1,62 @@
-import { Paper, Typography } from '@mui/material'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useState } from 'react'
+import { Paper, Typography, Dialog } from '@mui/material'
 import { HexColorPicker } from 'react-colorful'
 import { Controller } from 'react-hook-form'
+import { borderRadius } from '../../../constants'
 
-import useClickOutside from '../hooks/useClickOutside'
+import './ColorPicker.css'
 
 const ColorPicker = ({ color, presetColors, name, control }) => {
   const [isColorPickerOpen, setColorPickerToggle] = useState(false)
-  const popover = useRef()
-  const close = useCallback(() => setColorPickerToggle(false), [])
-  useClickOutside(popover, close)
 
   return (
-    <div>
-      <Typography variant="caption">Color</Typography>
+    <div className="ColorPicker">
+      <Typography variant="body2" sx={{ pr: '10px', fontWeight: 600 }}>
+        Color
+      </Typography>
+
       <Paper
-        style={{ backgroundColor: color }}
+        sx={{
+          backgroundColor: color,
+          height: '20px',
+          width: '20px',
+          borderRadius: borderRadius[8],
+        }}
         onClick={() => setColorPickerToggle(true)}
       />
-      {isColorPickerOpen && (
+      <Dialog
+        open={isColorPickerOpen}
+        onClose={() => setColorPickerToggle(false)}
+      >
         <Controller
           name={name}
           control={control}
           render={({ field }) => (
-            <div ref={popover}>
+            <>
               <HexColorPicker
                 color={color}
                 control={control}
                 name={name}
                 onChange={(newColor) => field.onChange(newColor)}
               />
-              <div>
+              <div className="ColorPickerPalette">
                 {presetColors.map((presetColor) => (
                   <input
                     key={presetColor}
+                    className="ColorPickerSwatch"
                     style={{
                       backgroundColor: presetColor,
                     }}
-                    type="radio"
+                    type="button"
                     value={presetColor}
-                    onChange={({ target: { value: newColor } }) =>
-                      field.onChange(newColor)
-                    }
+                    onClick={(e) => field.onChange(e.target.value)}
                   />
                 ))}
               </div>
-            </div>
+            </>
           )}
         />
-      )}
+      </Dialog>
     </div>
   )
 }

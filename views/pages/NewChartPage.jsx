@@ -1,6 +1,7 @@
 import React from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
+import { Box } from '@mui/material'
 
 import useArrayFormFields from '../hooks/useArrayFormFields'
 import ChartForm from '../forms/ChartForm'
@@ -41,7 +42,7 @@ const NewChartPage = () => {
   }
 
   return (
-    <div>
+    <Box sx={{ p: '25px' }}>
       <ChartForm
         onSubmit={handleSubmit(handleFormSubmit)}
         control={control}
@@ -50,7 +51,7 @@ const NewChartPage = () => {
         onRemove={removeField}
         fieldsValue={watch('fieldLabelValueMap')}
       />
-    </div>
+    </Box>
   )
 }
 

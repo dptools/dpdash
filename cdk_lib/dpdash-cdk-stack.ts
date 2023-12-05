@@ -38,7 +38,7 @@ export class DpdashCdkStack extends cdk.Stack {
         domainName: process.env.BASE_DOMAIN,
       });
 
-      const devHostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {
+      const devHostedZone = new route53.PublicHostedZone(this, `${APP_NAME}DevHostedZone`, {
         zoneName: `staging.${process.env.BASE_DOMAIN}`,
       });
 

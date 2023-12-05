@@ -16,7 +16,13 @@ const APP_NAME = "DpDash";
 
 export class DpdashCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+    super(scope, id, {
+      env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION,
+      },
+      ...props,
+    });
     let devCertArn
     let sesIdentityArn
 

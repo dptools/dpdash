@@ -21,4 +21,4 @@ jobs:
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
     - name: Deploy Dev
-      run: EMAIL_SENDER=${{ vars.EMAIL_SENDER }} ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }} BASE_DOMAIN=${{ vars.BASE_DOMAIN }} npm run deploy -- --require-approval never
+      run: CDK_DEFAULT_ACCOUNT=${{ vars.CDK_DEFAULT_ACCOUNT }} CDK_DEFAULT_REGION=${{ vars.CDK_DEFAULT_REGION }} EMAIL_SENDER=${{ vars.EMAIL_SENDER }} ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }} BASE_DOMAIN=${{ vars.BASE_DOMAIN }} npm run deploy -- --require-approval never

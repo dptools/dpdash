@@ -50,7 +50,7 @@ export class DpdashCdkStack extends cdk.Stack {
 
       const identity = new ses.EmailIdentity(this, 'Identity', {
         identity: ses.Identity.publicHostedZone(hostedZone),
-        mailFromDomain: process.env.BASE_DOMAIN,
+        mailFromDomain: process.env.BASE_DOMAIN.split('.').slice(-2).join('.'),
       });
 
       devCertArn = devCert.certificateArn;

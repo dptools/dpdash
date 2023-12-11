@@ -36,7 +36,7 @@ export class DpdashCdkStack extends cdk.Stack {
       sesIdentityArn = `arn:aws:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${process.env.BASE_DOMAIN}`
     } else {
       const hostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {
-        zoneName: process.env.BASE_DOMAIN,
+        zoneName: process.env.BASE_DOMAIN.split('.').slice(-2).join('.'),
       });
 
       const devHostedZone = new route53.PublicHostedZone(this, `${APP_NAME}DevHostedZone`, {
@@ -50,7 +50,6 @@ export class DpdashCdkStack extends cdk.Stack {
 
       const identity = new ses.EmailIdentity(this, 'Identity', {
         identity: ses.Identity.publicHostedZone(hostedZone),
-        mailFromDomain: process.env.BASE_DOMAIN.split('.').slice(-2).join('.'),
       });
 
       devCertArn = devCert.certificateArn;

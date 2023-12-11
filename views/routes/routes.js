@@ -10,6 +10,7 @@ export const routes = {
   dashboards: `/dashboard`,
   dashboard: (study = ':study', subject = ':subject') =>
     `${routes.dashboards}/${study}/${subject}`,
+  studyDashboard: (study = ':study') => `${routes.dashboards}/${study}`,
   charts: '/charts',
   newChart: '/charts/new',
   editChart: (chartId) => `/charts/${chartId}/edit`,

@@ -1,18 +1,17 @@
 import React from 'react'
 import { useOutletContext, useParams } from 'react-router-dom'
 import FileSaver from 'file-saver'
-
-import Button from '@mui/material/Button'
 import * as _ from 'lodash'
+import {
+  Box,
+  Button,
+  DialogActions,
+  DialogContent,
+  Dialog,
+} from '@mui/material'
+import { Save, Functions } from '@mui/icons-material'
 
-import IconButton from '@mui/material/IconButton'
-import SaveIcon from '@mui/icons-material/Save'
-
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import Dialog from '@mui/material/Dialog'
-import Functions from '@mui/icons-material/Functions'
-
+import PageHeader from '../components/PageHeader'
 import SelectConfigurationForm from '../components/SelectConfigurationForm'
 import Matrix from '../components/Matrix.d3'
 import GraphPageTable from '../components/GraphPageTable'
@@ -21,14 +20,8 @@ import api from '../api'
 const cardSize = 20
 
 const GraphPage = () => {
-  const {
-    configurations,
-    user,
-    theme,
-    setOpenSidebar,
-    setUser,
-    setNotification,
-  } = useOutletContext()
+  const { configurations, user, theme, setUser, setNotification } =
+    useOutletContext()
   const el = React.useRef()
   const canvasRef = React.useRef()
   const graphRef = React.createRef()
@@ -150,7 +143,6 @@ const GraphPage = () => {
   }
 
   React.useEffect(() => {
-    setOpenSidebar(false)
     onMount()
 
     return () => {
@@ -200,23 +192,30 @@ const GraphPage = () => {
   }, [graph.matrixData])
 
   return (
-    <>
-      <div>
-        <div>
-          <SelectConfigurationForm
-            configurations={configurations}
-            onChange={updateUserPreferences}
-            currentPreference={user.preferences}
-          />
-        </div>
-        <IconButton
-          color="default"
+    <Box sx={{ p: '20px' }}>
+      <PageHeader title="Matrix" />
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          paddingTop: '15px',
+          paddingBottom: '15px',
+          maxWidth: '400px',
+        }}
+      >
+        <SelectConfigurationForm
+          configurations={configurations}
+          onChange={updateUserPreferences}
+          currentPreference={user.preferences}
+        />
+        <Button
           aria-label="Open Stat"
           onClick={() => setOpenStat(true)}
+          endIcon={<Functions />}
         >
-          <Functions />
-        </IconButton>
-      </div>
+          View Table
+        </Button>
+      </Box>
       <div>
         <div className="Matrix">
           <div className="graph" ref={el} />
@@ -228,7 +227,7 @@ const GraphPage = () => {
             id="downloadPng"
             focusRipple={true}
           >
-            <SaveIcon />
+            <Save />
           </Button>
         </div>
       </div>
@@ -247,7 +246,7 @@ const GraphPage = () => {
         </DialogActions>
       </Dialog>
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-    </>
+    </Box>
   )
 }
 

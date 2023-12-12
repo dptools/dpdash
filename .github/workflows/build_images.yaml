@@ -40,5 +40,6 @@ jobs:
           REPOSITORY: mongo
           IMAGE_TAG: '5.0.21'
         run: |
-          docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker pull $REPOSITORY:$IMAGE_TAG
+          docker tag $REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG

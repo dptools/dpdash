@@ -1,7 +1,6 @@
 import React from 'react'
 import { useOutletContext, useParams } from 'react-router-dom'
 import FileSaver from 'file-saver'
-import * as _ from 'lodash'
 import {
   Box,
   Button,
@@ -77,14 +76,12 @@ const GraphPage = () => {
     }
   }
   const updateMaxDay = (graph) => {
-    const maxObj = _.maxBy(
-      graph.matrixData.map((matrixData) =>
-        _.maxBy(matrixData.data, ({ day }) => day)
-      ),
-      'day'
-    )
+    const daysParticipated = graph.matrixData
+      .flatMap(({ data }) => data)
+      .map(({ day }) => day)
+    const calculateMaxDay = Math.max(...daysParticipated)
 
-    setDayData({ ...dayData, maxDay: maxObj.day || 1 })
+    setDayData({ ...dayData, maxDay: calculateMaxDay || 1 })
   }
   const onMount = async () => {
     try {

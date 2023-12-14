@@ -4,7 +4,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ShareIcon from '@mui/icons-material/Share'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import { Link } from 'react-router-dom'
 
 import { routes } from '../../routes/routes'
@@ -60,9 +60,7 @@ const ChartsTable = ({
           </Link>
         )
       case 'updatedAt':
-        return chart[property]
-          ? moment(chart[property]).format(DATE_FORMAT)
-          : ''
+        return chart[property] ? dayjs(chart[property]).format(DATE_FORMAT) : ''
       case 'info':
         const chartOwnedByUser = ChartModel.isOwnedByUser(chart, user)
 

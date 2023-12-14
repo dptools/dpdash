@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import CollectionsModel from '../../models/CollectionsModel'
 
 class DashboardDataProcessor {
@@ -26,8 +25,7 @@ class DashboardDataProcessor {
 
     this.configuration.forEach(({ analysis, variable, label, ...rest }) => {
       const assessmentData = this.#configDataMap.get(analysis)
-      const variableData = _.reduce(
-        assessmentData,
+      const variableData = assessmentData.reduce(
         (variableDataArray, dayData) => {
           if (Object.hasOwn(dayData, variable))
             variableDataArray.push({
@@ -39,10 +37,10 @@ class DashboardDataProcessor {
         },
         []
       )
-
-      const max = _.maxBy(variableData, variable)?.[variable]
-      const min = _.minBy(variableData, variable)?.[variable]
-      const mean = _.meanBy(variableData, variable)
+      const max = Math.max(...variableData.map((data) => data[variable]))
+      const min = Math.min(...variableData.map((data) => data[variable]))
+      const sum = variableData.reduce((prev, acc) => prev + acc[variable], 0)
+      const mean = sum / variableData.length
       const stat = [{ max, min, mean }]
 
       this.matrixData.push({

@@ -3,7 +3,7 @@ import React from 'react'
 import { Settings, Clear, LockOpen } from '@mui/icons-material'
 import { IconButton, Checkbox } from '@mui/material'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 import Table from '../Table'
 
@@ -53,7 +53,7 @@ const AdminUsersTable = (props) => {
       dataProperty: 'delete',
       label: 'Delete',
       sortable: false,
-    }
+    },
   ]
 
   const cellRenderer = (user, property, rowIndex) => {
@@ -68,8 +68,10 @@ const AdminUsersTable = (props) => {
         return (
           <DatePicker
             name={`users.${rowIndex}.account_expires`}
-            value={moment(user[property])}
-            onChange={(value) => props.onChangeAccountExpiration(rowIndex, value)}
+            value={dayjs(user[property])}
+            onChange={(value) =>
+              props.onChangeAccountExpiration(rowIndex, value)
+            }
           />
         )
       case 'force_reset_pw':

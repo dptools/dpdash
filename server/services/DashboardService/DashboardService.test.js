@@ -1,4 +1,4 @@
-import moment from 'moment'
+import dayjs from 'dayjs'
 import DashboardService from '.'
 import DashboardDataProcessor from '../../data_processors/DashboardDataProcessor'
 import {
@@ -94,7 +94,7 @@ const metaDocData = [
 ]
 const study = 'YA'
 const subject = 'YA01'
-const updatedDate = moment().toISOString()
+const updatedDate = dayjs().toISOString()
 
 describe(DashboardService, () => {
   describe('createDashboard', () => {

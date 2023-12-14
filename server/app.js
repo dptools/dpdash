@@ -1,21 +1,18 @@
 import express from 'express'
 import path from 'path'
-import helmet from 'helmet'
 import morgan from 'morgan'
 import winston from 'winston'
 import favicon from 'serve-favicon'
 import cookieParser from 'cookie-parser'
-import csrf from 'csurf'
 import expressSession from 'express-session'
 import MongoStore from 'connect-mongo'
 import { MongoClient } from 'mongodb'
 import passport from 'passport'
 import { Strategy } from 'passport-local'
 import bodyParser from 'body-parser'
-import methodOverride from 'method-override'
-import noCache from 'nocache'
 import livereload from 'livereload'
 import connectLiveReload from 'connect-livereload'
+import helmet from 'helmet'
 
 import assessmentData from './routes/assessmentData'
 import adminRouter from './routes/admin'
@@ -52,14 +49,7 @@ if (process.env.NODE_ENV === 'development') {
 /** favicon setup */
 app.use(favicon(path.join(__dirname, '../public/img/favicon.ico')))
 
-/** security setup */
-app.use(
-  helmet({
-    noSniff: true,
-  })
-)
-
-app.use(noCache())
+app.use(helmet({ noSniff: true }))
 
 /** logger setup */
 morgan.token('remote-user', function (req, res) {
@@ -88,8 +78,6 @@ app.use(express.static('public'))
 app.use(cookieParser(process.env.SESSION_SECRET))
 app.use(bodyParser.json({ limit: '500mb', extended: true }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
-
-app.use(methodOverride())
 
 /* database setup */
 let mongodb

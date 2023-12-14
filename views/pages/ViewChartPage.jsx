@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import qs from 'qs'
 import FileSaver from 'file-saver'
-import {
-  useParams,
-  useOutletContext,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom'
+import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { Typography } from '@mui/material'
 
 import BarGraph from '../components/BarGraph'
@@ -34,15 +29,12 @@ const ViewChartPage = () => {
   const fetchGraph = async (chart_id, filters) =>
     await api.charts.chartsData.show(chart_id, { filters })
   const fetchGraphTableCSV = async (chart_id, filters, filename) => {
-    const res = await window.fetch(
-      apiRoutes.chartCsv.show(chart_id, { filters }),
-      {
-        headers: {
-          'Content-Type': 'text/csv',
-        },
-        method: 'GET',
-      }
-    )
+    const res = await fetch(apiRoutes.chartCsv.show(chart_id, { filters }), {
+      headers: {
+        'Content-Type': 'text/csv',
+      },
+      method: 'GET',
+    })
     const graphTableData = await res.blob()
 
     FileSaver.saveAs(graphTableData, `${filename}.csv`)

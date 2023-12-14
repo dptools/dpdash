@@ -9,14 +9,12 @@ import {
   Typography,
 } from '@mui/material'
 import { yupResolver } from '@hookform/resolvers/yup'
-import * as yup from 'yup'
+import { object, array } from 'yup'
 
 import ControlledMultiSelect from '../ControlledMultiSelect'
 
-const schema = yup.object().shape({
-  readers: yup.array().when(({ isFixed }) => {
-    if (isFixed === true) yup.required('Owner cannot be removed')
-  }),
+const schema = object().shape({
+  readers: array(),
 })
 
 const ShareConfigurationForm = ({

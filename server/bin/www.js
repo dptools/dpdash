@@ -5,10 +5,6 @@
 import app from '../app'
 import { createServer } from 'http'
 
-
-const debug = require('debug')('po:server')
-const serverListenAddress = '0.0.0.0'
-
 /**
  * Get port from environment and store in Express.
  */
@@ -26,7 +22,7 @@ const server = createServer(app)
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port, serverListenAddress)
+server.listen(port)
 server.on('error', onError)
 server.on('listening', onListening)
 
@@ -66,16 +62,16 @@ function onListening() {
   console.log('Listening on ' + bind)
 }
 
-process.on('SIGTERM', shutDown);
-process.on('SIGINT', shutDown);
+process.on('SIGTERM', shutDown)
+process.on('SIGINT', shutDown)
 
 function shutDown() {
-  console.log('Received kill signal, shutting down gracefully');
+  console.log('Received kill signal, shutting down gracefully')
   if (app.locals.connection) {
-    app.locals.connection.close();
+    app.locals.connection.close()
   }
   server.close(() => {
-    console.log('Http server closed.');
-    process.exit(0);
-  });
+    console.log('Http server closed.')
+    process.exit(0)
+  })
 }

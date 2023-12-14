@@ -20,9 +20,9 @@ const GraphPageTable = (props) => {
       </TableHead>
       <TableBody>
         {props.matrixData.map((data, idx) => {
-          const validData = _.filter(
-            data.data,
-            _.conforms({ [data.variable]: (n) => _.isNumber(n) })
+          const validData = data.data.filter(
+            (assessmentData) =>
+              typeof assessmentData[data.variable] === 'number'
           )
           const missingDataPercentage =
             100 - (validData.length * 100) / props.maxDay

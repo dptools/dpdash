@@ -1,5 +1,4 @@
 import qs from 'qs'
-import 'whatwg-fetch'
 
 const handleApiResponse = async (response) => {
   const responseBody = response.headers.get('Content-Length')

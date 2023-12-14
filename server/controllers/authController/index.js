@@ -3,7 +3,7 @@ import UserModel from '../../models/UserModel'
 import ConfigModel from '../../models/ConfigModel'
 import RegistrationMailer from '../../mailer/RegistrationMailer'
 import { hash } from '../../utils/crypto/hash'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 const AuthController = {
   create: async (req, res, next) => {
@@ -23,7 +23,7 @@ const AuthController = {
           const email = reqBody.email
           const display_name = reqBody.fullName
           const hashedPW = hash(password)
-          const account_expires = moment().add(1, 'years').format()
+          const account_expires = dayjs().add(1, 'years').format()
           const configAttributes = { owner: uid, readers: [uid] }
           const configuration = await ConfigModel.save(appDb, configAttributes)
           const newUserAttributes = {

@@ -7,7 +7,7 @@ import {
   Snackbar,
 } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 import {
   AuthContext,
@@ -34,7 +34,7 @@ const App = () => {
         value={[configurations, setConfigurations]}
       >
         <AuthContext.Provider value={[user, setUser]}>
-          <LocalizationProvider dateAdapter={AdapterMoment}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
             <ThemeProvider theme={theme}>
               <CssBaseline />
               <StyledEngineProvider injectFirst>

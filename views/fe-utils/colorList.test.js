@@ -6,6 +6,7 @@ const colorbrewer = createColorbrewer()
 describe('Utils - colorList', () => {
   it('returns an array of objects containing a label and values property', () => {
     const colors = colorList(colorbrewer)
+
     expect(colors).toEqual(createColorList())
   })
 })

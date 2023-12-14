@@ -1,6 +1,6 @@
 import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 import ChartsTable, { DATE_FORMAT } from '.'
 import { createChart, createUser } from '../../../test/fixtures'
@@ -82,7 +82,7 @@ describe(ChartsTable, () => {
     ).toBeInTheDocument()
     expect(
       within(elements.tableRow(0)).getByText(
-        moment(charts[0].updatedAt).format(DATE_FORMAT)
+        dayjs(charts[0].updatedAt).format(DATE_FORMAT)
       )
     ).toBeInTheDocument()
 
@@ -94,7 +94,7 @@ describe(ChartsTable, () => {
     ).toBeInTheDocument()
     expect(
       within(elements.tableRow(1)).getByText(
-        moment(charts[1].updatedAt).format(DATE_FORMAT)
+        dayjs(charts[1].updatedAt).format(DATE_FORMAT)
       )
     ).toBeInTheDocument()
 
@@ -106,7 +106,7 @@ describe(ChartsTable, () => {
     ).toBeInTheDocument()
     expect(
       within(elements.tableRow(2)).getByText(
-        moment(charts[2].updatedAt).format(DATE_FORMAT)
+        dayjs(charts[2].updatedAt).format(DATE_FORMAT)
       )
     ).toBeInTheDocument()
   })

@@ -1,11 +1,9 @@
 import { createHash } from 'crypto'
-import _ from 'lodash'
 import CollectionsModel from '../../models/CollectionsModel'
 import MetadataModel from '../../models/MetadataModel'
 import DashboardDataProcessor from '../../data_processors/DashboardDataProcessor'
 
 class DashboardService {
-  #assessmentKey = 'analysis'
   #consentDateKey = 'Consent Date'
   #consentKey = 'Consent'
   #hex = 'hex'
@@ -21,17 +19,23 @@ class DashboardService {
     this.subject = subject
   }
 
-  #assessmentsFromConfig = () =>
-    _.uniqBy(this.configuration, this.#assessmentKey).map(({ analysis }) => {
-      const collectionName = this.study + this.subject + analysis
-      return {
-        assessment: analysis,
+  #assessmentsFromConfig = () => {
+    const assessments = new Map()
+
+    this.configuration.forEach((configuration) => {
+      const collectionName = this.study + this.subject + configuration.analysis
+      const assessmentData = {
+        assessment: configuration.analysis,
         collection: createHash(this.#salt)
           .update(collectionName)
           .digest(this.#hex),
       }
+      if (!assessments.has(collectionName))
+        assessments.set(collectionName, assessmentData)
     })
 
+    return [...assessments.values()]
+  }
   #setConsentDate = async () => {
     const metadocAttributes = {
       study: this.study,

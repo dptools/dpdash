@@ -15,6 +15,7 @@ const RegistrationPage = () => {
   const onSubmit = async (data) => {
     try {
       await api.auth.signup(data)
+
       setNotification({
         open: true,
         message:
@@ -29,7 +30,7 @@ const RegistrationPage = () => {
   }
   return (
     <>
-      <Typography variant="h4" sx={{ pb: '16px', pt: '16px' }}>
+      <Typography variant="h4" sx={{ py: fontSize[16] }}>
         Sign Up
       </Typography>
       <Typography

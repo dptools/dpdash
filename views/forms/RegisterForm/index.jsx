@@ -15,7 +15,7 @@ const schema = yup.object({
   mail: yup.string().required().email(),
 })
 
-const RegistrationForm = ({ initialValues, onCancel, onSubmit }) => {
+const RegistrationForm = ({ initialValues, onSubmit }) => {
   const {
     handleSubmit,
     control,

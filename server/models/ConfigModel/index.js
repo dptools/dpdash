@@ -40,9 +40,7 @@ const ConfigModel = {
       .collection(collections.configs)
       .insertOne(config)
 
-    if (insertedId) return await ConfigModel.findOne(db, { _id: insertedId })
-
-    throw new Error('Could not save configuration')
+    return await ConfigModel.findOne(db, { _id: insertedId })
   },
   findOne: async (db, configQuery) =>
     await db.collection(collections.configs).findOne(configQuery),

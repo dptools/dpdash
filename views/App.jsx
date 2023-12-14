@@ -4,7 +4,7 @@ import {
   StyledEngineProvider,
   createTheme,
   ThemeProvider,
-  Snackbar
+  Snackbar,
 } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
@@ -44,6 +44,7 @@ const App = () => {
                   message={notification.message}
                   autoHideDuration={2000}
                   onClose={handleNotificationClose}
+                  anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
                 />
               </StyledEngineProvider>
             </ThemeProvider>

@@ -1,4 +1,4 @@
-const DISALLOWED_STUDIES = ['combined', 'files']
+const DISALLOWED_STUDIES = ['combined', 'files', 'ProNet']
 const allowedStudies = (study) => !DISALLOWED_STUDIES.includes(study)
 
 export const recentStudyList = (studyList) =>

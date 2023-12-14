@@ -29,6 +29,7 @@ import participantsRouter from './routes/participants'
 import siteMetadata from './routes/siteMetadata'
 import usersRouter from './routes/users'
 import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
+import localSignup from './strategies/localSignup'
 
 const localStrategy = Strategy
 const isProduction = process.env.NODE_ENV === 'production'
@@ -92,7 +93,9 @@ app.use(methodOverride())
 
 /* database setup */
 let mongodb
-const mongoURI = process.env.MONGODB_URI || `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/dpdmongo?authSource=admin`
+const mongoURI =
+  process.env.MONGODB_URI ||
+  `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/dpdmongo?authSource=admin`
 const mongodbPromise = MongoClient.connect(mongoURI, {
   ssl: false,
   useNewUrlParser: true,
@@ -157,17 +160,7 @@ passport.use(
       ...PASSPORT_FIELDS_ATTRIBUTES,
       passReqToCallback: true,
     },
-    function (req, username, password, done) {
-      mongodb
-        .collection('users')
-        .findOne({ uid: username })
-        .then(function (err, user) {
-          if (!user) {
-            return done(null, false, req.body)
-          }
-          return done(null, true, null)
-        })
-    }
+    localSignup
   )
 )
 

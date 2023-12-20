@@ -10,9 +10,10 @@
   height: 80px;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (min-width: 900px) {
   .HeroCard_container {
     width: 565px;
+    /* flex-grow: 1; */
   }
   .HeroCard_image {
     height: 106px;

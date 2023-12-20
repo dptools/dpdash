@@ -2,8 +2,9 @@ import React from 'react'
 import { Box, Typography } from '@mui/material'
 import HeroFooterLink from './HeroFooterLink'
 import { routes } from '../../routes/routes'
-import './HeroFooter.css'
 import { fontSize } from '../../../constants'
+
+import './HeroFooter.css'
 
 const HeroFooter = () => {
   const currentYear = new Date().getFullYear()
@@ -14,7 +15,9 @@ const HeroFooter = () => {
       sx={{
         borderTop: 1,
         borderColor: 'grey.100',
-        mt: { sm: '50px', xs: '30px' },
+        backgroundColor: 'common.white',
+        zIndex: 5,
+        alignItems: 'center',
       }}
     >
       <Typography sx={{ fontSize: { xs: fontSize[12] } }}>

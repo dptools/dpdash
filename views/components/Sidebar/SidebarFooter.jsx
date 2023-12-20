@@ -63,7 +63,7 @@ const SidebarFooter = ({ user, onLogout }) => {
       </CardActions>
       <CardContent>
         <Typography variant="caption" sx={{ color: 'grey.A100' }}>
-          DpDash v{process.env.DPDASH_VERSION}
+          DPdash v{process.env.DPDASH_VERSION}
         </Typography>
       </CardContent>
     </Card>

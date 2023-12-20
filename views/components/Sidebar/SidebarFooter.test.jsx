@@ -40,8 +40,8 @@ describe('SidebarFooter', () => {
     expect(logOutButton).toBeInTheDocument()
   })
 
-  test('renders DpDash version correctly', () => {
-    const versionElement = screen.getByText('DpDash v1.0.0')
+  test('renders DPdash version correctly', () => {
+    const versionElement = screen.getByText('DPdash v1.0.0')
 
     expect(versionElement).toBeInTheDocument()
   })

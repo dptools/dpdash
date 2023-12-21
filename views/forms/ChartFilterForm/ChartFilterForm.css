@@ -1,0 +1,21 @@
+.ChartFilterForm {
+  display: flex;
+  width: 100%;
+}
+.ChartFilterForm_container {
+  display: flex;
+  padding-left: 15px;
+}
+.ChartFilterForm_text {
+  margin-top: 0;
+  margin-bottom: 0;
+  text-indent: 15px;
+}
+.ChartFilterForm_nested {
+  padding: 0;
+}
+.ChartFilterForm_submit {
+  padding-top: 20px;
+  width: 158px;
+  padding-left: 15px;
+}

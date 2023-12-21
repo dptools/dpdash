@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import qs from 'qs'
 import FileSaver from 'file-saver'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
-import { Typography } from '@mui/material'
+import { Typography, Avatar } from '@mui/material'
 
 import BarGraph from '../components/BarGraph'
 import GraphTable from '../components/GraphTable'
@@ -59,9 +59,13 @@ const ViewChartPage = () => {
     <>
       {graph.description && (
         <div>
-          <div>
-            <UserAvatar user={graph.chartOwner} />
-            <Typography variant="subtitle2">
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar
+              alt={graph.chartOwner.display_name}
+              src={graph.chartOwner.icon}
+              sx={{ width: 24, height: 24 }}
+            />
+            <Typography variant="subtitle2" sx={{ paddingLeft: '8px' }}>
               {graph.chartOwner.display_name}
             </Typography>
           </div>

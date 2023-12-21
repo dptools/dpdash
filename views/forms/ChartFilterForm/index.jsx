@@ -8,6 +8,8 @@ import { FILTER_CATEGORIES, TRUE_STRING } from '../../../constants'
 import ControlledCheckbox from '../ControlledCheckbox'
 import ControlledMultiSelect from '../ControlledMultiSelect'
 
+import './ChartFilterForm.css'
+
 const schema = yup.object({
   sites: yup.array().min(1, 'You must select at least 1 site'),
 })
@@ -20,7 +22,7 @@ const ChartFilterForm = ({ initialValues, onSubmit, siteOptions }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
+      <div className="ChartFilterForm">
         {Object.keys(initialValues)
           .filter((key) => key !== 'sites')
           .map((filterKey) => {
@@ -29,13 +31,13 @@ const ChartFilterForm = ({ initialValues, onSubmit, siteOptions }) => {
                 <Typography variant="subtitle2">
                   {FILTER_CATEGORIES[filterKey]}
                 </Typography>
-                <div>
+                <div className="ChartFilterForm_container">
                   {initialValues[filterKey].map((filter, index) => {
                     const filterID = `${filterKey}-${filter.name}`
 
                     return (
                       <List key={filterID} component="div" disablePadding>
-                        <ListItem>
+                        <ListItem className="ChartFilterForm_nested">
                           <ControlledCheckbox
                             checked={filter.value === TRUE_STRING}
                             control={control}
@@ -62,7 +64,7 @@ const ChartFilterForm = ({ initialValues, onSubmit, siteOptions }) => {
           fullWidth
         />
       </div>
-      <div>
+      <div className="ChartFilterForm_submit">
         <Button type="submit" color="primary" variant="contained">
           Apply Filters
         </Button>

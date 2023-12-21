@@ -23,7 +23,7 @@ export default (req, res, _, user) => {
     if (err) return res.status(500).json({ error: err.message })
 
     try {
-      const { appDb } = req.app.locals
+      const { appDb, dataDb } = req.app.locals
       const uid = user.uid
       const configQuery = { owner: uid }
       const config = await ConfigModel.findOne(appDb, configQuery)
@@ -31,10 +31,10 @@ export default (req, res, _, user) => {
       if (!config) {
         const configAttributes = { owner: uid, readers: [uid] }
 
-        await ConfigModel.save(appDb, configAttributes)
+        await ConfigModel.create(appDb, configAttributes)
       }
 
-      const userInfo = await UserModel.update(appDb, uid, {
+      const userInfo = await UserModel.update(appDb, dataDb, uid, {
         last_logon: Date.now(),
       })
       const { role, display_name, mail, icon, access, account_expires } =

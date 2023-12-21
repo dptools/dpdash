@@ -3,7 +3,7 @@ import UserModel from '../../models/UserModel'
 const UsersController = {
   edit: async (req, res) => {
     try {
-      const { appDb } = req.app.locals
+      const { appDb, dataDb } = req.app.locals
       const { uid } = req.params
       const {
         company,
@@ -15,7 +15,7 @@ const UsersController = {
         title,
         preferences,
       } = req.body
-      const updatedUser = await UserModel.update(appDb, uid, {
+      const updatedUser = await UserModel.update(appDb, dataDb, uid, {
         company: String(company),
         department: String(department),
         display_name: String(display_name),

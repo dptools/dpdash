@@ -17,7 +17,7 @@ const AuthController = {
           if (existingUser)
             return res.status(400).json({ error: 'User has an account' })
 
-          const { appDb } = req.app.locals
+          const { appDb, dataDb } = req.app.locals
           const password = reqBody.password
           const uid = reqBody.username
           const email = reqBody.email
@@ -25,7 +25,7 @@ const AuthController = {
           const hashedPW = hash(password)
           const account_expires = dayjs().add(1, 'years').format()
           const configAttributes = { owner: uid, readers: [uid] }
-          const configuration = await ConfigModel.save(appDb, configAttributes)
+          const configuration = await ConfigModel.create(appDb, configAttributes)
           const newUserAttributes = {
             uid,
             display_name,
@@ -34,7 +34,7 @@ const AuthController = {
             account_expires,
             preferences: { config: configuration._id.toString() },
           }
-          const newUser = await UserModel.save(appDb, newUserAttributes)
+          const newUser = await UserModel.create(appDb, dataDb, newUserAttributes)
           const registrationMailer = new RegistrationMailer(newUser)
 
           await registrationMailer.sendMail()
@@ -75,7 +75,7 @@ const AuthController = {
       if (password !== confirmPassword)
         return res.status(400).json({ error: 'passwords do not match' })
 
-      const { appDb } = req.app.locals
+      const { appDb, dataDb } = req.app.locals
       const encryptPassword = hash(password)
       const user = await UserModel.findOne(appDb, {
         uid: String(username),
@@ -95,6 +95,7 @@ const AuthController = {
       }
       const updatedUser = await UserModel.update(
         appDb,
+        dataDb,
         username,
         userAttributes
       )

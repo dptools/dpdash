@@ -5,7 +5,7 @@ const ConfigurationsController = {
   create: async (req, res) => {
     try {
       const { appDb } = req.app.locals
-      const newConfiguration = await ConfigModel.save(appDb, {
+      const newConfiguration = await ConfigModel.create(appDb, {
         ...req.body,
         created: new Date().toUTCString(),
       })

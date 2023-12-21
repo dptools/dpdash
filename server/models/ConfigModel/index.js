@@ -33,7 +33,7 @@ const ConfigModel = {
       .aggregate(loadAllConfigurationsMongoQuery(userId))
       .toArray()
   },
-  save: async (db, configAttributes) => {
+  create: async (db, configAttributes) => {
     const config = ConfigModel.withDefaults(configAttributes)
 
     const { insertedId } = await db

@@ -27,6 +27,7 @@ import siteMetadata from './routes/siteMetadata'
 import usersRouter from './routes/users'
 import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
 import localSignup from './strategies/localSignup'
+import UserModel from './models/UserModel'
 
 const localStrategy = Strategy
 const isProduction = process.env.NODE_ENV === 'production'
@@ -88,12 +89,14 @@ const mongodbPromise = MongoClient.connect(mongoURI, {
   ssl: false,
   useNewUrlParser: true,
 }).then(
-  function (res) {
+  async function (res) {
     app.locals.connection = res
     mongodb = res.db()
     app.locals.appDb = res.db()
     app.locals.dataDb = res.db('dpdata')
     res.db().collection('sessions').drop()
+
+    await UserModel.createFirstAdmin(app.locals.appDb)
 
     return res
   },

@@ -44,21 +44,15 @@ const AssessmentDayDataController = {
         }
       })
 
-      dataStream.on('end', () => {
-        ToCModel.upsert(dataDb, query, metadata)
-          .then((data) => console.log(data))
-          .catch((err) => console.error(err))
+      dataStream.on('end', async () => {
+        await ToCModel.upsert(dataDb, query, metadata)
 
         if (subject_assessments.length) {
-          AssessmentDayDataModel.saveMany(
+          await AssessmentDayDataModel.createMany(
             dataDb,
             collection,
             subject_assessments
           )
-            .then(() => console.log('inserting new data'))
-            .catch((error) => {
-              throw new Error(error)
-            })
         }
         Promise.all(
           updatedParticipants.map(async (participant) => {

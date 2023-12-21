@@ -3,7 +3,7 @@ const AssessmentDayDataModel = {
     await db
       .collection(assessmentCollection)
       .find({}, { projection: { _id: 0, path: 0 } }),
-  saveMany: async (db, assessmentCollection, assessmentDayData) =>
+  createMany: async (db, assessmentCollection, assessmentDayData) =>
     await db.collection(assessmentCollection).insertMany(assessmentDayData),
   update: async (db, collection, query, assessmentDayDataAttributes) =>
     await db

@@ -6,8 +6,44 @@ const SiteMetadataController = {
       const { dataDb } = req.app.locals
       const { metadata, participants } = req.body
       const { study } = metadata
+      const studyMetadata = await SiteMetadataModel.findOne(dataDb, { study })
+      if (!studyMetadata) {
+        await SiteMetadataModel.upsert(
+          dataDb,
+          { study },
+          { $set: { ...metadata, subjects: participants } }
+        )
+      } else {
+        Promise.all(
+          participants.map(async (participant) => {
+            const isParticipantInSiteMetadata = await SiteMetadataModel.findOne(
+              dataDb,
+              { subjects: { $elemMatch: { subject: participant.subject } } }
+            )
+            if (!isParticipantInSiteMetadata) {
+              await SiteMetadataModel.upsert(
+                dataDb,
+                { study },
+                { $addToSet: { subjects: participant } }
+              )
+            } else {
+              const updatedAttributes = Object.keys(participant).reduce(
+                (attributes, key) => {
+                  attributes[`subjects.$.${key}`] = participant[key]
 
-      await SiteMetadataModel.upsert(dataDb, { study }, metadata, participants)
+                  return attributes
+                },
+                {}
+              )
+              await SiteMetadataModel.upsert(
+                dataDb,
+                { subjects: { $elemMatch: { subject: participant.subject } } },
+                { $set: updatedAttributes }
+              )
+            }
+          })
+        )
+      }
 
       return res.status(200).json({ data: 'Metadata imported successfully.' })
     } catch (error) {

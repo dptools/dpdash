@@ -1,17 +1,15 @@
 import { collections } from '../../utils/mongoCollections'
 
 const SiteMetadataModel = {
-  upsert: async (db, query, metadataAttributes, metadataParticipants) =>
-    await db.collection(collections.metadata).findOneAndUpdate(
-      query,
-      {
-        $set: {
-          ...metadataAttributes,
-        },
-        $addToSet: { subjects: { $each: metadataParticipants } },
-      },
-      { upsert: true }
-    ),
+  findOne: async (db, query) =>
+    await db.collection(collections.metadata).findOne(query),
+  upsert: async (db, query, metadataAttributes) =>
+    await db
+      .collection(collections.metadata)
+      .findOneAndUpdate(query, metadataAttributes, {
+        upsert: true,
+        returnDocument: 'after',
+      }),
 }
 
 export default SiteMetadataModel

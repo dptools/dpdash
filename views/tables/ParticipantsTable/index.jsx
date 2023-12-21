@@ -1,4 +1,7 @@
 import React from 'react'
+import dayjs from 'dayjs'
+import isYesterday from 'dayjs/plugin/isYesterday'
+import isToday from 'dayjs/plugin/isToday'
 import { Link } from 'react-router-dom'
 import { Checkbox, Typography } from '@mui/material'
 import { Star, StarBorder } from '@mui/icons-material'
@@ -6,6 +9,9 @@ import { Star, StarBorder } from '@mui/icons-material'
 import Table from '../Table'
 import { SORT_DIRECTION } from '../../../constants'
 import { routes } from '../../routes/routes'
+
+dayjs.extend(isYesterday)
+dayjs.extend(isToday)
 
 const ParticipantsTable = (props) => {
   const {
@@ -40,6 +46,11 @@ const ParticipantsTable = (props) => {
       sortable: !!sortable,
     },
     {
+      dataProperty: 'synced',
+      label: 'Last synced',
+      sortable: false,
+    },
+    {
       dataProperty: 'star',
       label: '',
       sortable: false,
@@ -47,6 +58,25 @@ const ParticipantsTable = (props) => {
   ]
   const cellRenderer = (participant, property) => {
     switch (property) {
+      case 'synced':
+        const isToday = dayjs(participant[property]).isToday()
+        const isYesterday = dayjs(participant[property]).isYesterday()
+        const isTodayOrYesterday = isToday || isYesterday
+        return (
+          <Typography
+            sx={{
+              color: isTodayOrYesterday ? 'green.500' : 'text.primary',
+            }}
+          >
+            {isToday
+              ? 'Today'
+              : isYesterday
+              ? 'Yesterday'
+              : participant[property]
+              ? dayjs(participant[property]).format('MMM-D-YYYY')
+              : ''}
+          </Typography>
+        )
       case 'subject':
         return (
           <Typography

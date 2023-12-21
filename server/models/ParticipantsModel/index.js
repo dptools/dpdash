@@ -28,6 +28,7 @@ const allParticipantsQuery = (user, queryParams) => {
         subject: 1,
         days: 1,
         study: 1,
+        synced: 1,
         star: {
           $in: [subject, starred],
         },

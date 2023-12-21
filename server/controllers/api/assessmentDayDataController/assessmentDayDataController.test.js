@@ -56,6 +56,7 @@ describe('assessmentDayDataController', () => {
         const request = createRequest({ body: importedData })
         const response = createResponse()
 
+        request.app.locals.dataDb.findOne.mockResolvedValueOnce(null)
         request.app.locals.dataDb.find.mockImplementationOnce()
         request.app.locals.dataDb.stream.mockImplementationOnce(() => {
           return { on: () => jest.fn() }
@@ -77,7 +78,7 @@ describe('assessmentDayDataController', () => {
         const request = createRequest({ body: importedData })
         const response = createResponse()
 
-        request.app.locals.dataDb.find.mockRejectedValueOnce(
+        request.app.locals.dataDb.findOne.mockRejectedValueOnce(
           new Error('some error')
         )
 

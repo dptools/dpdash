@@ -1,6 +1,8 @@
+import dayjs from 'dayjs'
 import AssessmentDayDataModel from '../../../models/AssessmentDayDataModel'
 import deepEqual from 'deep-equal'
 import ToCModel from '../../../models/ToC'
+import SiteMetadataModel from '../../../models/SiteMetadataModel'
 
 const AssessmentDayDataController = {
   create: async (req, res) => {
@@ -13,16 +15,19 @@ const AssessmentDayDataController = {
       if (!metadata || !subject_assessments.length)
         return res.status(400).json({ message: 'Nothing to import' })
 
-      const { assessment, subject, collection } = metadata
+      const { assessment, subject, collection, study } = metadata
       const query = {
         assessment,
         subject,
       }
-      const storeDataCursor = await AssessmentDayDataModel.all(
+      const studyMetadata = await SiteMetadataModel.findOne(dataDb, {
+        study,
+      })
+      const storedDataCursor = await AssessmentDayDataModel.all(
         dataDb,
         collection
       )
-      const dataStream = storeDataCursor.stream()
+      const dataStream = storedDataCursor.stream()
 
       dataStream.on('data', (doc) => {
         const { day } = doc
@@ -64,6 +69,31 @@ const AssessmentDayDataController = {
               { day },
               participant
             )
+            if (!studyMetadata) {
+              await SiteMetadataModel.upsert(
+                dataDb,
+                { study },
+                {
+                  $set: {
+                    study,
+                    subjects: [
+                      {
+                        study,
+                        subject,
+                        Active: 1,
+                        synced: dayjs().toISOString(),
+                      },
+                    ],
+                  },
+                }
+              )
+            } else {
+              await SiteMetadataModel.upsert(
+                dataDb,
+                { subjects: { $elemMatch: { subject } } },
+                { $set: { 'subjects.$.synced': dayjs().toISOString() } }
+              )
+            }
           })
         )
       })

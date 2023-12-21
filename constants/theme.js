@@ -36,6 +36,9 @@ export const THEME = {
       100: '#F4EAFF',
       600: '#5F35AE',
     },
+    green: {
+      500: '#5FD85F',
+    },
     error: {
       main: '#D32F2F',
       light: '#FDEDED',

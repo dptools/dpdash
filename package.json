@@ -13,7 +13,7 @@
     "node": "DEBUG=* node ./dist/bin/www.js",
     "test": "concurrently \"npm run test:ui\" \"npm run test:server\"",
     "test:ui": "jest --env=jsdom --config=jestUIConfig.js views/",
-    "test:server": "jest server/",
+    "test:server": "jest --config=jestServerConfig.js server/",
     "bootstrap": "cdk bootstrap",
     "deploy": "cdk deploy"
   },
@@ -85,6 +85,7 @@
     "@babel/preset-env": "^7.14.0",
     "@babel/preset-react": "^7.13.13",
     "@babel/register": "^7.13.16",
+    "@shelf/jest-mongodb": "^4.2.0",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",

@@ -70,7 +70,7 @@ const UserModel = {
   hasAdmin: async (db) => {
     const userCt = await db
       .collection(collections.users)
-      .countDocuments({ role: "admin" })
+      .countDocuments({ role: "admin", password: { $ne: null } })
     return userCt !== 0
   },
   createFirstAdmin: async (db) => {

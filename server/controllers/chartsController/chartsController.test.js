@@ -6,6 +6,10 @@ import {
   createChart,
   createUser,
 } from '../../../test/fixtures'
+import { collections } from '../../utils/mongoCollections'
+
+let dataDb
+let appDb
 
 describe('chartsController', () => {
   describe('create', () => {
@@ -47,59 +51,61 @@ describe('chartsController', () => {
   })
   describe('index', () => {
     describe('When successful', () => {
-      it('returns a list of charts and a status of 200', async () => {
-        const request = createRequestWithUser()
-        const response = createResponse()
-        const user = createUser()
-        const chart = createChart({
-          assessment: 'EEG Quick',
-          _id: 'chart_eeg_id',
-          variable: 'Rating',
-          owner: 'user',
-        })
-        const mockCursor = {
-          hasNext: jest
-            .fn()
-            .mockReturnValueOnce(true)
-            .mockReturnValueOnce(false),
-          next: jest.fn().mockResolvedValueOnce(chart),
-        }
+      beforeAll(async () => {
+        dataDb = await global.MONGO_INSTANCE.db('dpdata')
+        appDb = await global.MONGO_INSTANCE.db('appDb')
+      })
 
-        request.app.locals.dataDb.find.mockResolvedValueOnce(mockCursor)
-        request.app.locals.appDb.findOne.mockResolvedValueOnce(user)
+      beforeEach(async () => {
+        await dataDb.createCollection('charts')
+      })
+      afterEach(async () => {
+        await dataDb.collection('charts').drop()
+      })
+
+      it('returns a list of charts in order of user favorite, title, alongside a status of 200', async () => {
+        const [chart1, chart2, chart3] = [
+          createChart({
+            assessment: 'EEG Quick',
+            variable: 'Rating',
+            owner: 'user',
+          }),
+          createChart({
+            assessment: 'EEG Drive',
+            variable: 'drtive',
+            owner: 'user',
+            title: 'all charts',
+          }),
+          createChart({
+            assessment: 'Foo',
+            variable: 'Rating',
+            owner: 'user',
+          }),
+        ]
+        const user = createUser({
+          uid: 'user',
+          favoriteCharts: [chart3._id],
+        })
+        await appDb.collection(collections.users).insertOne(user)
+        await dataDb
+          .collection(collections.charts)
+          .insertMany([chart1, chart2, chart3])
+
+        const request = createRequestWithUser({
+          app: { locals: { dataDb: dataDb, appDb: appDb } },
+          user: 'user',
+        })
+        const response = createResponse()
+        const { _id, ...restOfUser } = user
 
         await chartsController.index(request, response)
 
         expect(response.status).toHaveBeenCalledWith(200)
         expect(response.json).toHaveBeenCalledWith({
           data: [
-            {
-              _id: 'chart_eeg_id',
-              assessment: 'EEG Quick',
-              chartOwner: {
-                display_name: 'Display Name',
-                icon: 'icon',
-                uid: 'user-uid',
-              },
-              description: 'chart description',
-              fieldLabelValueMap: [
-                {
-                  color: '#e2860a',
-                  label: 'THE VALUE',
-                  targetValues: {
-                    CA: '50',
-                    LA: '30',
-                    MA: '21',
-                    ProNET: '60',
-                    YA: '20',
-                  },
-                  value: '1',
-                },
-              ],
-              owner: 'user',
-              title: 'chart title',
-              variable: 'Rating',
-            },
+            { ...chart3, chartOwner: restOfUser, favorite: true },
+            { ...chart2, chartOwner: restOfUser, favorite: false },
+            { ...chart1, chartOwner: restOfUser, favorite: false },
           ],
         })
       })
@@ -110,7 +116,7 @@ describe('chartsController', () => {
         const request = createRequestWithUser()
         const response = createResponse()
 
-        request.app.locals.dataDb.find.mockRejectedValueOnce(
+        request.app.locals.appDb.findOne.mockRejectedValueOnce(
           new Error('Rejected error message')
         )
 

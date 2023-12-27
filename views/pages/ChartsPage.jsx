@@ -15,9 +15,10 @@ const ChartsPage = () => {
     charts,
     chartToShare,
     closeDialog,
-    onShare,
     onDelete,
     onDuplicate,
+    onFavorite,
+    onShare,
     shareWithUsers,
     usernames,
   } = useChartsList()
@@ -39,10 +40,11 @@ const ChartsPage = () => {
         }
       />
       <ChartsTable
-        onShare={onShare}
         charts={charts}
         onDelete={onDelete}
         onDuplicate={onDuplicate}
+        onFavorite={onFavorite}
+        onShare={onShare}
         user={user}
       />
       {!!chartToShare._id && (

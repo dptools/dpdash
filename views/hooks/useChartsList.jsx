@@ -5,7 +5,10 @@ import api from '../api'
 const NULL_CHART = {}
 
 export default function useChartsList() {
-  const { user, setNotification, users } = useOutletContext()
+  const { setNotification, setUser, user, users } = useOutletContext()
+  const { uid, favoriteCharts } = user
+  const favoriteChartsSet = new Set(favoriteCharts)
+
   const [chartToShare, setChartToShare] = useState(NULL_CHART)
   const [chartList, setChartList] = useState([])
   const [usernames, setUsernames] = useState([])
@@ -46,6 +49,26 @@ export default function useChartsList() {
       setNotification({ open: true, message: error.message })
     }
   }
+  const onFavorite = async (chart) => {
+    try {
+      const isChartInSet = favoriteChartsSet.has(chart._id)
+
+      isChartInSet
+        ? favoriteChartsSet.delete(chart._id)
+        : favoriteChartsSet.add(chart._id)
+
+      const updatedUser = await api.users.update(uid, {
+        ...user,
+        favoriteCharts: Array.from(favoriteChartsSet),
+      })
+
+      setUser(updatedUser)
+
+      await loadCharts()
+    } catch (error) {
+      setNotification({ open: true, message: error.message })
+    }
+  }
   const loadCharts = async () => {
     try {
       const data = await api.charts.chart.index()
@@ -75,6 +98,7 @@ export default function useChartsList() {
     charts: chartList,
     chartToShare,
     closeDialog,
+    onFavorite,
     onShare,
     onDelete,
     onDuplicate,

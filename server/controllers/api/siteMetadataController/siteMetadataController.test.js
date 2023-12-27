@@ -1,4 +1,3 @@
-import { MongoClient, ObjectId } from 'mongodb'
 import SiteMetadataController from '.'
 import {
   createRequest,
@@ -6,28 +5,20 @@ import {
   createSiteMetadata,
 } from '../../../../test/fixtures'
 
-let connection
 let dataDb
 
 describe('siteMetadataController', () => {
   describe(SiteMetadataController.create, () => {
     describe('When new data is imported', () => {
-      beforeAll(async () => {
-        connection = await MongoClient.connect(global.__MONGO_URI__, {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        })
-
-        dataDb = await connection.db('dpdata')
+      beforeAll(() => {
+        dataDb = global.MONGO_INSTANCE.db('dpdata')
       })
+
       beforeEach(async () => {
         await dataDb.createCollection('metadata')
       })
       afterEach(async () => {
         await dataDb.collection('metadata').drop()
-      })
-      afterAll(async () => {
-        await connection.close()
       })
 
       it('creates new metadata document', async () => {

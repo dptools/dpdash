@@ -9,13 +9,24 @@ import userEvent from '@testing-library/user-event'
 import { routes } from '../../routes/routes'
 
 describe(ChartsTable, () => {
-  const user = createUser({ uid: 'user' })
+  const user = createUser({ uid: 'user', favoriteCharts: ['2'] })
+
   const charts = [
+    createChart({
+      title: 'third chart',
+      updatedAt: '2022-10-11T16:33:46.485Z',
+      owner: 'bar',
+      chartOwner: {
+        display_name: 'Jack Jackson',
+      },
+      favorite: true,
+    }),
     createChart({
       title: 'first chart',
       updatedAt: '2023-06-28T15:43:23.789Z',
       owner: user.uid,
       chartOwner: { display_name: 'John Johnson' },
+      favorite: false,
     }),
     createChart({
       title: 'second chart',
@@ -24,14 +35,7 @@ describe(ChartsTable, () => {
       chartOwner: {
         display_name: 'Jane Janeson',
       },
-    }),
-    createChart({
-      title: 'third chart',
-      updatedAt: '2022-10-11T16:33:46.485Z',
-      owner: 'bar',
-      chartOwner: {
-        display_name: 'Jack Jackson',
-      },
+      favorite: false,
     }),
   ]
   const defaultProps = {
@@ -39,6 +43,7 @@ describe(ChartsTable, () => {
     onDelete: () => {},
     onDuplicate: () => {},
     onShare: () => {},
+    onFavorite: () => {},
     user,
   }
   const renderChart = (props = defaultProps) =>
@@ -52,6 +57,8 @@ describe(ChartsTable, () => {
     deleteBtn: () => screen.getByText('Delete'),
     duplicateBtn: () => screen.getByText('Duplicate'),
     shareBtn: () => screen.getByText('Share'),
+    favoriteCheckbox: (chart) =>
+      screen.getByRole('checkbox', { name: chart._id }),
     tableRow: (tableRow) => screen.getByTestId(`row-${tableRow}`),
   }
   const actions = {
@@ -69,6 +76,9 @@ describe(ChartsTable, () => {
       await actions.openTableRowMenu(chart)
       await userEvent.click(elements.shareBtn())
     },
+    favoriteChart: async () => {
+      await userEvent.click(elements.tableRow(2)).getByRole('checkbox')
+    },
   }
 
   it('renders charts', () => {
@@ -85,6 +95,7 @@ describe(ChartsTable, () => {
         dayjs(charts[0].updatedAt).format(DATE_FORMAT)
       )
     ).toBeInTheDocument()
+    expect(within(elements.tableRow(0)).getByRole('checkbox')).toBeChecked()
 
     expect(
       within(elements.tableRow(1)).getByText(charts[1].title)
@@ -97,6 +108,7 @@ describe(ChartsTable, () => {
         dayjs(charts[1].updatedAt).format(DATE_FORMAT)
       )
     ).toBeInTheDocument()
+    expect(within(elements.tableRow(1)).getByRole('checkbox')).not.toBeChecked()
 
     expect(
       within(elements.tableRow(2)).getByText(charts[2].title)
@@ -109,6 +121,7 @@ describe(ChartsTable, () => {
         dayjs(charts[2].updatedAt).format(DATE_FORMAT)
       )
     ).toBeInTheDocument()
+    expect(within(elements.tableRow(2)).getByRole('checkbox')).not.toBeChecked()
   })
 
   it('renders a menu of chart actions', async () => {
@@ -130,18 +143,18 @@ describe(ChartsTable, () => {
       const props = { ...defaultProps, onDelete: jest.fn() }
 
       renderChart(props)
-      await actions.deleteChart(charts[0])
+      await actions.deleteChart(charts[1])
 
-      expect(props.onDelete).toHaveBeenCalledWith(charts[0])
+      expect(props.onDelete).toHaveBeenCalledWith(charts[1])
     })
 
     it('calls the onDuplicate prop when "duplicate" is clicked', async () => {
       const props = { ...defaultProps, onDuplicate: jest.fn() }
 
       renderChart(props)
-      await actions.duplicateChart(charts[0])
+      await actions.duplicateChart(charts[1])
 
-      expect(props.onDuplicate).toHaveBeenCalledWith(charts[0])
+      expect(props.onDuplicate).toHaveBeenCalledWith(charts[1])
     })
 
     it('calls the onShare prop when "share" is clicked', async () => {
@@ -162,7 +175,7 @@ describe(ChartsTable, () => {
       renderChart(props)
 
       try {
-        await actions.deleteChart(charts[1])
+        await actions.deleteChart(charts[0])
       } catch {
         expect(props.onDelete).not.toHaveBeenCalled()
       }
@@ -184,6 +197,16 @@ describe(ChartsTable, () => {
       await actions.shareChart(charts[1])
 
       expect(props.onShare).toHaveBeenCalledWith(charts[1])
+    })
+  })
+  describe('when user favorites a chart', () => {
+    it('calls the onFavorite prop when star icon is clicked', async () => {
+      const props = { ...defaultProps, onFavorite: jest.fn() }
+
+      renderChart(props)
+      await userEvent.click(within(elements.tableRow(2)).getByRole('checkbox'))
+
+      expect(props.onFavorite).toHaveBeenCalledWith(charts[2])
     })
   })
 })

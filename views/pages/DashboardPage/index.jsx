@@ -22,9 +22,10 @@ const DashboardPage = () => {
     charts,
     chartToShare,
     closeDialog,
-    onShare,
     onDelete,
     onDuplicate,
+    onFavorite,
+    onShare,
     shareWithUsers,
     usernames,
   } = useChartsList()
@@ -38,13 +39,13 @@ const DashboardPage = () => {
           title="Participants"
         />
         <ParticipantsTable
-          participants={participants}
+          maxRows={5}
           onStar={onStar}
           onSort={onSort}
+          participants={participants}
           sortProperty={sortBy}
           sortDirection={sortDirection}
           sortable
-          maxRows={5}
         />
       </section>
       <section className="DashboardPageSection">
@@ -54,6 +55,7 @@ const DashboardPage = () => {
           maxRows={3}
           onDelete={onDelete}
           onDuplicate={onDuplicate}
+          onFavorite={onFavorite}
           onShare={onShare}
           user={user}
         />
@@ -61,9 +63,9 @@ const DashboardPage = () => {
       {!!chartToShare._id && (
         <ShareChart
           chart={chartToShare}
-          usernames={usernames}
           handleChange={shareWithUsers}
           handleClose={closeDialog}
+          usernames={usernames}
         />
       )}
     </Box>

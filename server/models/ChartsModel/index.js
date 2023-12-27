@@ -1,11 +1,14 @@
 import { ObjectId } from 'mongodb'
 import { collections } from '../../utils/mongoCollections'
 
+const id = '$_id'
+const idKey = '$chart_id'
+const chartId = 'chart_id'
 const ChartsModel = {
   create: async (db, chartAttributes) =>
     await db.collection(collections.charts).insertOne(chartAttributes),
-  index: async (db, query) =>
-    await db.collection(collections.charts).find(query),
+  all: async (db, user) =>
+    await db.collection(collections.charts).aggregate(chartsListQuery(user)),
   destroy: async (db, chart_id) => {
     const { deletedCount } = await db
       .collection(collections.charts)
@@ -27,4 +30,27 @@ const ChartsModel = {
       ),
 }
 
+const chartsListQuery = (user) => {
+  const { uid, favoriteCharts } = user
+
+  return [
+    {
+      $match: {
+        $or: [{ owner: uid }, { sharedWith: uid }, { public: true }],
+      },
+    },
+    { $set: { chart_id: { $toString: id } } },
+    {
+      $set: {
+        favorite: { $in: [idKey, favoriteCharts || []] },
+      },
+    },
+    {
+      $unset: chartId,
+    },
+    {
+      $sort: { favorite: -1, title: 1 },
+    },
+  ]
+}
 export default ChartsModel

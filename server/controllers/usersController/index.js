@@ -9,6 +9,7 @@ const UsersController = {
         company,
         department,
         display_name,
+        favoriteCharts,
         icon,
         iconFileName,
         mail,
@@ -19,11 +20,12 @@ const UsersController = {
         company: String(company),
         department: String(department),
         display_name: String(display_name),
-        mail: String(mail),
-        title: String(title),
+        favoriteCharts,
         icon: String(icon),
         iconFileName: String(iconFileName),
+        mail: String(mail),
         preferences,
+        title: String(title),
       })
 
       return res.status(200).json({ data: updatedUser })

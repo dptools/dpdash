@@ -70,13 +70,13 @@ const UserModel = {
   hasAdmin: async (db) => {
     const userCt = await db
       .collection(collections.users)
-      .countDocuments({ role: "admin", password: { $ne: null } })
+      .countDocuments({ role: 'admin', password: { $ne: null } })
     return userCt !== 0
   },
   createFirstAdmin: async (db) => {
     if (await UserModel.hasAdmin(db)) {
       return
-    } 
+    }
 
     const reset_key = crypto.randomBytes(32).toString('hex')
 
@@ -96,25 +96,26 @@ const UserModel = {
     }
   },
   withDefaults: (overrides = {}) => ({
+    access: [],
+    account_expires: null,
+    bad_pwd_count: 0,
+    blocked: false,
+    company: '',
     display_name: '',
     title: '',
     department: '',
-    company: '',
-    mail: '',
-    member_of: '',
-    bad_pwd_count: 0,
-    lockout_time: 0,
-    last_logoff: Date.now(),
-    last_logon: Date.now(),
-    account_expires: null,
-    password: '',
-    ldap: false,
+    favoriteCharts: [],
     force_reset_pw: false,
-    realms: [''],
     icon: '',
     iconFileName: '',
-    access: [],
-    blocked: false,
+    last_logoff: Date.now(),
+    last_logon: Date.now(),
+    ldap: false,
+    lockout_time: 0,
+    mail: '',
+    member_of: '',
+    password: '',
+    realms: [''],
     role: 'member',
     ...overrides,
   }),

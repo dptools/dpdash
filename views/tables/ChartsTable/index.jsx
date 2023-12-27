@@ -1,16 +1,15 @@
 import React from 'react'
-import { Typography } from '@mui/material'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/Delete'
-import ShareIcon from '@mui/icons-material/Share'
-import dayjs from 'dayjs'
+import { Typography, Avatar } from '@mui/material'
 import { Link } from 'react-router-dom'
+import { ContentCopy, Edit, Delete, Share } from '@mui/icons-material'
+import dayjs from 'dayjs'
 
 import { routes } from '../../routes/routes'
 import Table from '../Table'
 import TableMenu from '../Table/TableMenu'
-import ChartModel from '../../models/ChartModel'
+import { ChartModel, UrlModel } from '../../models/'
+
+import './ChartsTable.css'
 
 export const DATE_FORMAT = 'MM/DD/YYYY'
 const ChartsTable = ({
@@ -48,7 +47,20 @@ const ChartsTable = ({
   const cellRenderer = (chart, property) => {
     switch (property) {
       case 'owner':
-        return chart['chartOwner'].display_name
+        return (
+          <div className="ChartsTable_Profile">
+            <Avatar
+              alt={chart['chartOwner'].display_name[0]}
+              src={UrlModel.sanitizeUrl(
+                String(chart['chartOwner'].icon).trim()
+              )}
+              sx={{ width: 24, height: 24 }}
+            />
+            <Typography sx={{ pl: '5px' }}>
+              {chart['chartOwner'].display_name}
+            </Typography>
+          </div>
+        )
       case 'title':
         const viewChart = routes.viewChart(chart._id)
 
@@ -69,7 +81,7 @@ const ChartsTable = ({
             id={chart._id}
             menuItems={[
               {
-                Icon: EditIcon,
+                Icon: Edit,
                 component: Link,
                 testID: 'edit',
                 disabled: !chartOwnedByUser,
@@ -77,18 +89,18 @@ const ChartsTable = ({
                 text: 'Edit',
               },
               {
-                Icon: DeleteIcon,
+                Icon: Delete,
                 onClick: () => onDelete(chart),
                 disabled: !chartOwnedByUser,
                 text: 'Delete',
               },
               {
-                Icon: ContentCopyIcon,
+                Icon: ContentCopy,
                 onClick: () => onDuplicate(chart),
                 text: 'Duplicate',
               },
               {
-                Icon: ShareIcon,
+                Icon: Share,
                 onClick: () => onShare(chart),
                 text: 'Share',
               },

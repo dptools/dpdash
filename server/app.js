@@ -50,7 +50,7 @@ if (process.env.NODE_ENV === 'development') {
 /** favicon setup */
 app.use(favicon(path.join(__dirname, '../public/img/favicon.ico')))
 
-app.use(helmet({ noSniff: true }))
+app.use(helmet({ noSniff: true, contentSecurityPolicy: isProduction }))
 
 /** logger setup */
 morgan.token('remote-user', function (req, res) {

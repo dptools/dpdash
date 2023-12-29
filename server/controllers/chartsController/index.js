@@ -35,8 +35,16 @@ const chartsController = {
     try {
       const chartList = []
       const { dataDb, appDb } = req.app.locals
+      const parsedQueryParams = Object.keys(req.query).length
+        ? req.query
+        : undefined
+
       const currentUser = await UserModel.findOne(appDb, { uid: req.user })
-      const chartListCursor = await ChartsModel.all(dataDb, currentUser)
+      const chartListCursor = await ChartsModel.all(
+        dataDb,
+        currentUser,
+        parsedQueryParams
+      )
 
       while (await chartListCursor.hasNext()) {
         const chart = await chartListCursor.next()

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import api from '../api'
 
@@ -69,15 +69,17 @@ export default function useChartsList() {
       setNotification({ open: true, message: error.message })
     }
   }
-  const loadCharts = async () => {
+  const loadCharts = async (queryParams) => {
     try {
-      const data = await api.charts.chart.index()
+      const data = await api.charts.chart.all(queryParams)
 
       setChartList(data)
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }
   }
+
+  const handleSearch = async (formData) => await loadCharts(formData)
 
   useEffect(() => {
     loadCharts()
@@ -98,6 +100,7 @@ export default function useChartsList() {
     charts: chartList,
     chartToShare,
     closeDialog,
+    handleSearch,
     onFavorite,
     onShare,
     onDelete,

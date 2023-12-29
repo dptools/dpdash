@@ -54,7 +54,7 @@ jest.mock('../../api', () => {
     },
     charts: {
       chart: {
-        index: () => mockedCharts,
+        all: () => mockedCharts,
       },
     },
   }

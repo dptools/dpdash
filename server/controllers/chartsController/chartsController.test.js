@@ -49,6 +49,7 @@ describe('chartsController', () => {
       })
     })
   })
+
   describe('index', () => {
     describe('When successful', () => {
       beforeAll(async () => {
@@ -57,10 +58,12 @@ describe('chartsController', () => {
       })
 
       beforeEach(async () => {
-        await dataDb.createCollection('charts')
+        await dataDb.createCollection(collections.charts)
       })
+
       afterEach(async () => {
-        await dataDb.collection('charts').drop()
+        await appDb.collection(collections.users).drop()
+        await dataDb.collection(collections.charts).drop()
       })
 
       it('returns a list of charts in order of user favorite, title, alongside a status of 200', async () => {
@@ -109,6 +112,65 @@ describe('chartsController', () => {
           ],
         })
       })
+
+      it('returns a list of charts that match the search query, the results are sorted by favorites first then title', async () => {
+        const [chart1, chart2, chart3] = [
+          createChart({
+            title: 'recent chart',
+            assessment: 'EEG',
+            variable: 'Rating',
+            owner: 'user',
+          }),
+          createChart({
+            title: 'EEG',
+            assessment: 'EEG Drive',
+            variable: 'drtive',
+            owner: 'user',
+            title: 'all charts',
+          }),
+          createChart({
+            title: 'recent chart',
+            assessment: 'Foo',
+            variable: 'Rating',
+            owner: 'anotherUser',
+            sharedWith: ['user'],
+          }),
+        ]
+        const { user, anotherUser } = {
+          user: createUser({
+            uid: 'user',
+            favoriteCharts: [chart3._id],
+          }),
+          anotherUser: createUser({
+            uid: 'anotherUser',
+          }),
+        }
+        const { _id, ...restOfUser } = user
+        const { _id: _x, ...restOfanotherUser } = anotherUser
+
+        await appDb
+          .collection(collections.users)
+          .insertMany([user, anotherUser])
+        await dataDb
+          .collection(collections.charts)
+          .insertMany([chart1, chart2, chart3])
+
+        const request = createRequestWithUser({
+          app: { locals: { dataDb: dataDb, appDb: appDb } },
+          query: { search: 'recent' },
+          user: 'user',
+        })
+        const response = createResponse()
+
+        await chartsController.index(request, response)
+
+        expect(response.json).toHaveBeenCalledWith({
+          data: [
+            { ...chart3, chartOwner: restOfanotherUser, favorite: true },
+            { ...chart1, chartOwner: restOfUser, favorite: false },
+          ],
+        })
+      })
     })
 
     describe('When unsuccessful', () => {
@@ -129,6 +191,7 @@ describe('chartsController', () => {
       })
     })
   })
+
   describe('destroy', () => {
     describe('When successful', () => {
       it('returns a status of 204', async () => {
@@ -148,6 +211,7 @@ describe('chartsController', () => {
         expect(response.status).toHaveBeenCalledWith(204)
       })
     })
+
     describe('When unsuccessful', () => {
       it('returns a status of 400 and an error message', async () => {
         const params = { chart_id: 'some-id' }
@@ -170,6 +234,7 @@ describe('chartsController', () => {
       })
     })
   })
+
   describe('show', () => {
     describe('When successful', () => {
       it('returns a status of 200 and a chart', async () => {
@@ -188,6 +253,7 @@ describe('chartsController', () => {
         })
       })
     })
+
     describe('When unsucessful', () => {
       it('returns a status of 400 and an error message', async () => {
         const params = { chart_id: 'chart-id' }
@@ -207,6 +273,7 @@ describe('chartsController', () => {
       })
     })
   })
+
   describe('update', () => {
     describe('When successful', () => {
       it('returns a status of 200 and an updated chart', async () => {
@@ -237,6 +304,7 @@ describe('chartsController', () => {
         })
       })
     })
+
     describe('When unsuccessful', () => {
       it('returns a status of 400 and an error message', async () => {
         const params = { chart_id: ObjectId().toString() }

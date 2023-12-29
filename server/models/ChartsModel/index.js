@@ -4,11 +4,14 @@ import { collections } from '../../utils/mongoCollections'
 const id = '$_id'
 const idKey = '$chart_id'
 const chartId = 'chart_id'
+
 const ChartsModel = {
   create: async (db, chartAttributes) =>
     await db.collection(collections.charts).insertOne(chartAttributes),
-  all: async (db, user) =>
-    await db.collection(collections.charts).aggregate(chartsListQuery(user)),
+  all: async (db, user, queryParams) =>
+    await db
+      .collection(collections.charts)
+      .aggregate(chartsListQuery(user, queryParams)),
   destroy: async (db, chart_id) => {
     const { deletedCount } = await db
       .collection(collections.charts)
@@ -30,14 +33,20 @@ const ChartsModel = {
       ),
 }
 
-const chartsListQuery = (user) => {
+const chartsListQuery = (user, queryParams) => {
   const { uid, favoriteCharts } = user
+  const searchQuery = queryParams?.search
+    ? {
+        title: { $regex: queryParams.search, $options: 'i' },
+        $or: [{ owner: uid }, { sharedWith: uid }, { public: true }],
+      }
+    : {
+        $or: [{ owner: uid }, { sharedWith: uid }, { public: true }],
+      }
 
   return [
     {
-      $match: {
-        $or: [{ owner: uid }, { sharedWith: uid }, { public: true }],
-      },
+      $match: searchQuery,
     },
     { $set: { chart_id: { $toString: id } } },
     {
@@ -45,12 +54,9 @@ const chartsListQuery = (user) => {
         favorite: { $in: [idKey, favoriteCharts || []] },
       },
     },
-    {
-      $unset: chartId,
-    },
-    {
-      $sort: { favorite: -1, title: 1 },
-    },
+    { $unset: chartId },
+    { $sort: { favorite: -1, title: 1 } },
   ]
 }
+
 export default ChartsModel

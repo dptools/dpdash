@@ -1,20 +1,19 @@
-import { Select } from '@mui/material'
-import { Controller } from 'react-hook-form'
+import React from 'react'
+import { TextField } from '@mui/material'
+import { useController } from 'react-hook-form'
 
-const ControlledSelectInput = ({ name, control, value, ...rest }) => {
+const ControlledSelectInput = ({ control, value, name, sx, ...rest }) => {
+  const { field } = useController({ name, control })
+
   return (
-    <Controller
+    <TextField
+      {...rest}
+      {...field}
       name={name}
-      control={control}
-      render={({ field }) => (
-        <Select
-          {...field}
-          {...rest}
-          fullWidth
-          value={field.value.value || value}
-          onChange={(e) => field.onChange({ value: e.target.value })}
-        />
-      )}
+      select
+      value={field?.value || value}
+      label={rest.label}
+      sx={sx || {}}
     />
   )
 }

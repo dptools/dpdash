@@ -15,6 +15,7 @@ const ParticipantsController = {
         user,
         parsedQueryParams
       )
+
       return res.status(200).json({ data: participants })
     } catch (error) {
       return res.status(400).json({ error: error.message })

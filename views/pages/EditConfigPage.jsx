@@ -29,7 +29,7 @@ const EditConfigPage = () => {
 
   const handleFormData = async (formValues) => {
     try {
-      const updatedConfiguration = await UserConfigModel.processNewConfig(
+      const updatedConfiguration = UserConfigModel.processNewConfig(
         formValues,
         colors,
         uid
@@ -48,12 +48,8 @@ const EditConfigPage = () => {
   const fetchCurrentConfig = async () => {
     try {
       const data = await api.userConfigurations.findOne(uid, config_id)
-      const formValues = await UserConfigModel.processConfigToFormFields(
-        data,
-        colors
-      )
 
-      return formValues
+      return UserConfigModel.processConfigToFormFields(data, colors)
     } catch (error) {
       setNotification({
         open: true,

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
 import ParticipantsTable from '../tables/ParticipantsTable'
 import ParticipantsSearchForm from '../forms/ParticipantsSearchForm'
@@ -9,13 +9,14 @@ import useParticipantsList from '../hooks/useParticipantsList'
 const ParticipantsPage = () => {
   const {
     handleSearch,
-    searchSubjects,
+    formFilters,
+    loading,
     onSort,
     onStar,
-    sortBy,
-    sortDirection,
     participants,
     searchOptions,
+    sortBy,
+    sortDirection,
   } = useParticipantsList()
 
   return (
@@ -26,21 +27,27 @@ const ParticipantsPage = () => {
           <ParticipantsSearchForm
             onSubmit={handleSearch}
             initialValues={{
-              participants: searchSubjects,
+              participants: formFilters.searchSubjects,
+              status: formFilters.status,
+              studies: formFilters.studies,
             }}
             allOptions={searchOptions}
           />
         }
       />
 
-      <ParticipantsTable
-        participants={participants}
-        onStar={onStar}
-        onSort={onSort}
-        sortProperty={sortBy}
-        sortDirection={sortDirection}
-        sortable
-      />
+      {loading ? (
+        <Typography variant="h4">Loading...</Typography>
+      ) : (
+        <ParticipantsTable
+          participants={participants}
+          onStar={onStar}
+          onSort={onSort}
+          sortProperty={sortBy}
+          sortDirection={sortDirection}
+          sortable
+        />
+      )}
     </Box>
   )
 }

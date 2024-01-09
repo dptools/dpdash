@@ -77,10 +77,7 @@ export const apiRoutes = {
       `${apiPath}/dashboards/${study}/${subject}`,
   },
   participants: {
-    index: (queryParams) =>
-      queryParams
-        ? `${apiPath}/participants?${qs.stringify(queryParams)}`
-        : `${apiPath}/participants`,
+    index: `${apiPath}/participants`,
   },
   users: {
     index: `${apiPath}/users`,

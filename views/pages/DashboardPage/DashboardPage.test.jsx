@@ -9,7 +9,7 @@ import renderPage from '../../../test/PageRenderer'
 
 import DashboardPage from '.'
 
-const mockUser = createUser()
+const mockUser = createUser({ access: ['AA', 'BB', 'CC'] })
 const mockParticipants = createParticipantList()
 const mockedUsers = [
   mockUser,

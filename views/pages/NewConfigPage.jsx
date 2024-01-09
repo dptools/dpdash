@@ -29,7 +29,7 @@ const NewConfigPage = () => {
 
   const handleFormData = async (formValues) => {
     try {
-      const newConfigurationAttributes = await UserConfigModel.processNewConfig(
+      const newConfigurationAttributes = UserConfigModel.processNewConfig(
         formValues,
         colors,
         uid

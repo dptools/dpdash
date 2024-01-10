@@ -8,11 +8,13 @@ import BarChartTableService from '../../services/BarChartTableService'
 import CsvService from '../../services/CSVService'
 import StudiesModel from '../../models/StudiesModel'
 import FiltersService from '../../services/FiltersService'
+import UserModel from '../../models/UserModel'
 
 const show = async (req, res, next) => {
   try {
     const { dataDb, appDb } = req.app.locals
-    const userSites = StudiesModel.sanitizeAndSort(req.session.userAccess)
+    const user = await UserModel.findOne(appDb, { uid: req.user })
+    const userSites = StudiesModel.sanitizeAndSort(user.access)
     const { chart_id } = req.params
     const parsedQueryParams = qs.parse(req.query)
     const filtersService = new FiltersService(

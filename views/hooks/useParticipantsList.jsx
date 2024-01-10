@@ -15,7 +15,7 @@ export default function useParticipantsList() {
   const [formFilters, setFormFilters] = useState({
     searchSubjects: [],
     studies: [],
-    status: undefined,
+    status: '',
   })
   const [searchOptions, setSearchOptions] = useState({
     participants: [],
@@ -33,7 +33,9 @@ export default function useParticipantsList() {
             searchSubjects: normalizeSearchSubjects(formFilters.searchSubjects),
           }
         : {}),
-      ...(formFilters?.status ? { status: formFilters.status } : {}),
+      ...(formFilters?.status || formFilters?.status === 0
+        ? { status: formFilters.status }
+        : {}),
       ...(formFilters.studies?.length ? { studies: formFilters.studies } : {}),
     }
 

@@ -28,7 +28,7 @@ const del = async (path) => {
 
 const get = async (path, queryParams = {}) => {
   const fullPath = Object.keys(queryParams).length
-    ? [path, qs.stringify(queryParams)].join('?')
+    ? `${path}${qs.stringify(queryParams, { addQueryPrefix: true })}`
     : path
   const response = await fetch(fullPath, {
     ...BASE_REQUEST_OPTIONS,

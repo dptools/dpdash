@@ -1,6 +1,6 @@
 import UserModel from '../models/UserModel'
 
-export default async function (req, username, password, done) {
+export default async function (req, username, _password, done) {
   try {
     const { appDb } = req.app.locals
     const { mail } = req.body

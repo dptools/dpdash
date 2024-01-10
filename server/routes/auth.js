@@ -1,22 +1,39 @@
 import { Router } from 'express'
-import passport from 'passport'
+import * as yup from 'yup'
 
-import LocalLogin from '../utils/passport/local-login'
 import { v1Routes } from '../utils/routes'
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import AuthController from '../controllers/authController'
+import validateRequest, { baseSchema } from '../middleware/validateRequest'
 
 const router = Router()
 
-router.route(v1Routes.auth.login).post(function (req, res, next) {
-  passport.authenticate('local-login', { session: true }, function (err, user) {
-    if (err) return res.status(400).json({ error: err.message })
-
-    return LocalLogin(req, res, next, user)
-  })(req, res, next)
+const signUpSchema = baseSchema({
+  body: yup.object({
+    username: yup.string().required(),
+    password: yup.string().min(8).required(),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref('password'), null], 'passwords do not match'),
+    fullName: yup.string().required(),
+    mail: yup.string().email().required(),
+  }),
 })
 
-router.route(v1Routes.auth.signup).post(AuthController.create)
+const signInSchema = baseSchema({
+  body: yup.object({
+    username: yup.string().required(),
+    password: yup.string().min(8).required(),
+  }),
+})
+
+router
+  .route(v1Routes.auth.login)
+  .post(validateRequest(signInSchema), AuthController.authenticate)
+
+router
+  .route(v1Routes.auth.signup)
+  .post(validateRequest(signUpSchema), AuthController.create)
 
 router
   .route(v1Routes.auth.logout)

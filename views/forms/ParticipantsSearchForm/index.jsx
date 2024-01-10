@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { InputAdornment, MenuItem, Button, CardActions } from '@mui/material'
@@ -14,7 +14,7 @@ import './ParticipantsSearchForm.css'
 const schema = yup.object({
   participants: yup.array(),
   studies: yup.array(),
-  status: yup.string(),
+  status: yup.number(),
 })
 
 const ParticipantsSearchForm = ({ initialValues, onSubmit, allOptions }) => {
@@ -83,13 +83,11 @@ const ParticipantsSearchForm = ({ initialValues, onSubmit, allOptions }) => {
         <ControlledSelectInput
           control={control}
           name="status"
-          defaultValue={undefined}
+          defaultValue=""
           sx={{ flexGrow: 1, flexBasis: 0 }}
           label="Status"
         >
-          <MenuItem value={undefined} key={'All'}>
-            All
-          </MenuItem>
+          <MenuItem value="">All</MenuItem>
           <MenuItem value={1}>Active</MenuItem>
           <MenuItem value={0}>Inactive</MenuItem>
         </ControlledSelectInput>

@@ -35,21 +35,22 @@ const UserModel = {
 
     return await db.collection(collections.users).findOne({ _id: insertedId })
   },
-  findOne: async (db, userAttributes) => {
-    const user = await db
-      .collection(collections.users)
-      .findOne(userAttributes, {
-        projection: userMongoProjection,
-      })
+  findOne: async (db, userAttributes, includeFields = {}) => {
+    const includeOrExcludeFields = Object.keys(includeFields)?.length
+      ? includeFields
+      : userMongoProjection
 
-    return user
+    return await db.collection(collections.users).findOne(userAttributes, {
+      projection: includeOrExcludeFields,
+    })
   },
   update: async (db, dataDb, uid, userUpdates) => {
     const user = await UserModel.findOne(db, { uid })
     const updatedUser = { ...user, ...userUpdates }
-    if (updatedUser.role === 'admin') {
+
+    if (updatedUser.role === 'admin')
       updatedUser.access = await StudiesModel.all(dataDb)
-    }
+
     const { value } = await db.collection(collections.users).findOneAndUpdate(
       { uid },
       {

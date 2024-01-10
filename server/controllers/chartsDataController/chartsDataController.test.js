@@ -64,7 +64,7 @@ describe('chartsDataController', () => {
     })
 
     it('returns the view chart page', async () => {
-      const chartOwner = createUser()
+      const chartOwner = createUser({ access: [] })
       const graphTable = { tableColumns: [], tableRows: [] }
       const studyTotals = {
         [mockSubjects[0].study]: {
@@ -79,6 +79,7 @@ describe('chartsDataController', () => {
       })
       const filtersService = new FiltersService()
       mockWebsiteTableData.mockReturnValueOnce(graphTable)
+      request.app.locals.appDb.findOne.mockResolvedValueOnce(chartOwner)
       request.app.locals.dataDb.findOne.mockResolvedValueOnce(chart)
       request.app.locals.appDb.findOne.mockResolvedValueOnce(chartOwner)
 

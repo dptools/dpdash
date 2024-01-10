@@ -27,6 +27,7 @@ import siteMetadata from './routes/siteMetadata'
 import usersRouter from './routes/users'
 import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
 import localSignup from './strategies/localSignup'
+import localSignIn from './strategies/localSignIn'
 import UserModel from './models/UserModel'
 
 const localStrategy = Strategy
@@ -125,22 +126,13 @@ app.use(
 //passport local strategy
 passport.use(
   'local-login',
-  new localStrategy(PASSPORT_FIELDS_ATTRIBUTES, function (
-    username,
-    password,
-    done
-  ) {
-    mongodb
-      .collection('users')
-      .findOne({ uid: username })
-      .then(function (user) {
-        if (!user) {
-          return done(null, false)
-        } else {
-          return done(null, user)
-        }
-      })
-  })
+  new localStrategy(
+    {
+      ...PASSPORT_FIELDS_ATTRIBUTES,
+      passReqToCallback: true,
+    },
+    localSignIn
+  )
 )
 
 //passport local registeration

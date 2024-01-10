@@ -4,8 +4,10 @@ import ConfigModel from '../../models/ConfigModel'
 import RegistrationMailer from '../../mailer/RegistrationMailer'
 import { hash } from '../../utils/crypto/hash'
 import dayjs from 'dayjs'
+import authenticate from '../../strategies/authenticate'
 
 const AuthController = {
+  authenticate,
   create: async (req, res, next) => {
     passport.authenticate(
       'local-signup',
@@ -17,24 +19,28 @@ const AuthController = {
           if (existingUser)
             return res.status(400).json({ error: 'User has an account' })
 
-          const { appDb, dataDb } = req.app.locals
+          const { appDb } = req.app.locals
           const password = reqBody.password
           const uid = reqBody.username
-          const email = reqBody.email
+          const mail = reqBody.mail
           const display_name = reqBody.fullName
           const hashedPW = hash(password)
           const account_expires = dayjs().add(1, 'years').format()
           const configAttributes = { owner: uid, readers: [uid] }
-          const configuration = await ConfigModel.create(appDb, configAttributes)
+          const configuration = await ConfigModel.create(
+            appDb,
+            configAttributes
+          )
+
           const newUserAttributes = {
             uid,
             display_name,
             password: hashedPW,
-            mail: email,
+            mail,
             account_expires,
             preferences: { config: configuration._id.toString() },
           }
-          const newUser = await UserModel.create(appDb, dataDb, newUserAttributes)
+          const newUser = await UserModel.create(appDb, newUserAttributes)
           const registrationMailer = new RegistrationMailer(newUser)
 
           await registrationMailer.sendMail()

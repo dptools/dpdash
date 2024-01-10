@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import * as yup from 'yup'
 
 import ensureAuthenticated from '../utils/passport/ensure-authenticated'
 import { v1Routes } from '../utils/routes'
@@ -6,8 +7,14 @@ import chartsDataController from '../controllers/chartsDataController'
 import chartsController from '../controllers/chartsController'
 import chartsDuplicateController from '../controllers/chartsDuplicateController'
 import chartsShareController from '../controllers/chartsShareController'
+import validateRequest, { baseSchema } from '../middleware/validateRequest'
 
 const router = Router()
+const chartsIndexSchema = baseSchema({
+  query: yup.object({
+    search: yup.string(),
+  }),
+})
 
 router
   .route(v1Routes.chartsData.show)
@@ -16,7 +23,11 @@ router
 router
   .route(v1Routes.charts.index)
   .post(ensureAuthenticated, chartsController.create)
-  .get(ensureAuthenticated, chartsController.index)
+  .get(
+    validateRequest(chartsIndexSchema),
+    ensureAuthenticated,
+    chartsController.index
+  )
 
 router
   .route(v1Routes.charts.show)

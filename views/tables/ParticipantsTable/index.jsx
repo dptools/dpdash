@@ -3,11 +3,11 @@ import dayjs from 'dayjs'
 import isYesterday from 'dayjs/plugin/isYesterday'
 import isToday from 'dayjs/plugin/isToday'
 import { Link } from 'react-router-dom'
-import { Checkbox, Typography } from '@mui/material'
+import { Checkbox, Chip, Typography } from '@mui/material'
 import { Star, StarBorder } from '@mui/icons-material'
 
 import Table from '../Table'
-import { SORT_DIRECTION } from '../../../constants'
+import { SORT_DIRECTION, fontSize, borderRadius } from '../../../constants'
 import { routes } from '../../routes/routes'
 
 dayjs.extend(isYesterday)
@@ -51,6 +51,11 @@ const ParticipantsTable = (props) => {
       sortable: false,
     },
     {
+      dataProperty: 'Active',
+      label: 'Status',
+      sortable: !!sortable,
+    },
+    {
       dataProperty: 'star',
       label: '',
       sortable: false,
@@ -86,6 +91,22 @@ const ParticipantsTable = (props) => {
           >
             {participant[property]}
           </Typography>
+        )
+      case 'Active':
+        const isActive = participant[property] === 1
+
+        return (
+          <Chip
+            sx={{
+              backgroundColor: isActive ? 'primary.light' : 'grey.A300',
+              color: isActive ? 'text.secondary' : 'text.primary',
+              fontSize: fontSize[14],
+              fontWeight: 500,
+              p: isActive ? '0 19px 0 15px' : '0 10px',
+              borderRadius: borderRadius[24],
+            }}
+            label={isActive ? 'Active' : 'Inactive'}
+          />
         )
       case 'star':
         return (

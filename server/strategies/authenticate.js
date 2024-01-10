@@ -28,7 +28,10 @@ export default async function (req, res, next) {
           const config = await ConfigModel.findOne(appDb, configQuery)
 
           if (!config) {
-            const configAttributes = { owner: uid, readers: [uid] }
+            const configAttributes = ConfigModel.withDefaults({
+              owner: uid,
+              readers: [uid],
+            })
 
             await ConfigModel.create(appDb, configAttributes)
           }

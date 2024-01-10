@@ -19,11 +19,10 @@ const modalStyle = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-};
+}
 
 const AdminPage = () => {
-  const usersKey = 'users'
-  const { user, setNotification, users, setUsers } = useOutletContext()
+  const { setNotification, users, setUsers } = useOutletContext()
 
   const [searchOptions, setSearchOptions] = useState([])
   const [studies, setStudies] = useState([])
@@ -34,15 +33,24 @@ const AdminPage = () => {
   const [currentRowIndex, setCurrentRowIndex] = useState(null)
   const [openAccessModal, setOpenAccessModal] = useState(false)
 
-  const filteredUsers = (searchOptionsValue || []).length ?
-    users.filter(user => searchOptionsValue.map(searchOption => searchOption.value).includes(user.uid)) :
-    users
+  const filteredUsers = (searchOptionsValue || []).length
+    ? users.filter((user) =>
+        searchOptionsValue
+          .map((searchOption) => searchOption.value)
+          .includes(user.uid)
+      )
+    : users
 
   const updateUsers = (newUser) => {
-    const newUserIndex = users.findIndex(u => u.uid === newUser.uid) 
+    const newUserIndex = users.findIndex((u) => u.uid === newUser.uid)
     if (newUserIndex === -1) return
 
-    setUsers(users.slice(0, newUserIndex).concat([newUser]).concat(users.slice(newUserIndex + 1)))
+    const updatedUsers = users
+      .slice(0, newUserIndex)
+      .concat([newUser])
+      .concat(users.slice(newUserIndex + 1))
+
+    setUsers(updatedUsers)
   }
 
   const handleNotification = (message) =>
@@ -165,33 +173,46 @@ const AdminPage = () => {
   return (
     <Box sx={{ p: '20px' }}>
       <PageHeader title="Admin" />
-      <AdminUsersSearchForm onSubmit={setSearchOptionsValue} allOptions={searchOptions} />
-      <AdminUsersTable  users={filteredUsers}
-                        onAccess={handleUserAccess} 
-                        onUserBlock={handleUserBlock} 
-                        onResetPassword={handleResetPassword} 
-                        onDeleteUser={handleUserRemove} 
-                        onChangeAccountExpiration={handleChangeAccountExpiration}/>
-      
-      <Modal open={openResetKeyModal}
-             title="Reset Key" 
-             onClose={() => setOpenResetKeyModal(false)}>
+      <AdminUsersSearchForm
+        onSubmit={setSearchOptionsValue}
+        allOptions={searchOptions}
+      />
+      <AdminUsersTable
+        users={filteredUsers}
+        onAccess={handleUserAccess}
+        onUserBlock={handleUserBlock}
+        onResetPassword={handleResetPassword}
+        onDeleteUser={handleUserRemove}
+        onChangeAccountExpiration={handleChangeAccountExpiration}
+      />
+
+      <Modal
+        open={openResetKeyModal}
+        title="Reset Key"
+        onClose={() => setOpenResetKeyModal(false)}
+      >
         <Box sx={modalStyle}>
           <h2>Reset Key</h2>
           <p>{resetKeyValue}</p>
         </Box>
       </Modal>
 
-      <Modal open={openAccessModal}
-             title="Update User Access"
-             onClose={() => setOpenAccessModal(false)}>
+      <Modal
+        open={openAccessModal}
+        title="Update User Access"
+        onClose={() => setOpenAccessModal(false)}
+      >
         <Box sx={modalStyle}>
           <form onSubmit={handleUpdateUserAccess}>
-            <MultiSelect value={currentUserAccess.map(a => ({ value: a, label: a }))} 
-                          name="access" 
-                          options={studies}
-                          onChange={(selections) => setCurrentUserAccess(selections.map(s => s.value))}
-                          placeholder="Add studies for user to access" />
+            <MultiSelect
+              value={currentUserAccess.map((a) => ({ value: a, label: a }))}
+              name="access"
+              options={studies}
+              onChange={(selections) =>
+                setCurrentUserAccess(selections.map((s) => s.value))
+              }
+              placeholder="Add studies for user to access"
+            />
             <Button type="submit">Update Access</Button>
           </form>
         </Box>

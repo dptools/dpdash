@@ -15,7 +15,7 @@ export default function useParticipantsList() {
   const [formFilters, setFormFilters] = useState({
     searchSubjects: [],
     studies: [],
-    status: '',
+    status: undefined,
   })
   const [searchOptions, setSearchOptions] = useState({
     participants: [],

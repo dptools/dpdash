@@ -1,32 +1,19 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import useArrayFormFields from '../hooks/useArrayFormFields'
+import { Box } from '@mui/material'
 
 import ChartForm from '../forms/ChartForm'
 import { routes } from '../routes/routes'
-import { colors } from '../../constants/styles'
-import { targetValuesFields } from '../fe-utils/targetValuesUtil'
+
 import api from '../api'
 
 const EditChartPage = () => {
   const { chart_id } = useParams()
   const { user, navigate, setNotification } = useOutletContext()
   const [loading, setLoading] = useState(true)
-  const { handleSubmit, control, watch } = useForm({
-    defaultValues: async () => await getChart(),
-  })
-  const { fields, addNewField, removeField } = useArrayFormFields({
-    control,
-    name: 'fieldLabelValueMap',
-    defaultFieldValue: {
-      value: '',
-      label: '',
-      color: colors.dark_sky_blue,
-      targetValues: targetValuesFields(user.access),
-    },
-  })
-  const handleformSubmit = async (formValues) => {
+  const [initialValues, setInitialValues] = useState(null)
+
+  const handleSubmit = async (formValues) => {
     try {
       const data = await api.charts.chart.update(chart_id, formValues)
 
@@ -38,29 +25,29 @@ const EditChartPage = () => {
 
   const getChart = async () => {
     try {
-      const data = await api.charts.chart.show(chart_id)
-
-      setLoading(false)
-
-      return data
+      return await api.charts.chart.show(chart_id)
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }
   }
 
+  useEffect(() => {
+    getChart().then((chartValues) => {
+      setInitialValues(chartValues)
+      setLoading(false)
+    })
+  }, [])
+
   if (loading) return <div>Loading...</div>
 
   return (
-    <div>
+    <Box sx={{ p: '25px' }}>
       <ChartForm
-        control={control}
-        onSubmit={handleSubmit(handleformSubmit)}
-        onAddNewFields={addNewField}
-        onRemove={removeField}
-        fields={fields}
-        fieldsValue={watch('fieldLabelValueMap')}
+        onSubmit={handleSubmit}
+        user={user}
+        initialValues={initialValues}
       />
-    </div>
+    </Box>
   )
 }
 

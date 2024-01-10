@@ -26,7 +26,10 @@ const AuthController = {
           const display_name = reqBody.fullName
           const hashedPW = hash(password)
           const account_expires = dayjs().add(1, 'years').format()
-          const configAttributes = { owner: uid, readers: [uid] }
+          const configAttributes = ConfigModel.withDefaults({
+            owner: uid,
+            readers: [uid],
+          })
           const configuration = await ConfigModel.create(
             appDb,
             configAttributes

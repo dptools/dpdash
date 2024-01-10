@@ -34,11 +34,9 @@ const ConfigModel = {
       .toArray()
   },
   create: async (db, configAttributes) => {
-    const config = ConfigModel.withDefaults(configAttributes)
-
     const { insertedId } = await db
       .collection(collections.configs)
-      .insertOne(config)
+      .insertOne(configAttributes)
 
     return await ConfigModel.findOne(db, { _id: insertedId })
   },

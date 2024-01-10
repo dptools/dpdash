@@ -6,7 +6,6 @@ import { Typography, Avatar } from '@mui/material'
 
 import BarGraph from '../components/BarGraph'
 import GraphTable from '../components/GraphTable'
-import UserAvatar from '../components/UserAvatar'
 import ChartFilterForm from '../forms/ChartFilterForm'
 import { apiRoutes, routes } from '../routes/routes'
 import api from '../api'

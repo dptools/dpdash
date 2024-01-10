@@ -24,7 +24,7 @@ const validateMiddleware = (schema) => async (req, res, next) => {
 
     next()
   } catch (error) {
-    return res.status(400).json({ error: 'Please enter valid information' })
+    return res.status(400).json({ error: error.message })
   }
 }
 

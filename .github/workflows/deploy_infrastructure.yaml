@@ -21,4 +21,14 @@ jobs:
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
     - name: Deploy Dev
-      run: CDK_DEFAULT_ACCOUNT=${{ vars.CDK_DEFAULT_ACCOUNT }} CDK_DEFAULT_REGION=${{ vars.CDK_DEFAULT_REGION }} EMAIL_SENDER=${{ vars.EMAIL_SENDER }} ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }} BASE_DOMAIN=${{ vars.BASE_DOMAIN }} npm run deploy -- --require-approval never
+      env:
+        CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
+        CDK_DEFAULT_REGION: ${{ vars.CDK_DEFAULT_REGION }}
+        EMAIL_SENDER: ${{ vars.EMAIL_SENDER }}
+        ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+        BASE_DOMAIN: ${{ vars.BASE_DOMAIN }}
+        DEV_MONGO_MEMORY: ${{ vars.DEV_MONGO_MEMORY || '2048' }}
+        DEV_MONGO_CPU: ${{ vars.DEV_MONGO_CPU || '1024' }}
+        DEV_APP_MEMORY: ${{ vars.DEV_APP_MEMORY || '2048' }}
+        DEV_APP_CPU: ${{ vars.DEV_APP_CPU || '1024' }}
+      run: npm run deploy -- --require-approval never

@@ -89,8 +89,8 @@ export class DpdashCdkStack extends cdk.Stack {
     const dpdashRepository = ecr.Repository.fromRepositoryName(this, `${APP_NAME}DevDpdashRepository`, "dpdash");
 
     const mongoTaskDefinition = new ecs.FargateTaskDefinition(this, `${APP_NAME}DevMongoTaskDefinition`, {
-      memoryLimitMiB: 512,
-      cpu: 256,
+      memoryLimitMiB: process.env.DEV_MONGO_MEMORY ? Number(process.env.DEV_MONGO_MEMORY) : 2048,
+      cpu:  process.env.DEV_MONGO_CPU ? Number(process.env.DEV_MONGO_CPU) : 1024,
     });
 
     const fileSystem = new efs.FileSystem(this, `${APP_NAME}DevEfsFileSystem`, { 
@@ -209,6 +209,8 @@ export class DpdashCdkStack extends cdk.Stack {
     )
 
     const appTaskDefinition = new ecs.FargateTaskDefinition(this, `${APP_NAME}DevAppTaskDefinition`, {
+      memoryLimitMiB: process.env.DEV_APP_MEMORY ? Number(process.env.DEV_APP_MEMORY) : 2048,
+      cpu:  process.env.DEV_APP_CPU ? Number(process.env.DEV_APP_CPU) : 1024,
       family: 'dpDashDevTaskDefinition',
       taskRole: new iam.Role(this, `${APP_NAME}DevAppTaskRole`, {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),

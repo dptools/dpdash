@@ -21,7 +21,10 @@ const ChartsPage = () => {
     onDuplicate,
     onFavorite,
     onShare,
+    onSort,
     shareWithUsers,
+    sortDirection,
+    sortBy,
     usernames,
   } = useChartsList()
 
@@ -55,14 +58,18 @@ const ChartsPage = () => {
         onDuplicate={onDuplicate}
         onFavorite={onFavorite}
         onShare={onShare}
+        onSort={onSort}
+        sortProperty={sortBy}
+        sortDirection={sortDirection}
+        sortable
         user={user}
       />
       {!!chartToShare._id && (
         <ShareChart
           chart={chartToShare}
-          usernames={usernames}
           handleChange={shareWithUsers}
           handleClose={closeDialog}
+          usernames={usernames}
         />
       )}
     </Box>

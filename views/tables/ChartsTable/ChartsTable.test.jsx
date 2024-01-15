@@ -2,11 +2,12 @@ import React from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import dayjs from 'dayjs'
 
-import ChartsTable, { DATE_FORMAT } from '.'
+import ChartsTable from '.'
 import { createChart, createUser } from '../../../test/fixtures'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { routes } from '../../routes/routes'
+import { DATE_FORMAT } from '../../../constants'
 
 describe(ChartsTable, () => {
   const user = createUser({ uid: 'user', favoriteCharts: ['2'] })

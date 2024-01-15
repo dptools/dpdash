@@ -96,6 +96,7 @@ describe('chartsController', () => {
 
         const request = createRequestWithUser({
           app: { locals: { dataDb: dataDb, appDb: appDb } },
+          query: { sortBy: 'title', sortDirection: 'ASC' },
           user: 'user',
         })
         const response = createResponse()
@@ -157,7 +158,7 @@ describe('chartsController', () => {
 
         const request = createRequestWithUser({
           app: { locals: { dataDb: dataDb, appDb: appDb } },
-          query: { search: 'recent' },
+          query: { search: 'recent', sortBy: 'title', sortDirection: 'ASC' },
           user: 'user',
         })
         const response = createResponse()

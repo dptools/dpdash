@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import api from '../api'
-import { SORT_DIRECTION } from '../../constants'
+import useTableSort from './useTableSort'
 
 const subject = 'subject'
 
 export default function useParticipantsList() {
   const { user, setNotification, setUser } = useOutletContext()
+  const { onSort, sortDirection, sortBy } = useTableSort(subject)
   const { uid, preferences, access } = user
 
   const [initialLoad, setInitialLoad] = useState(true)
@@ -21,8 +22,6 @@ export default function useParticipantsList() {
     participants: [],
     studies: access.map((study) => ({ label: study, value: study })),
   })
-  const [sortDirection, setDirection] = useState(SORT_DIRECTION.ASC)
-  const [sortBy, setSortBy] = useState(subject)
 
   const fetchParticipants = React.useCallback(async () => {
     const sortParams = {
@@ -70,10 +69,6 @@ export default function useParticipantsList() {
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }
-  }
-  const onSort = async (newSortBy, newSortDirection) => {
-    setSortBy(newSortBy)
-    setDirection(newSortDirection)
   }
 
   const handleSearch = async (formData) => {

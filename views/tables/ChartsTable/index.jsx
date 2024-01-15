@@ -15,10 +15,10 @@ import { routes } from '../../routes/routes'
 import Table from '../Table'
 import TableMenu from '../Table/TableMenu'
 import { ChartModel, UrlModel } from '../../models/'
+import { SORT_DIRECTION, DATE_FORMAT } from '../../../constants'
 
 import './ChartsTable.css'
 
-export const DATE_FORMAT = 'MM/DD/YYYY'
 const ChartsTable = ({
   charts,
   maxRows,
@@ -26,7 +26,10 @@ const ChartsTable = ({
   onDuplicate,
   onFavorite,
   onShare,
+  onSort,
   sortable,
+  sortDirection,
+  sortProperty,
   user,
 }) => {
   const headers = [
@@ -57,7 +60,12 @@ const ChartsTable = ({
       sortable: false,
     },
   ]
+  const handleRequestSort = (_event, property) => {
+    const isAsc =
+      sortProperty === property && sortDirection === SORT_DIRECTION.ASC
 
+    return onSort(property, isAsc ? SORT_DIRECTION.DESC : SORT_DIRECTION.ASC)
+  }
   const cellRenderer = (chart, property) => {
     switch (property) {
       case 'info':
@@ -147,6 +155,9 @@ const ChartsTable = ({
       cellRenderer={cellRenderer}
       data={charts}
       headers={headers}
+      handleRequestSort={handleRequestSort}
+      sortDirection={sortDirection}
+      sortProperty={sortProperty}
       maxRows={maxRows}
     />
   )

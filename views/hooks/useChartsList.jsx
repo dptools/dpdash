@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import api from '../api'
+import useTableSort from './useTableSort'
 
 const NULL_CHART = {}
+const title = 'title'
 
 export default function useChartsList() {
   const { setNotification, setUser, user, users } = useOutletContext()
+  const { onSort, sortDirection, sortBy } = useTableSort(title)
+
   const { uid, favoriteCharts } = user
   const favoriteChartsSet = new Set(favoriteCharts)
 
@@ -71,7 +75,12 @@ export default function useChartsList() {
   }
   const loadCharts = async (queryParams) => {
     try {
-      const data = await api.charts.chart.all(queryParams)
+      const params = {
+        ...(queryParams ? queryParams : {}),
+        ...(sortBy ? { sortBy } : {}),
+        ...(sortDirection ? { sortDirection } : {}),
+      }
+      const data = await api.charts.chart.all(params)
 
       setChartList(data)
     } catch (error) {
@@ -83,7 +92,7 @@ export default function useChartsList() {
 
   useEffect(() => {
     loadCharts()
-  }, [])
+  }, [sortBy, sortDirection])
 
   useEffect(() => {
     const apiUsernames = users
@@ -103,9 +112,12 @@ export default function useChartsList() {
     handleSearch,
     onFavorite,
     onShare,
+    onSort,
     onDelete,
     onDuplicate,
     shareWithUsers,
+    sortDirection,
+    sortBy,
     user,
     usernames,
   }

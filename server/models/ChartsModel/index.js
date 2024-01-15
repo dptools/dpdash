@@ -1,9 +1,12 @@
 import { ObjectId } from 'mongodb'
 import { collections } from '../../utils/mongoCollections'
+import { ASC } from '../../constants'
 
 const id = '$_id'
 const idKey = '$chart_id'
 const chartId = 'chart_id'
+const updatedAt = 'updatedAt'
+const $updatedAt = '$updatedAt'
 
 const ChartsModel = {
   create: async (db, chartAttributes) =>
@@ -33,8 +36,21 @@ const ChartsModel = {
       ),
 }
 
-const chartsListQuery = (user, queryParams) => {
+export const chartsListQuery = (user, queryParams) => {
   const { uid, favoriteCharts } = user
+  const { sortBy, sortDirection } = queryParams
+  const direction = sortDirection === ASC ? 1 : -1
+  const sort =
+    sortBy === updatedAt
+      ? [
+          {
+            $addFields: {
+              date: { $dateFromString: { dateString: $updatedAt } },
+            },
+          },
+          { $sort: { favorite: -1, date: direction } },
+        ]
+      : [{ $sort: { favorite: -1, [sortBy]: direction } }]
   const searchQuery = queryParams?.search
     ? {
         title: { $regex: queryParams.search, $options: 'i' },
@@ -55,7 +71,7 @@ const chartsListQuery = (user, queryParams) => {
       },
     },
     { $unset: chartId },
-    { $sort: { favorite: -1, title: 1 } },
+    ...sort,
   ]
 }
 

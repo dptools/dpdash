@@ -26,7 +26,10 @@ const DashboardPage = () => {
     onDuplicate,
     onFavorite,
     onShare,
+    onSort: onChartSort,
     shareWithUsers,
+    sortDirection: chartSortDirection,
+    sortBy: chartSortBy,
     usernames,
   } = useChartsList()
 
@@ -35,8 +38,8 @@ const DashboardPage = () => {
       <PageHeader title="Dashboard" />
       <section className="DashboardPageSection">
         <DashboardPageSectionHeader
-          to={routes.participants}
           title="Participants"
+          to={routes.participants}
         />
         <ParticipantsTable
           maxRows={5}
@@ -57,6 +60,10 @@ const DashboardPage = () => {
           onDuplicate={onDuplicate}
           onFavorite={onFavorite}
           onShare={onShare}
+          onSort={onChartSort}
+          sortProperty={chartSortBy}
+          sortDirection={chartSortDirection}
+          sortable
           user={user}
         />
       </section>

@@ -13,6 +13,8 @@ const router = Router()
 const chartsIndexSchema = baseSchema({
   query: yup.object({
     search: yup.string(),
+    sortBy: yup.string(),
+    sortDirection: yup.string(),
   }),
 })
 const chartSchema = baseSchema({

@@ -35,6 +35,7 @@ const isProduction = process.env.NODE_ENV === 'production'
 const cookieAttributes = {
   secure: isProduction,
   maxAge: 24 * 60 * 60 * 1000,
+  sameSite: 'strict',
 }
 const app = express()
 

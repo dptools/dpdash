@@ -1,8 +1,6 @@
 import React from 'react'
 import TextInputTopLabel from '../TextInputTopLabel'
 
-import { borderRadius } from '../../../constants'
-
 import './UserProfileFormFields.css'
 
 const UserProfileFormFields = ({ control }) => {
@@ -38,7 +36,6 @@ const UserProfileFormFields = ({ control }) => {
         name="mail"
         size="small"
         fullWidth
-        disabled
       />
     </div>
   )

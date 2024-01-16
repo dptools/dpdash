@@ -48,7 +48,7 @@ const UserModel = {
   },
   update: async (db, dataDb, uid, userUpdates) => {
     const user = await UserModel.findOne(db, { uid })
-    const updatedUser = { ...user, ...userUpdates }
+    const updatedUser = { preferences: {}, ...user, ...userUpdates }
 
     if (updatedUser.role === admin)
       updatedUser.access = await StudiesModel.all(dataDb)
@@ -97,6 +97,7 @@ const UserModel = {
       uid: admin,
       password: reset_key,
       role: admin,
+      mail: process.env.ADMIN_EMAIL,
       force_reset_pw: true,
       reset_key,
     })

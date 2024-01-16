@@ -14,7 +14,7 @@ const schema = yup.object({
   department: yup.string(),
   display_name: yup.string().required(),
   icon: yup.string(),
-  mail: yup.string().email().required(),
+  mail: yup.string().email(),
   title: yup.string(),
 })
 

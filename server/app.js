@@ -26,9 +26,9 @@ import participantsRouter from './routes/participants'
 import siteMetadata from './routes/siteMetadata'
 import usersRouter from './routes/users'
 import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
-import localSignup from './strategies/localSignup'
-import localSignIn from './strategies/localSignIn'
 import UserModel from './models/UserModel'
+import { verifyHash } from './utils/crypto/hash'
+import { isAccountExpired } from './utils/passport/helpers'
 
 const localStrategy = Strategy
 const isProduction = process.env.NODE_ENV === 'production'
@@ -56,7 +56,7 @@ app.use(helmet({ noSniff: true, contentSecurityPolicy: isProduction }))
 
 /** logger setup */
 morgan.token('remote-user', function (req, res) {
-  return req.user ? req.user : 'unidentified'
+  return req.user ? req.user.uid : 'unidentified'
 })
 const logger = winston.createLogger({
   transports: [
@@ -96,7 +96,6 @@ const mongodbPromise = MongoClient.connect(mongoURI, {
     mongodb = res.db()
     app.locals.appDb = res.db()
     app.locals.dataDb = res.db('dpdata')
-    res.db().collection('sessions').drop()
 
     await UserModel.createFirstAdmin(app.locals.appDb)
 
@@ -126,27 +125,47 @@ app.use(
 
 //passport local strategy
 passport.use(
-  'local-login',
   new localStrategy(
     {
       ...PASSPORT_FIELDS_ATTRIBUTES,
-      passReqToCallback: true,
     },
-    localSignIn
+    async (username, password, done) => {
+      const { appDb } = app.locals
+      const userAttributes = { uid: username }
+
+      const user = await UserModel.findOne(appDb, userAttributes, {
+        password: 1,
+        role: 1,
+        display_name: 1,
+        mail: 1,
+        icon: 1,
+        access: 1,
+        account_expires: 1,
+        uid: 1,
+      })
+
+      if (!user) {
+        return done(null, false)
+      }
+
+      if (!verifyHash(password, user?.password)) {
+        return done(null, false)
+      }
+
+      delete user.password
+
+      return done(null, user)
+    }
   )
 )
 
-//passport local registeration
-passport.use(
-  'local-signup',
-  new localStrategy(
-    {
-      ...PASSPORT_FIELDS_ATTRIBUTES,
-      passReqToCallback: true,
-    },
-    localSignup
-  )
-)
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(async function(user, done) {
+  done(null, user);
+});
 
 app.use(passport.initialize())
 app.use(passport.session())

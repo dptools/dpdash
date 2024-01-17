@@ -7,7 +7,7 @@ const CountsController = {
   index: async (req, res) => {
     try {
       const { appDb, dataDb } = req.app.locals
-      const user = await UserModel.findOne(appDb, { uid: req.user })
+      const user = await UserModel.findOne(appDb, { uid: req.user.uid })
       const sites = user.access.filter(
         (site) => !STUDIES_TO_OMIT.includes(site)
       )

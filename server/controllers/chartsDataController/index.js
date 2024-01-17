@@ -13,7 +13,7 @@ import UserModel from '../../models/UserModel'
 const show = async (req, res, next) => {
   try {
     const { dataDb, appDb } = req.app.locals
-    const user = await UserModel.findOne(appDb, { uid: req.user })
+    const user = await UserModel.findOne(appDb, { uid: req.user.uid })
     const userSites = StudiesModel.sanitizeAndSort(user.access)
     const { chart_id } = req.params
     const parsedQueryParams = qs.parse(req.query)

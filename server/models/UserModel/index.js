@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { collections } from '../../utils/mongoCollections'
 import StudiesModel from '../StudiesModel'
 import AdminAccountPasswordMailer from '../../mailer/AdminAccountPasswordMailer'
+import ConfigModel from '../ConfigModel'
 
 const userMongoProjection = {
   _id: 0,
@@ -92,12 +93,26 @@ const UserModel = {
     if (await UserModel.hasAdmin(db)) return
 
     const reset_key = crypto.randomBytes(32).toString('hex')
+    const configuration = await ConfigModel.findOne(db, { owner: admin })
+    const preferences = {}
+
+    if (configuration) {
+      preferences.config = configuration._id.toString()
+    } else {
+      const configAttributes = ConfigModel.withDefaults({
+        owner: admin,
+        readers: [admin],
+      })
+      const newConfiguration = await ConfigModel.create(db, configAttributes)
+      preferences.config = newConfiguration._id.toString()
+    }
 
     await UserModel.create(db, {
       uid: admin,
       password: reset_key,
       role: admin,
       mail: process.env.ADMIN_EMAIL,
+      preferences,
       force_reset_pw: true,
       reset_key,
     })

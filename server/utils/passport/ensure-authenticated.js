@@ -1,5 +1,6 @@
 import UserModel from '../../models/UserModel'
 import { isAccountExpired } from './helpers'
+import { logout } from './logout'
 
 export default async function ensureAuthenticated(req, res, next) {
   try {
@@ -13,12 +14,10 @@ export default async function ensureAuthenticated(req, res, next) {
 
     switch (true) {
       case isAccountExpired(account_expires, role):
-        await req.session.destroy()
-        await req.logout()
-
-        res.clearCookie('connect.sid')
+        logout(req, res, next)
 
         return res.status(401).json({ error: 'Account is expired' })
+
       case !!blocked:
         return res
           .status(403)

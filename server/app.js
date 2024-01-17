@@ -123,7 +123,8 @@ app.use(
     }),
   })
 )
-
+app.use(passport.initialize())
+app.use(passport.session())
 //passport local strategy
 passport.use(
   'local-login',
@@ -147,9 +148,6 @@ passport.use(
     localSignup
   )
 )
-
-app.use(passport.initialize())
-app.use(passport.session())
 
 app.use('/', assessmentData)
 app.use('/', adminRouter)

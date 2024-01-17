@@ -2,6 +2,7 @@ import passport from 'passport'
 import { isAccountExpired } from '../utils/passport/helpers'
 import UserModel from '../models/UserModel'
 import ConfigModel from '../models/ConfigModel'
+import { logout } from '../utils/passport/logout'
 
 export default async function (req, res, next) {
   passport.authenticate(
@@ -42,10 +43,7 @@ export default async function (req, res, next) {
           const { role, account_expires } = userInfo
 
           if (isAccountExpired(account_expires, role)) {
-            await req.session.destroy()
-            await req.logout()
-
-            res.clearCookie('connect.sid')
+            logout(req, res, next)
 
             return res.status(401).json({ error: 'Account is expired' })
           }

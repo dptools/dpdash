@@ -31,7 +31,7 @@ describe('User Profile Form', () => {
   test('email field should be disabled', () => {
     renderForm({ ...defaultProps })
 
-    // expect(elements.emailField()).toBeDisabled()
+    expect(elements.emailField()).toBeDisabled()
   })
 
   test('calls the onSubmit prop when the form is submitted with valid data', async () => {

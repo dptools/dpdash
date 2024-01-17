@@ -245,16 +245,15 @@ export const createMetadataParticipant = (overrides = {}) => ({
 })
 
 export const createParticipantRow = (overrides = {}) => ({
-    "subject": "CA00066",
-    "days": 1,
-    "study": "CA",
-    "star": true,
-    "complete": true
+  subject: 'CA00066',
+  days: 1,
+  study: 'CA',
+  star: true,
+  complete: true,
 })
 
-export const createParticipantList = (length = 10, overrides = {}) => (
+export const createParticipantList = (length = 10, overrides = {}) =>
   Array(length).fill(createParticipantRow(overrides))
-)
 
 export const createFilters = (overrides = {}) => ({
   chrcrit_part: [
@@ -379,4 +378,3 @@ export const createSiteMetadata = (overrides = {}) => ({
   participants: [],
   ...overrides,
 })
-

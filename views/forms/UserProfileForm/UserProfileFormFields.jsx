@@ -36,6 +36,7 @@ const UserProfileFormFields = ({ control }) => {
         name="mail"
         size="small"
         fullWidth
+        disabled
       />
     </div>
   )

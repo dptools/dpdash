@@ -17,10 +17,7 @@ describe('AuthController', () => {
         const request = createRequestWithUser()
         const response = createResponse()
 
-        request.session.destroy.mockResolvedValueOnce()
-        request.logout.mockResolvedValueOnce()
-
-        await AuthController.destroy(request, response)
+        await AuthController.destroy(request, response, jest.fn())
 
         expect(response.status).toHaveBeenCalledWith(200)
         expect(response.json).toHaveBeenCalledWith({
@@ -33,10 +30,13 @@ describe('AuthController', () => {
       it('returns a status of 500 and an error message', async () => {
         const request = createRequestWithUser()
         const response = createResponse()
+        const next = jest.fn()
 
-        request.session.destroy.mockRejectedValueOnce(new Error('some error'))
+        request.logout.mockImplementationOnce(() => {
+          throw new Error('some error')
+        })
 
-        await AuthController.destroy(request, response)
+        await AuthController.destroy(request, response, next)
 
         expect(response.status).toHaveBeenCalledWith(500)
         expect(response.json).toHaveBeenCalledWith({

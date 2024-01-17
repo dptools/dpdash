@@ -5,6 +5,7 @@ import RegistrationMailer from '../../mailer/RegistrationMailer'
 import { hash } from '../../utils/crypto/hash'
 import dayjs from 'dayjs'
 import authenticate from '../../strategies/authenticate'
+import { logout } from '../../utils/passport/logout'
 
 const AuthController = {
   authenticate,
@@ -55,12 +56,9 @@ const AuthController = {
       }
     )(req, res, next)
   },
-  destroy: async (req, res) => {
+  destroy: async (req, res, next) => {
     try {
-      await req.session.destroy()
-      await req.logout()
-
-      res.clearCookie('connect.sid')
+      logout(req, res, next)
 
       return res.status(200).json({ data: { message: 'User is logged out' } })
     } catch (error) {

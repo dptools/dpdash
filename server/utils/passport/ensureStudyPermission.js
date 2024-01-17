@@ -5,10 +5,10 @@ export default async function ensureStudyPermission(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized' })
 
   try {
-    const { study } = req.params
     const { appDb } = req.app.locals
-    const user = await UserModel.findOne(appDb, { uid: req.user })
-    const { blocked, access } = user
+    const { study } = req.params
+    req.user = await UserModel.findOne(appDb, { uid: req.user.uid })
+    const { blocked, access } = req.user
     const isStudyInAccess = access.includes(study)
 
     if (!isStudyInAccess) return res.status(401).json({ error: 'Unauthorized' })

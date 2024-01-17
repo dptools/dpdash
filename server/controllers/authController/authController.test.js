@@ -6,6 +6,8 @@ import {
   createResponse,
   createUser,
 } from '../../../test/fixtures'
+import { collections } from '../../utils/mongoCollections'
+import UserModel from '../../models/UserModel'
 
 afterEach(() => {
   jest.clearAllMocks()
@@ -201,14 +203,14 @@ describe('AuthController', () => {
           password: 'somepassword',
           confirmPassword: 'somepassword',
         })
-        const request = createRequest({ body: user })
-
-        request.app.locals.appDb.findOne.mockResolvedValueOnce(undefined)
-        passport.authenticate = jest.fn(
-          (_authType, _options, callback) => () => {
-            callback(new Error('some error'), false, user)
+        const request = createRequest({ 
+          body: user,
+          app: {
+            locals: { appDb: global.MONGO_INSTANCE.db('dpdmongo'), dataDb: global.MONGO_INSTANCE.db('dpdata') }
           }
-        )
+        })
+
+        UserModel.create = jest.fn().mockRejectedValueOnce(new Error('some error'))
 
         await AuthController.create(request, response, jest.fn())
 
@@ -220,20 +222,21 @@ describe('AuthController', () => {
     })
     describe('When user has an account', () => {
       it('returns a status of 400 and an error message when user has an account', async () => {
-        const request = createRequestWithUser()
+        const request = createRequestWithUser({
+          body: {
+            username: 'username',
+            password: 'newpass',
+            confirmPassword: 'newpass',
+          },
+          app: { locals: { appDb: global.MONGO_INSTANCE.db('dpdmongo'), dataDb: global.MONGO_INSTANCE.db('dpdata') } }
+        })
         const response = createResponse()
 
-        const user = createUser()
-        passport.authenticate = jest.fn(
-          (_authType, _options, callback) => () => {
-            callback(null, true, null)
-          }
-        )
-        request.app.locals.appDb.findOne.mockResolvedValueOnce(user)
+        const user = createUser({ uid: 'username' })
+        await request.app.locals.appDb.collection(collections.users).insertOne(user)
 
         await AuthController.create(request, response, jest.fn())
 
-        expect(passport.authenticate).toHaveBeenCalledTimes(1)
         expect(response.status).toHaveBeenCalledWith(400)
         expect(response.json).toHaveBeenCalledWith({
           error: 'User has an account',

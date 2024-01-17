@@ -9,7 +9,7 @@ const ParticipantsController = {
       const parsedQueryParams = Object.keys(req.query).length
         ? req.query
         : DEFAULT_PARTICIPANTS_SORT
-      const user = await UserModel.findOne(appDb, { uid: req.user })
+      const user = await UserModel.findOne(appDb, { uid: req.user.uid })
       const participants = await ParticipantsModel.index(
         dataDb,
         user,

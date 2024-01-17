@@ -104,9 +104,16 @@ export const createRequest = (overrides = {}) => ({
   ...overrides,
 })
 
-export const createRequestWithUser = (overrides = {}) => ({
+export const createUser = (overrides = {}) => ({
+  uid: 'user-uid',
+  display_name: 'Display Name',
+  icon: 'icon',
+  ...overrides,
+})
+
+export const createRequestWithUser = (overrides = {}, userOverrides = {}) => ({
   ...createRequest(overrides),
-  user: 'user-id',
+  user: createUser({...userOverrides}),
   session: {
     icon: 'icon',
     display_name: 'Display Name',
@@ -114,20 +121,12 @@ export const createRequestWithUser = (overrides = {}) => ({
     userAccess: [],
     destroy: jest.fn(),
   },
-  ...overrides,
 })
 
 export const createSubject = (overrides = {}) => ({
   collection: 'collection',
   study: 'study',
   subject: 'subject',
-  ...overrides,
-})
-
-export const createUser = (overrides = {}) => ({
-  uid: 'user-uid',
-  display_name: 'Display Name',
-  icon: 'icon',
   ...overrides,
 })
 

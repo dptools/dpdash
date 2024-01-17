@@ -36,7 +36,7 @@ const chartSchema = baseSchema({
 })
 const destroyChartSchema = baseSchema({
   params: yup.object({
-    uid: yup.string().required(),
+    chart_id: yup.string().required(),
   }),
 })
 const duplicateChartSchema = baseSchema({

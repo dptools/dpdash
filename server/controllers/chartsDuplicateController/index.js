@@ -13,7 +13,7 @@ const chartsDuplicateController = {
         const { insertedId } = await ChartsModel.create(dataDb, {
           ...rest,
           title: `${rest.title} (copy)`,
-          owner: req.user,
+          owner: req.user.uid,
           public: false,
           sharedWith: [],
         })

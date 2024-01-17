@@ -9,7 +9,7 @@ const DashboardsController = {
       const { appDb, dataDb } = req.app.locals
       const { study, subject } = req.params
 
-      const user = await UserModel.findOne(appDb, { uid: req.user })
+      const user = await UserModel.findOne(appDb, { uid: req.user.uid })
       const userConfigurationQuery = {
         _id: new ObjectId(user.preferences.config),
       }

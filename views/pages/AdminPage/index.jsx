@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import { Box, Button, Modal } from '@mui/material'
+import {
+  Box,
+  Button,
+  Modal,
+  ListItemText,
+  MenuItem,
+  Divider,
+} from '@mui/material'
+import { useForm } from 'react-hook-form'
 
 import { UsersModel, StudiesModel } from '../../models'
 import api from '../../api'
 import PageHeader from '../../components/PageHeader'
 import AdminUsersTable from '../../tables/AdminUsersTable'
 import { AdminUsersSearchForm } from '../../forms/AdminUsersSearchForm'
-import { MultiSelect } from '../../forms/MultiSelect'
+import ControlledSelectInput from '../../forms/ControlledSelect'
+import ControlledMultiSelect from '../../forms/ControlledMultiSelect'
+import { ROLE_OPTIONS } from '../../../constants'
 
 const modalStyle = {
   position: 'absolute',
@@ -27,11 +37,18 @@ const AdminPage = () => {
   const [searchOptions, setSearchOptions] = useState([])
   const [studies, setStudies] = useState([])
   const [searchOptionsValue, setSearchOptionsValue] = useState([])
-  const [currentUserAccess, setCurrentUserAccess] = useState([])
   const [openResetKeyModal, setOpenResetKeyModal] = useState(false)
   const [resetKeyValue, setResetKeyValue] = useState('')
   const [currentRowIndex, setCurrentRowIndex] = useState(null)
   const [openAccessModal, setOpenAccessModal] = useState(false)
+
+  const { handleSubmit, control, reset } = useForm({
+    defaultValues: {
+      access: [],
+      role: '',
+    },
+    mode: 'onChange',
+  })
 
   const filteredUsers = (searchOptionsValue || []).length
     ? users.filter((user) =>
@@ -91,25 +108,32 @@ const AdminPage = () => {
   }
 
   const handleUserAccess = (rowIndex) => {
-    setCurrentUserAccess(filteredUsers[rowIndex].access)
     setCurrentRowIndex(rowIndex)
     setOpenAccessModal(true)
+    reset({
+      access: filteredUsers[rowIndex].access.map((study) => ({
+        label: study,
+        value: study,
+      })),
+      role: filteredUsers[rowIndex].role,
+    })
   }
 
-  const handleUpdateUserAccess = async (e) => {
-    e.preventDefault()
-
+  const handleUpdateUserAccess = async (formValues) => {
     try {
+      formValues.access = formValues.access.map(({ value }) => value)
+
       const userValues = filteredUsers[currentRowIndex]
       const { uid } = userValues
       const userAttributes = {
         ...userValues,
-        access: currentUserAccess,
+        ...formValues,
       }
       const updatedUser = await api.admin.users.update(uid, userAttributes)
 
       updateUsers(updatedUser)
       setOpenAccessModal(false)
+      reset({ access: [], role: '' })
       handleNotification('User access has been applied successfully')
     } catch (error) {
       handleNotification(error.message)
@@ -203,16 +227,30 @@ const AdminPage = () => {
         onClose={() => setOpenAccessModal(false)}
       >
         <Box sx={modalStyle}>
-          <form onSubmit={handleUpdateUserAccess}>
-            <MultiSelect
-              value={currentUserAccess.map((a) => ({ value: a, label: a }))}
+          <form onSubmit={handleSubmit(handleUpdateUserAccess)}>
+            <ControlledMultiSelect
               name="access"
+              control={control}
               options={studies}
-              onChange={(selections) =>
-                setCurrentUserAccess(selections.map((s) => s.value))
-              }
               placeholder="Add studies for user to access"
+              label="Studies"
             />
+
+            <Divider sx={{ py: '15px' }} />
+
+            <ControlledSelectInput
+              control={control}
+              name="role"
+              fullWidth
+              label="Role"
+            >
+              {ROLE_OPTIONS.map(({ value, label }) => (
+                <MenuItem value={value} key={value}>
+                  <ListItemText>{label}</ListItemText>
+                </MenuItem>
+              ))}
+            </ControlledSelectInput>
+
             <Button type="submit">Update Access</Button>
           </form>
         </Box>

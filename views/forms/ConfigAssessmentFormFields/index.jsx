@@ -49,24 +49,19 @@ const ConfigAssessmentFormFields = ({
         value={221}
         fullWidth
       >
-        {colors.map(
-          ({ value, label }, colorsIndex) => (
-            console.log(value),
-            (
-              <MenuItem value={value} key={`${id}-${colorsIndex}-${index}`}>
-                <div className="ColorPaletteDropdown">
-                  {label.map((palette) => (
-                    <span
-                      key={palette}
-                      style={{ backgroundColor: palette }}
-                      className="ColorPaletteBlock"
-                    ></span>
-                  ))}
-                </div>
-              </MenuItem>
-            )
-          )
-        )}
+        {colors.map(({ value, label }, colorsIndex) => (
+          <MenuItem value={value} key={`${id}-${colorsIndex}-${index}`}>
+            <div className="ColorPaletteDropdown">
+              {label.map((palette) => (
+                <span
+                  key={palette}
+                  style={{ backgroundColor: palette }}
+                  className="ColorPaletteBlock"
+                ></span>
+              ))}
+            </div>
+          </MenuItem>
+        ))}
       </ControlledSelectInput>
       <div>
         <TextInput

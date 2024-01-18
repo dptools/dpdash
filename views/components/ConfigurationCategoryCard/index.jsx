@@ -10,7 +10,7 @@ const ConfigurationCategoryCard = ({
   rowNum,
 }) => {
   return (
-    <Card>
+    <Card sx={{ width: '300px' }}>
       <CardContent>{children}</CardContent>
       <CardActions>
         <IconButton aria-label="delete" onClick={() => onRemove(formIndex)}>

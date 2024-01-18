@@ -50,6 +50,7 @@ const UserConfigModel = {
     const configCategoryFields = config[configKey].map(
       ({ category, analysis, variable, label, range, color }) => {
         const [min, max] = range
+        const loadColor = findCategoryColor(color, colors)
 
         return {
           analysis,
@@ -58,7 +59,7 @@ const UserConfigModel = {
           label,
           min,
           max,
-          color: findCategoryColor(color, colors).value || defaultColorValue,
+          color: loadColor ? loadColor.value : defaultColorValue,
         }
       }
     )

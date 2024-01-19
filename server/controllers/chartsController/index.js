@@ -83,7 +83,7 @@ const chartsController = {
     try {
       const { dataDb } = req.app.locals
       const { chart_id } = req.params
-      const { userAccess } = req.session
+      const { access } = req.user
       const chart = await ChartsModel.show(dataDb, {
         _id: new ObjectId(chart_id),
         owner: req.user.uid,
@@ -91,7 +91,7 @@ const chartsController = {
 
       if (!chart) return res.status(400).json({ error: 'Chart not found.' })
 
-      const targetValuesMap = defaultTargetValueMap(userAccess)
+      const targetValuesMap = defaultTargetValueMap(access)
       chart.fieldLabelValueMap = chart.fieldLabelValueMap.map((fieldValue) => {
         const updateTargetValues = {
           ...targetValuesMap,

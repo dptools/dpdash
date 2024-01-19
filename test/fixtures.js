@@ -113,12 +113,11 @@ export const createUser = (overrides = {}) => ({
 
 export const createRequestWithUser = (overrides = {}, userOverrides = {}) => ({
   ...createRequest(overrides),
-  user: createUser({...userOverrides}),
+  user: createUser({ ...userOverrides }),
   session: {
     icon: 'icon',
     display_name: 'Display Name',
     role: '',
-    userAccess: [],
     destroy: jest.fn(),
   },
 })

@@ -1,10 +1,12 @@
 import React from 'react'
 import { MenuItem } from '@mui/material'
+import { VisibilityOffOutlined, Visibility } from '@mui/icons-material'
 import ConfigurationCategoryCard from '../../components/ConfigurationCategoryCard'
 import TextInput from '../TextInput'
 import ControlledSelectInput from '../ControlledSelect'
 
 import './ConfigAssessmentFormFields.css'
+import ControlledCheckbox from '../ControlledCheckbox'
 
 const ConfigAssessmentFormFields = ({
   control,
@@ -63,20 +65,30 @@ const ConfigAssessmentFormFields = ({
           </MenuItem>
         ))}
       </ControlledSelectInput>
-      <div>
+      <div className="RangeFields">
         <TextInput
           control={control}
           fullWidth={false}
           label="Min"
           name={`config.${index}.min`}
+          size="small"
         />
         <TextInput
           control={control}
           fullWidth={false}
           label="Max"
           name={`config.${index}.max`}
+          size="small"
         />
       </div>
+      <ControlledCheckbox
+        control={control}
+        name={`config.${index}.text`}
+        label="Display value"
+        labelPlacement="end"
+        icon={<VisibilityOffOutlined />}
+        checkedIcon={<Visibility />}
+      />
     </ConfigurationCategoryCard>
   )
 }

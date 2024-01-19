@@ -32,6 +32,7 @@ const schema = yup.object({
       color: yup.number(),
       min: yup.string(),
       max: yup.string(),
+      text: yup.boolean(),
     })
   ),
 })

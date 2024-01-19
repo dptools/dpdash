@@ -24,8 +24,8 @@ describe('Models - User Config', () => {
       public: false,
     })
 
-    it('returns config form values as user config object', async () => {
-      const newUserConfig = await UserConfigModel.processNewConfig(
+    it('returns config form values as user config object', () => {
+      const newUserConfig = UserConfigModel.processNewConfig(
         formValues,
         colors,
         'owl'
@@ -41,6 +41,7 @@ describe('Models - User Config', () => {
               label: '',
               range: ['0', '1'],
               variable: '',
+              text: true,
             },
             {
               analysis: '',
@@ -49,6 +50,7 @@ describe('Models - User Config', () => {
               label: '',
               range: ['0', '1'],
               variable: '',
+              text: true,
             },
           ],
         },
@@ -73,6 +75,7 @@ describe('Models - User Config', () => {
               label: '',
               range: ['0', '1'],
               variable: '',
+              text: true,
             },
             {
               analysis: '',
@@ -81,6 +84,7 @@ describe('Models - User Config', () => {
               label: '',
               range: ['0', '1'],
               variable: '',
+              text: true,
             },
           ],
         },

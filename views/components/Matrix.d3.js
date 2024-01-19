@@ -124,23 +124,29 @@ export default class Matrix {
           .append('svg:title')
           .filter(this.validDay)
           .text((d) => d[dataVariable])
-        card
-          .enter()
-          .append('text')
-          .filter(this.validDay)
-          .text((d) => d[dataVariable])
-          .attr('x', (d) => (d.day - this.startDay) * cellWidth + cellWidth / 2)
-          .attr('y', () => idx * this.cardSize + (this.cardSize * 3) / 4)
-          .attr('font-size', this.halfCardSize)
-          .style('fill', (d) => {
-            const blockColor = !!d[dataVariable]
-              ? thresholdScale(d[dataVariable])
-              : WHITE
 
-            return getColor(blockColor, true)
-          })
-          .attr('font-family', 'Tahoma, Geneva, sans-serif')
-          .style('text-anchor', 'middle')
+        if (dataEl?.text === true) {
+          card
+            .enter()
+            .append('text')
+            .filter(this.validDay)
+            .text((d) => d[dataVariable])
+            .attr(
+              'x',
+              (d) => (d.day - this.startDay) * cellWidth + cellWidth / 2
+            )
+            .attr('y', () => idx * this.cardSize + (this.cardSize * 3) / 4)
+            .attr('font-size', this.halfCardSize)
+            .style('fill', (d) => {
+              const blockColor = !!d[dataVariable]
+                ? thresholdScale(d[dataVariable])
+                : WHITE
+
+              return getColor(blockColor, true)
+            })
+            .attr('font-family', 'Tahoma, Geneva, sans-serif')
+            .style('text-anchor', 'middle')
+        }
       }
     }
     this.maxYAxisWidth = margin.left
@@ -350,7 +356,6 @@ export default class Matrix {
     const xAxisForDatesData = []
     const startDate = stringToDate(this.consentDate, 'yyyy-mm-dd', '-')
     const firstDay = this.startDay - 1 //Consent date is 1
-
     for (let i = firstDay; i < this.lastDayForFilter; i++) {
       const day = i + 1
 

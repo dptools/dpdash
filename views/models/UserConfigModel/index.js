@@ -8,6 +8,7 @@ const UserConfigModel = {
     color: defaultColorValue,
     min: '0',
     max: '1',
+    text: true,
   },
   defaultFormValues: (overrides = {}) => ({
     configName: '',
@@ -39,27 +40,28 @@ const UserConfigModel = {
   },
   processConfigToFormFields: (currentConfig, colors) => {
     const {
-      name,
-      type,
-      owner,
-      readers,
       config,
+      name,
+      owner,
       public: publicConfig,
+      readers,
+      type,
     } = currentConfig
     const configKey = Object.keys(config)[0]
     const configCategoryFields = config[configKey].map(
-      ({ category, analysis, variable, label, range, color }) => {
+      ({ category, analysis, variable, label, range, color, text }) => {
         const [min, max] = range
         const loadColor = findCategoryColor(color, colors)
 
         return {
           analysis,
           category,
-          variable,
+          color: loadColor ? loadColor.value : defaultColorValue,
           label,
           min,
           max,
-          color: loadColor ? loadColor.value : defaultColorValue,
+          text,
+          variable,
         }
       }
     )

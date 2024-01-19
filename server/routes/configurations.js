@@ -23,6 +23,7 @@ const body = yup.object({
         label: yup.string(),
         color: yup.array().of(yup.string()),
         range: yup.array().of(yup.string()),
+        text: yup.boolean(),
       })
     ),
   }),

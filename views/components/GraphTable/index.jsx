@@ -21,7 +21,6 @@ const GraphTable = ({ graph, onGetCsv }) => {
       <Toolbar>
         <Button
           variant="outlined"
-          color="secondary"
           onClick={() => onGetCsv(graph.chart_id, graph.filters, graph.title)}
         >
           <ArrowDropDownIcon />

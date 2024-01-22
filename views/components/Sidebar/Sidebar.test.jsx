@@ -28,12 +28,10 @@ describe('Sidebar', () => {
     const charts = screen.getByText('Charts')
     const participants = screen.getByText('Participants')
     const configurations = screen.getByText('Configurations')
-    const help = screen.getByText('Help')
 
     expect(dashboard).toBeInTheDocument()
     expect(charts).toBeInTheDocument()
     expect(participants).toBeInTheDocument()
     expect(configurations).toBeInTheDocument()
-    expect(help).toBeInTheDocument()
   })
 })

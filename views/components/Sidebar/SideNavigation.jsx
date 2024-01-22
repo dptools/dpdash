@@ -6,7 +6,6 @@ import {
   ShowChart,
   DashboardCustomize,
   AdminPanelSettings,
-  Flag,
 } from '@mui/icons-material'
 import NavItem from './NavItem'
 import { routes } from '../../routes/routes'
@@ -27,7 +26,6 @@ const SideNavigation = ({ user }) => {
           <NavItem Icon={AdminPanelSettings} to={routes.admin} label="Admin" />
         )}
         <Divider light />
-        <NavItem Icon={Flag} to={routes.help} label="Help" />
       </List>
     </nav>
   )

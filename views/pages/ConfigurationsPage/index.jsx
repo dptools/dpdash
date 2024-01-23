@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Box, Button, useMediaQuery } from '@mui/material'
-import { Add } from '@mui/icons-material'
+import { Add, UploadFile } from '@mui/icons-material'
 import { useOutletContext, Link } from 'react-router-dom'
 
 import ConfigurationsTable from '../../tables/ConfigurationsTable'
@@ -10,6 +10,8 @@ import api from '../../api'
 import ShareConfigurationForm from '../../forms/ShareConfigurationForm'
 import { routes } from '../../routes/routes'
 import { fontSize } from '../../../constants'
+
+import './ConfigurationsPage.css'
 
 const ConfigurationsPage = () => {
   const isMobile = useMediaQuery('(max-width:900px)')
@@ -118,25 +120,78 @@ const ConfigurationsPage = () => {
     }
   }
 
+  const handleConfigurationUpload = (e) => {
+    try {
+      const file = e.target.files ? e.target.files[0] : ''
+
+      new Response(file).json().then(async ({ name, config }) => {
+        const newConfigurationAttributes = {
+          config: {
+            0: config,
+          },
+          name,
+          owner: user.uid,
+          readers: [user.uid],
+          type: 'matrix',
+        }
+
+        await api.userConfigurations.create(
+          user.uid,
+          newConfigurationAttributes
+        )
+        await loadAllConfigurations(uid)
+
+        handleNotification('New configuration added')
+      })
+    } catch (error) {
+      handleNotification(error.message)
+    }
+  }
+
   return (
     <Box sx={{ p: '20px' }}>
       <PageHeader
         title="Configurations"
         cta={
-          <Button
-            component={Link}
-            endIcon={isMobile ? '' : <Add />}
-            to={routes.newConfiguration}
-            size="small"
-            sx={{
-              backgroundColor: 'primary.dark',
-              textTransform: 'none',
-              fontSize: { xs: fontSize[9], sm: fontSize[16] },
-            }}
-            variant="contained"
-          >
-            New Configuration
-          </Button>
+          <div className="ConfigurationsPageActions">
+            <Button
+              component={Link}
+              endIcon={isMobile ? '' : <Add />}
+              to={routes.newConfiguration}
+              size="small"
+              sx={{
+                backgroundColor: 'primary.dark',
+                textTransform: 'none',
+                fontSize: { xs: fontSize[9], sm: fontSize[16] },
+                gridColumnStart: 1,
+              }}
+              variant="contained"
+            >
+              New Configuration
+            </Button>
+            <Button
+              endIcon={isMobile ? '' : <UploadFile />}
+              size="small"
+              sx={{
+                textTransform: 'none',
+                fontSize: { xs: fontSize[9], sm: fontSize[16] },
+                gridColumnStart: 2,
+              }}
+              variant="contained"
+              component="label"
+              htmlFor="configFile"
+            >
+              Upload Configuration
+              <input
+                type="file"
+                accept="application/json"
+                data-testid="configFile-input"
+                id="configFile"
+                hidden
+                onChange={handleConfigurationUpload}
+              />
+            </Button>
+          </div>
         }
       />
       <ConfigurationsTable

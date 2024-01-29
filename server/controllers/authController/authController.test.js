@@ -203,14 +203,13 @@ describe('AuthController', () => {
           password: 'somepassword',
           confirmPassword: 'somepassword',
         })
-        const request = createRequest({ 
+        const request = createRequest({
           body: user,
-          app: {
-            locals: { appDb: global.MONGO_INSTANCE.db('dpdmongo'), dataDb: global.MONGO_INSTANCE.db('dpdata') }
-          }
         })
 
-        UserModel.create = jest.fn().mockRejectedValueOnce(new Error('some error'))
+        request.app.locals.appDb.findOne.mockRejectedValueOnce(
+          new Error('some error')
+        )
 
         await AuthController.create(request, response, jest.fn())
 
@@ -221,21 +220,39 @@ describe('AuthController', () => {
       })
     })
     describe('When user has an account', () => {
+      let appDb
+
+      beforeAll(async () => {
+        appDb = await global.MONGO_INSTANCE.db('appDb')
+      })
+
+      beforeEach(async () => {
+        await appDb.createCollection(collections.users)
+      })
+      afterEach(async () => {
+        await appDb.collection(collections.users).drop()
+      })
+      afterAll(async () => {
+        await appDb.dropDatabase()
+      })
+
       it('returns a status of 400 and an error message when user has an account', async () => {
+        const next = jest.fn()
         const request = createRequestWithUser({
           body: {
             username: 'username',
             password: 'newpass',
             confirmPassword: 'newpass',
           },
-          app: { locals: { appDb: global.MONGO_INSTANCE.db('dpdmongo'), dataDb: global.MONGO_INSTANCE.db('dpdata') } }
+          app: {
+            locals: { appDb },
+          },
         })
         const response = createResponse()
-
         const user = createUser({ uid: 'username' })
-        await request.app.locals.appDb.collection(collections.users).insertOne(user)
 
-        await AuthController.create(request, response, jest.fn())
+        await appDb.collection(collections.users).insertOne(user)
+        await AuthController.create(request, response, next)
 
         expect(response.status).toHaveBeenCalledWith(400)
         expect(response.json).toHaveBeenCalledWith({

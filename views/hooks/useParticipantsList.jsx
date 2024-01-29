@@ -58,10 +58,8 @@ export default function useParticipantsList() {
         ...user,
         preferences: { ...preferences, [key]: values },
       }
-      const [updatedUser, participantsList] = await Promise.all([
-        api.users.update(uid, userAttributes),
-        fetchParticipants(),
-      ])
+      const updatedUser = await api.users.update(uid, userAttributes)
+      const participantsList = await fetchParticipants()
 
       setUser(updatedUser)
       setParticipants(participantsList)

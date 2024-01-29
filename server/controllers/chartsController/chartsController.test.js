@@ -9,9 +9,6 @@ import {
 import { collections } from '../../utils/mongoCollections'
 import UserModel from '../../models/UserModel'
 
-let dataDb
-let appDb
-
 describe('chartsController', () => {
   describe('create', () => {
     describe('When successful', () => {
@@ -53,6 +50,9 @@ describe('chartsController', () => {
 
   describe('index', () => {
     describe('When successful', () => {
+      let dataDb
+      let appDb
+
       beforeAll(async () => {
         dataDb = await global.MONGO_INSTANCE.db('dpdata')
         appDb = await global.MONGO_INSTANCE.db('appDb')
@@ -65,6 +65,11 @@ describe('chartsController', () => {
       afterEach(async () => {
         await appDb.collection(collections.users).drop()
         await dataDb.collection(collections.charts).drop()
+      })
+
+      afterAll(async () => {
+        await dataDb.dropDatabase()
+        await appDb.dropDatabase()
       })
 
       it('returns a list of charts in order of user favorite, title, alongside a status of 200', async () => {

@@ -41,7 +41,7 @@ const ParticipantsTable = (props) => {
       sortable: !!sortable,
     },
     {
-      dataProperty: 'days',
+      dataProperty: 'daysInStudy',
       label: 'Days In Study',
       sortable: !!sortable,
     },
@@ -64,29 +64,38 @@ const ParticipantsTable = (props) => {
   const cellRenderer = (participant, property) => {
     switch (property) {
       case 'synced':
-        const isToday = dayjs(participant[property]).isToday()
-        const isYesterday = dayjs(participant[property]).isYesterday()
-        const isTodayOrYesterday = isToday || isYesterday
-        return (
-          <Typography
-            sx={{
-              color: isTodayOrYesterday ? 'green.500' : 'text.primary',
-            }}
-          >
-            {isToday
-              ? 'Today'
-              : isYesterday
-              ? 'Yesterday'
-              : participant[property]
-              ? dayjs(participant[property]).format('MMM-D-YYYY')
-              : ''}
-          </Typography>
-        )
+        const syncedValue = participant[property]
+        const participantSyncedDate = dayjs(syncedValue)
+
+        if (syncedValue && participantSyncedDate.isValid()) {
+          const isToday = participantSyncedDate.isToday()
+          const isYesterday = participantSyncedDate.isYesterday()
+          const isTodayOrYesterday = isToday || isYesterday
+
+          return (
+            <Typography
+              sx={{
+                color: isTodayOrYesterday ? 'green.500' : 'text.primary',
+              }}
+            >
+              {isToday
+                ? 'Today'
+                : isYesterday
+                ? 'Yesterday'
+                : participantSyncedDate.format('MMM-D-YYYY')}
+            </Typography>
+          )
+        }
+
+        return ''
+
       case 'subject':
+        const { study, subject } = participant
+
         return (
           <Typography
             component={Link}
-            to={routes.dashboard(participant.study, participant.subject)}
+            to={routes.dashboard(study, subject)}
             sx={{ textDecoration: 'none', color: 'text.primary' }}
           >
             {participant[property]}

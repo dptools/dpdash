@@ -5,144 +5,158 @@ import {
   createUser,
   createMetadataParticipant,
 } from '../../../test/fixtures'
+import { collections } from '../../utils/mongoCollections'
 
 describe('ParticipantsController', () => {
   describe(ParticipantsController.index, () => {
     describe('When successful', () => {
-      it('returns a status of 200 and a list of normalized participants', async () => {
-        const request = createRequestWithUser()
-        const response = createResponse()
-        const user = createUser({
-          uid: 'owl',
-          name: 'Eaurasian Eagle Owl',
-          access: ['CA', 'YA'],
-          preferences: {
-            star: [],
-            complete: [],
-          },
-        })
-        const result = [
-          createMetadataParticipant({
-            subject: 'CA00063',
-            synced: '07/28/2022',
-            days: 1,
-            study: 'CA',
-            lastSyncedColor: '#de1d16',
-          }),
-          createMetadataParticipant({
-            subject: 'CA00064',
-            synced: '06/24/2022',
-            days: 1,
-            study: 'CA',
-            lastSyncedColor: '#de1d16',
-          }),
-          createMetadataParticipant({
-            subject: 'YA00037',
-            synced: '07/28/2022',
-            days: 1,
-            study: 'YA',
-            lastSyncedColor: '#de1d16',
-          }),
-          createMetadataParticipant({
-            subject: 'YA29023',
-            synced: '07/28/2022',
-            days: 1,
-            study: 'YA',
-            lastSyncedColor: '#de1d16',
-          }),
-          createMetadataParticipant({
-            subject: 'YA00015',
-            synced: '07/28/2022',
-            days: 1,
-            study: 'YA',
-            lastSyncedColor: '#de1d16',
-          }),
-          createMetadataParticipant({
-            subject: 'YA01508',
-            synced: '07/28/2022',
-            days: 1,
-            study: 'YA',
-            lastSyncedColor: '#de1d16',
-          }),
-        ]
+      let dataDb
+      let appDb
 
-        request.app.locals.appDb.findOne.mockResolvedValue(user)
-        request.app.locals.dataDb.aggregate.mockImplementationOnce(() => ({
-          toArray: () => result,
-        }))
-
-        await ParticipantsController.index(request, response)
-
-        expect(response.status).toHaveBeenCalledWith(200)
-        expect(response.json).toHaveBeenCalledWith({ data: result })
+      beforeAll(async () => {
+        dataDb = await global.MONGO_INSTANCE.db('dpdata')
+        appDb = await global.MONGO_INSTANCE.db('appDb')
+      })
+      beforeEach(async () => {
+        await dataDb.createCollection(collections.metadata)
+        await appDb.createCollection(collections.users)
       })
 
-      it('returns a status of 200 and a list of participants by priority and it appends star or complete property', async () => {
-        const request = createRequestWithUser()
-        const response = createResponse()
+      afterEach(async () => {
+        await appDb.collection(collections.users).drop()
+        await dataDb.collection(collections.metadata).drop()
+      })
+      afterAll(async () => {
+        await dataDb.dropDatabase()
+        await appDb.dropDatabase()
+      })
+
+      it('returns a status of 200 and a list of participants that are sorted by users favorites then participant in ascending order ', async () => {
         const user = createUser({
           uid: 'owl',
           name: 'Eaurasian Eagle Owl',
           access: ['CA', 'YA'],
           preferences: {
-            star: ['YA00037', 'YA0015'],
-            complete: ['CA00063'],
+            star: { YA: ['YA00037', 'YA0015'] },
+            complete: { CA: ['CA00063'] },
           },
         })
+
+        await appDb.collection(collections.users).insertOne(user)
+        await dataDb.collection(collections.metadata).insertMany([
+          {
+            study: 'CA',
+            subjects: [
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'CA00063',
+                synced: '07/28/2022',
+                study: 'CA',
+              }),
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'CA00064',
+                synced: '06/24/2022',
+                study: 'CA',
+              }),
+            ],
+          },
+          {
+            study: 'YA',
+            subjects: [
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'YA00037',
+                synced: '07/28/2022',
+                study: 'YA',
+              }),
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'YA29023',
+                synced: '07/28/2022',
+                study: 'YA',
+              }),
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'YA00015',
+                synced: '07/28/2022',
+                study: 'YA',
+              }),
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'YA01508',
+                synced: '07/28/2022',
+                study: 'YA',
+              }),
+            ],
+          },
+        ])
+        const request = createRequestWithUser(
+          {
+            app: { locals: { dataDb: dataDb, appDb: appDb } },
+          },
+          user
+        )
+        const response = createResponse()
+
         const result = [
           createMetadataParticipant({
-            subject: 'YA00015',
-            synced: '07/28/2022',
-            days: 1,
-            study: 'YA',
-            lastSyncedColor: '#de1d16',
-            star: true,
-          }),
-          createMetadataParticipant({
+            Consent: '2022-06-09',
             subject: 'YA00037',
             synced: '07/28/2022',
-            days: 1,
             study: 'YA',
-            lastSyncedColor: '#de1d16',
+            complete: false,
+            daysInStudy: 49,
             star: true,
           }),
           createMetadataParticipant({
+            Consent: '2022-06-09',
             subject: 'CA00063',
             synced: '07/28/2022',
-            days: 1,
             study: 'CA',
-            lastSyncedColor: '#de1d16',
+            daysInStudy: 49,
+            star: false,
+            Consent: '2022-06-09',
             complete: true,
+            daysInStudy: 49,
           }),
           createMetadataParticipant({
+            Consent: '2022-06-09',
             subject: 'CA00064',
             synced: '06/24/2022',
-            days: 1,
             study: 'CA',
-            lastSyncedColor: '#de1d16',
+            complete: false,
+            daysInStudy: 15,
+            star: false,
           }),
-
           createMetadataParticipant({
-            subject: 'YA29023',
+            Consent: '2022-06-09',
+            subject: 'YA00015',
             synced: '07/28/2022',
-            days: 1,
             study: 'YA',
-            lastSyncedColor: '#de1d16',
+            complete: false,
+            daysInStudy: 49,
+            star: false,
           }),
-
           createMetadataParticipant({
+            Consent: '2022-06-09',
             subject: 'YA01508',
             synced: '07/28/2022',
-            days: 1,
             study: 'YA',
-            lastSyncedColor: '#de1d16',
+            complete: false,
+            daysInStudy: 49,
+            star: false,
+          }),
+          createMetadataParticipant({
+            Consent: '2022-06-09',
+            subject: 'YA29023',
+            synced: '07/28/2022',
+            study: 'YA',
+            complete: false,
+            daysInStudy: 49,
+            star: false,
           }),
         ]
-
-        request.app.locals.appDb.findOne.mockResolvedValue(user)
-        request.app.locals.dataDb.aggregate.mockImplementationOnce(() => ({
-          toArray: () => result,
-        }))
 
         await ParticipantsController.index(request, response)
 
@@ -151,42 +165,87 @@ describe('ParticipantsController', () => {
       })
 
       it('returns a status of 200 and a list of participants by search query', async () => {
-        const request = createRequestWithUser({
-          query: {
-            searchResults: ['YA29023'],
-          },
-        })
-        const response = createResponse()
         const user = createUser({
           uid: 'owl',
           name: 'Eaurasian Eagle Owl',
           access: ['CA', 'YA'],
           preferences: {
-            star: ['YA00037', 'YA0015'],
-            complete: ['CA00063'],
+            star: { YA: ['YA00037', 'YA0015'] },
+            complete: { CA: ['CA00063'] },
           },
         })
-        const result = [
-          createMetadataParticipant({
-            subject: 'YA29023',
-            synced: '07/28/2022',
-            days: 1,
-            study: 'YA',
-            lastSyncedColor: '#de1d16',
-          }),
-        ]
+        const result = createMetadataParticipant({
+          Consent: '2022-06-09',
+          subject: 'YA29023',
+          synced: '07/28/2022',
+          study: 'YA',
+        })
 
-        request.app.locals.appDb.findOne.mockResolvedValue(user)
-        request.app.locals.dataDb.aggregate.mockImplementationOnce(() => ({
-          toArray: () => result,
-        }))
+        await appDb.collection(collections.users).insertOne(user)
+        await dataDb.collection(collections.metadata).insertMany([
+          {
+            study: 'CA',
+            subjects: [
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'CA00063',
+                synced: '07/28/2022',
+                study: 'CA',
+              }),
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'CA00064',
+                synced: '06/24/2022',
+                study: 'CA',
+              }),
+            ],
+          },
+          {
+            study: 'YA',
+            subjects: [
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'YA00037',
+                synced: '07/28/2022',
+                study: 'YA',
+              }),
+
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'YA00015',
+                synced: '07/28/2022',
+                study: 'YA',
+              }),
+              createMetadataParticipant({
+                Consent: '2022-06-09',
+                subject: 'YA01508',
+                synced: '07/28/2022',
+                study: 'YA',
+              }),
+              result,
+            ],
+          },
+        ])
+        const request = createRequestWithUser(
+          {
+            app: { locals: { dataDb: dataDb, appDb: appDb } },
+            query: {
+              searchSubjects: ['YA29023'],
+            },
+          },
+          user
+        )
+        const response = createResponse()
 
         await ParticipantsController.index(request, response)
 
         expect(response.status).toHaveBeenCalledWith(200)
-        expect(response.json).toHaveBeenCalledWith({ data: result })
+        expect(response.json).toHaveBeenCalledWith({
+          data: [{ ...result, complete: false, daysInStudy: 49, star: false }],
+        })
       })
     })
+
     describe('When unsuccessful', () => {
       it('returns a status of 400 and an error message', async () => {
         const request = createRequestWithUser()

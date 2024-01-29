@@ -234,11 +234,11 @@ export const createAssessmentsFromConfig = (overrides = {}) => ({
 })
 
 export const createMetadataParticipant = (overrides = {}) => ({
+  Active: 1,
+  Consent: '',
   subject: '',
   synced: '',
-  days: 1,
   study: '',
-  lastSyncedColor: '',
   ...overrides,
 })
 

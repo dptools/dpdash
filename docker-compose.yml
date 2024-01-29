@@ -18,7 +18,7 @@ services:
       - default
       - app-tier
   mongodb:
-    image: mongo:4.4
+    image: mongo:5
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ADMIN_USER}

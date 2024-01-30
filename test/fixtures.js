@@ -58,6 +58,7 @@ export const createDb = (overrides = {}) => ({
   }),
   distinct: jest.fn(),
   deleteOne: jest.fn(),
+  drop: jest.fn(),
   insertOne: jest.fn(),
   insertMany: jest.fn(),
   find: jest.fn(function () {

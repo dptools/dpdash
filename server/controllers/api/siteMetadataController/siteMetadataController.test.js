@@ -241,4 +241,49 @@ describe('siteMetadataController', () => {
       })
     })
   })
+  describe(SiteMetadataController.destroy, () => {
+    describe('When successful', () => {
+      let dataDb
+
+      beforeAll(() => {
+        dataDb = global.MONGO_INSTANCE.db('dpdata')
+      })
+      beforeEach(async () => {
+        await dataDb.createCollection('metadata')
+      })
+      afterAll(async () => {
+        await dataDb.dropDatabase()
+      })
+
+      it('removes the metadata collection', async () => {
+        const request = createRequest()
+        const response = createResponse()
+
+        await SiteMetadataController.destroy(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(200)
+        expect(response.json).toHaveBeenCalledWith({
+          data: 'Metadata collection restarted',
+        })
+      })
+    })
+    describe('When unsuccessful', () => {
+      it('returns a status of 200 and an error', async () => {
+        const request = createRequest()
+        const response = createResponse()
+
+        request.app.locals.dataDb.collection.mockImplementation(() => {
+          return {
+            drop: jest.fn().mockRejectedValueOnce(new Error('some error')),
+          }
+        })
+        await SiteMetadataController.destroy(request, response)
+
+        expect(response.status).toHaveBeenCalledWith(400)
+        expect(response.json).toHaveBeenCalledWith({
+          message: 'some error',
+        })
+      })
+    })
+  })
 })

@@ -8,5 +8,6 @@ const router = Router()
 router
   .route(v1Routes.siteMetadata.index)
   .post(ensureApiAuthenticated, SiteMetadataController.create)
+  .delete(ensureApiAuthenticated, SiteMetadataController.destroy)
 
 export default router

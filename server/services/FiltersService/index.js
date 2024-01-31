@@ -39,7 +39,7 @@ export const DEFAULT_FILTERS = {
     { name: 'Female', value: TRUE_STRING },
     { name: 'Missing', value: TRUE_STRING },
   ],
-  sites: [],
+  sites: {},
 }
 
 class FiltersService {
@@ -56,14 +56,10 @@ class FiltersService {
     )
   }
 
-  get sites() {
-    return this.filters.sites
-  }
-
   get filters() {
+    const filtersSites = Object.values(this._filters.sites)
     const unsanitizedSites =
-      this._filters.sites.length > 0 ? this._filters.sites : this.allSites
-
+      filtersSites.length > 0 ? filtersSites : this.allSites
     return {
       ...this._filters,
       sites: StudiesModel.sanitizeAndSort(unsanitizedSites),
@@ -116,6 +112,7 @@ class FiltersService {
             isSexAtBirthFilterActive: !!sexAtBirthFilters.length,
             isInclusionCriteriaFilterActive:
               !!chrCritFilters.length || !!includedExcludedFilters.length,
+            sites: filters.sites,
           }),
         },
       ],
@@ -129,15 +126,15 @@ class FiltersService {
   _buildFacetForFilters = ({
     isSexAtBirthFilterActive,
     isInclusionCriteriaFilterActive,
+    sites,
   }) => {
     const facetForFilters = {}
-
     if (isSexAtBirthFilterActive) {
       facetForFilters.socioDemographics = [
         {
           $match: {
             assessment: SOCIODEMOGRAPHICS_FORM,
-            study: { $in: this.sites },
+            study: { $in: sites },
           },
         },
         {
@@ -157,7 +154,7 @@ class FiltersService {
         {
           $match: {
             assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
-            study: { $in: this.sites },
+            study: { $in: sites },
           },
         },
         {

@@ -18,7 +18,9 @@ export const routes = {
   viewChartPage: '/charts/:chart_id',
   viewChart: (chartId, queryParams) =>
     queryParams
-      ? `/charts/${chartId}?${qs.stringify(queryParams)}`
+      ? `/charts/${chartId}${qs.stringify(queryParams, {
+          addQueryPrefix: true,
+        })}`
       : `/charts/${chartId}`,
   admin: '/admin',
   register: '/register',

@@ -19,7 +19,11 @@ const ViewChartPage = () => {
   const onSubmit = async (formValues) => {
     const filters = {
       ...formValues,
-      sites: formValues.sites.map((option) => option.value),
+      sites: formValues.sites.reduce((siteFilters, option) => {
+        siteFilters[option.label] = option.value
+
+        return siteFilters
+      }, {}),
     }
     const newRoute = routes.viewChart(chart_id, { filters })
 
@@ -27,6 +31,7 @@ const ViewChartPage = () => {
   }
   const fetchGraph = async (chart_id, filters) =>
     await api.charts.chartsData.show(chart_id, { filters })
+
   const fetchGraphTableCSV = async (chart_id, filters, filename) => {
     const res = await fetch(apiRoutes.chartCsv.show(chart_id, { filters }), {
       headers: {

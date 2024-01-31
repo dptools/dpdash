@@ -56,7 +56,7 @@ const SubjectModel = {
         .find(
           {
             assessment,
-            study: { $in: filtersService.sites, $nin: STUDIES_TO_OMIT },
+            study: { $in: filtersService.filters.sites, $nin: STUDIES_TO_OMIT },
           },
           { projection: ALL_SUBJECTS_MONGO_PROJECTION }
         )

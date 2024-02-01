@@ -93,7 +93,7 @@ export class DpdashCdkStack extends cdk.Stack {
       cpu:  process.env.DEV_MONGO_CPU ? Number(process.env.DEV_MONGO_CPU) : 1024,
     });
 
-    const fileSystem = new efs.FileSystem(this, `${APP_NAME}DevEfsFileSystem`, { 
+    const fileSystem = new efs.FileSystem(this, `${APP_NAME}DevEfsFileSystem`, {
       vpc,
       securityGroup: efsSecurityGroup,
       encrypted: true,
@@ -113,7 +113,7 @@ export class DpdashCdkStack extends cdk.Stack {
         fileSystemId: fileSystem.fileSystemId,
         authorizationConfig: {
           accessPointId: accessPoint.accessPointId,
-          iam: "ENABLED", 
+          iam: "ENABLED",
         },
         transitEncryption: "ENABLED",
       },
@@ -132,17 +132,17 @@ export class DpdashCdkStack extends cdk.Stack {
         ],
       })
     );
-    
+
     mongoTaskDefinition.addToTaskRolePolicy(
       new iam.PolicyStatement({
         actions: ['ec2:DescribeAvailabilityZones'],
         resources: ['*'],
       })
     );
-    
+
     const mongoContainer = mongoTaskDefinition.addContainer(`${APP_NAME}DevMongoContainer`, {
       image: ecs.ContainerImage.fromEcrRepository(mongoRepository, "5.0.21"),
-      portMappings: [{ containerPort: 27017 }],        
+      portMappings: [{ containerPort: 27017 }],
       logging: ecs.LogDrivers.awsLogs({ streamPrefix: `${APP_NAME}DevMongoContainer` }),
       secrets: {
         MONGO_INITDB_ROOT_USERNAME: secrets.mongoDbUserDev,
@@ -182,7 +182,7 @@ export class DpdashCdkStack extends cdk.Stack {
     const mongoDevServiceTarget = mongoDevFargateService.loadBalancerTarget({
       containerName: `${APP_NAME}DevMongoContainer`,
       containerPort: 27017,
-    });      
+    });
 
     mongoNlbListener.addTargets(`${APP_NAME}DevMongoListenerTarget`, {
       port: 27017,
@@ -194,7 +194,7 @@ export class DpdashCdkStack extends cdk.Stack {
     const mongoDevServiceLbSg = new ec2.SecurityGroup(this, "NLBSecurityGroup", { vpc });
 
     const cfnlb = mongoNetworkLoadBalancer.node.defaultChild as elbv2.CfnLoadBalancer;
-    
+
     cfnlb.addPropertyOverride("SecurityGroups", [mongoDevServiceLbSg.securityGroupId]);
 
     efsSecurityGroup.addIngressRule(
@@ -234,7 +234,7 @@ export class DpdashCdkStack extends cdk.Stack {
         MONGODB_HOST: mongoNetworkLoadBalancer.loadBalancerDnsName,
         ADMIN_EMAIL: process.env.ADMIN_EMAIL,
         EMAIL_SENDER: process.env.EMAIL_SENDER,
-        HOME_URL: `https://staging.${process.env.BASE_DOMAIN}`,
+        HOME_URL: `https://staging.${process.env.BASE_DOMAIN}/admin`,
       },
       secrets: {
         MONGODB_USER: secrets.mongoDbUserDev,
@@ -245,7 +245,7 @@ export class DpdashCdkStack extends cdk.Stack {
       },
       logging: ecs.LogDrivers.awsLogs({ streamPrefix: `${APP_NAME}DevAppContainer` }),
     });
-    
+
     const dpDashDevService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, `${APP_NAME}DevAppService`, {
       serviceName: 'dpDashDevService',
       loadBalancerName: 'dpDashDevLoadBalancer',

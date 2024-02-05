@@ -46,7 +46,7 @@ const ChartForm = ({ onSubmit, user, initialValues }) => {
       <BarChartFields
         control={control}
         fields={fields}
-        onRemoveField={removeField}
+        onRemove={removeField}
         onAddNewFields={addNewField}
         fieldsValue={watch('fieldLabelValueMap')}
       />

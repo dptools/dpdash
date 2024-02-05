@@ -7,12 +7,12 @@ import TextInput from '../TextInput'
 
 const schema = yup.object({
   username: yup.string().required(),
-  password: yup.string().required().min(8),
+  password: yup.string().min(8).required(),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref('password'), null], 'passwords do not match'),
   fullName: yup.string().required(),
-  mail: yup.string().required().email(),
+  mail: yup.string().email().required(),
 })
 
 const RegistrationForm = ({ initialValues, onSubmit }) => {

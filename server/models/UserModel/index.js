@@ -74,7 +74,11 @@ const UserModel = {
   hasAdmin: async (db) => {
     const pseudoAdmins = await db
       .collection(collections.users)
-      .find({ uid: admin }, { projection: { _id: 1 } })
+      .aggregate([
+        { $match: { uid: { $in: [admin, null] } } },
+        { $sort: { uid: -1 } },
+        { $project: { _id: 1 } },
+      ])
       .toArray()
 
     if (pseudoAdmins.length > 1) {

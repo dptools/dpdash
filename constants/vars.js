@@ -25,9 +25,6 @@ export const SORT_DIRECTION = {
   DESC: 'DESC',
 }
 
-export const VALIDATION_EMAIL_REGEX = new RegExp(
-  /^[\w-\.]+@([\w-]+\.)+[\w-]{2,63}$/g
-)
 export const ADMIN_ROLE = 'admin'
 
 export const SAFE_URL_PATTERN =

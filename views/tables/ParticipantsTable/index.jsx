@@ -48,7 +48,7 @@ const ParticipantsTable = (props) => {
     {
       dataProperty: 'synced',
       label: 'Last synced',
-      sortable: false,
+      sortable: !!sortable,
     },
     {
       dataProperty: 'Active',

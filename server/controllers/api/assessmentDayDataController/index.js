@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import AssessmentDayDataModel from '../../../models/AssessmentDayDataModel'
 import deepEqual from 'deep-equal'
 import ToCModel from '../../../models/ToC'
@@ -75,7 +74,7 @@ const AssessmentDayDataController = {
                         study,
                         subject,
                         Active: 1,
-                        synced: dayjs().toISOString(),
+                        synced: new Date(),
                       },
                     ],
                   },
@@ -85,7 +84,7 @@ const AssessmentDayDataController = {
               await SiteMetadataModel.upsert(
                 dataDb,
                 { subjects: { $elemMatch: { subject } } },
-                { $set: { 'subjects.$.synced': dayjs().toISOString() } }
+                { $set: { 'subjects.$.synced': new Date() } }
               )
             }
           })

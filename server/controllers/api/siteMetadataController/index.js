@@ -7,6 +7,11 @@ const SiteMetadataController = {
       const { dataDb } = req.app.locals
       const { metadata, participants } = req.body
       const { study } = metadata
+
+      participants.forEach((participant, i) => {
+        participants[i].Consent = new Date(participant.Consent)
+      })
+
       const studyMetadata = await SiteMetadataModel.findOne(dataDb, { study })
       if (!studyMetadata) {
         await SiteMetadataModel.upsert(

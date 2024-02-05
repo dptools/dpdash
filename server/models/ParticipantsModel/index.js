@@ -2,14 +2,11 @@ import { collections } from '../../utils/mongoCollections'
 import { ASC } from '../../constants'
 
 const $Consent = '$Consent'
-const $consentDate = '$consentDate'
-const mongoDateNow = '$$NOW'
 const participant = 'participant'
 const $subject = '$subject'
 const $subjects = '$subjects'
 const $synced = '$synced'
-const $syncedDate = '$syncedDate'
-const $today = '$today'
+const timeUnit = 'day'
 
 const ParticipantsModel = {
   index: async (db, user, queryParams) =>
@@ -63,35 +60,27 @@ const allParticipantsQuery = (user, queryParams) => {
         study: 1,
         subject: 1,
         synced: 1,
-        syncedDate: { $dateFromString: { dateString: $synced } },
-        consentDate: { $dateFromString: { dateString: $Consent } },
-        today: mongoDateNow,
-      },
-    },
-    {
-      $addFields: {
         daysInStudy: {
           $cond: {
-            if: { $ne: [$syncedDate, null] },
+            if: { $ne: [$synced, null] },
             then: {
               $dateDiff: {
-                startDate: $consentDate,
-                endDate: $syncedDate,
-                unit: 'day',
+                startDate: { $toDate: $Consent },
+                endDate: { $toDate: $synced },
+                unit: timeUnit,
               },
             },
             else: {
               $dateDiff: {
-                startDate: $consentDate,
-                endDate: $today,
-                unit: 'day',
+                startDate: { $toDate: $Consent },
+                endDate: new Date(),
+                unit: timeUnit,
               },
             },
           },
         },
       },
     },
-    { $unset: ['consentDate', 'syncedDate', 'today'] },
   ]
 
   if (searchSubjects?.length) {
@@ -141,6 +130,7 @@ const allParticipantsQuery = (user, queryParams) => {
     })
   }
   query.push(sort)
+
   return query
 }
 

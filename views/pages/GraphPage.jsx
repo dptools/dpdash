@@ -166,21 +166,11 @@ const GraphPage = () => {
       // png conversion
       let img = new Image()
       let ctx = kanvas.getContext('2d')
+      img.src = svgUrl
 
       img.onload = () => {
-        ctx.drawImage(
-          img,
-          0,
-          0,
-          kanvas.width,
-          kanvas.height,
-          0,
-          0,
-          kanvas.width,
-          kanvas.height
-        )
+        ctx.drawImage(img, 0, 0)
       }
-      img.src = svgUrl
     }
   }, [graphRendered])
 
@@ -213,20 +203,18 @@ const GraphPage = () => {
           View Table
         </Button>
       </Box>
+      <div className="Matrix">
+        <div className="graph" ref={el} />
+      </div>
       <div>
-        <div className="Matrix">
-          <div className="graph" ref={el} />
-        </div>
-        <div>
-          <Button
-            variant="fab"
-            onClick={downloadPng}
-            id="downloadPng"
-            focusRipple={true}
-          >
-            <Save />
-          </Button>
-        </div>
+        <Button
+          variant="fab"
+          onClick={downloadPng}
+          id="downloadPng"
+          focusRipple={true}
+        >
+          <Save />
+        </Button>
       </div>
       <Dialog modal={false} open={openStat} onClose={closeStat}>
         <DialogContent>

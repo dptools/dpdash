@@ -4,7 +4,7 @@ import { collections } from '../../../utils/mongoCollections'
 const SiteMetadataController = {
   create: async (req, res) => {
     try {
-      const { dataDb } = req.app.locals
+      const { appDb } = req.app.locals
       const { metadata, participants } = req.body
       const { study } = metadata
 
@@ -12,38 +12,46 @@ const SiteMetadataController = {
         participants[i].Consent = new Date(participant.Consent)
       })
 
-      const studyMetadata = await SiteMetadataModel.findOne(dataDb, { study })
+      const studyMetadata = await SiteMetadataModel.findOne(appDb, { study })
       if (!studyMetadata) {
         await SiteMetadataModel.upsert(
-          dataDb,
+          appDb,
           { study },
-          { $set: { ...metadata, subjects: participants } }
+          { $set: { ...metadata, participants } }
         )
       } else {
         Promise.all(
           participants.map(async (participant) => {
             const isParticipantInSiteMetadata = await SiteMetadataModel.findOne(
-              dataDb,
-              { subjects: { $elemMatch: { subject: participant.subject } } }
+              appDb,
+              {
+                participants: {
+                  $elemMatch: { participant: participant.participant },
+                },
+              }
             )
             if (!isParticipantInSiteMetadata) {
               await SiteMetadataModel.upsert(
-                dataDb,
+                appDb,
                 { study },
-                { $addToSet: { subjects: participant } }
+                { $addToSet: { participants: participant } }
               )
             } else {
               const updatedAttributes = Object.keys(participant).reduce(
                 (attributes, key) => {
-                  attributes[`subjects.$.${key}`] = participant[key]
+                  attributes[`participants.$.${key}`] = participant[key]
 
                   return attributes
                 },
                 {}
               )
               await SiteMetadataModel.upsert(
-                dataDb,
-                { subjects: { $elemMatch: { subject: participant.subject } } },
+                appDb,
+                {
+                  participants: {
+                    $elemMatch: { participant: participant.participant },
+                  },
+                },
                 { $set: updatedAttributes }
               )
             }
@@ -58,9 +66,9 @@ const SiteMetadataController = {
   },
   destroy: async (req, res) => {
     try {
-      const { dataDb } = req.app.locals
+      const { appDb } = req.app.locals
 
-      await dataDb.collection(collections.metadata).drop()
+      await appDb.collection(collections.metadata).drop()
 
       return res.status(200).json({ data: 'Metadata collection restarted' })
     } catch (error) {

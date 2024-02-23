@@ -31,9 +31,8 @@ const ConfigurationsController = {
       const { appDb } = req.app.locals
       const { config_id } = req.params
       const currentConfig = await ConfigModel.findOne(appDb, {
-        _id: ObjectId(config_id),
+        _id: new ObjectId(config_id),
       })
-
       return res.status(200).json({ data: currentConfig })
     } catch (error) {
       return res.status(400).json({ error: error.message })

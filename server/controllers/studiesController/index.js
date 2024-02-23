@@ -3,8 +3,8 @@ import StudiesModel from '../../models/StudiesModel'
 const StudiesController = {
   index: async (req, res) => {
     try {
-      const { dataDb } = req.app.locals
-      const studies = await StudiesModel.all(dataDb)
+      const { appDb } = req.app.locals
+      const studies = await StudiesModel.all(appDb)
 
       return res.status(200).json({ data: studies })
     } catch (error) {

@@ -4,4 +4,5 @@ export const collections = {
   metadata: 'metadata',
   toc: 'toc',
   users: 'users',
+  assessmentDayData: 'assessmentDayData',
 }

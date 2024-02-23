@@ -39,9 +39,6 @@ export const v1Routes = {
     index: `${userRoot}/configs`,
     show: `${userRoot}/configs/:config_id`,
   },
-  counts: {
-    index: `${v1Root}/counts`,
-  },
   admin: {
     users: {
       show: `${v1Root}/admin/users/:uid`,

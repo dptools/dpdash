@@ -10,24 +10,21 @@ import { collections } from '../../utils/mongoCollections'
 describe('ParticipantsController', () => {
   describe(ParticipantsController.index, () => {
     describe('When successful', () => {
-      let dataDb
       let appDb
 
       beforeAll(async () => {
-        dataDb = await global.MONGO_INSTANCE.db('dpdata')
-        appDb = await global.MONGO_INSTANCE.db('appDb')
+        appDb = await global.MONGO_INSTANCE.db('participants')
       })
       beforeEach(async () => {
-        await dataDb.createCollection(collections.metadata)
+        await appDb.createCollection(collections.metadata)
         await appDb.createCollection(collections.users)
       })
 
       afterEach(async () => {
         await appDb.collection(collections.users).drop()
-        await dataDb.collection(collections.metadata).drop()
+        await appDb.collection(collections.metadata).drop()
       })
       afterAll(async () => {
-        await dataDb.dropDatabase()
         await appDb.dropDatabase()
       })
 
@@ -43,19 +40,19 @@ describe('ParticipantsController', () => {
         })
 
         await appDb.collection(collections.users).insertOne(user)
-        await dataDb.collection(collections.metadata).insertMany([
+        await appDb.collection(collections.metadata).insertMany([
           {
             study: 'CA',
-            subjects: [
+            participants: [
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'CA00063',
+                participant: 'CA00063',
                 synced: new Date('07/28/2022'),
                 study: 'CA',
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'CA00064',
+                participant: 'CA00064',
                 synced: new Date('2022-06-24'),
                 study: 'CA',
               }),
@@ -63,28 +60,28 @@ describe('ParticipantsController', () => {
           },
           {
             study: 'YA',
-            subjects: [
+            participants: [
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'YA00037',
+                participant: 'YA00037',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'YA29023',
+                participant: 'YA29023',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'YA00015',
+                participant: 'YA00015',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'YA01508',
+                participant: 'YA01508',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
               }),
@@ -93,7 +90,7 @@ describe('ParticipantsController', () => {
         ])
         const request = createRequestWithUser(
           {
-            app: { locals: { dataDb: dataDb, appDb: appDb } },
+            app: { locals: { appDb } },
           },
           user
         )
@@ -102,7 +99,7 @@ describe('ParticipantsController', () => {
         const result = [
           createMetadataParticipant({
             Consent: new Date('2022-06-09'),
-            subject: 'YA00037',
+            participant: 'YA00037',
             synced: new Date('07/28/2022'),
             study: 'YA',
             complete: false,
@@ -111,7 +108,7 @@ describe('ParticipantsController', () => {
           }),
           createMetadataParticipant({
             Consent: new Date('2022-06-09'),
-            subject: 'CA00063',
+            participant: 'CA00063',
             synced: new Date('07/28/2022'),
             study: 'CA',
             daysInStudy: 49,
@@ -122,7 +119,7 @@ describe('ParticipantsController', () => {
           }),
           createMetadataParticipant({
             Consent: new Date('2022-06-09'),
-            subject: 'CA00064',
+            participant: 'CA00064',
             synced: new Date('2022-06-24'),
             study: 'CA',
             complete: false,
@@ -131,7 +128,7 @@ describe('ParticipantsController', () => {
           }),
           createMetadataParticipant({
             Consent: new Date('2022-06-09'),
-            subject: 'YA00015',
+            participant: 'YA00015',
             synced: new Date('07/28/2022'),
             study: 'YA',
             complete: false,
@@ -140,7 +137,7 @@ describe('ParticipantsController', () => {
           }),
           createMetadataParticipant({
             Consent: new Date('2022-06-09'),
-            subject: 'YA01508',
+            participant: 'YA01508',
             synced: new Date('07/28/2022'),
             study: 'YA',
             complete: false,
@@ -149,7 +146,7 @@ describe('ParticipantsController', () => {
           }),
           createMetadataParticipant({
             Consent: new Date('2022-06-09'),
-            subject: 'YA29023',
+            participant: 'YA29023',
             synced: new Date('07/28/2022'),
             study: 'YA',
             complete: false,
@@ -176,25 +173,25 @@ describe('ParticipantsController', () => {
         })
         const result = createMetadataParticipant({
           Consent: new Date('2022-06-09'),
-          subject: 'YA29023',
+          participant: 'YA29023',
           synced: new Date('07/28/2022'),
           study: 'YA',
         })
 
         await appDb.collection(collections.users).insertOne(user)
-        await dataDb.collection(collections.metadata).insertMany([
+        await appDb.collection(collections.metadata).insertMany([
           {
             study: 'CA',
-            subjects: [
+            participants: [
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'CA00063',
+                participant: 'CA00063',
                 synced: new Date('07/28/2022'),
                 study: 'CA',
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'CA00064',
+                participant: 'CA00064',
                 synced: new Date('2022-06-24'),
                 study: 'CA',
               }),
@@ -202,23 +199,23 @@ describe('ParticipantsController', () => {
           },
           {
             study: 'YA',
-            subjects: [
+            participants: [
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'YA00037',
+                participant: 'YA00037',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
               }),
 
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'YA00015',
+                participant: 'YA00015',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
-                subject: 'YA01508',
+                participant: 'YA01508',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
               }),
@@ -228,9 +225,9 @@ describe('ParticipantsController', () => {
         ])
         const request = createRequestWithUser(
           {
-            app: { locals: { dataDb: dataDb, appDb: appDb } },
+            app: { locals: { appDb } },
             query: {
-              searchSubjects: ['YA29023'],
+              searchParticipants: ['YA29023'],
             },
           },
           user

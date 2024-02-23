@@ -12,10 +12,10 @@ export const TOTAL_LABEL = 'Total'
 export const SITE = 'Site'
 
 export const ALL_SUBJECTS_MONGO_PROJECTION = {
-  collection: 1,
   study: 1,
   _id: 0,
-  subject: 1,
+  participant: 1,
+  dayData: 1,
 }
 
 export const PASSPORT_FIELDS_ATTRIBUTES = {
@@ -24,7 +24,7 @@ export const PASSPORT_FIELDS_ATTRIBUTES = {
 }
 
 export const DEFAULT_PARTICIPANTS_SORT = {
-  sortBy: 'subject',
+  sortBy: 'participant',
   sortDirection: ASC,
 }
 

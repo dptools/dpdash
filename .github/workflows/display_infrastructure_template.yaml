@@ -21,4 +21,13 @@ jobs:
     - name: Install dependencies
       run: npm ci --legacy-peer-deps
     - name: Synthesize Cloudformation
-      run: CDK_DEFAULT_ACCOUNT=${{ vars.CDK_DEFAULT_ACCOUNT }} CDK_DEFAULT_REGION=${{ vars.CDK_DEFAULT_REGION }} EMAIL_SENDER=${{ vars.EMAIL_SENDER }} ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }} BASE_DOMAIN=${{ vars.BASE_DOMAIN }} npx cdk synth
+      env:
+        CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
+        CDK_DEFAULT_REGION: ${{ vars.CDK_DEFAULT_REGION }}
+        EMAIL_SENDER: ${{ vars.EMAIL_SENDER }}
+        ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+        BASE_DOMAIN: ${{ vars.BASE_DOMAIN }}
+        APP_MEMORY: ${{ vars.APP_MEMORY || '2048' }}
+        APP_CPU: ${{ vars.APP_CPU || '1024' }}
+        DPDASH_INFRA_STAGING: "1"
+      run: npx cdk synth

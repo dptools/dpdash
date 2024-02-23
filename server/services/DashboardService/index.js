@@ -1,78 +1,74 @@
-import { createHash } from 'crypto'
-import CollectionsModel from '../../models/CollectionsModel'
-import MetadataModel from '../../models/MetadataModel'
+import { collections } from '../../utils/mongoCollections'
+import SiteMetadataModel from '../../models/SiteMetadataModel'
 import DashboardDataProcessor from '../../data_processors/DashboardDataProcessor'
 
 class DashboardService {
-  #consentDateKey = 'Consent Date'
-  #consentKey = 'Consent'
-  #hex = 'hex'
-  #role = 'metadata'
-  #salt = 'sha256'
-  #subjectKey = 'Subject ID'
-
-  constructor(dataDb, study, subject, configuration) {
+  constructor(appDb, study, participant, configuration) {
     this.configuration = configuration
-    this.consentDate = ''
-    this.db = dataDb
+    this.db = appDb
     this.study = study
-    this.subject = subject
+    this.participant = participant
   }
 
-  #assessmentsFromConfig = () => {
+  get assessmentsFromConfig() {
     const assessments = new Map()
 
     this.configuration.forEach((configuration) => {
-      const collectionName = this.study + this.subject + configuration.analysis
-      const assessmentData = {
-        assessment: configuration.analysis,
-        collection: createHash(this.#salt)
-          .update(collectionName)
-          .digest(this.#hex),
-      }
-      if (!assessments.has(collectionName))
-        assessments.set(collectionName, assessmentData)
+      const key = this.study + this.participant + configuration.analysis
+
+      if (!assessments.has(key)) assessments.set(key, configuration.analysis)
     })
 
     return [...assessments.values()]
   }
-  #setConsentDate = async () => {
-    const metadocAttributes = {
+
+  consentDate = async () => {
+    const query = {
       study: this.study,
-      role: this.#role,
     }
-    const metadata = await MetadataModel.findOne(this.db, metadocAttributes)
 
-    if (!!metadata) {
-      if (metadata.collection) {
-        const { collection } = metadata
-        const metadocuments = await CollectionsModel.all(this.db, collection)
+    const studyMetadata = await SiteMetadataModel.findOne(this.db, query)
 
-        metadocuments.forEach((document) => {
-          if (
-            document[this.#subjectKey] === this.subject &&
-            (document[this.#consentKey] || document[this.#consentDateKey])
-          ) {
-            this.consentDate =
-              document[this.#consentKey] || document[this.#consentDateKey]
-          }
-        })
-      }
-    }
+    return studyMetadata.participants.filter(
+      ({ participant }) => participant === this.participant
+    )[0].Consent
   }
 
-  createDashboard = async () => {
-    await this.#setConsentDate()
+  dashboardDataCursor = async () =>
+    await this.db
+      .collection(collections.assessmentDayData)
+      .find(
+        {
+          participant: this.participant,
+          study: this.study,
+          assessment: { $in: this.assessmentsFromConfig },
+        },
+        { projection: { dayData: 1, assessment: 1 } }
+      )
+      .stream()
 
-    const assessmentsFromConfig = this.#assessmentsFromConfig()
-    const dashboardDataProcessor = new DashboardDataProcessor(
-      assessmentsFromConfig,
+  createMatrix = async () => {
+    const dataStream = await this.dashboardDataCursor()
+    const participantDataMap = new Map()
+
+    dataStream.on('data', (doc) => {
+      const dayData = doc?.dayData.length ? doc.dayData : []
+
+      participantDataMap.set(doc.assessment, dayData)
+    })
+
+    await new Promise((resolve, reject) => {
+      dataStream.on('end', () => resolve())
+
+      dataStream.on('error', (err) => reject(err))
+    })
+
+    const dashboardProcessor = new DashboardDataProcessor(
       this.configuration,
-      this.db
+      participantDataMap
     )
-    const { matrixData } = await dashboardDataProcessor.calculateDashboardData()
 
-    return { consentDate: this.consentDate, matrixData }
+    return dashboardProcessor.calculateDashboardData()
   }
 }
 

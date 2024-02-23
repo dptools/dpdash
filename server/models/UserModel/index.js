@@ -47,14 +47,14 @@ const UserModel = {
       projection: includeOrExcludeFields,
     })
   },
-  update: async (db, dataDb, uid, userUpdates) => {
+  update: async (db, uid, userUpdates) => {
     const user = await UserModel.findOne(db, { uid })
     const updatedUser = { preferences: {}, ...user, ...userUpdates }
 
     if (updatedUser.role === admin)
-      updatedUser.access = await StudiesModel.all(dataDb)
+      updatedUser.access = await StudiesModel.all(db)
 
-    const { value } = await db.collection(collections.users).findOneAndUpdate(
+    const value = await db.collection(collections.users).findOneAndUpdate(
       { uid },
       {
         $set: updatedUser,
@@ -66,7 +66,6 @@ const UserModel = {
         returnDocument: 'after',
       }
     )
-
     if (!value) throw new Error('Could not update user.')
 
     return value

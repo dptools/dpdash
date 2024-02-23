@@ -62,12 +62,12 @@ describe('UsersController', () => {
         const request = createRequestWithUser({ params, body })
         const response = createResponse()
 
-        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce({
-          value: createUser({
+        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce(
+          createUser({
             name: 'Eaurasian Eagle Owl',
             owner: 'owl',
-          }),
-        })
+          })
+        )
 
         await UsersController.edit(request, response)
 

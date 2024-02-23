@@ -4,7 +4,7 @@ import { STUDIES_TO_OMIT } from '../../constants'
 const study = 'study'
 
 const StudiesModel = {
-  all: async (db) => await db.collection(collections.toc).distinct(study),
+  all: async (db) => await db.collection(collections.metadata).distinct(study),
   sanitizeAndSort: (studies) => {
     return studies
       .filter((study) => !STUDIES_TO_OMIT.includes(study))

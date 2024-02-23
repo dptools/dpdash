@@ -19,7 +19,6 @@ import adminRouter from './routes/admin'
 import authRouter from './routes/auth'
 import chartsRouter from './routes/charts'
 import configurationsRouter from './routes/configurations'
-import countsRouter from './routes/counts'
 import dashboardsRouter from './routes/dashboards'
 import indexRouter from './routes/index'
 import participantsRouter from './routes/participants'
@@ -28,7 +27,6 @@ import usersRouter from './routes/users'
 import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
 import UserModel from './models/UserModel'
 import { verifyHash } from './utils/crypto/hash'
-import { isAccountExpired } from './utils/passport/helpers'
 
 const localStrategy = Strategy
 const isProduction = process.env.NODE_ENV === 'production'
@@ -74,7 +72,7 @@ logger.stream = {
     logger.info(message)
   },
 }
-app.use(morgan('combined', { stream: logger.stream }))
+app.use(morgan('tiny', { stream: logger.stream }))
 
 /** parsers setup */
 app.use(express.static('public'))
@@ -83,30 +81,17 @@ app.use(bodyParser.json({ limit: '500mb', extended: true }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
 /* database setup */
-let mongodb
 const mongoURI =
   process.env.MONGODB_URI ||
   `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/dpdmongo?authSource=admin`
-const mongodbPromise = MongoClient.connect(mongoURI, {
-  ssl: false,
-  useNewUrlParser: true,
-}).then(
-  async function (res) {
-    app.locals.connection = res
-    mongodb = res.db()
-    app.locals.appDb = res.db()
-    app.locals.dataDb = res.db('dpdata')
 
-    await UserModel.createFirstAdmin(app.locals.appDb)
+const client = new MongoClient(mongoURI, { monitorCommands: true })
 
-    return res
-  },
-  function (err) {
-    console.log('error connecting to mongodb')
-    console.log(err)
-  }
-)
+app.locals.appDb = client.db()
 
+client.on('connectionCreated', async () => {
+  await UserModel.createFirstAdmin(app.locals.appDb)
+})
 /** session store setup */
 app.set('trust proxy', 1)
 app.use(
@@ -117,8 +102,7 @@ app.use(
     proxy: true,
     cookie: cookieAttributes,
     store: MongoStore.create({
-      clientPromise: mongodbPromise,
-      autoRemove: 'native',
+      mongoUrl: mongoURI,
     }),
   })
 )
@@ -144,7 +128,6 @@ passport.use(
         account_expires: 1,
         uid: 1,
       })
-
       if (!user) return done(null, false)
 
       if (!verifyHash(password, user?.password)) return done(null, false)
@@ -156,20 +139,19 @@ passport.use(
   )
 )
 
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
+passport.serializeUser(function (user, done) {
+  done(null, user)
+})
 
-passport.deserializeUser(async function(user, done) {
-  done(null, user);
-});
+passport.deserializeUser(async function (user, done) {
+  done(null, user)
+})
 
 app.use('/', assessmentData)
 app.use('/', adminRouter)
 app.use('/', authRouter)
 app.use('/', chartsRouter)
 app.use('/', configurationsRouter)
-app.use('/', countsRouter)
 app.use('/', dashboardsRouter)
 app.use('/', indexRouter)
 app.use('/', participantsRouter)

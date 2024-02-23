@@ -29,31 +29,24 @@ const calculateStudySectionTargetValue = (
 }
 
 class BarChartDataProcessor {
-  constructor(db, chart, studyTotals) {
+  constructor(chart, studyTotals) {
     this.chart = chart
     this.studyTotals = studyTotals
-    this.db = db
     this.labelMap = new Map()
     this.dataMap = new Map()
   }
 
-  processData = async (subjects) => {
-    for await (const subject of subjects) {
-      const { study } = subject
-      const subjectDayData = await this.db
-        .collection(subject.collection)
-        .find({})
-        .toArray()
+  processDocument = (document) => {
+    this.chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
+      this._processFieldLabelValueMap(
+        fieldLabelValueMap,
+        document.study,
+        document.dayData
+      )
+    })
+  }
 
-      this.chart.fieldLabelValueMap.forEach((fieldLabelValueMap) => {
-        this._processFieldLabelValueMap(
-          fieldLabelValueMap,
-          study,
-          subjectDayData
-        )
-      })
-    }
-
+  processData = () => {
     this._postProcessData()
 
     if (this._isAnyTargetIncluded()) {
@@ -63,56 +56,62 @@ class BarChartDataProcessor {
     return this
   }
 
-  _processFieldLabelValueMap = (fieldLabelValueMap, study, subjectDayData) => {
+  _processFieldLabelValueMap = (
+    fieldLabelValueMap,
+    study,
+    participantDayData
+  ) => {
     const { color, label, value, targetValues } = fieldLabelValueMap
     const targetValue = targetValues[study]
     const siteName = SITE_NAMES[study] || study
     const dataKey = `${siteName}-${label}-${targetValue}`
     const totalsDataKey = `${TOTALS_STUDY}-${label}`
     const isVariableValueEmpty = value === EMPTY_VALUE
-    const shouldCountSubject = isVariableValueEmpty
-      ? subjectDayData.every((day) => day[this.chart.variable] === value)
-      : subjectDayData.some((dayData) => dayData[this.chart.variable] == value)
-    const subjectVariableDayCount =
-      isVariableValueEmpty && shouldCountSubject
+    const shouldCountParticipant = isVariableValueEmpty
+      ? participantDayData.every((day) => day[this.chart.variable] === value)
+      : participantDayData.some(
+          (dayData) => dayData[this.chart.variable] == value
+        )
+    const participantVariableDayCount =
+      isVariableValueEmpty && shouldCountParticipant
         ? 1
-        : this._calculateSubjectVariableDayCount(subjectDayData, value)
+        : this.#calculateParticipantVariableDayCount(participantDayData, value)
 
     this.labelMap.set(label, { name: label, color })
     this._processData({
-      shouldCountSubject,
+      shouldCountParticipant,
       dataKey,
       totalsDataKey,
-      variableCount: subjectVariableDayCount,
+      variableCount: participantVariableDayCount,
     })
     this._processTotals({
-      shouldCountSubject,
+      shouldCountParticipant,
       siteName,
       targetValue,
-      variableCount: subjectVariableDayCount,
+      variableCount: participantVariableDayCount,
     })
   }
 
-  _calculateSubjectVariableDayCount = (
-    subjectAssessmentDayData,
+  #calculateParticipantVariableDayCount = (
+    participantAssessmentDayData,
     chartValue
   ) => {
     const isChartVariableNaN = isNaN(chartValue)
     const variableValue = isChartVariableNaN ? chartValue : +chartValue
-    const subjectsDayDataAndVariable = subjectAssessmentDayData.filter(
+    const participantsDayDataAndVariable = participantAssessmentDayData.filter(
       (dayData) => dayData[this.chart.variable] === variableValue
     )
 
-    return subjectsDayDataAndVariable.length
+    return participantsDayDataAndVariable.length
   }
 
   _processData = ({
-    shouldCountSubject,
+    shouldCountParticipant,
     dataKey,
     totalsDataKey,
     variableCount,
   }) => {
-    if (shouldCountSubject) {
+    if (shouldCountParticipant) {
       const existingData = this.dataMap.get(dataKey)
       const existingTotalsData = this.dataMap.get(totalsDataKey)
 
@@ -133,12 +132,12 @@ class BarChartDataProcessor {
   }
 
   _processTotals = ({
-    shouldCountSubject,
+    shouldCountParticipant,
     siteName,
     targetValue,
     variableCount,
   }) => {
-    if (shouldCountSubject) {
+    if (shouldCountParticipant) {
       if (this.studyTotals[siteName]) {
         this.studyTotals[siteName].count += variableCount
       } else {

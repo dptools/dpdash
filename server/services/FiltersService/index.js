@@ -9,7 +9,7 @@ import StudiesModel from '../../models/StudiesModel'
 const FILTER_TO_MONGO_VALUE_MAP = {
   HC: 2,
   CHR: 1,
-  Missing: '',
+  Missing: null,
   Included: 1,
   Excluded: 0,
   Male: 1,
@@ -68,8 +68,7 @@ class FiltersService {
 
   barChartMongoQueries = () => {
     const filters = this.filters
-    const activeFilters = []
-    const includedCriteriaFacet = {}
+    const $facet = {}
     const chrCritFilters = filters.chrcrit_part
       .filter((f) => f.value === TRUE_STRING)
       .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
@@ -80,47 +79,86 @@ class FiltersService {
       .filter((f) => f.value === TRUE_STRING)
       .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
 
-    if (!!chrCritFilters.length) {
-      includedCriteriaFacet.chrcrit_part = [
+    const isIncOrExcOnly =
+      !chrCritFilters.length && includedExcludedFilters.length
+    const isCritOnly = chrCritFilters.length && !includedExcludedFilters.length
+    const isIncAndCrit = chrCritFilters.length && includedExcludedFilters.length
+
+    if (isIncAndCrit) {
+      $facet.formInclusion = [
         {
-          $match: { chrcrit_part: { $in: chrCritFilters } },
+          $match: {
+            assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+            $and: [
+              {
+                dayData: {
+                  $elemMatch: { chrcrit_part: { $in: chrCritFilters } },
+                },
+              },
+              {
+                dayData: {
+                  $elemMatch: {
+                    included_excluded: { $in: includedExcludedFilters },
+                  },
+                },
+              },
+            ],
+            study: { $in: this.filters.sites },
+          },
         },
       ]
-      activeFilters.push('chrcrit_part')
     }
+    if (isIncOrExcOnly || isCritOnly) {
+      const variable = chrCritFilters.length
+        ? 'chrcrit_part'
+        : 'included_excluded'
+      const values = chrCritFilters.length
+        ? chrCritFilters
+        : includedExcludedFilters
 
-    if (!!includedExcludedFilters.length) {
-      includedCriteriaFacet.included_excluded = [
+      $facet.formInclusion = [
         {
-          $match: { included_excluded: { $in: includedExcludedFilters } },
+          $match: {
+            assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+            study: {
+              $in: this.filters.sites,
+            },
+            dayData: {
+              $elemMatch: { [variable]: { $in: values } },
+            },
+          },
         },
       ]
-      activeFilters.push('included_excluded')
     }
-
-    if (!!sexAtBirthFilters.length) {
-      activeFilters.push('sex_at_birth')
-    }
-
-    return {
-      mongoAggregateQueryForIncludedCriteria: [
-        { $facet: includedCriteriaFacet },
-      ],
-      mongoAggregateQueryForFilters: [
+    if (sexAtBirthFilters.length) {
+      $facet.sexAtBirth = [
         {
-          $facet: this._buildFacetForFilters({
-            isSexAtBirthFilterActive: !!sexAtBirthFilters.length,
-            isInclusionCriteriaFilterActive:
-              !!chrCritFilters.length || !!includedExcludedFilters.length,
-            sites: filters.sites,
-          }),
+          $match: {
+            assessment: SOCIODEMOGRAPHICS_FORM,
+            dayData: {
+              $elemMatch: {
+                chrdemo_sexassigned: { $in: sexAtBirthFilters },
+              },
+            },
+          },
         },
-      ],
-      mongoQueryForSocioDemographics: {
-        chrdemo_sexassigned: { $in: sexAtBirthFilters },
-      },
-      activeFilters,
+      ]
     }
+    return Object.keys($facet).length > 1
+      ? [
+          { $facet },
+          {
+            $project: {
+              participants: {
+                $setIntersection: [
+                  '$formInclusion.participant',
+                  '$sexAtBirth.participant',
+                ],
+              },
+            },
+          },
+        ]
+      : $facet
   }
 
   _buildFacetForFilters = ({

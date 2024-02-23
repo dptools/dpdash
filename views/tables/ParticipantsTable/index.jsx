@@ -31,7 +31,7 @@ const ParticipantsTable = (props) => {
   }
   const headers = [
     {
-      dataProperty: 'subject',
+      dataProperty: 'participant',
       label: 'Participant ID',
       sortable: !!sortable,
     },
@@ -89,13 +89,13 @@ const ParticipantsTable = (props) => {
 
         return ''
 
-      case 'subject':
-        const { study, subject } = participant
+      case 'participant':
+        const { study } = participant
 
         return (
           <Typography
             component={Link}
-            to={routes.dashboard(study, subject)}
+            to={routes.dashboard(study, participant.participant)}
             sx={{ textDecoration: 'none', color: 'text.primary' }}
           >
             {participant[property]}
@@ -125,7 +125,7 @@ const ParticipantsTable = (props) => {
             icon={<StarBorder sx={{ color: 'primary.dark' }} />}
             checked={participant.star}
             checkedIcon={<Star sx={{ color: 'primary.dark' }} />}
-            value={participant.subject}
+            value={participant.participant}
             onChange={onStar}
             sx={{
               border: 1,

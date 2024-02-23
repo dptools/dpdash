@@ -1,101 +1,96 @@
 import AssessmentDayDataModel from '../../../models/AssessmentDayDataModel'
-import deepEqual from 'deep-equal'
-import ToCModel from '../../../models/ToC'
 import SiteMetadataModel from '../../../models/SiteMetadataModel'
 
 const AssessmentDayDataController = {
   create: async (req, res) => {
     try {
-      const { dataDb } = req.app.locals
-      const updatedParticipants = []
+      const { appDb } = req.app.locals
+      const { metadata, participant_assessments } = req.body
 
-      const { metadata, subject_assessments } = req.body
-
-      if (!metadata || !subject_assessments.length)
+      if (!metadata || !participant_assessments.length)
         return res.status(400).json({ message: 'Nothing to import' })
 
-      const { assessment, subject, collection, study } = metadata
+      const { assessment, participant, study } = metadata
       const query = {
         assessment,
-        subject,
+        participant,
       }
-      const studyMetadata = await SiteMetadataModel.findOne(dataDb, {
+      const participantAssessmentData = await AssessmentDayDataModel.findOne(
+        appDb,
+        query
+      )
+
+      if (participantAssessmentData) {
+        await AssessmentDayDataModel.update(appDb, query, {
+          ...participantAssessmentData,
+          ...metadata,
+          dayData: sortedDayData(
+            participantAssessmentData,
+            participant_assessments
+          ),
+        })
+      } else {
+        await AssessmentDayDataModel.create(appDb, {
+          ...metadata,
+          dayData: participant_assessments,
+        })
+      }
+
+      const studyMetadata = await SiteMetadataModel.findOne(appDb, {
         study,
       })
-      const storedDataCursor = await AssessmentDayDataModel.all(
-        dataDb,
-        collection
-      )
-      const dataStream = storedDataCursor.stream()
 
-      dataStream.on('data', (doc) => {
-        const { day } = doc
-        const dayDataIndex = subject_assessments.findIndex(
-          (data) => data.day === day
-        )
-        if (dayDataIndex !== -1) {
-          const removedDocument = subject_assessments.splice(dayDataIndex, 1)
-
-          if (!deepEqual(doc, removedDocument[0])) {
-            const { _id, ...rest } = removedDocument[0]
-            updatedParticipants.push(rest)
-          }
-        }
-      })
-
-      dataStream.on('end', async () => {
-        await ToCModel.upsert(dataDb, query, metadata)
-
-        if (subject_assessments.length) {
-          await AssessmentDayDataModel.createMany(
-            dataDb,
-            collection,
-            subject_assessments
-          )
-        }
-        Promise.all(
-          updatedParticipants.map(async (participant) => {
-            const { day } = participant
-            await AssessmentDayDataModel.update(
-              dataDb,
-              collection,
-              { day },
-              participant
-            )
-            if (!studyMetadata) {
-              await SiteMetadataModel.upsert(
-                dataDb,
-                { study },
+      if (!studyMetadata) {
+        await SiteMetadataModel.upsert(
+          appDb,
+          { study },
+          {
+            $set: {
+              study,
+              participants: [
                 {
-                  $set: {
-                    study,
-                    subjects: [
-                      {
-                        study,
-                        subject,
-                        Active: 1,
-                        synced: new Date(),
-                      },
-                    ],
-                  },
-                }
-              )
-            } else {
-              await SiteMetadataModel.upsert(
-                dataDb,
-                { subjects: { $elemMatch: { subject } } },
-                { $set: { 'subjects.$.synced': new Date() } }
-              )
-            }
-          })
+                  Active: 1,
+                  Consent: new Date(),
+                  study,
+                  participant,
+                  synced: new Date(),
+                },
+              ],
+            },
+          }
         )
-      })
+      } else {
+        await SiteMetadataModel.upsert(
+          appDb,
+          { participants: { $elemMatch: { participant } } },
+          { $set: { 'participants.$.synced': new Date() } }
+        )
+      }
 
-      return res.status(200).json({ data: 'Imported successfully' })
+      return res
+        .status(200)
+        .json({ data: `${participant} ${assessment} data imported` })
     } catch (error) {
       return res.status(400).json({ message: error.message })
     }
   },
+}
+
+function sortedDayData(participantAssessmentData, participant_assessments) {
+  const { dayData } = participantAssessmentData
+  const filteredDays = dayData.filter(
+    ({ day }) =>
+      !participant_assessments.find((assessment) => day === assessment.day)
+  )
+  return filteredDays
+    .concat(participant_assessments)
+    .sort((prevParticipant, nextParticipant) =>
+      prevParticipant.day < nextParticipant.day
+        ? -1
+        : prevParticipant.day > nextParticipant.day
+        ? 1
+        : 0
+    )
 }
 
 export default AssessmentDayDataController

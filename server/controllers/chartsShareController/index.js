@@ -6,18 +6,18 @@ const chartsShareController = {
     {
       try {
         const { chart_id } = req.params
-        const { dataDb } = req.app.locals
+        const { appDb } = req.app.locals
         const { sharedWith } = req.body
-        const { value } = await ChartsModel.update(
-          dataDb,
+        const data = await ChartsModel.update(
+          appDb,
           { _id: new ObjectId(chart_id) },
           {
             sharedWith,
-            updatedAt: new Date().toISOString(),
+            updatedAt: new Date(),
           }
         )
 
-        return res.status(200).json({ data: value })
+        return res.status(200).json({ data })
       } catch (error) {
         return res.status(400).json({ error: 'Chart could not be shared' })
       }

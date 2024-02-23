@@ -3,18 +3,18 @@ import { useOutletContext } from 'react-router-dom'
 import api from '../api'
 import useTableSort from './useTableSort'
 
-const subject = 'subject'
+const participant = 'participant'
 
 export default function useParticipantsList() {
   const { user, setNotification, setUser } = useOutletContext()
-  const { onSort, sortDirection, sortBy } = useTableSort(subject)
+  const { onSort, sortDirection, sortBy } = useTableSort(participant)
   const { uid, preferences, access } = user
 
   const [initialLoad, setInitialLoad] = useState(true)
   const [loading, setLoading] = useState(true)
   const [participants, setParticipants] = useState([])
   const [formFilters, setFormFilters] = useState({
-    searchSubjects: [],
+    searchParticipants: [],
     studies: [],
     status: undefined,
   })
@@ -27,9 +27,11 @@ export default function useParticipantsList() {
     const sortParams = {
       ...(sortBy ? { sortBy } : {}),
       ...(sortDirection ? { sortDirection } : {}),
-      ...(formFilters.searchSubjects.length
+      ...(formFilters.searchParticipants.length
         ? {
-            searchSubjects: normalizeSearchSubjects(formFilters.searchSubjects),
+            searchParticipants: normalizeSearchParticipants(
+              formFilters.searchParticipants
+            ),
           }
         : {}),
       ...(formFilters?.status || formFilters?.status === 0
@@ -73,23 +75,25 @@ export default function useParticipantsList() {
     const { studies, participants, status } = formData
 
     setFormFilters({
-      searchSubjects: participants,
+      searchParticipants: participants,
       studies,
       status,
     })
     setLoading(true)
   }
 
-  const normalizeSearchSubjects = (searchSubjects) =>
-    searchSubjects.map(({ value }) => value)
+  const normalizeSearchParticipants = (searchParticipants) =>
+    searchParticipants.map(({ value }) => value)
 
   useEffect(() => {
     fetchParticipants().then((participantsList) => {
       if (initialLoad) {
-        const dropDownOptions = participantsList.map(({ study, subject }) => ({
-          value: `${subject}`,
-          label: `${subject} in ${study}`,
-        }))
+        const dropDownOptions = participantsList.map(
+          ({ study, participant }) => ({
+            value: `${participant}`,
+            label: `${participant} in ${study}`,
+          })
+        )
         setSearchOptions((prevState) => ({
           ...prevState,
           participants: dropDownOptions,

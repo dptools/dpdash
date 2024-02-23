@@ -1,186 +1,147 @@
 import BarChartDataProcessor from '.'
-import {
-  createChart,
-  createDb,
-  createFieldLabelValue,
-  createSubject,
-  createSubjectDayData,
-} from '../../../test/fixtures'
-import { N_A, TOTALS_STUDY } from '../../constants'
+import { dayDataAssessments } from '../../../test/testUtils'
+import { createChart, createFieldLabelValue } from '../../../test/fixtures'
+import { TOTALS_STUDY } from '../../constants'
 
 describe(BarChartDataProcessor, () => {
-  const allowedStudies = ['Site 1', 'Site 2']
-  const chart = createChart({
-    assessment: 'assessment',
-    variable: 'surveys_raw',
-    fieldLabelValueMap: [
+  const chart = createChart(
+    {
+      title: 'Eeg Measurements',
+      description: 'Participant EEG Measurements',
+      assessment: 'eeg',
+      variable: 'eeg',
+      public: false,
+      owner: 'owl',
+    },
+    [
       createFieldLabelValue({
-        color: 'good-color',
-        label: 'Good',
-        value: '1',
+        value: 'bar',
+        label: 'Bar',
+        color: 'red',
         targetValues: {
-          'Site 1': '10',
-          'Site 2': '11',
+          LA: '2',
+          YA: '1',
+          MA: '2',
         },
       }),
-      createFieldLabelValue({
-        color: 'bad-color',
-        label: 'Bad',
-        value: '2',
-        targetValues: {
-          'Site 1': '10',
-          'Site 2': undefined,
-        },
-      }),
-      createFieldLabelValue({
-        color: 'other-color',
-        label: 'Other',
-        value: '',
-        targetValues: {},
-      }),
-    ],
-  })
+    ]
+  )
   const initialStudyTotals = {
     [TOTALS_STUDY]: { count: 0, targetTotal: 0 },
     'Site 1': { count: 0, targetTotal: undefined },
     'Site 2': { count: 0, targetTotal: undefined },
   }
-  const db = createDb()
-  const subjects = [
-    createSubject({ collection: '123', study: 'Site 1' }),
-    createSubject({ collection: '456', study: 'Site 2' }),
-    createSubject({ collection: '789', study: 'Site 1' }),
-    createSubject({ collection: '1011', study: 'Site 2' }),
-  ]
+  const participants = dayDataAssessments
 
   describe('.processData', () => {
     it('returns processed data', async () => {
-      const service = new BarChartDataProcessor(db, chart, initialStudyTotals)
+      const service = new BarChartDataProcessor(chart, initialStudyTotals)
+      participants.forEach((doc) => service.processDocument(doc))
 
-      // Site 1
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: 1,
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
-      // Site 2
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: 2,
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
-      // Site 1
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
-      // Site 2
-      db.toArray.mockResolvedValueOnce([
-        createSubjectDayData({
-          surveys_raw: 1,
-        }),
-        createSubjectDayData({
-          surveys_raw: '',
-        }),
-      ])
-
-      const processedData = await service.processData(subjects)
+      const processedData = service.processData()
       const expectedLabelMap = {
-        Good: { name: 'Good', color: 'good-color' },
-        Bad: { name: 'Bad', color: 'bad-color' },
-        Other: { name: 'Other', color: 'other-color' },
+        Bar: {
+          color: 'red',
+          name: 'Bar',
+        },
+        Foo: {
+          color: '#e2860a',
+          name: 'Foo',
+        },
       }
       const expectedDataMap = {
-        'Site 1-Good-10': 1,
-        'Totals-Good': 2,
-        'Site 1-Bad-10': 0,
-        'Site 1-Other-undefined': 1,
-        'Site 2-Good-11': 1,
-        'Site 2-Bad-undefined': 1,
-        'Totals-Bad': 1,
-        'Site 2-Other-undefined': 0,
-        'Totals-Other': 1,
+        'Madrid-Bar-2': 0,
+        'Madrid-Foo-3': 4,
+        'Totals-Bar': 2,
+        'Totals-Foo': 10,
+        'UCLA-Bar-2': 0,
+        'UCLA-Foo-3': 4,
+        'Yale-Bar-1': 2,
+        'Yale-Foo-3': 2,
       }
       const expectedProcessedDataBySite = {
-        'Site 1': {
-          name: 'Site 1',
+        Madrid: {
           counts: {
-            Good: 1,
-            Bad: 0,
-            [N_A]: 0,
-            Other: 1,
+            Bar: 0,
+            Foo: 4,
+            'N/A': 0,
           },
-          totalsForStudy: {
-            count: 2,
-            targetTotal: undefined,
-          },
+          name: 'Madrid',
           percentages: {
-            Good: 50,
-            Bad: 0,
-            [N_A]: 0,
-            Other: 50,
+            Bar: 0,
+            Foo: 100,
+            'N/A': 0,
           },
           targets: {
-            Good: 10,
-            Bad: 10,
-            Other: undefined,
-          },
-        },
-        Totals: {
-          name: 'Totals',
-          counts: {
-            Good: 2,
-            Bad: 1,
-            [N_A]: 0,
-            Other: 1,
+            Bar: 2,
+            Foo: 3,
           },
           totalsForStudy: {
             count: 4,
-            targetTotal: 0,
-          },
-          percentages: {
-            Good: 50,
-            Bad: 25,
-            [N_A]: 0,
-            Other: 25,
-          },
-          targets: {
-            Good: 21,
-            Bad: 10,
+            targetValue: '3',
           },
         },
-        'Site 2': {
-          name: 'Site 2',
+        Totals: {
           counts: {
-            Good: 1,
-            Bad: 1,
-            [N_A]: 0,
-            Other: 0,
+            Bar: 2,
+            Foo: 10,
+            'N/A': 0,
           },
-          totalsForStudy: {
-            count: 2,
-            targetTotal: undefined,
-          },
+          name: 'Totals',
           percentages: {
-            Good: 50,
-            Bad: 50,
-            [N_A]: 0,
-            Other: 0,
+            Bar: 16.666666666666664,
+            Foo: 83.33333333333334,
+            'N/A': 0,
           },
           targets: {
-            Good: 11,
-            Bad: undefined,
-            Other: undefined,
+            Bar: 5,
+            Foo: 9,
+          },
+          totalsForStudy: {
+            count: 12,
+            targetTotal: 0,
+          },
+        },
+        UCLA: {
+          counts: {
+            Bar: 0,
+            Foo: 4,
+            'N/A': 0,
+          },
+          name: 'UCLA',
+          percentages: {
+            Bar: 0,
+            Foo: 100,
+            'N/A': 0,
+          },
+          targets: {
+            Bar: 2,
+            Foo: 3,
+          },
+          totalsForStudy: {
+            count: 4,
+            targetValue: '3',
+          },
+        },
+        Yale: {
+          counts: {
+            Bar: 2,
+            Foo: 2,
+            'N/A': 0,
+          },
+          name: 'Yale',
+          percentages: {
+            Bar: 50,
+            Foo: 50,
+            'N/A': 0,
+          },
+          targets: {
+            Bar: 1,
+            Foo: 3,
+          },
+          totalsForStudy: {
+            count: 4,
+            targetValue: '3',
           },
         },
       }

@@ -15,21 +15,21 @@ const AuthController = {
       { session: true },
       async function (err, user, info) {
         if (err) return next(err)
-        
+
         const { uid } = user
 
-        const { appDb, dataDb } = req.app.locals
+        const { appDb } = req.app.locals
 
-        const userInfo = await UserModel.update(appDb, dataDb, uid, {
+        const userInfo = await UserModel.update(appDb, uid, {
           last_logon: Date.now(),
         })
         const { role, account_expires } = userInfo
-    
+
         if (isAccountExpired(account_expires, role)) {
           logout(req, res, next)
-  
+
           res.clearCookie('connect.sid')
-  
+
           return res.status(401).json({ error: 'Account is expired' })
         }
         req.login(user, function (err) {
@@ -62,10 +62,7 @@ const AuthController = {
         owner: uid,
         readers: [uid],
       })
-      const configuration = await ConfigModel.create(
-        appDb,
-        configAttributes
-      )
+      const configuration = await ConfigModel.create(appDb, configAttributes)
 
       const newUserAttributes = {
         uid,
@@ -111,7 +108,7 @@ const AuthController = {
       if (password !== confirmPassword)
         return res.status(400).json({ error: 'passwords do not match' })
 
-      const { appDb, dataDb } = req.app.locals
+      const { appDb } = req.app.locals
       const encryptPassword = hash(password)
       const user = await UserModel.findOne(appDb, {
         uid: String(username),
@@ -131,7 +128,6 @@ const AuthController = {
       }
       const updatedUser = await UserModel.update(
         appDb,
-        dataDb,
         username,
         userAttributes
       )

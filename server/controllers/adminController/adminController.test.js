@@ -15,7 +15,7 @@ describe('AdminUsersController', () => {
 
       it('sends a status of 200 with a data result', async () => {
         request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce({
-          value: { uid: 'uid' },
+          uid: 'uid',
         })
 
         await AdminUsersController.update(request, response)

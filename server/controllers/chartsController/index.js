@@ -14,9 +14,9 @@ const chartsController = {
         description,
         public: isPublic,
       } = req.body
-      const { dataDb } = req.app.locals
+      const { appDb } = req.app.locals
 
-      const { insertedId } = await ChartsModel.create(dataDb, {
+      const { insertedId } = await ChartsModel.create(appDb, {
         title,
         variable,
         assessment,
@@ -34,14 +34,14 @@ const chartsController = {
   index: async (req, res) => {
     try {
       const chartList = []
-      const { dataDb, appDb } = req.app.locals
+      const { appDb } = req.app.locals
       const parsedQueryParams = Object.keys(req.query).length
         ? req.query
         : undefined
 
       const currentUser = await UserModel.findOne(appDb, { uid: req.user.uid })
       const chartListCursor = await ChartsModel.all(
-        dataDb,
+        appDb,
         currentUser,
         parsedQueryParams
       )
@@ -62,8 +62,8 @@ const chartsController = {
   destroy: async (req, res) => {
     try {
       const { chart_id } = req.params
-      const { dataDb } = req.app.locals
-      const { owner } = await ChartsModel.show(dataDb, {
+      const { appDb } = req.app.locals
+      const { owner } = await ChartsModel.show(appDb, {
         _id: new ObjectId(chart_id),
       })
 
@@ -72,7 +72,7 @@ const chartsController = {
           .status(422)
           .json({ message: 'Only the owner can delete a chart' })
 
-      await ChartsModel.destroy(dataDb, chart_id)
+      await ChartsModel.destroy(appDb, chart_id)
 
       return res.status(204).end()
     } catch (error) {
@@ -81,10 +81,10 @@ const chartsController = {
   },
   show: async (req, res) => {
     try {
-      const { dataDb } = req.app.locals
+      const { appDb } = req.app.locals
       const { chart_id } = req.params
       const { access } = req.user
-      const chart = await ChartsModel.show(dataDb, {
+      const chart = await ChartsModel.show(appDb, {
         _id: new ObjectId(chart_id),
         owner: req.user.uid,
       })
@@ -109,7 +109,7 @@ const chartsController = {
   },
   update: async (req, res) => {
     try {
-      const { dataDb } = req.app.locals
+      const { appDb } = req.app.locals
       const { chart_id } = req.params
       const {
         title,
@@ -119,9 +119,9 @@ const chartsController = {
         fieldLabelValueMap,
         public: isPublic,
       } = req.body
-      const { value } = await ChartsModel.update(
-        dataDb,
-        { _id: ObjectId(chart_id) },
+      const value = await ChartsModel.update(
+        appDb,
+        { _id: new ObjectId(chart_id) },
         {
           title,
           variable,

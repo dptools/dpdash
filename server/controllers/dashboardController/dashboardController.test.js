@@ -6,17 +6,16 @@ import {
   createResponse,
   createUser,
   createAnalysisConfig,
-  createMatrixData,
+  createParticipantDayData,
 } from '../../../test/fixtures'
-import DashboardService from '../../services/DashboardService'
-
-jest.mock('../../services/DashboardService')
+import { collections } from '../../utils/mongoCollections'
 
 describe('Dashboard Controller', () => {
   describe(DashboardsController.show, () => {
     describe('When successful', () => {
+      let appDb
+      let user
       const configAnalysisData = [
-        createAnalysisConfig(),
         createAnalysisConfig({
           label: 'Jump',
           analysis: 'jump_of',
@@ -24,130 +23,165 @@ describe('Dashboard Controller', () => {
           category: 'power',
         }),
         createAnalysisConfig({
-          label: 'Read',
-          analysis: 'read_of',
-          variable: 'readVariable',
-          category: 'reading',
-        }),
-      ]
-      const matrixData = [
-        createMatrixData({
-          analysis: 'size_of',
-          category: 'measurements',
-          color: ['red', 'blue', 'white'],
-          data: [
-            {
-              day: 1,
-              sizeVariable: 30,
-            },
-            {
-              day: 45,
-              sizeVariable: 2,
-            },
-          ],
           label: 'Size',
-          range: [1, 2],
-          stat: [
-            {
-              max: 30,
-              mean: 16,
-              min: 2,
-            },
-          ],
+          analysis: 'size_of',
           variable: 'sizeVariable',
-        }),
-        createMatrixData({
-          analysis: 'jump_of',
-          category: 'power',
-          color: ['red', 'blue', 'white'],
-          data: [
-            {
-              day: 10,
-              jumpVariable: 1,
-            },
-            {
-              day: 20,
-              jumpVariable: 30,
-            },
-          ],
-          label: 'Jump',
-          range: [1, 2],
-          stat: [
-            {
-              max: 30,
-              mean: 15.5,
-              min: 1,
-            },
-          ],
-          variable: 'jumpVariable',
-        }),
-        createMatrixData({
-          analysis: 'read_of',
-          category: 'reading',
-          color: ['red', 'blue', 'white'],
-          data: [],
-          label: 'Read',
-          range: [1, 2],
-          stat: [],
-          variable: 'readVariable',
+          category: 'sizeing',
         }),
       ]
+      const newConfiguration = createConfiguration({
+        _id: new ObjectId(),
+        config: {
+          0: configAnalysisData,
+        },
+      })
+      const dataOne = {
+        study: 'YA',
+        assessment: 'jump_of',
+        participant: 'YA01',
+        dayData: [
+          createParticipantDayData({
+            day: 10,
+            jumpVariable: 1,
+          }),
+          createParticipantDayData({
+            day: 20,
+            jumpVariable: 30,
+          }),
+        ],
+      }
+      const dataTwo = {
+        study: 'YA',
+        participant: 'YA01',
+        assessment: 'size_of',
+        dayData: [
+          createParticipantDayData({
+            day: 1,
+            sizeVariable: 30,
+          }),
+          createParticipantDayData({
+            day: 45,
+            sizeVariable: 2,
+          }),
+        ],
+      }
 
-      beforeAll(() => {
-        DashboardService.mockImplementation(() => {
-          return {
-            createDashboard: () => ({
-              configurations: configAnalysisData,
-              consentDate: '03-03-2022',
-              matrixData,
-            }),
-          }
+      beforeAll(async () => {
+        user = createUser({
+          uid: 'owl',
+          preferences: {
+            config: newConfiguration._id.toString(),
+          },
+          access: ['YA', 'LA', 'MA'],
+        })
+        appDb = await global.MONGO_INSTANCE.db('matrix')
+        await appDb.collection(collections.configs).insertOne(newConfiguration)
+        await appDb
+          .collection(collections.assessmentDayData)
+          .insertMany([dataOne, dataTwo])
+        await appDb.collection(collections.users).insertOne(user)
+        await appDb.collection(collections.metadata).insertOne({
+          study: 'YA',
+          participants: [
+            { participant: 'YA01', Consent: new Date('2022-02-26') },
+          ],
         })
       })
-
-      afterEach(() => {
-        jest.resetAllMocks()
-      })
+      afterAll(async () => await appDb.dropDatabase())
 
       it('returns a status of 200 and a user object', async () => {
-        const study = 'studyA'
-        const subject = 'subjectA'
+        const study = 'YA'
+        const subject = 'YA01'
         const params = {
           study,
           subject,
         }
-        const currentUser = createUser({
-          uid: 'owl',
-          preferences: {
-            config: ObjectId().toString(),
-          },
-        })
-        const currentConfiguration = createConfiguration({
-          config: {
-            0: configAnalysisData,
-          },
-        })
-        const request = createRequestWithUser({ params })
+        const request = createRequestWithUser(
+          { app: { locals: { appDb } }, params },
+          user
+        )
         const response = createResponse()
 
-        request.app.locals.appDb.findOne.mockResolvedValueOnce(currentUser)
-        request.app.locals.appDb.findOne.mockResolvedValueOnce(
-          currentConfiguration
-        )
-
         await DashboardsController.show(request, response)
-
         expect(response.status).toHaveBeenCalledWith(200)
         expect(response.json).toHaveBeenCalledWith({
           data: {
             graph: {
-              configurations: configAnalysisData,
-              consentDate: '03-03-2022',
-              matrixData,
+              configurations: [
+                {
+                  analysis: 'jump_of',
+                  category: 'power',
+                  color: [],
+                  label: 'Jump',
+                  range: [],
+                  variable: 'jumpVariable',
+                },
+                {
+                  analysis: 'size_of',
+                  category: 'sizeing',
+                  color: [],
+                  label: 'Size',
+                  range: [],
+                  variable: 'sizeVariable',
+                },
+              ],
+              consentDate: new Date('2022-02-26T00:00:00.000Z'),
+              matrixData: [
+                {
+                  analysis: 'jump_of',
+                  category: 'power',
+                  color: [],
+                  data: [
+                    {
+                      day: 10,
+                      jumpVariable: 1,
+                    },
+                    {
+                      day: 20,
+                      jumpVariable: 30,
+                    },
+                  ],
+                  label: 'Jump',
+                  range: [],
+                  stat: [
+                    {
+                      max: 30,
+                      mean: 15.5,
+                      min: 1,
+                    },
+                  ],
+                  variable: 'jumpVariable',
+                },
+                {
+                  analysis: 'size_of',
+                  category: 'sizeing',
+                  color: [],
+                  data: [
+                    {
+                      day: 1,
+                      sizeVariable: 30,
+                    },
+                    {
+                      day: 45,
+                      sizeVariable: 2,
+                    },
+                  ],
+                  label: 'Size',
+                  range: [],
+                  stat: [
+                    {
+                      max: 30,
+                      mean: 16,
+                      min: 2,
+                    },
+                  ],
+                  variable: 'sizeVariable',
+                },
+              ],
             },
             subject: {
-              project: 'studyA',
-              sid: 'subjectA',
+              project: 'YA',
+              sid: 'YA01',
             },
           },
         })

@@ -126,72 +126,60 @@ describe(FiltersService, () => {
         'three',
       ])
 
-      expect(service.barChartMongoQueries()).toEqual({
-        activeFilters: ['chrcrit_part', 'included_excluded', 'sex_at_birth'],
-        mongoAggregateQueryForIncludedCriteria: [
-          {
-            $facet: {
-              included_excluded: [
-                { $match: { included_excluded: { $in: [''] } } },
-              ],
-              chrcrit_part: [
-                {
-                  $match: { chrcrit_part: { $in: [2] } },
+      expect(service.barChartMongoQueries()).toEqual([
+        {
+          $facet: {
+            formInclusion: [
+              {
+                $match: {
+                  $and: [
+                    {
+                      dayData: {
+                        $elemMatch: {
+                          chrcrit_part: {
+                            $in: [2],
+                          },
+                        },
+                      },
+                    },
+                    {
+                      dayData: {
+                        $elemMatch: {
+                          included_excluded: {
+                            $in: [null],
+                          },
+                        },
+                      },
+                    },
+                  ],
+                  assessment: 'form_inclusionexclusion_criteria_review',
+                  study: { $in: ['one', 'three', 'two'] },
                 },
-              ],
-            },
+              },
+            ],
+            sexAtBirth: [
+              {
+                $match: {
+                  assessment: 'form_sociodemographics',
+                  dayData: {
+                    $elemMatch: { chrdemo_sexassigned: { $in: [1] } },
+                  },
+                },
+              },
+            ],
           },
-        ],
-        mongoQueryForSocioDemographics: {
-          chrdemo_sexassigned: { $in: [1] },
         },
-        mongoAggregateQueryForFilters: [
-          {
-            $facet: {
-              socioDemographics: [
-                {
-                  $match: {
-                    assessment: SOCIODEMOGRAPHICS_FORM,
-                    study: {
-                      $in: ['one', 'three', 'two'],
-                    },
-                  },
-                },
-                {
-                  $project: {
-                    ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
-                  },
-                },
-                {
-                  $addFields: {
-                    filter: SOCIODEMOGRAPHICS_FORM,
-                  },
-                },
-              ],
-              inclusionCriteria: [
-                {
-                  $match: {
-                    assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
-                    study: {
-                      $in: ['one', 'three', 'two'],
-                    },
-                  },
-                },
-                {
-                  $project: {
-                    ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
-                  },
-                },
-                {
-                  $addFields: {
-                    filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
-                  },
-                },
+        {
+          $project: {
+            participants: {
+              $setIntersection: [
+                '$formInclusion.participant',
+                '$sexAtBirth.participant',
               ],
             },
           },
-        ],
-      })
+        },
+      ])
     })
 
     it('returns an empty query with no active filters', () => {
@@ -219,14 +207,7 @@ describe(FiltersService, () => {
         'three',
       ])
 
-      expect(service.barChartMongoQueries()).toEqual({
-        activeFilters: [],
-        mongoAggregateQueryForIncludedCriteria: [{ $facet: {} }],
-        mongoQueryForSocioDemographics: {
-          chrdemo_sexassigned: { $in: [] },
-        },
-        mongoAggregateQueryForFilters: [{ $facet: {} }],
-      })
+      expect(service.barChartMongoQueries()).toEqual({})
     })
   })
 })

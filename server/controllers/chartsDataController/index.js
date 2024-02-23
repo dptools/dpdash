@@ -2,7 +2,6 @@ import { ObjectId } from 'mongodb'
 import qs from 'qs'
 
 import { collections } from '../../utils/mongoCollections'
-import SubjectModel from '../../models/SubjectModel'
 import BarChartService from '../../services/BarChartService'
 import BarChartTableService from '../../services/BarChartTableService'
 import CsvService from '../../services/CSVService'
@@ -12,7 +11,7 @@ import UserModel from '../../models/UserModel'
 
 const show = async (req, res, next) => {
   try {
-    const { dataDb, appDb } = req.app.locals
+    const { appDb } = req.app.locals
     const user = await UserModel.findOne(appDb, { uid: req.user.uid })
     const userSites = StudiesModel.sanitizeAndSort(user.access)
     const { chart_id } = req.params
@@ -21,20 +20,19 @@ const show = async (req, res, next) => {
       parsedQueryParams.filters,
       userSites
     )
-    const chart = await dataDb
-      .collection(collections.charts)
-      .findOne({ _id: ObjectId(chart_id) })
-    const chartService = new BarChartService(dataDb, chart)
     const filters = filtersService.filters
-    const subjects = await SubjectModel.allForAssessment(
-      dataDb,
-      chart.assessment,
-      filtersService
-    )
-    const { dataBySite, labels, studyTotals } = await chartService.createChart(
-      subjects,
-      filters.sites
-    )
+    const chart = await appDb.collection(collections.charts).findOne({
+      _id: new ObjectId(chart_id),
+    })
+    const chartService = new BarChartService(appDb, chart, filtersService)
+    const { processedDataBySite, studyTotals, labelMap } =
+      await chartService.createChart()
+
+    const dataBySite =
+      processedDataBySite.size > 0
+        ? Array.from(processedDataBySite.values())
+        : []
+    const labels = Array.from(labelMap.values())
     const chartTableService = new BarChartTableService(dataBySite, labels)
     const websiteTable = chartTableService.websiteTableData()
     const chartOwner = await appDb.collection(collections.users).findOne(
@@ -76,8 +74,6 @@ const show = async (req, res, next) => {
     }
     return res.status(200).json({ data: graph })
   } catch (err) {
-    console.error(err.stack)
-
     return res.status(500).send({ message: err.message })
   }
 }

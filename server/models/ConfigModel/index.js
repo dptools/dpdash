@@ -13,7 +13,7 @@ const ConfigModel = {
     }
   },
   update: async (db, configId, configAttributes) => {
-    const { value } = await db
+    const value = await db
       .collection(collections.configs)
       .findOneAndUpdate(
         { _id: new ObjectId(configId) },

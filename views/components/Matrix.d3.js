@@ -61,7 +61,7 @@ export default class Matrix {
       .select(this.el)
       .append('svg')
       .attr('width', () => Math.max(this.width, 0))
-      .attr('height', () => Math.max(this.height, 0))
+      .attr('height', () => Number(this.height))
     this.svg = svgElement.append('g')
     this.cards = this.svg
       .append('g')
@@ -197,7 +197,7 @@ export default class Matrix {
 
     this.svg.attr(
       'transform',
-      `translate(${this.maxYAxisWidth + margin.left},${margin.top})`
+      `translate(${this.maxYAxisWidth + margin.left},${margin.top - 5})`
     )
     leftMarginWhiteOut.attr(
       'transform',
@@ -212,7 +212,6 @@ export default class Matrix {
     this.generateMarginWhiteOutTop()
     this.xAxisForDatesData = this.generateXAxisForDatesData()
     this.generateXAxis()
-    this.generatePlotDataButton()
     this.generateWhiteSpaceTopLeft()
 
     if (this.startFromTheLastDay) {
@@ -426,15 +425,17 @@ export default class Matrix {
 
     this.xScaleLinearTop = d3
       .scaleLinear()
-      .range([cellWidth / 2, xAxisRange[xAxisRange.length - 1]])
+      .range([cellWidth / 2, xAxisRange[xAxisRange.length - 1] || 0])
       .domain([0, xAxisForDatesData.length - 1])
     this.xScaleLinearBottom = d3
       .scaleLinear()
-      .range([cellWidth / 2, xAxisRange[xAxisRange.length - 1]])
-      .domain([startDay, xAxisForDatesData[xAxisForDatesData.length - 1].day])
+      .range([cellWidth / 2, xAxisRange[xAxisRange.length - 1] || 0])
+      .domain(
+        [startDay, xAxisForDatesData[xAxisForDatesData.length - 1]?.day] || 0
+      )
     this.xAxisLinearTop = d3
       .axisTop(this.xScaleLinearTop)
-      .ticks(xAxisForDatesData.length - 1)
+      .ticks(xAxisForDatesData.length - 1 || 1)
       .tickValues(xAxisValuesTop)
 
     if (xAxisForDatesData.length > 0) {
@@ -443,11 +444,10 @@ export default class Matrix {
         .ticks(xAxisForDatesData.length - 1)
         .tickValues(xAxisValuesBottom)
         .tickFormat(d3.format('d'))
-
       this.xAxisBottom = this.svg
         .append('g')
         .attr('class', 'xAxisLinearBottom')
-        .attr('transform', () => `translate(0,${xAxisBottomYCoordinate})`)
+        .attr('transform', () => `translate(0,${xAxisBottomYCoordinate - 8})`)
         .call(this.xAxisLinearBottom)
       this.xAxisBottom
         .selectAll('text')
@@ -470,50 +470,6 @@ export default class Matrix {
 
     this.xAxisTop.selectAll('path').attr('stroke-opacity', 0)
     this.xAxisTop.selectAll('line').attr('stroke-opacity', 0)
-  }
-  generatePlotDataButton = () => {
-    const { maxYAxisWidth, height, matrixHeight } = this
-
-    const xAxisBottomYCoordinate =
-      height > 0 && height < matrixHeight
-        ? height - this.cardSize * 1.5
-        : matrixHeight
-    const button = this.svg
-      .append('g')
-      .attr('class', 'PlotDataButton')
-      .attr(
-        'transform',
-        `translate(${-(
-          maxYAxisWidth + this.halfCardSize
-        )},${xAxisBottomYCoordinate})`
-      )
-    button
-      .append('rect')
-      .attr('width', maxYAxisWidth + margin.left)
-      .attr('height', this.cardSize)
-      .attr('x', 0)
-      .attr('y', -this.halfCardSize + 2)
-      .style('fill', this.widthBasedFill)
-      .attr('class', 'Button')
-    button
-      .append('text')
-      .text('PLOT DATA')
-      .attr('x', maxYAxisWidth / 2 - this.cardSize)
-      .attr('y', this.halfCardSize / 4)
-      .style('fill', DARK_GREY)
-      .attr('font-size', this.halfCardSize)
-      .attr('font-family', "'Helvetica Neue', Helvetica, Arial, sans-serif")
-      .style('text-anchor', 'start')
-      .attr('class', 'Button')
-      .on('mouseover', function (d) {
-        d3.select(this).classed('text-hover', true)
-      })
-      .on('mouseout', function (d) {
-        d3.select(this).classed('text-hover', false)
-      })
-      .on('click', function (d, i) {
-        alert('This feature is not yet available.')
-      })
   }
 
   get widthBasedFill() {
@@ -547,7 +503,6 @@ export default class Matrix {
       this.height > 0 && this.height < this.matrixHeight
         ? this.height - this.cardSize * 2 + 1
         : this.matrixHeight - this.halfCardSize + 1
-
     this.generateSpace({
       width: this.matrixWidth + this.maxYAxisWidth,
       height: this.cardSize + 2,

@@ -71,9 +71,6 @@ export const apiRoutes = {
     configurationFileUpload: (uid) =>
       `${apiRoutes.configurations.userConfigurations(uid)}/file`,
   },
-  counts: {
-    index: `${apiPath}/counts`,
-  },
   dashboards: {
     show: (study = ':study', subject = ':subject') =>
       `${apiPath}/dashboards/${study}/${subject}`,

@@ -1,100 +1,184 @@
+import { ObjectId } from 'mongodb'
 import BarChartService from '.'
-import {
-  createChart,
-  createDb,
-  createFieldLabelValue,
-  createSubject,
-} from '../../../test/fixtures'
-import { TOTALS_STUDY } from '../../constants'
-import BarChartDataProcessor from '../../data_processors/BarChartDataProcessor'
-
-jest.mock('../../data_processors/BarChartDataProcessor')
-
-const labels = {
-  Good: { name: 'Good', color: 'good-color' },
-  Bar: { name: 'Bad', color: 'bad-color' },
-}
-const dataBySite = {
-  'Site1-Good-0': 1,
-  'Site1-Bad-0': 2,
-  'Site2-Good-4': 4,
-  'Site2-Bad-6': 6,
-  [`${TOTALS_STUDY}-Site1`]: 3,
-  [`${TOTALS_STUDY}-Site2`]: 10,
-}
-const studyTotals = {
-  Site1: { count: 3, targetValue: undefined },
-  Site2: { count: 10, targetValue: 10 },
-  [TOTALS_STUDY]: { count: 13 },
-}
-const db = createDb()
-const chart = createChart({
-  fieldLabelValueMap: [
-    createFieldLabelValue({
-      color: 'good-color',
-      label: 'Good',
-      targetValues: {
-        Site1: '10',
-      },
-    }),
-    createFieldLabelValue({
-      color: 'bad-color',
-      label: 'Bad',
-      targetValues: {
-        Site1: '10',
-        Site2: '11',
-      },
-    }),
-  ],
-})
-const subjects = [createSubject()]
-const userAccess = ['Site 1', 'Site 2']
+import FiltersService, { DEFAULT_FILTERS } from '../FiltersService'
+import { collections } from '../../utils/mongoCollections'
+import { createChart, createFieldLabelValue } from '../../../test/fixtures'
+import { dayDataAssessments } from '../../../test/testUtils'
 
 describe(BarChartService, () => {
-  describe('.createChart', () => {
-    const mockProcessData = jest.fn()
+  describe('methods', () => {
+    describe('createChart', () => {
+      let appDb
+      const chart = createChart(
+        {
+          _id: new ObjectId(),
+          title: 'Eeg Measurements',
+          description: 'Participant EEG Measurements',
+          assessment: 'eeg',
+          variable: 'eeg',
+          public: false,
+          owner: 'owl',
+        },
+        [
+          createFieldLabelValue({
+            value: 'bar',
+            label: 'Bar',
+            color: 'red',
+            targetValues: {
+              LA: '2',
+              YA: '1',
+              MA: '2',
+            },
+          }),
+        ]
+      )
 
-    beforeEach(() => {
-      BarChartDataProcessor.mockImplementationOnce(() => {
-        return {
-          processData: mockProcessData,
-        }
+      beforeAll(async () => {
+        appDb = await global.MONGO_INSTANCE.db('barService')
+
+        await appDb
+          .collection(collections.assessmentDayData)
+          .insertMany(dayDataAssessments)
       })
-    })
 
-    afterEach(() => {
-      jest.resetAllMocks()
-    })
-
-    it('returns data, labels, and study totals', async () => {
-      mockProcessData.mockResolvedValueOnce({
-        processedDataBySite: new Map(Object.entries(dataBySite)),
-        labelMap: new Map(Object.entries(labels)),
-        studyTotals,
+      afterAll(async () => {
+        await appDb.dropDatabase()
       })
+      it('returns data, labels, and study totals', async () => {
+        const filters = { ...DEFAULT_FILTERS, sites: ['LA', 'MA', 'YA'] }
+        const filterService = new FiltersService(filters)
+        const chartService = new BarChartService(appDb, chart, filterService)
+        const chartData = await chartService.createChart()
+        expect(chartData).toEqual({
+          labelMap: new Map()
+            .set('Foo', {
+              color: '#e2860a',
+              name: 'Foo',
+            })
+            .set('Bar', {
+              color: 'red',
+              name: 'Bar',
+            })
+            .set('N/A', {
+              color: '#808080',
+              name: 'N/A',
+            }),
 
-      const service = new BarChartService(db, chart)
-
-      const createdChart = await service.createChart(subjects, userAccess)
-
-      expect(createdChart).toEqual({
-        dataBySite: [1, 2, 4, 6, 3, 10],
-        labels: [
-          { name: 'Good', color: 'good-color' },
-          { name: 'Bad', color: 'bad-color' },
-        ],
-        studyTotals,
+          processedDataBySite: new Map()
+            .set('Yale', {
+              counts: {
+                Bar: 0,
+                Foo: 1,
+                'N/A': 3,
+              },
+              name: 'Yale',
+              percentages: {
+                Bar: 0,
+                Foo: 25,
+                'N/A': 75,
+              },
+              targets: {
+                Bar: 1,
+                Foo: 3,
+              },
+              totalsForStudy: {
+                count: 1,
+                targetTotal: 4,
+              },
+            })
+            .set('Totals', {
+              counts: {
+                Foo: 2,
+                'N/A': 12,
+              },
+              name: 'Totals',
+              percentages: {
+                Foo: 14.285714285714285,
+                'N/A': 85.71428571428571,
+              },
+              targets: {
+                Bar: 3,
+                Foo: 6,
+              },
+              totalsForStudy: {
+                count: 2,
+                targetTotal: 14,
+              },
+            })
+            .set('Madrid', {
+              counts: {
+                Bar: 0,
+                Foo: 1,
+                'N/A': 4,
+              },
+              name: 'Madrid',
+              percentages: {
+                Bar: 0,
+                Foo: 20,
+                'N/A': 80,
+              },
+              targets: {
+                Bar: 2,
+                Foo: 3,
+              },
+              totalsForStudy: {
+                count: 1,
+                targetTotal: 5,
+              },
+            }),
+          studyTotals: {
+            Madrid: {
+              count: 1,
+              targetTotal: 5,
+            },
+            Totals: {
+              count: 2,
+              targetTotal: 14,
+            },
+            UCLA: {
+              count: 0,
+              targetTotal: 5,
+            },
+            Yale: {
+              count: 1,
+              targetTotal: 4,
+            },
+          },
+        })
       })
     })
   })
-
   describe('.legend', () => {
+    const chart = createChart(
+      {
+        _id: new ObjectId(),
+        title: 'Eeg Measurements',
+        description: 'Participant EEG Measurements',
+        assessment: 'eeg',
+        variable: 'eeg',
+        public: false,
+        owner: 'owl',
+      },
+      [
+        createFieldLabelValue({
+          value: 'bar',
+          label: 'Bar',
+          color: 'red',
+          targetValues: {
+            LA: '2',
+            YA: '1',
+            MA: '2',
+          },
+        }),
+      ]
+    )
+
     it('returns a legend object', () => {
-      const service = new BarChartService(db, chart)
+      const service = new BarChartService({}, chart, {})
 
       expect(service.legend()).toEqual([
-        { name: 'Good', symbol: { fill: 'good-color', type: 'square' } },
-        { name: 'Bad', symbol: { fill: 'bad-color', type: 'square' } },
+        { name: 'Foo', symbol: { fill: '#e2860a', type: 'square' } },
+        { name: 'Bar', symbol: { fill: 'red', type: 'square' } },
       ])
     })
   })

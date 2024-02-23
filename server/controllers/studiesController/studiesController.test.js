@@ -9,7 +9,7 @@ describe('StudiesController', () => {
         const response = createResponse()
         const listOfStudies = ['YA', 'CA', 'LA']
 
-        request.app.locals.dataDb.distinct.mockResolvedValueOnce(listOfStudies)
+        request.app.locals.appDb.distinct.mockResolvedValueOnce(listOfStudies)
 
         await StudiesController.index(request, response)
 
@@ -24,7 +24,7 @@ describe('StudiesController', () => {
         const request = createRequest()
         const response = createResponse()
 
-        request.app.locals.dataDb.distinct.mockRejectedValueOnce(
+        request.app.locals.appDb.distinct.mockRejectedValueOnce(
           new Error('some error')
         )
 

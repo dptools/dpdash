@@ -1,28 +1,48 @@
 import DashboardDataProcessor from '.'
 import {
-  createDb,
   createAnalysisConfig,
-  createSubjectDayData,
-  createAssessmentsFromConfig,
+  createParticipantDayData,
   createMatrixData,
 } from '../../../test/fixtures'
 
 describe('Data Processors - Dashboard', () => {
   describe(DashboardDataProcessor.calculateDashboardData, () => {
-    const assessmentsFromConfig = [
-      createAssessmentsFromConfig({
-        assessment: 'size_of',
-        collection: 'size-of-collection',
-      }),
-      createAssessmentsFromConfig({
-        assessment: 'jump_of',
-        collection: 'jump-of-collection',
-      }),
-      createAssessmentsFromConfig({
-        assessment: 'read_of',
-        collection: 'read-of-collection',
-      }),
-    ]
+    const jumpVariableData = {
+      assessment: 'jump_of',
+      dayData: [
+        createParticipantDayData({
+          day: 10,
+          jumpVariable: 1,
+        }),
+        createParticipantDayData({
+          day: 20,
+          jumpVariable: 30,
+        }),
+      ],
+    }
+    const sizeVariableData = {
+      assessment: 'size_of',
+      dayData: [
+        createParticipantDayData({
+          day: 1,
+          sizeVariable: 30,
+        }),
+        createParticipantDayData({
+          day: 45,
+          sizeVariable: 2,
+        }),
+      ],
+    }
+    const participantDataMap = new Map()
+    participantDataMap.set(
+      sizeVariableData.assessment,
+      sizeVariableData.dayData
+    )
+    participantDataMap.set(
+      jumpVariableData.assessment,
+      jumpVariableData.dayData
+    )
+
     const config = [
       createAnalysisConfig({
         label: 'Size',
@@ -49,45 +69,13 @@ describe('Data Processors - Dashboard', () => {
         category: 'reading',
       }),
     ]
-    const db = createDb()
-    const jumpVariableData = [
-      createSubjectDayData({
-        day: 10,
-        jumpVariable: 1,
-      }),
-      createSubjectDayData({
-        day: 20,
-        jumpVariable: 30,
-      }),
-    ]
-    const sizeVariableData = [
-      createSubjectDayData({
-        day: 1,
-        sizeVariable: 30,
-      }),
-      createSubjectDayData({
-        day: 45,
-        sizeVariable: 2,
-      }),
-    ]
 
-    it('calculates the min, max and mean of the data and appends it to the matrix result array', async () => {
-      db.find.mockImplementationOnce(() => ({
-        toArray: () => sizeVariableData,
-      }))
-      db.find.mockImplementationOnce(() => ({
-        toArray: () => jumpVariableData,
-      }))
-      db.find.mockImplementationOnce(() => ({
-        toArray: () => [],
-      }))
-
+    it('calculates the min, max and mean of the data and appends it to the matrix result array', () => {
       const dashboardProcessor = new DashboardDataProcessor(
-        assessmentsFromConfig,
         config,
-        db
+        participantDataMap
       )
-      const { matrixData } = await dashboardProcessor.calculateDashboardData()
+      const matrixData = dashboardProcessor.calculateDashboardData()
 
       expect(matrixData).toEqual([
         createMatrixData({

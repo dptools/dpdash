@@ -7,7 +7,6 @@ import {
   createUser,
 } from '../../../test/fixtures'
 import { collections } from '../../utils/mongoCollections'
-import UserModel from '../../models/UserModel'
 
 afterEach(() => {
   jest.clearAllMocks()
@@ -106,9 +105,9 @@ describe('AuthController', () => {
         }
 
         request.app.locals.appDb.findOne.mockResolvedValueOnce(user)
-        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce({
-          value: updatedUser,
-        })
+        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce(
+          updatedUser
+        )
 
         await AuthController.update(request, response)
 
@@ -223,7 +222,7 @@ describe('AuthController', () => {
       let appDb
 
       beforeAll(async () => {
-        appDb = await global.MONGO_INSTANCE.db('appDb')
+        appDb = await global.MONGO_INSTANCE.db('auth')
       })
 
       beforeEach(async () => {

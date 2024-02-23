@@ -64,9 +64,9 @@ describe('ConfigurationsController', () => {
           type: 'new matrix ',
         })
 
-        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce({
-          value: updatedConfiguration,
-        })
+        request.app.locals.appDb.findOneAndUpdate.mockResolvedValueOnce(
+          updatedConfiguration
+        )
 
         await ConfigurationsController.update(request, response)
 

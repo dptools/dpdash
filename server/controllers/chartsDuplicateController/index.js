@@ -5,12 +5,12 @@ const chartsDuplicateController = {
   create: async (req, res) => {
     {
       try {
-        const { dataDb } = req.app.locals
+        const { appDb } = req.app.locals
         const { chart_id } = req.body
-        const { _id, ...rest } = await ChartsModel.show(dataDb, {
+        const { _id, ...rest } = await ChartsModel.show(appDb, {
           _id: new ObjectId(chart_id),
         })
-        const { insertedId } = await ChartsModel.create(dataDb, {
+        const { insertedId } = await ChartsModel.create(appDb, {
           ...rest,
           title: `${rest.title} (copy)`,
           owner: req.user.uid,

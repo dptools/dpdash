@@ -137,7 +137,7 @@ export class DpdashCdkStack extends cdk.Stack {
         HOME_URL: `https://${process.env.BASE_DOMAIN}/admin`,
       },
       secrets: {
-        MONGODB_PASSWORD: ecs.Secret.fromSecretsManager(ddbPassSecret, "password"),
+        MONGODB_PASSWORD: ecs.Secret.fromSecretsManager(ddbPassSecret),
         SESSION_SECRET: secrets.sessionSecretDev,
         IMPORT_API_USERS: secrets.importApiUsersDev,
         IMPORT_API_KEYS: secrets.importApiKeysDev,

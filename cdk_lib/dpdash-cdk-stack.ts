@@ -38,7 +38,7 @@ export class DpdashCdkStack extends cdk.Stack {
         zoneName: process.env.BASE_DOMAIN
       });
 
-      cert = new certificate_manager.Certificate(this, `${APP_NAME}DevCertificate`, {
+      cert = new certificate_manager.Certificate(this, `${APP_NAME}Certificate`, {
         domainName: `${process.env.BASE_DOMAIN}`,
         validation: certificate_manager.CertificateValidation.fromDns(hostedZone),
       });

@@ -106,6 +106,14 @@ export class DpdashCdkStack extends cdk.Stack {
       taskRole: new iam.Role(this, `${APP_NAME}AppTaskRole`, {
         assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
         inlinePolicies: {
+          readDbPassword: new iam.PolicyDocument({
+            statements: [
+              new iam.PolicyStatement({
+                actions: ['secretsmanager:GetSecretValue'],
+                resources: [ddbPassSecret.secretArn]
+              })
+            ]
+          }),
           sendEmail: new iam.PolicyDocument({
             statements: [
               new iam.PolicyStatement({

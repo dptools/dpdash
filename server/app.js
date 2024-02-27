@@ -83,7 +83,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 /* database setup */
 const mongoURI =
   process.env.MONGODB_URI ||
-  `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/?tls=true&tlsCAfile=global-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`
+  `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/?tls=true&tlsCAfile=global-bundle.pem d&retryWrites=false`
 
 const client = new MongoClient(mongoURI, { monitorCommands: true })
 

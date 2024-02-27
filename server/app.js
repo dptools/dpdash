@@ -83,7 +83,7 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 /* database setup */
 const mongoURI =
   process.env.MONGODB_URI ||
-  `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/dpdmongo?authSource=admin`
+  `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_HOST}:27017/`
 
 const client = new MongoClient(mongoURI, { monitorCommands: true })
 

@@ -60,15 +60,15 @@ export class DpdashCdkStack extends cdk.Stack {
 
     const secrets = {
       sessionSecretDev: ecs.Secret.fromSsmParameter(ssm.StringParameter.fromSecureStringParameterAttributes(this, `${APP_NAME}SessionDevSecret`, {
-        parameterName: 'DPDASH_SESSION_SECRET' + IS_DEV ? '_DEV' : '',
+        parameterName: 'DPDASH_SESSION_SECRET' + (IS_DEV ? '_DEV' : ''),
         version: 1,
       })),
       importApiUsersDev: ecs.Secret.fromSsmParameter(ssm.StringParameter.fromSecureStringParameterAttributes(this, `${APP_NAME}ImportApiUsers`, {
-        parameterName: 'DPDASH_IMPORT_API_USERS' + IS_DEV ? '_DEV' : '',
+        parameterName: 'DPDASH_IMPORT_API_USERS' + (IS_DEV ? '_DEV' : ''),
         version: 1,
       })),
       importApiKeysDev: ecs.Secret.fromSsmParameter(ssm.StringParameter.fromSecureStringParameterAttributes(this, `${APP_NAME}ImportApiKeysDev`, {
-        parameterName: 'DPDASH_IMPORT_API_KEYS' + IS_DEV ? '_DEV' : '',
+        parameterName: 'DPDASH_IMPORT_API_KEYS' + (IS_DEV ? '_DEV' : ''),
         version: 1,
       })),
     }

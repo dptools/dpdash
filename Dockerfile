@@ -4,6 +4,7 @@ COPY . /src
 
 WORKDIR /src
 
+RUN wget https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem
 RUN npm install
 
 ENV NODE_OPTIONS=--openssl-legacy-provider

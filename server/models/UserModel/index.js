@@ -100,7 +100,8 @@ const UserModel = {
   createFirstAdmin: async (db) => {
     if (await UserModel.hasAdmin(db)){
        if (await UserModel.adminPasswordIsNotReset(db)) {
-        const adminMailer = new AdminAccountPasswordMailer(reset_key)
+        const adminUser = UserModel.findOne(db, { uid: admin })
+        const adminMailer = new AdminAccountPasswordMailer(adminUser.reset_key)
         await adminMailer.sendMail()
        }
       return

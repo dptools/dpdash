@@ -24,7 +24,7 @@ import indexRouter from './routes/index'
 import participantsRouter from './routes/participants'
 import siteMetadata from './routes/siteMetadata'
 import usersRouter from './routes/users'
-import { PASSPORT_FIELDS_ATTRIBUTES } from './constants'
+import { FALSE_STRING, PASSPORT_FIELDS_ATTRIBUTES } from './constants'
 import UserModel from './models/UserModel'
 import { verifyHash } from './utils/crypto/hash'
 
@@ -88,9 +88,12 @@ const mongoURI =
 const client = new MongoClient(mongoURI, { monitorCommands: true })
 
 app.locals.appDb = client.db()
-
+let firstAdminNotChecked = true
 client.on('connectionCreated', async () => {
-  await UserModel.createFirstAdmin(app.locals.appDb)
+  if (firstAdminNotChecked) {
+    await UserModel.createFirstAdmin(app.locals.appDb)
+    firstAdminNotChecked = false
+  }
 })
 /** session store setup */
 app.set('trust proxy', 1)

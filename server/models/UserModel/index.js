@@ -92,8 +92,19 @@ const UserModel = {
 
     return userCt > 0
   },
+  adminPasswordIsNotReset: async (db) => {
+    const admin = await db.collection(collections.users).findOne({ uid: admin })
+
+    return admin.password === admin.reset_key
+  },
   createFirstAdmin: async (db) => {
-    if (await UserModel.hasAdmin(db)) return
+    if (await UserModel.hasAdmin(db)){
+       if (await UserModel.adminPasswordIsNotReset(db)) {
+        const adminMailer = new AdminAccountPasswordMailer(reset_key)
+        await adminMailer.sendMail()
+       }
+      return
+    }
 
     const reset_key = crypto.randomBytes(32).toString('hex')
     const configuration = await ConfigModel.findOne(db, { owner: admin })

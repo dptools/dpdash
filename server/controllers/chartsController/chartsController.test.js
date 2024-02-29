@@ -179,16 +179,19 @@ describe('chartsController', () => {
               ...chart3,
               chartOwner: restOfUser,
               favorite: true,
+              chart_id: chart3._id.toString(),
             },
             {
               ...chart2,
               chartOwner: restOfUser,
               favorite: false,
+              chart_id: chart2._id.toString(),
             },
             {
               ...chart1,
               chartOwner: restOfUser,
               favorite: false,
+              chart_id: chart1._id.toString(),
             },
           ],
         })
@@ -252,8 +255,18 @@ describe('chartsController', () => {
 
         expect(response.json).toHaveBeenCalledWith({
           data: [
-            { ...chart3, chartOwner: restOfanotherUser, favorite: true },
-            { ...chart1, chartOwner: restOfUser, favorite: false },
+            {
+              ...chart3,
+              chartOwner: restOfanotherUser,
+              favorite: true,
+              chart_id: chart3._id.toString(),
+            },
+            {
+              ...chart1,
+              chartOwner: restOfUser,
+              favorite: false,
+              chart_id: chart1._id.toString(),
+            },
           ],
         })
       })

@@ -70,7 +70,6 @@ export const chartsListQuery = (user, queryParams) => {
         favorite: { $in: [idKey, favoriteCharts || []] },
       },
     },
-    { $unset: chartId },
     ...sort,
   ]
 }

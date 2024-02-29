@@ -27,12 +27,11 @@ const ConfigModel = {
 
     return value
   },
-  index: async (db, userId) => {
-    return await db
+  index: async (db, userId) =>
+    await db
       .collection(collections.configs)
       .aggregate(loadAllConfigurationsMongoQuery(userId))
-      .toArray()
-  },
+      .toArray(),
   create: async (db, configAttributes) => {
     const { insertedId } = await db
       .collection(collections.configs)
@@ -55,8 +54,7 @@ const loadAllConfigurationsMongoQuery = (userId) => {
   const users = 'users'
   const owner = 'owner'
   const uid = 'uid'
-  const resultPropertyName = 'ownerUser'
-  const $display_name = '$display_name'
+  const configOwner = 'ownerUser'
 
   return [
     {
@@ -69,17 +67,21 @@ const loadAllConfigurationsMongoQuery = (userId) => {
         from: users,
         localField: uid,
         foreignField: owner,
-        pipeline: [
-          {
-            $project: {
-              icon: 1,
-              uid: 1,
-              name: $display_name,
-              _id: 0,
-            },
-          },
-        ],
-        as: resultPropertyName,
+        as: configOwner,
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        type: 1,
+        created: 1,
+        owner: 1,
+        readers: 1,
+        config: 1,
+        'ownerUser.0.uid': 1,
+        'ownerUser.0.display_name': 1,
+        'ownerUser.0.icon': 1,
       },
     },
   ]

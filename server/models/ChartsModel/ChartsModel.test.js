@@ -37,9 +37,6 @@ describe(chartsListQuery, () => {
         },
       },
       {
-        $unset: 'chart_id',
-      },
-      {
         $sort: {
           favorite: -1,
           title: 1,

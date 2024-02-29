@@ -60,11 +60,22 @@ const AssessmentDayDataController = {
           }
         )
       } else {
-        await SiteMetadataModel.upsert(
-          appDb,
-          { participants: { $elemMatch: { participant } } },
-          { $set: { 'participants.$.synced': new Date() } }
-        )
+        const isParticipantInDocument = await SiteMetadataModel.findOne(appDb, {
+          participants: { $elemMatch: { participant } },
+        })
+        if (isParticipantInDocument) {
+          await SiteMetadataModel.upsert(
+            appDb,
+            { participants: { $elemMatch: { participant } } },
+            { $set: { 'participants.$.synced': new Date() } }
+          )
+        } else {
+          await SiteMetadataModel.upsert(
+            appDb,
+            { study },
+            { $addToSet: { participants: participant } }
+          )
+        }
       }
 
       return res

@@ -53,11 +53,9 @@ const ConfigModel = {
 
 const loadAllConfigurationsMongoQuery = (userId) => {
   const users = 'users'
-  const $owner = '$owner'
-  const $uid = '$uid'
-  const $$owner = '$$owner'
+  const owner = 'owner'
+  const uid = 'uid'
   const resultPropertyName = 'ownerUser'
-  const $ownerUser = '$ownerUser'
   const $display_name = '$display_name'
 
   return [
@@ -69,13 +67,9 @@ const loadAllConfigurationsMongoQuery = (userId) => {
     {
       $lookup: {
         from: users,
-        let: { owner: $owner },
+        localField: uid,
+        foreignField: owner,
         pipeline: [
-          {
-            $match: {
-              $expr: { $eq: [$$owner, $uid] },
-            },
-          },
           {
             $project: {
               icon: 1,
@@ -88,7 +82,6 @@ const loadAllConfigurationsMongoQuery = (userId) => {
         as: resultPropertyName,
       },
     },
-    { $unwind: $ownerUser },
   ]
 }
 

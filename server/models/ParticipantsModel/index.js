@@ -8,7 +8,8 @@ const participant = 'participant'
 const $participant = '$participant'
 const $participants = '$participants'
 const $synced = '$synced'
-const timeUnit = 'day'
+const oneDayInSeconds = 86400000
+const today = new Date()
 
 const ParticipantsModel = {
   index: async (db, user, queryParams) =>
@@ -106,17 +107,13 @@ const allParticipantsQuery = (user, queryParams) => {
           $cond: {
             if: { $ne: [$synced, null] },
             then: {
-              $dateDiff: {
-                startDate: { $toDate: $Consent },
-                endDate: { $toDate: $synced },
-                unit: timeUnit,
+              $floor: {
+                $divide: [{ $subtract: [$synced, $Consent] }, oneDayInSeconds],
               },
             },
             else: {
-              $dateDiff: {
-                startDate: { $toDate: $Consent },
-                endDate: new Date(),
-                unit: timeUnit,
+              $floor: {
+                $divide: [{ $subtract: [today, $Consent] }, oneDayInSeconds],
               },
             },
           },

@@ -64,9 +64,9 @@ export const chartsListQuery = (user, queryParams) => {
     {
       $match: searchQuery,
     },
-    { $set: { chart_id: { $toString: id } } },
+    { $addFields: { chart_id: { $toString: id } } },
     {
-      $set: {
+      $addFields: {
         favorite: { $in: [idKey, favoriteCharts || []] },
       },
     },

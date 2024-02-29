@@ -23,14 +23,14 @@ describe(chartsListQuery, () => {
         },
       },
       {
-        $set: {
+        $addFields: {
           chart_id: {
             $toString: '$_id',
           },
         },
       },
       {
-        $set: {
+        $addFields: {
           favorite: {
             $in: ['$chart_id', ['1', '2']],
           },

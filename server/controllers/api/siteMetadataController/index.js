@@ -10,6 +10,8 @@ const SiteMetadataController = {
 
       participants.forEach((participant, i) => {
         participants[i].Consent = new Date(participant.Consent)
+        if (participants[i]?.synced)
+          participants[i].synced = new Date(participant.synced)
       })
 
       const studyMetadata = await SiteMetadataModel.findOne(appDb, { study })

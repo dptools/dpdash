@@ -27,7 +27,7 @@ export default function useParticipantsList() {
     const sortParams = {
       ...(sortBy ? { sortBy } : {}),
       ...(sortDirection ? { sortDirection } : {}),
-      ...(formFilters.searchParticipants.length
+      ...(formFilters.searchParticipants?.length
         ? {
             searchParticipants: normalizeSearchParticipants(
               formFilters.searchParticipants

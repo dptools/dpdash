@@ -17,7 +17,7 @@ const chartsShareController = {
           }
         )
 
-        return res.status(200).json({ data })
+        return res.status(200).json({ data: data })
       } catch (error) {
         return res.status(400).json({ error: 'Chart could not be shared' })
       }

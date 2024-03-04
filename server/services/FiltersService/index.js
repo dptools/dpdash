@@ -6,7 +6,7 @@ import {
 } from '../../constants'
 import StudiesModel from '../../models/StudiesModel'
 
-const FILTER_TO_MONGO_VALUE_MAP = {
+export const FILTER_TO_MONGO_VALUE_MAP = {
   HC: 2,
   CHR: 1,
   Missing: null,
@@ -42,6 +42,16 @@ export const DEFAULT_FILTERS = {
   sites: {},
 }
 
+const INCLUSION_EXCLUSION_KEY = 'included_excluded'
+const CHRCRIT_KEY = 'chrcrit_part'
+const DAY_DATA_KEY = 'dayData'
+const SEX_AT_BIRTH_FILTER_KEY = 'sex_at_birth'
+const SEX_AT_BIRTH_DOCUMENT_KEY = 'chrdemo_sexassigned'
+
+const filterToMongoValues = (filter) => {
+  return filter.filter(({ value }) => value === TRUE_STRING).map(({ name }) => FILTER_TO_MONGO_VALUE_MAP[name])
+}
+
 class FiltersService {
   constructor(filters, allSites) {
     this._filters = filters || DEFAULT_FILTERS
@@ -66,149 +76,41 @@ class FiltersService {
     }
   }
 
-  barChartMongoQueries = () => {
-    const filters = this.filters
-    const $facet = {}
-    const chrCritFilters = filters.chrcrit_part
-      .filter((f) => f.value === TRUE_STRING)
-      .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
-    const includedExcludedFilters = filters.included_excluded
-      .filter((f) => f.value === TRUE_STRING)
-      .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
-    const sexAtBirthFilters = filters.sex_at_birth
-      .filter((f) => f.value === TRUE_STRING)
-      .map((filter) => FILTER_TO_MONGO_VALUE_MAP[filter.name])
+  get filterQueries() {
+    const includedExcludedQuery = (includedValues) => ({[ `${DAY_DATA_KEY}.${INCLUSION_EXCLUSION_KEY}`]: { $in: includedValues } })
+    const chrChritQuery = (includedValues) => ({[ `${DAY_DATA_KEY}.${CHRCRIT_KEY}`]: { $in: includedValues } })
 
-    const isIncOrExcOnly =
-      !chrCritFilters.length && includedExcludedFilters.length
-    const isCritOnly = chrCritFilters.length && !includedExcludedFilters.length
-    const isIncAndCrit = chrCritFilters.length && includedExcludedFilters.length
+    const sexAtBirthQuery = (includedValues) => ({ [`${DAY_DATA_KEY}.${SEX_AT_BIRTH_DOCUMENT_KEY}`]: {$in: includedValues } })
 
-    if (isIncAndCrit) {
-      $facet.formInclusion = [
-        {
-          $match: {
-            assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
-            $and: [
-              {
-                dayData: {
-                  $elemMatch: { chrcrit_part: { $in: chrCritFilters } },
-                },
-              },
-              {
-                dayData: {
-                  $elemMatch: {
-                    included_excluded: { $in: includedExcludedFilters },
-                  },
-                },
-              },
-            ],
-            study: { $in: this.filters.sites },
-          },
-        },
-      ]
-    }
-    if (isIncOrExcOnly || isCritOnly) {
-      const variable = chrCritFilters.length
-        ? 'chrcrit_part'
-        : 'included_excluded'
-      const values = chrCritFilters.length
-        ? chrCritFilters
-        : includedExcludedFilters
+    const filterQueries = []
+    const filterNames = new Set(Object.keys(this.filters).filter(key => (this.filters[key].map(f => f.value).indexOf(TRUE_STRING) > -1)))
 
-      $facet.formInclusion = [
-        {
-          $match: {
-            assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
-            study: {
-              $in: this.filters.sites,
-            },
-            dayData: {
-              $elemMatch: { [variable]: { $in: values } },
-            },
-          },
-        },
-      ]
-    }
-    if (sexAtBirthFilters.length) {
-      $facet.sexAtBirth = [
-        {
-          $match: {
-            assessment: SOCIODEMOGRAPHICS_FORM,
-            dayData: {
-              $elemMatch: {
-                chrdemo_sexassigned: { $in: sexAtBirthFilters },
-              },
-            },
-          },
-        },
-      ]
-    }
-    return Object.keys($facet).length > 1
-      ? [
-          { $facet },
-          {
-            $project: {
-              participants: {
-                $setIntersection: [
-                  '$formInclusion.participant',
-                  '$sexAtBirth.participant',
-                ],
-              },
-            },
-          },
-        ]
-      : $facet
-  }
-
-  _buildFacetForFilters = ({
-    isSexAtBirthFilterActive,
-    isInclusionCriteriaFilterActive,
-    sites,
-  }) => {
-    const facetForFilters = {}
-    if (isSexAtBirthFilterActive) {
-      facetForFilters.socioDemographics = [
-        {
-          $match: {
-            assessment: SOCIODEMOGRAPHICS_FORM,
-            study: { $in: sites },
-          },
-        },
-        {
-          $project: {
-            ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
-          },
-        },
-        {
-          $addFields: {
-            filter: SOCIODEMOGRAPHICS_FORM,
-          },
-        },
-      ]
-    }
-    if (isInclusionCriteriaFilterActive) {
-      facetForFilters.inclusionCriteria = [
-        {
-          $match: {
-            assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
-            study: { $in: sites },
-          },
-        },
-        {
-          $project: {
-            ...INDIVIDUAL_FILTERS_MONGO_PROJECTION,
-          },
-        },
-        {
-          $addFields: {
-            filter: INCLUSION_EXCLUSION_CRITERIA_FORM,
-          },
-        },
-      ]
+    if (filterNames.has(INCLUSION_EXCLUSION_KEY) && filterNames.has(CHRCRIT_KEY)) {
+      filterQueries.push({
+        assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+        ...includedExcludedQuery(filterToMongoValues(this.filters[INCLUSION_EXCLUSION_KEY])),
+        ...chrChritQuery(filterToMongoValues(this.filters[CHRCRIT_KEY]))
+      })
+    } else if (filterNames.has(INCLUSION_EXCLUSION_KEY)) {
+      filterQueries.push({
+        assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+        ...includedExcludedQuery(filterToMongoValues(this.filters[INCLUSION_EXCLUSION_KEY])),
+      })
+    } else if (filterNames.has(CHRCRIT_KEY)) {
+      filterQueries.push({
+        assessment: INCLUSION_EXCLUSION_CRITERIA_FORM,
+        ...chrChritQuery(filterToMongoValues(this.filters[CHRCRIT_KEY])),
+      })
     }
 
-    return facetForFilters
+    if (filterNames.has(SEX_AT_BIRTH_FILTER_KEY)) {
+      filterQueries.push({
+        assessment: SOCIODEMOGRAPHICS_FORM,
+        ...sexAtBirthQuery(filterToMongoValues(this.filters[SEX_AT_BIRTH_FILTER_KEY]))
+      })
+    }
+
+    return filterQueries
   }
 }
 

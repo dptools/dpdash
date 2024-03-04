@@ -146,6 +146,126 @@ describe(BarChartService, () => {
           },
         })
       })
+      it('applies filters', async () => {
+        const filters = {
+          chrcrit_part: [
+            { name: 'HC', value: 'false'},
+            { name: 'CHR', value: 'true'},
+            { name: 'Missing', value: 'false'},
+          ],
+          included_excluded: [
+            { name: 'Included', value: 'true' },
+            { name: 'Excluded', value: 'false'},
+            { name: 'Missing', value: 'false' },
+          ],
+          sex_at_birth: [
+            { name: 'Male', value: 'true' },
+            { name: 'Female', value: 'false' },
+            { name: 'Missing', value: 'false' },
+          ],
+          sites: ['LA', 'MA', 'YA']
+        }
+        const filterService = new FiltersService(filters)
+        const chartService = new BarChartService(appDb, chart, filterService)
+        const chartData = await chartService.createChart()
+
+        expect(chartData).toEqual({
+          labelMap: new Map()
+            .set('Foo', {
+              color: '#e2860a',
+              name: 'Foo',
+            })
+            .set('Bar', {
+              color: 'red',
+              name: 'Bar',
+            })
+            .set('N/A', {
+              color: '#808080',
+              name: 'N/A',
+            }),
+
+          processedDataBySite: new Map()
+            .set('Madrid', {
+              counts: {
+                Bar: 0,
+                Foo: 1,
+                'N/A': 4,
+              },
+              name: 'Madrid',
+              percentages: {
+                Bar: 0,
+                Foo: 20,
+                'N/A': 80,
+              },
+              targets: {
+                Bar: 2,
+                Foo: 5,
+              },
+              totalsForStudy: {
+                count: 1,
+                targetTotal: 5,
+              },
+            })
+            .set('Totals', {
+              counts: {
+                Foo: 1,
+                'N/A': 13,
+              },
+              name: 'Totals',
+              percentages: {
+                Foo: 7.142857142857142,
+                'N/A': 92.85714285714286,
+              },
+              targets: {
+                Bar: 2,
+                Foo: 3,
+              },
+              totalsForStudy: {
+                count: 1,
+                targetTotal: 14,
+              },
+            })
+            .set('Madrid', {
+              counts: {
+                Bar: 0,
+                Foo: 1,
+                'N/A': 4,
+              },
+              name: 'Madrid',
+              percentages: {
+                Bar: 0,
+                Foo: 20,
+                'N/A': 80,
+              },
+              targets: {
+                Bar: 2,
+                Foo: 3,
+              },
+              totalsForStudy: {
+                count: 1,
+                targetTotal: 5,
+              },
+            }),
+          studyTotals: {
+            Madrid: {
+              count: 1,
+              targetTotal: 5,
+            },
+            Totals: {
+              count: 1,
+              targetTotal: 14,
+            },
+            UCLA: {
+              count: 0,
+              targetTotal: 5,
+            },
+            Yale: {
+              count: 0,
+              targetTotal: 4,
+            },
+          },
+        })
+      })
     })
   })
   describe('.legend', () => {

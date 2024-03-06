@@ -1,8 +1,48 @@
 import React from 'react'
-import { Box, Typography, useMediaQuery } from '@mui/material'
+import { Box, Typography, IconButton } from '@mui/material'
+import { ArrowBack } from '@mui/icons-material'
+import { fontSize } from '../../../constants'
 
 const PageHeader = (props) => {
-  return (
+  return props.isDescription ? (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(5,1fr)',
+        columnGap: '20px',
+        pb: '20px',
+      }}
+    >
+      <IconButton
+        aria-label="back"
+        onClick={props.onNavigate}
+        sx={{
+          color: 'gray.A100',
+          gridColumnEnd: 1,
+          pl: '0px',
+        }}
+      >
+        <ArrowBack />
+      </IconButton>
+
+      <Typography
+        sx={{
+          fontWeight: 600,
+          width: 192,
+          fontSize: fontSize[16],
+          gridColumnStart: 1,
+          gridColumnEnd: 5,
+          pt: '10px',
+        }}
+      >
+        {props.title}
+      </Typography>
+
+      <div style={{ gridColumnStart: 1, gridColumnEnd: 5 }}>
+        {props.description}
+      </div>
+    </Box>
+  ) : (
     <Box
       sx={{
         mb: '20px',

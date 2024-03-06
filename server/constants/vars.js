@@ -3,8 +3,6 @@ export const N_A = 'N/A'
 export const TOTALS_STUDY = 'Totals'
 export const EMPTY_VALUE = ''
 export const STUDIES_TO_OMIT = ['files', 'combined']
-export const TRUE_STRING = 'true'
-export const FALSE_STRING = 'false'
 export const INCLUSION_EXCLUSION_CRITERIA_FORM =
   'form_inclusionexclusion_criteria_review'
 export const SOCIODEMOGRAPHICS_FORM = 'form_sociodemographics'

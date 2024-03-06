@@ -25,7 +25,7 @@ const ControlledCheckbox = ({
                 if (onChange) onChange(e)
               }}
               inputProps={{ name, 'aria-label': name }}
-              defaultChecked={
+              checked={
                 !checked && typeof field.value === 'boolean'
                   ? field.value
                   : checked

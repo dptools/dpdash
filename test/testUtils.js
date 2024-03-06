@@ -228,49 +228,53 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
   ],
   description: 'Participant EEG Measurements',
   filters: {
-    chrcrit_part: [
-      {
-        name: 'HC',
-        value: 'false',
+    chrcrit_part: {
+      HC: {
+        label: 'HC',
+        value: 0,
       },
-      {
-        name: 'CHR',
-        value: 'false',
+      CHR: {
+        label: 'CHR',
+        value: 0,
       },
-      {
-        name: 'Missing',
-        value: 'false',
+      Missing: {
+        label: 'Missing',
+        value: 0,
       },
-    ],
-    included_excluded: [
-      {
-        name: 'Included',
-        value: 'false',
+    },
+    included_excluded: {
+      Included: {
+        label: 'Included',
+        value: 0,
       },
-      {
-        name: 'Excluded',
-        value: 'false',
+      Excluded: {
+        label: 'Excluded',
+        value: 0,
       },
-      {
-        name: 'Missing',
-        value: 'false',
+      Missing: {
+        label: 'Missing',
+        value: 0,
       },
-    ],
-    sex_at_birth: [
-      {
-        name: 'Male',
-        value: 'false',
+    },
+    sex_at_birth: {
+      Male: {
+        label: 'Male',
+        value: 0,
       },
-      {
-        name: 'Female',
-        value: 'false',
+      Female: {
+        label: 'Female',
+        value: 0,
       },
-      {
-        name: 'Missing',
-        value: 'false',
+      Missing: {
+        label: 'Missing',
+        value: 0,
       },
-    ],
-    sites: ['LA', 'MA', 'YA'],
+    },
+    sites: {
+      YA: { label: 'YA', value: 1 },
+      LA: { label: 'LA', value: 1 },
+      MA: { label: 'MA', value: 1 },
+    },
   },
   graphTable: {
     tableColumns: [
@@ -416,6 +420,7 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
   },
   title: 'Eeg Measurements',
   userSites: ['LA', 'MA', 'YA'],
+  lastModified: '',
   ...overrides,
 })
 
@@ -497,49 +502,53 @@ export const chartsDataInitialResponse = (overrides = {}) => ({
   ],
   description: 'Participant EEG Measurements',
   filters: {
-    chrcrit_part: [
-      {
-        name: 'HC',
-        value: 'true',
+    chrcrit_part: {
+      HC: {
+        label: 'HC',
+        value: 1,
       },
-      {
-        name: 'CHR',
-        value: 'true',
+      CHR: {
+        label: 'CHR',
+        value: 1,
       },
-      {
-        name: 'Missing',
-        value: 'true',
+      Missing: {
+        label: 'Missing',
+        value: 1,
       },
-    ],
-    included_excluded: [
-      {
-        name: 'Included',
-        value: 'true',
+    },
+    included_excluded: {
+      Included: {
+        label: 'Included',
+        value: 1,
       },
-      {
-        name: 'Excluded',
-        value: 'false',
+      Excluded: {
+        label: 'Excluded',
+        value: 0,
       },
-      {
-        name: 'Missing',
-        value: 'false',
+      Missing: {
+        label: 'Missing',
+        value: 0,
       },
-    ],
-    sex_at_birth: [
-      {
-        name: 'Male',
-        value: 'true',
+    },
+    sex_at_birth: {
+      Male: {
+        label: 'Male',
+        value: 1,
       },
-      {
-        name: 'Female',
-        value: 'true',
+      Female: {
+        label: 'Female',
+        value: 1,
       },
-      {
-        name: 'Missing',
-        value: 'true',
+      Missing: {
+        label: 'Missing',
+        value: 1,
       },
-    ],
-    sites: ['LA', 'MA', 'YA'],
+    },
+    sites: {
+      YA: { label: 'YA', value: 1 },
+      LA: { label: 'LA', value: 1 },
+      MA: { label: 'MA', value: 1 },
+    },
   },
   graphTable: {
     tableColumns: [
@@ -667,6 +676,7 @@ export const chartsDataInitialResponse = (overrides = {}) => ({
   },
   title: 'Eeg Measurements',
   userSites: ['LA', 'MA', 'YA'],
+  lastModified: '',
   ...overrides,
 })
 
@@ -725,49 +735,53 @@ export const chartsDataFilterResponse = (overrides = {}) => ({
   ],
   description: 'Participant EEG Measurements',
   filters: {
-    chrcrit_part: [
-      {
-        name: 'HC',
-        value: 'false',
+    chrcrit_part: {
+      HC: {
+        label: 'HC',
+        value: 0,
       },
-      {
-        name: 'CHR',
-        value: 'false',
+      CHR: {
+        label: 'CHR',
+        value: 0,
       },
-      {
-        name: 'Missing',
-        value: 'false',
+      Missing: {
+        label: 'Missing',
+        value: 0,
       },
-    ],
-    included_excluded: [
-      {
-        name: 'Included',
-        value: 'false',
+    },
+    included_excluded: {
+      Included: {
+        label: 'Included',
+        value: 0,
       },
-      {
-        name: 'Excluded',
-        value: 'false',
+      Excluded: {
+        label: 'Excluded',
+        value: 0,
       },
-      {
-        name: 'Missing',
-        value: 'false',
+      Missing: {
+        label: 'Missing',
+        value: 0,
       },
-    ],
-    sex_at_birth: [
-      {
-        name: 'Male',
-        value: 'true',
+    },
+    sex_at_birth: {
+      Male: {
+        label: 'Male',
+        value: 1,
       },
-      {
-        name: 'Female',
-        value: 'false',
+      Female: {
+        label: 'Female',
+        value: 0,
       },
-      {
-        name: 'Missing',
-        value: 'false',
+      Missing: {
+        label: 'Missing',
+        value: 0,
       },
-    ],
-    sites: ['LA', 'MA', 'YA'],
+    },
+    sites: {
+      YA: { label: 'YA', value: 1 },
+      LA: { label: 'LA', value: 1 },
+      MA: { label: 'MA', value: 1 },
+    },
   },
   graphTable: {
     tableColumns: [
@@ -877,5 +891,6 @@ export const chartsDataFilterResponse = (overrides = {}) => ({
   },
   title: 'Eeg Measurements',
   userSites: ['LA', 'MA', 'YA'],
+  lastModified: '',
   ...overrides,
 })

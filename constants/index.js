@@ -15,7 +15,6 @@ import {
   DATE_FORMAT,
   DISALLOWED_STUDIES,
   EMAIL_REGEX,
-  FALSE_STRING,
   FILTER_CATEGORIES,
   N_A,
   NOTIFICATION_DEFAULT,
@@ -24,7 +23,6 @@ import {
   SORT_DIRECTION,
   TOTAL_LABEL,
   TOTALS,
-  TRUE_STRING,
 } from './vars'
 import { THEME, borderRadius, fontSize, lineHeight } from './theme'
 
@@ -40,7 +38,6 @@ export {
   DATE_FORMAT,
   DRAWER_WIDTH,
   DISALLOWED_STUDIES,
-  FALSE_STRING,
   EMAIL_REGEX,
   FILTER_CATEGORIES,
   fontSize,
@@ -56,5 +53,4 @@ export {
   TOTAL_LABEL,
   TOTALS,
   THEME,
-  TRUE_STRING,
 }

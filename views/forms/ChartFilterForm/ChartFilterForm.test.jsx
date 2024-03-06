@@ -1,49 +1,77 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import ChartFilterForm from '.'
 
+jest.mock('react-hook-form', () => ({
+  ...jest.requireActual('react-hook-form'),
+  useWatch: ({ control: {}, name }) => {
+    if (name === 'chrcrit_part')
+      return {
+        HC: { label: 'HC', value: 0 },
+        CHR: { label: 'CHR', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      }
+
+    if (name === 'included_excluded')
+      return {
+        Included: { label: 'Included', value: 0 },
+        Excluded: { label: 'Excluded', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      }
+    if (name === 'sex_at_birth')
+      return {
+        Male: { label: 'Male', value: 0 },
+        Female: { label: 'Female', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      }
+
+    if (name === 'sites')
+      return {
+        CA: { label: 'CA', value: 1 },
+        LA: { label: 'LA', value: 1 },
+        MA: { label: 'MA', value: 0 },
+      }
+  },
+}))
+
 describe('Chart Filter Form', () => {
   const defaultProps = {
     initialValues: {
-      chrcrit_part: [
-        { name: 'HC', value: 'false' },
-        { name: 'CHR', value: 'false' },
-        { name: 'Missing', value: 'false' },
-      ],
-      included_excluded: [
-        { name: 'Included', value: 'false' },
-        { name: 'Excluded', value: 'false' },
-        { name: 'Missing', value: 'false' },
-      ],
-      sex_at_birth: [
-        { name: 'Male', value: 'false' },
-        { name: 'Female', value: 'false' },
-        { name: 'Missing', value: 'false' },
-      ],
-      sites: [
-        { label: 'CA', value: 'CA' },
-        { label: 'LA', value: 'LA' },
-      ],
+      chrcrit_part: {
+        HC: { label: 'HC', value: 0 },
+        CHR: { label: 'CHR', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      },
+      included_excluded: {
+        Included: { label: 'Included', value: 0 },
+        Excluded: { label: 'Excluded', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      },
+      sex_at_birth: {
+        Male: { label: 'Male', value: 0 },
+        Female: { label: 'Female', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      },
+      sites: {
+        CA: { label: 'CA', value: 1 },
+        LA: { label: 'LA', value: 1 },
+        MA: { label: 'MA', value: 0 },
+      },
     },
-    siteOptions: [
-      { label: 'CA', value: 'CA' },
-      { label: 'LA', value: 'LA' },
-      { label: 'MA', value: 'MA' },
-    ],
     onSubmit: () => {},
   }
   const elements = {
-    hcField: () =>
-      screen.getByRole('checkbox', { name: 'chrcrit_part.0.value' }),
-    chrField: () =>
-      screen.getByRole('checkbox', { name: 'chrcrit_part.1.value' }),
-    includedExcludedMissing: () =>
-      screen.getByRole('checkbox', { name: 'included_excluded.2.value' }),
-    siteSelect: () => screen.getByRole('combobox', { name: 'Sites' }),
-    siteOptions: () => screen.getByRole('listbox'),
-    submitBtn: () => screen.getByText('Apply Filters'),
+    form: () => screen.getByTestId('filter_form'),
+    chrAndHc: () => screen.getByLabelText('chrcrit_part'),
+    includedExcludedMissing: () => screen.getByLabelText('included_excluded'),
+    sites: () => screen.getByLabelText('sites'),
+    chrFilter: () =>
+      screen.getByRole('checkbox', { name: 'chrcrit_part.HC.value' }),
+    incExMiFilter: () =>
+      screen.getByRole('checkbox', { name: 'included_excluded.Missing.value' }),
+    siteFilter: () => screen.getByRole('checkbox', { name: 'sites.MA.value' }),
   }
   const renderForm = (props = defaultProps) => {
     render(<ChartFilterForm {...props} />)
@@ -55,60 +83,40 @@ describe('Chart Filter Form', () => {
     const props = { ...defaultProps, onSubmit }
 
     renderForm(props)
-    await user.click(elements.hcField())
+    await user.click(elements.chrAndHc())
+    await user.click(elements.chrFilter())
     await user.click(elements.includedExcludedMissing())
-    const siteSelect = elements.siteSelect()
-    await userEvent.type(siteSelect, '{backspace}')
-    await userEvent.type(siteSelect, 'm')
-    await userEvent.click(screen.getByText('MA'))
-    await user.click(elements.submitBtn())
+    await user.click(elements.incExMiFilter())
+    await user.click(elements.sites())
+    await user.click(elements.siteFilter())
 
+    fireEvent.submit(elements.form())
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith(
         {
-          chrcrit_part: [
-            { name: 'HC', value: true },
-            { name: 'CHR', value: 'false' },
-            { name: 'Missing', value: 'false' },
-          ],
-          included_excluded: [
-            { name: 'Included', value: 'false' },
-            { name: 'Excluded', value: 'false' },
-            { name: 'Missing', value: true },
-          ],
-          sex_at_birth: [
-            { name: 'Male', value: 'false' },
-            { name: 'Female', value: 'false' },
-            { name: 'Missing', value: 'false' },
-          ],
-          sites: [
-            { label: 'CA', value: 'CA' },
-            { label: 'MA', value: 'MA' },
-          ],
+          chrcrit_part: {
+            HC: { label: 'HC', value: true },
+            CHR: { label: 'CHR', value: 0 },
+            Missing: { label: 'Missing', value: 0 },
+          },
+          included_excluded: {
+            Included: { label: 'Included', value: 0 },
+            Excluded: { label: 'Excluded', value: 0 },
+            Missing: { label: 'Missing', value: true },
+          },
+          sex_at_birth: {
+            Male: { label: 'Male', value: 0 },
+            Female: { label: 'Female', value: 0 },
+            Missing: { label: 'Missing', value: 0 },
+          },
+          sites: {
+            CA: { label: 'CA', value: 1 },
+            LA: { label: 'LA', value: 1 },
+            MA: { label: 'MA', value: true },
+          },
         },
         expect.anything()
       )
     )
-  })
-
-  test('does not call the onSubmit prop with no sites', async () => {
-    const user = userEvent.setup()
-    const onSubmit = jest.fn()
-    const props = { ...defaultProps, onSubmit }
-
-    renderForm(props)
-    await user.click(elements.hcField())
-    await user.click(elements.includedExcludedMissing())
-    const siteSelect = elements.siteSelect()
-    await userEvent.type(siteSelect, '{backspace}')
-    await userEvent.type(siteSelect, '{backspace}')
-    await user.click(elements.submitBtn())
-
-    await waitFor(() =>
-      expect(
-        screen.getByText('You must select at least 1 site')
-      ).toBeInTheDocument()
-    )
-    expect(onSubmit).not.toHaveBeenCalled()
   })
 })

@@ -1,33 +1,24 @@
-import FiltersService, {
-  DEFAULT_FILTERS,
-  INDIVIDUAL_FILTERS_MONGO_PROJECTION,
-} from '.'
-import {
-  FALSE_STRING,
-  INCLUSION_EXCLUSION_CRITERIA_FORM,
-  SOCIODEMOGRAPHICS_FORM,
-  TRUE_STRING,
-} from '../../constants'
+import FiltersService, { DEFAULT_FILTERS } from '.'
 
 describe(FiltersService, () => {
   describe('#filters', () => {
     const initialFilters = {
-      chrcrit_part: [
-        { name: 'HC', value: TRUE_STRING },
-        { name: 'CHR', value: FALSE_STRING },
-        { name: 'Missing', value: FALSE_STRING },
-      ],
-      included_excluded: [
-        { name: 'Included', value: TRUE_STRING },
-        { name: 'Excluded', value: FALSE_STRING },
-        { name: 'Missing', value: FALSE_STRING },
-      ],
-      sex_at_birth: [
-        { name: 'Male', value: FALSE_STRING },
-        { name: 'Female', value: TRUE_STRING },
-        { name: 'Missing', value: TRUE_STRING },
-      ],
-      sites: [],
+      chrcrit_part: {
+        HC: { label: 'HC', value: 1 },
+        CHR: { label: 'CHR', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      },
+      included_excluded: {
+        Included: { label: 'Included', value: 1 },
+        Excluded: { label: 'Excluded', value: 0 },
+        Missing: { label: 'Missing', value: 0 },
+      },
+      sex_at_birth: {
+        Male: { label: 'Male', value: 0 },
+        Female: { label: 'Female', value: 1 },
+        Missing: { label: 'Missing', value: 1 },
+      },
+      sites: {},
     }
     const initialSites = ['one', 'two', 'three']
 
@@ -37,7 +28,7 @@ describe(FiltersService, () => {
 
         expect(service.filters).toEqual({
           ...initialFilters,
-          sites: ['one', 'three', 'two'],
+          sites: {},
         })
       })
     })
@@ -47,14 +38,40 @@ describe(FiltersService, () => {
         const service = new FiltersService(
           {
             ...initialFilters,
-            sites: ['four', 'five', 'six'],
+            sites: {
+              one: {
+                label: 'one',
+                value: 1,
+              },
+              three: {
+                label: 'three',
+                value: 1,
+              },
+              two: {
+                label: 'two',
+                value: 1,
+              },
+            },
           },
           initialSites
         )
 
         expect(service.filters).toEqual({
           ...initialFilters,
-          sites: ['five', 'four', 'six'],
+          sites: {
+            one: {
+              label: 'one',
+              value: 1,
+            },
+            three: {
+              label: 'three',
+              value: 1,
+            },
+            two: {
+              label: 'two',
+              value: 1,
+            },
+          },
         })
       })
     })
@@ -65,7 +82,20 @@ describe(FiltersService, () => {
 
         expect(service.filters).toEqual({
           ...DEFAULT_FILTERS,
-          sites: ['one', 'three', 'two'],
+          sites: {
+            one: {
+              label: 'one',
+              value: 1,
+            },
+            three: {
+              label: 'three',
+              value: 1,
+            },
+            two: {
+              label: 'two',
+              value: 1,
+            },
+          },
         })
       })
     })
@@ -75,8 +105,8 @@ describe(FiltersService, () => {
     it('return true when the filters have falsey values', () => {
       const service = new FiltersService(
         {
-          chrcrit_part: [{ name: 'HC', value: FALSE_STRING }],
-          sites: [],
+          chrcrit_part: [{ name: 'HC', value: 0 }],
+          sites: {},
         },
         []
       )
@@ -88,10 +118,10 @@ describe(FiltersService, () => {
       const service = new FiltersService(
         {
           chrcrit_part: [
-            { name: 'CHR', value: TRUE_STRING },
-            { name: 'Missing', value: FALSE_STRING },
+            { name: 'CHR', value: 1 },
+            { name: 'Missing', value: 0 },
           ],
-          sites: [],
+          sites: {},
         },
         []
       )

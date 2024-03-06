@@ -1,5 +1,4 @@
 import { ObjectId } from 'mongodb'
-import qs from 'qs'
 
 import { collections } from '../../utils/mongoCollections'
 import BarChartService from '../../services/BarChartService'
@@ -15,11 +14,7 @@ const show = async (req, res, next) => {
     const user = await UserModel.findOne(appDb, { uid: req.user.uid })
     const userSites = StudiesModel.sanitizeAndSort(user.access)
     const { chart_id } = req.params
-    const parsedQueryParams = qs.parse(req.query)
-    const filtersService = new FiltersService(
-      parsedQueryParams.filters,
-      userSites
-    )
+    const filtersService = new FiltersService(req.query.filters, userSites)
     const filters = filtersService.filters
     const chart = await appDb.collection(collections.charts).findOne({
       _id: new ObjectId(chart_id),
@@ -27,7 +22,6 @@ const show = async (req, res, next) => {
     const chartService = new BarChartService(appDb, chart, filtersService)
     const { processedDataBySite, studyTotals, labelMap } =
       await chartService.createChart()
-
     const dataBySite =
       processedDataBySite.size > 0
         ? Array.from(processedDataBySite.values())
@@ -71,6 +65,7 @@ const show = async (req, res, next) => {
       chartOwner,
       graphTable: websiteTable,
       userSites,
+      lastModified: chart.updatedAt || '',
     }
     return res.status(200).json({ data: graph })
   } catch (err) {

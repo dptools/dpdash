@@ -6,7 +6,6 @@ import {
   createFieldLabelValue,
 } from '../../../test/fixtures'
 import { ObjectId } from 'mongodb'
-import { TRUE_STRING, FALSE_STRING } from '../../constants'
 import chartsDataController from '.'
 
 import { collections } from '../../utils/mongoCollections'
@@ -75,22 +74,26 @@ describe('chartsDataController', () => {
             params: { chart_id: chart_id.toString() },
             query: {
               filters: {
-                chrcrit_part: [
-                  { name: 'HC', value: FALSE_STRING },
-                  { name: 'CHR', value: FALSE_STRING },
-                  { name: 'Missing', value: FALSE_STRING },
-                ],
-                included_excluded: [
-                  { name: 'Included', value: FALSE_STRING },
-                  { name: 'Excluded', value: FALSE_STRING },
-                  { name: 'Missing', value: FALSE_STRING },
-                ],
-                sex_at_birth: [
-                  { name: 'Male', value: FALSE_STRING },
-                  { name: 'Female', value: FALSE_STRING },
-                  { name: 'Missing', value: FALSE_STRING },
-                ],
-                sites: {},
+                chrcrit_part: {
+                  HC: { label: 'HC', value: '0' },
+                  CHR: { label: 'CHR', value: '0' },
+                  Missing: { label: 'Missing', value: '0' },
+                },
+                included_excluded: {
+                  Included: { label: 'Included', value: '0' },
+                  Excluded: { label: 'Excluded', value: '0' },
+                  Missing: { label: 'Missing', value: '0' },
+                },
+                sex_at_birth: {
+                  Male: { label: 'Male', value: '0' },
+                  Female: { label: 'Female', value: '0' },
+                  Missing: { label: 'Missing', value: '0' },
+                },
+                sites: {
+                  YA: { label: 'YA', value: '1' },
+                  LA: { label: 'LA', value: '1' },
+                  MA: { label: 'MA', value: '1' },
+                },
               },
             },
           },
@@ -102,7 +105,9 @@ describe('chartsDataController', () => {
 
         expect(response.status).toHaveBeenCalledWith(200)
         expect(response.json).toHaveBeenCalledWith({
-          data: chartsDataSuccessResponse({ chart_id: chart_id.toString() }),
+          data: chartsDataSuccessResponse({
+            chart_id: chart_id.toString(),
+          }),
         })
       })
 
@@ -120,32 +125,38 @@ describe('chartsDataController', () => {
 
         expect(response.status).toHaveBeenCalledWith(200)
         expect(response.json).toHaveBeenCalledWith({
-          data: chartsDataInitialResponse({ chart_id: chart_id.toString() }),
+          data: chartsDataInitialResponse({
+            chart_id: chart_id.toString(),
+          }),
         })
       })
-      test('The data when a user selects a specific filter', async () => {
+      it('returns data when a user selects a specific filter', async () => {
         const request = createRequestWithUser(
           {
             app: { locals: { appDb } },
             params: { chart_id: chart_id.toString() },
             query: {
               filters: {
-                chrcrit_part: [
-                  { name: 'HC', value: FALSE_STRING },
-                  { name: 'CHR', value: FALSE_STRING },
-                  { name: 'Missing', value: FALSE_STRING },
-                ],
-                included_excluded: [
-                  { name: 'Included', value: FALSE_STRING },
-                  { name: 'Excluded', value: FALSE_STRING },
-                  { name: 'Missing', value: FALSE_STRING },
-                ],
-                sex_at_birth: [
-                  { name: 'Male', value: TRUE_STRING },
-                  { name: 'Female', value: FALSE_STRING },
-                  { name: 'Missing', value: FALSE_STRING },
-                ],
-                sites: {},
+                chrcrit_part: {
+                  HC: { label: 'HC', value: '0' },
+                  CHR: { label: 'CHR', value: '0' },
+                  Missing: { label: 'Missing', value: '0' },
+                },
+                included_excluded: {
+                  Included: { label: 'Included', value: '0' },
+                  Excluded: { label: 'Excluded', value: '0' },
+                  Missing: { label: 'Missing', value: '0' },
+                },
+                sex_at_birth: {
+                  Male: { label: 'Male', value: '1' },
+                  Female: { label: 'Female', value: '0' },
+                  Missing: { label: 'Missing', value: '0' },
+                },
+                sites: {
+                  YA: { label: 'YA', value: '1' },
+                  LA: { label: 'LA', value: '1' },
+                  MA: { label: 'MA', value: '1' },
+                },
               },
             },
           },
@@ -157,7 +168,9 @@ describe('chartsDataController', () => {
 
         expect(response.status).toHaveBeenCalledWith(200)
         expect(response.json).toHaveBeenCalledWith({
-          data: chartsDataFilterResponse({ chart_id: chart_id.toString() }),
+          data: chartsDataFilterResponse({
+            chart_id: chart_id.toString(),
+          }),
         })
       })
     })

@@ -162,7 +162,7 @@ export class DpdashCdkStack extends cdk.Stack {
       },
     });
 
-    
+
     mongoCluster.connections.allowFrom(dpDashService.cluster.connections, ec2.Port.tcp(27017))
   }
 }

@@ -89,16 +89,17 @@ class BarChartService {
   }
 
   createChart = async () => {
-    const { filters } = this.filtersService
+    const { requestedSites } = this.filtersService
     const chartProcessor = new BarChartDataProcessor(
       this.chart,
-      this.generateStudyTargetTotals(filters.sites)
+      this.generateStudyTargetTotals(requestedSites)
     )
     const dataStream = await ParticipantsModel.allForAssessment(
       this.appDb,
       this.chart,
       this.filtersService
     )
+
     dataStream.on('data', (doc) => chartProcessor.processDocument(doc))
     await new Promise((resolve, reject) => {
       dataStream.on('end', () => resolve())
@@ -106,8 +107,11 @@ class BarChartService {
       dataStream.on('error', (err) => reject(err))
     })
 
-    const { processedDataBySite, studyTotals, labelMap } =
+    const { processedDataBySite, studyTotals, labelMap, dataMap } =
       chartProcessor.processData()
+
+    if (dataMap.size === 0)
+      return { processedDataBySite: new Map(), studyTotals, labelMap }
 
     return { processedDataBySite, studyTotals, labelMap }
   }

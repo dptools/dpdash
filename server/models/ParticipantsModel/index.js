@@ -1,7 +1,6 @@
 import { collections } from '../../utils/mongoCollections'
-import { ASC, INCLUSION_EXCLUSION_CRITERIA_FORM, SOCIODEMOGRAPHICS_FORM, TRUE_STRING } from '../../constants'
+import { ASC } from '../../constants'
 import { ALL_SUBJECTS_MONGO_PROJECTION, STUDIES_TO_OMIT } from '../../constants'
-import { FILTER_TO_MONGO_VALUE_MAP } from '../../services/FiltersService'
 
 const $Consent = '$Consent'
 const participant = 'participant'
@@ -18,29 +17,53 @@ const ParticipantsModel = {
       .aggregate(allParticipantsQuery(user, queryParams))
       .toArray(),
   allForAssessment: async (db, chart, filtersService) => {
-    const { filters, filterQueries } = filtersService
+    const { filterQueries } = filtersService
     const query = {
       assessment: chart.assessment,
-      study: { $in: filters.sites, $nin: STUDIES_TO_OMIT },
+      study: { $in: filtersService.requestedSites, $nin: STUDIES_TO_OMIT },
     }
-
     if (filtersService.allFiltersInactive()) {
       return await db
         .collection(collections.assessmentDayData)
-        .find(query,  { projection: ALL_SUBJECTS_MONGO_PROJECTION })
+        .find(query, { projection: ALL_SUBJECTS_MONGO_PROJECTION })
         .stream()
     }
 
-    const includedParticipantsByFilter = await Promise.all(filterQueries.map((query) => {
-      return db.collection(collections.assessmentDayData).distinct('participant', query)
-    }))
-
-    const includedParticipants = new Set(includedParticipantsByFilter.flat())
+    const groupedParticipants = await Promise.all(
+      filterQueries.map((query) => {
+        return db
+          .collection(collections.assessmentDayData)
+          .distinct('participant', query)
+      })
+    )
 
     return await db
       .collection(collections.assessmentDayData)
-      .find({ ...query, participant: { $in: Array.from(includedParticipants)} })
+      .find({
+        ...query,
+        participant: {
+          $in:
+            groupedParticipants.length > 1
+              ? ParticipantsModel.intersectParticipants(
+                  groupedParticipants[0],
+                  groupedParticipants[1]
+                )
+              : groupedParticipants.flat(),
+        },
+      })
       .stream()
+  },
+  intersectParticipants: (listA, listB) => {
+    const smallestList = listA.length < listB.length ? listA : listB
+    const largestList = listA.length > listB.length ? listA : listB
+
+    return smallestList.reduce((participants, participant) => {
+      const isParticipantInLargeList = largestList.includes(participant)
+
+      if (isParticipantInLargeList) participants.push(participant)
+
+      return participants
+    }, [])
   },
 }
 

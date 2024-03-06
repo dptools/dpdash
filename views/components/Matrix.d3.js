@@ -53,15 +53,14 @@ export default class Matrix {
   }
 
   validDay = (d) => d.day >= this.startDay && d.day <= this.lastDayForFilter
-
   create = (data) => {
     this.data = data
 
     const svgElement = d3
       .select(this.el)
       .append('svg')
-      .attr('width', () => Math.max(this.width, 0))
-      .attr('height', () => Number(this.height))
+      .attr('width', () => '100%')
+      .attr('height', () => '100%')
     this.svg = svgElement.append('g')
     this.cards = this.svg
       .append('g')

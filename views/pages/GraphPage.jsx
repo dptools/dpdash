@@ -135,6 +135,7 @@ const GraphPage = () => {
     }
 
     graphRef.current = new Matrix(el.current, matrixProps)
+
     graphRef.current.create(graph.matrixData)
     setGraphRendered(graphRendered + 1)
   }
@@ -156,15 +157,16 @@ const GraphPage = () => {
     let updatedSvgElement = el.current.lastChild
     if (updatedSvgElement) {
       let svgString = new XMLSerializer().serializeToString(updatedSvgElement)
-      let svgUrl =
-        'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString)
 
       const kanvas = canvasRef.current
       kanvas.width = updatedSvgElement.getBBox().width
       kanvas.height = updatedSvgElement.getBBox().height
 
+      let svgUrl =
+        'data:image/svg+xml; charset=utf8, ' + encodeURIComponent(svgString.replace('<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">', `<svg xmlns="http://www.w3.org/2000/svg" width="${kanvas.width}" height="${kanvas.height}">`))
+
       // png conversion
-      let img = new Image()
+      let img = new Image(kanvas.width, kanvas.height)
       let ctx = kanvas.getContext('2d')
       img.src = svgUrl
 
@@ -204,7 +206,7 @@ const GraphPage = () => {
         </Button>
       </Box>
       <div className="Matrix">
-        <div className="graph" ref={el} />
+        <div className="graph" ref={el} style={{height:'90vh'}} />
       </div>
       <div>
         <Button
@@ -230,7 +232,7 @@ const GraphPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
+      <canvas ref={canvasRef} style={{display: 'none'}}/>
     </Box>
   )
 }

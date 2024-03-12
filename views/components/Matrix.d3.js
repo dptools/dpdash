@@ -437,27 +437,6 @@ export default class Matrix {
       .ticks(xAxisForDatesData.length - 1 || 1)
       .tickValues(xAxisValuesTop)
 
-    if (xAxisForDatesData.length > 0) {
-      this.xAxisLinearBottom = d3
-        .axisBottom(this.xScaleLinearBottom)
-        .ticks(xAxisForDatesData.length - 1)
-        .tickValues(xAxisValuesBottom)
-        .tickFormat(d3.format('d'))
-      this.xAxisBottom = this.svg
-        .append('g')
-        .attr('class', 'xAxisLinearBottom')
-        .attr('transform', () => `translate(0,${xAxisBottomYCoordinate - 8})`)
-        .call(this.xAxisLinearBottom)
-      this.xAxisBottom
-        .selectAll('text')
-        .attr('font-size', (d) =>
-          d.length <= 3 ? this.halfCardSize : this.cardSize / (d.length - 1.5)
-        )
-        .style('fill', DARK_GREY)
-
-      this.xAxisBottom.selectAll('path').attr('stroke-opacity', 0)
-      this.xAxisBottom.selectAll('line').attr('stroke-opacity', 0)
-    }
     this.xAxisTop = this.svg
       .append('g')
       .attr('class', 'xAxisLinearTop')

@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import ChartsModel from '../../models/ChartsModel'
-import UserModel from '../../models/UserModel'
+import UserModel, { userMongoProjection } from '../../models/UserModel'
 import { defaultTargetValueMap } from '../../utils/defaultTargetValueMap'
 
 const chartsController = {
@@ -49,7 +49,7 @@ const chartsController = {
       while (await chartListCursor.hasNext()) {
         const chart = await chartListCursor.next()
 
-        chart.chartOwner = await UserModel.findOne(appDb, { uid: chart.owner })
+        chart.chartOwner = await UserModel.findOne(appDb, { uid: chart.owner }, { ...userMongoProjection, icon: 0 })
 
         chartList.push(chart)
       }

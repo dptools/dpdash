@@ -5,7 +5,7 @@ import StudiesModel from '../StudiesModel'
 import AdminAccountPasswordMailer from '../../mailer/AdminAccountPasswordMailer'
 import ConfigModel from '../ConfigModel'
 
-const userMongoProjection = {
+export const userMongoProjection = {
   _id: 0,
   password: 0,
   bad_pwd_count: 0,

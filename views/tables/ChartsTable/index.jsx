@@ -105,13 +105,6 @@ const ChartsTable = ({
       case 'owner':
         return (
           <div className="ChartsTable_Profile">
-            <Avatar
-              alt={chart['chartOwner'].display_name[0]}
-              src={UrlModel.sanitizeUrl(
-                String(chart['chartOwner'].icon).trim()
-              )}
-              sx={{ width: 24, height: 24 }}
-            />
             <Typography sx={{ pl: '5px' }}>
               {chart['chartOwner'].display_name}
             </Typography>

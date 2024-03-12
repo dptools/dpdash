@@ -168,7 +168,7 @@ describe('chartsController', () => {
         )
 
         const response = createResponse()
-        const { _id, ...restOfUser } = user
+        const { _id, icon: _icon, ...restOfUser } = user
 
         await chartsController.index(request, response)
 
@@ -232,8 +232,8 @@ describe('chartsController', () => {
             uid: 'anotherUser',
           }),
         }
-        const { _id, ...restOfUser } = user
-        const { _id: _x, ...restOfanotherUser } = anotherUser
+        const { _id, icon: _icon, ...restOfUser } = user
+        const { _id: _x, icon: _icon2, ...restOfanotherUser } = anotherUser
 
         await appDb
           .collection(collections.users)

@@ -25,7 +25,7 @@ const ConfigurationsTable = (props) => {
   } = props
   const headers = [
     { dataProperty: 'name', label: 'Configuration Name', sortable: false },
-    { dataProperty: 'owner', label: 'Created By', sortable: false },
+    { dataProperty: 'owner_display_name', label: 'Created By', sortable: false },
     {
       dataProperty: 'default',
       label: '',

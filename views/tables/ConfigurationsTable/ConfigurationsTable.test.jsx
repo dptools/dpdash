@@ -10,12 +10,14 @@ describe('ConfigurationsTable', () => {
     createConfiguration({
       name: 'config1',
       owner: user.uid,
+      owner_display_name: ['User'],
       readers: ['user', 'foo', 'bar'],
     }),
     createConfiguration({
       _id: '2',
       name: 'config2',
       owner: 'foo',
+      owner_display_name: ['Foo'],
       readers: ['foo'],
     }),
     createConfiguration({
@@ -23,6 +25,7 @@ describe('ConfigurationsTable', () => {
       name: 'config3',
       readers: ['user', 'bar'],
       owner: 'bar',
+      owner_display_name: ['Bar'],
     }),
   ]
   const defaultProps = {
@@ -72,7 +75,7 @@ describe('ConfigurationsTable', () => {
       within(elements.tableRow(0)).getByText(configurations[0].name)
     ).toBeInTheDocument()
     expect(
-      within(elements.tableRow(0)).getByText(configurations[0].owner)
+      within(elements.tableRow(0)).getByText(configurations[0].owner_display_name[0])
     ).toBeInTheDocument()
     expect(
       within(elements.tableRow(0)).getByText('Default')
@@ -82,14 +85,14 @@ describe('ConfigurationsTable', () => {
       within(elements.tableRow(1)).getByText(configurations[1].name)
     ).toBeInTheDocument()
     expect(
-      within(elements.tableRow(1)).getByText(configurations[1].owner)
+      within(elements.tableRow(1)).getByText(configurations[1].owner_display_name[0])
     ).toBeInTheDocument()
 
     expect(
       within(elements.tableRow(2)).getByText(configurations[2].name)
     ).toBeInTheDocument()
     expect(
-      within(elements.tableRow(2)).getByText(configurations[2].owner)
+      within(elements.tableRow(2)).getByText(configurations[2].owner_display_name[0])
     ).toBeInTheDocument()
   })
 

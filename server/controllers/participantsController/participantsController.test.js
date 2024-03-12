@@ -4,6 +4,7 @@ import {
   createResponse,
   createUser,
   createMetadataParticipant,
+  createAssessmentDayData,
 } from '../../../test/fixtures'
 import { collections } from '../../utils/mongoCollections'
 
@@ -18,11 +19,13 @@ describe('ParticipantsController', () => {
       beforeEach(async () => {
         await appDb.createCollection(collections.metadata)
         await appDb.createCollection(collections.users)
+        await appDb.createCollection(collections.assessmentDayData)
       })
 
       afterEach(async () => {
         await appDb.collection(collections.users).drop()
         await appDb.collection(collections.metadata).drop()
+        await appDb.collection(collections.assessmentDayData).drop()
       })
       afterAll(async () => {
         await appDb.dropDatabase()
@@ -88,6 +91,63 @@ describe('ParticipantsController', () => {
             ],
           },
         ])
+        await appDb.collection(collections.assessmentDayData).insertMany([
+          createAssessmentDayData({
+            study: 'CA',
+            participant: 'CA00063',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'CA',
+            participant: 'CA00064',
+            dayData: [
+              {
+                day: 15
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA00037',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA29023',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA00015',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA01508',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+        ])
+
         const request = createRequestWithUser(
           {
             app: { locals: { appDb } },
@@ -222,6 +282,62 @@ describe('ParticipantsController', () => {
               result,
             ],
           },
+        ])
+        await appDb.collection(collections.assessmentDayData).insertMany([
+          createAssessmentDayData({
+            study: 'CA',
+            participant: 'CA00063',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'CA',
+            participant: 'CA00064',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA00037',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA29023',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA00015',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
+          createAssessmentDayData({
+            study: 'YA',
+            participant: 'YA01508',
+            dayData: [
+              {
+                day: 49
+              }
+            ]
+          }),
         ])
         const request = createRequestWithUser(
           {

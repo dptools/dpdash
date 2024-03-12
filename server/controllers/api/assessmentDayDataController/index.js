@@ -10,7 +10,19 @@ const AssessmentDayDataController = {
       if (!metadata || !participant_assessments.length)
         return res.status(400).json({ message: 'Nothing to import' })
 
-      const { assessment, participant, study } = metadata
+      const { assessment, participant, study, Consent, Active } = metadata
+      let parsedConsent = null
+
+      try {
+        if (Consent) {
+          parsedConsent = new Date(Consent)
+        }
+      } catch(e) {
+        // Missing consent dates could come in a number of formats,
+        // so we attempt to parse the date and leave it as null if there's
+        // an error
+      }
+
       const query = {
         assessment,
         participant,
@@ -24,6 +36,7 @@ const AssessmentDayDataController = {
         await AssessmentDayDataModel.update(appDb, query, {
           ...participantAssessmentData,
           ...metadata,
+          Consent: parsedConsent,
           dayData: sortedDayData(
             participantAssessmentData,
             participant_assessments
@@ -32,6 +45,7 @@ const AssessmentDayDataController = {
       } else {
         await AssessmentDayDataModel.create(appDb, {
           ...metadata,
+          Consent: parsedConsent,
           dayData: participant_assessments,
         })
       }
@@ -49,8 +63,8 @@ const AssessmentDayDataController = {
               study,
               participants: [
                 {
-                  Active: 1,
-                  Consent: new Date(),
+                  Active,
+                  Consent: parsedConsent,
                   study,
                   participant,
                   synced: new Date(),
@@ -73,7 +87,17 @@ const AssessmentDayDataController = {
           await SiteMetadataModel.upsert(
             appDb,
             { study },
-            { $addToSet: { participants: participant } }
+            {
+              $addToSet: {
+                participants: {
+                  Active,
+                  Consent: parsedConsent,
+                  study,
+                  participant,
+                  synced: new Date(),
+                }
+              }
+            }
           )
         }
       }

@@ -2,20 +2,42 @@ import { collections } from '../../utils/mongoCollections'
 import { ASC } from '../../constants'
 import { ALL_SUBJECTS_MONGO_PROJECTION, STUDIES_TO_OMIT } from '../../constants'
 
-const $Consent = '$Consent'
 const participant = 'participant'
 const $participant = '$participant'
 const $participants = '$participants'
-const $synced = '$synced'
-const oneDayInSeconds = 86400000
-const today = new Date()
 
 const ParticipantsModel = {
-  index: async (db, user, queryParams) =>
-    await db
+  index: async (db, user, queryParams) => {
+    const participants =  await db
       .collection(collections.metadata)
       .aggregate(allParticipantsQuery(user, queryParams))
-      .toArray(),
+      .toArray()
+
+    const maxDaysInStudy = await db
+      .collection(collections.assessmentDayData)
+      .aggregate([
+        {
+          $unwind: '$dayData'
+        },
+        {
+          $group: {
+            _id: '$participant',
+            daysInStudy: {
+              $max: '$dayData.day'
+            }
+          }
+        }
+      ])
+      .toArray()
+
+    const maxDaysInStudyByParticipant = maxDaysInStudy.reduce((map, participantDaysInStudy) => {
+        map[participantDaysInStudy._id] = participantDaysInStudy.daysInStudy
+        return map
+      }, {})
+
+    return participants
+      .map(participant => ({...participant, daysInStudy: maxDaysInStudyByParticipant[participant.participant]}))
+  },
   allForAssessment: async (db, chart, filtersService) => {
     const { filterQueries } = filtersService
     const query = {
@@ -111,21 +133,6 @@ const allParticipantsQuery = (user, queryParams) => {
         study: 1,
         participant: 1,
         synced: 1,
-        daysInStudy: {
-          $cond: {
-            if: { $ne: [$synced, null] },
-            then: {
-              $floor: {
-                $divide: [{ $subtract: [$synced, $Consent] }, oneDayInSeconds],
-              },
-            },
-            else: {
-              $floor: {
-                $divide: [{ $subtract: [today, $Consent] }, oneDayInSeconds],
-              },
-            },
-          },
-        },
       },
     },
   ]

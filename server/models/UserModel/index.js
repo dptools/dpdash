@@ -101,8 +101,7 @@ const UserModel = {
     if (await UserModel.hasAdmin(db)){
        if (await UserModel.adminPasswordIsNotReset(db)) {
         const adminUser = await UserModel.findOne(db, { uid: admin })
-        const adminMailer = new AdminAccountPasswordMailer(adminUser.reset_key)
-        await adminMailer.sendMail()
+        await UserModel.sendResetPasswordKey(adminUser.reset_key)
        }
       return
     }
@@ -132,6 +131,9 @@ const UserModel = {
       reset_key,
     })
 
+    await UserModel.sendResetPasswordKey(reset_key)
+  },
+  sendResetPasswordKey: async (reset_key) => {
     if (process.env.NODE_ENV === 'development')
       console.log(`RESET KEY: ${reset_key}`)
     else {

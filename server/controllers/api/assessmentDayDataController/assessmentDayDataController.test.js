@@ -29,6 +29,8 @@ describe('assessmentDayDataController', () => {
         end: '4',
         extension: '.csv',
         time_end: '4',
+        Consent: '2020-01-02',
+        Active: 1,
       }
       let appDb
 
@@ -111,6 +113,8 @@ describe('assessmentDayDataController', () => {
           end: '4',
           extension: '.csv',
           time_end: '4',
+          Active: 1,
+          Consent: new Date('2020-01-02'),
           dayData: [
             { day: 1, var1: 1, var2: 2, var3: 'str' },
             {
@@ -253,6 +257,7 @@ describe('assessmentDayDataController', () => {
           end: '12',
           extension: '.csv',
           time_end: '12',
+          Consent: null,
           dayData: [
             {
               day: 1,
@@ -323,7 +328,6 @@ describe('assessmentDayDataController', () => {
             {
               projection: {
                 _id: 0,
-                'participants.Consent': 0,
                 'participants.synced': 0,
               },
             }
@@ -334,6 +338,7 @@ describe('assessmentDayDataController', () => {
           participants: [
             {
               Active: 1,
+              Consent: new Date('2020-01-02'),
               study: 'study',
               participant: 'participant',
             },

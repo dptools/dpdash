@@ -352,14 +352,14 @@ export default class Matrix {
 
   generateXAxisForDatesData = () => {
     const xAxisForDatesData = []
-    const startDate = stringToDate(this.consentDate, 'yyyy-mm-dd', '-')
+    const startDate = this.consentDate ? stringToDate(this.consentDate, 'yyyy-mm-dd', '-') : null
     const firstDay = this.startDay - 1 //Consent date is 1
     for (let i = firstDay; i < this.lastDayForFilter; i++) {
       const day = i + 1
 
-      if (startDate.getDay() == 0 || startDate.getDay() == 6) {
+      if (startDate && startDate.getDay() == 0 || startDate.getDay() == 6) {
         xAxisForDatesData.push({ day, marker: 'S' })
-      } else if (startDate.getDay() == 3) {
+      } else if (startDate && startDate.getDay() == 3) {
         const month = startDate.getMonth() + 1
         const localeDate = `${month}/${startDate.getDate()}/${startDate.getFullYear()}`
 

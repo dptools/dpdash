@@ -52,12 +52,14 @@ describe('ParticipantsController', () => {
                 participant: 'CA00063',
                 synced: new Date('07/28/2022'),
                 study: 'CA',
+                daysInStudy: 49,
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
                 participant: 'CA00064',
                 synced: new Date('2022-06-24'),
                 study: 'CA',
+                daysInStudy: 15,
               }),
             ],
           },
@@ -69,24 +71,28 @@ describe('ParticipantsController', () => {
                 participant: 'YA00037',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
+                daysInStudy: 49,
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
                 participant: 'YA29023',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
+                daysInStudy: 49,
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
                 participant: 'YA00015',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
+                daysInStudy: 49,
               }),
               createMetadataParticipant({
                 Consent: new Date('2022-06-09'),
                 participant: 'YA01508',
                 synced: new Date('07/28/2022'),
                 study: 'YA',
+                daysInStudy: 49,
               }),
             ],
           },
@@ -236,6 +242,7 @@ describe('ParticipantsController', () => {
           participant: 'YA29023',
           synced: new Date('07/28/2022'),
           study: 'YA',
+          daysInStudy: 49,
         })
 
         await appDb.collection(collections.users).insertOne(user)

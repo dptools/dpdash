@@ -258,6 +258,7 @@ describe('assessmentDayDataController', () => {
           extension: '.csv',
           time_end: '12',
           Consent: null,
+          daysInStudy: 12,
           dayData: [
             {
               day: 1,
@@ -341,6 +342,7 @@ describe('assessmentDayDataController', () => {
               Consent: new Date('2020-01-02'),
               study: 'study',
               participant: 'participant',
+              daysInStudy: 8,
             },
           ],
         })
@@ -419,8 +421,9 @@ describe('assessmentDayDataController', () => {
             }
           )
 
-        expect(newDocument.participants[0]).toHaveProperty('synced')
-      })
+          expect(newDocument.participants[0]).toHaveProperty('synced')
+          expect(newDocument.participants[0].daysInStudy).toEqual(8)
+        })
     })
     describe('When unsuccessful', () => {
       it('returns a status of 400 and an error message when payload is missing', async () => {

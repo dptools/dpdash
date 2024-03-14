@@ -7,37 +7,10 @@ const $participant = '$participant'
 const $participants = '$participants'
 
 const ParticipantsModel = {
-  index: async (db, user, queryParams) => {
-    const participants =  await db
+  index: async (db, user, queryParams) => await db
       .collection(collections.metadata)
       .aggregate(allParticipantsQuery(user, queryParams))
-      .toArray()
-
-    const maxDaysInStudy = await db
-      .collection(collections.assessmentDayData)
-      .aggregate([
-        {
-          $unwind: '$dayData'
-        },
-        {
-          $group: {
-            _id: '$participant',
-            daysInStudy: {
-              $max: '$dayData.day'
-            }
-          }
-        }
-      ])
-      .toArray()
-
-    const maxDaysInStudyByParticipant = maxDaysInStudy.reduce((map, participantDaysInStudy) => {
-        map[participantDaysInStudy._id] = participantDaysInStudy.daysInStudy
-        return map
-      }, {})
-
-    return participants
-      .map(participant => ({...participant, daysInStudy: maxDaysInStudyByParticipant[participant.participant]}))
-  },
+      .toArray(),
   allForAssessment: async (db, chart, filtersService) => {
     const { filterQueries } = filtersService
     const query = {
@@ -96,7 +69,9 @@ const allParticipantsQuery = (user, queryParams) => {
   const { status, sortBy, sortDirection, searchParticipants, studies } =
     queryParams
   const direction = sortDirection === ASC ? 1 : -1
-  const sort = { $sort: { star: -1, [sortBy]: direction } }
+  const sortByParams = { [sortBy]: direction }
+  const baseSort = { star: -1 }
+  const sort = sortBy ? { $sort: {...baseSort, ...sortByParams } } : { $sort: baseSort } 
   const studiesSet = new Set(studies?.length ? studies : user.access)
 
   searchParticipants?.forEach((participant) =>
@@ -118,21 +93,18 @@ const allParticipantsQuery = (user, queryParams) => {
     },
 
     { $unwind: $participants },
-    { $replaceRoot: { newRoot: $participants } },
     {
       $project: {
-        Active: 1,
-        Consent: 1,
-        complete: {
-          $in: [$participant, completed],
-        },
+        _id: 0,
+        Active: '$participants.Active',
+        Consent: '$participants.Consent',
+        complete: { $in: ['$participants.participant', completed] },
         days: 1,
-        star: {
-          $in: [$participant, starred],
-        },
+        star: { $in: ['$participants.participant', starred] },
         study: 1,
-        participant: 1,
-        synced: 1,
+        participant: '$participants.participant',
+        synced: '$participants.synced',
+        daysInStudy: '$participants.daysInStudy',
       },
     },
   ]
@@ -149,8 +121,8 @@ const allParticipantsQuery = (user, queryParams) => {
             },
             {
               participant: {
-                $in: searchParticipants,
-              },
+                $in: searchParticipants
+              }
             },
           ],
         },
@@ -161,8 +133,8 @@ const allParticipantsQuery = (user, queryParams) => {
           $or: [
             {
               participant: {
-                $in: searchParticipants,
-              },
+                $in: searchParticipants
+              }
             },
           ],
         },
@@ -183,6 +155,7 @@ const allParticipantsQuery = (user, queryParams) => {
       },
     })
   }
+
   query.push(sort)
 
   return query

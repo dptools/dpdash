@@ -31,16 +31,23 @@ const AssessmentDayDataController = {
         appDb,
         query
       )
+      
+      let sortedDayData = participant_assessments
+      let maxDayInDayData = Math.max(...participant_assessments.map(pa => pa.day))
 
       if (participantAssessmentData) {
+        sortedDayData = sortDayData(
+          participantAssessmentData,
+          participant_assessments
+        )
+        maxDayInDayData = Math.max(...sortedDayData.map(dayData => dayData.day))
+
         await AssessmentDayDataModel.update(appDb, query, {
           ...participantAssessmentData,
           ...metadata,
           Consent: parsedConsent,
-          dayData: sortedDayData(
-            participantAssessmentData,
-            participant_assessments
-          ),
+          daysInStudy: maxDayInDayData,
+          dayData: sortedDayData,
         })
       } else {
         await AssessmentDayDataModel.create(appDb, {
@@ -67,6 +74,7 @@ const AssessmentDayDataController = {
                   Consent: parsedConsent,
                   study,
                   participant,
+                  daysInStudy: maxDayInDayData,
                   synced: new Date(),
                 },
               ],
@@ -81,7 +89,10 @@ const AssessmentDayDataController = {
           await SiteMetadataModel.upsert(
             appDb,
             { participants: { $elemMatch: { participant } } },
-            { $set: { 'participants.$.synced': new Date() } }
+            { $set: { 
+              'participants.$.daysInStudy': maxDayInDayData,
+              'participants.$.synced': new Date()
+            } }
           )
         } else {
           await SiteMetadataModel.upsert(
@@ -92,6 +103,7 @@ const AssessmentDayDataController = {
                 participants: {
                   Active,
                   Consent: parsedConsent,
+                  daysInStudy: maxDayInDayData,
                   study,
                   participant,
                   synced: new Date(),
@@ -111,7 +123,7 @@ const AssessmentDayDataController = {
   },
 }
 
-function sortedDayData(participantAssessmentData, participant_assessments) {
+function sortDayData(participantAssessmentData, participant_assessments) {
   const { dayData } = participantAssessmentData
   const filteredDays = dayData.filter(
     ({ day }) =>

@@ -252,6 +252,7 @@ export const createMetadataParticipant = (overrides = {}) => ({
   participant: '',
   synced: '',
   study: '',
+  daysInStudy: 0,
   ...overrides,
 })
 
@@ -304,5 +305,6 @@ export const createAssessmentDayData = (overrides = {}) => ({
   participant: '',
   study: '',
   dayData: [],
+  daysInStudy: overrides.dayData ? Math.max(...overrides.dayData.map(dayData => dayData.day)) : 0,
   ...overrides,
 })

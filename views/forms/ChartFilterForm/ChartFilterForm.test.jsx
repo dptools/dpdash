@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent, queryByAttribute } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import ChartFilterForm from '.'
@@ -62,47 +62,38 @@ describe('Chart Filter Form', () => {
     },
     onSubmit: () => {},
   }
+  const getById = queryByAttribute.bind(null, 'id');
   const elements = {
-    form: () => screen.getByTestId('filter_form'),
-    chrAndHc: () => screen.getByLabelText('chrcrit_part'),
-    includedExcludedMissing: () => screen.getByLabelText('included_excluded'),
-    sites: () => screen.getByLabelText('sites'),
-    chrFilter: () =>
-      screen.getByRole('checkbox', { name: 'chrcrit_part.HC.value' }),
-    incExMiFilter: () =>
-      screen.getByRole('checkbox', { name: 'included_excluded.Missing.value' }),
-    siteFilter: () => screen.getByRole('checkbox', { name: 'sites.MA.value' }),
+    form: () => screen.getByTestId('filter_form')
   }
+
   const renderForm = (props = defaultProps) => {
-    render(<ChartFilterForm {...props} />)
+    return render(<ChartFilterForm {...props} />)
   }
 
   test('calls the onSubmit prop when the form is submitted with valid data', async () => {
-    const user = userEvent.setup()
     const onSubmit = jest.fn()
     const props = { ...defaultProps, onSubmit }
 
-    renderForm(props)
-    await user.click(elements.chrAndHc())
-    await user.click(elements.chrFilter())
-    await user.click(elements.includedExcludedMissing())
-    await user.click(elements.incExMiFilter())
-    await user.click(elements.sites())
-    await user.click(elements.siteFilter())
+    const {container} = renderForm(props)
 
+    await fireEvent.change(getById(container, 'select-multiple-chrcrit_part'),{ target: { value: "HC"}})
+    await fireEvent.change(getById(container, 'select-multiple-included_excluded'), { target: { value: "Missing"}})
+    await fireEvent.change(getById(container, 'select-multiple-sites'), { target: { value: "MA"}})
     fireEvent.submit(elements.form())
+
     await waitFor(() =>
       expect(onSubmit).toHaveBeenCalledWith(
         {
           chrcrit_part: {
-            HC: { label: 'HC', value: true },
+            HC: { label: 'HC', value: 1 },
             CHR: { label: 'CHR', value: 0 },
             Missing: { label: 'Missing', value: 0 },
           },
           included_excluded: {
             Included: { label: 'Included', value: 0 },
             Excluded: { label: 'Excluded', value: 0 },
-            Missing: { label: 'Missing', value: true },
+            Missing: { label: 'Missing', value: 1 },
           },
           sex_at_birth: {
             Male: { label: 'Male', value: 0 },
@@ -110,9 +101,9 @@ describe('Chart Filter Form', () => {
             Missing: { label: 'Missing', value: 0 },
           },
           sites: {
-            CA: { label: 'CA', value: 1 },
-            LA: { label: 'LA', value: 1 },
-            MA: { label: 'MA', value: true },
+            CA: { label: 'CA', value: 0 },
+            LA: { label: 'LA', value: 0 },
+            MA: { label: 'MA', value: 1 },
           },
         },
         expect.anything()

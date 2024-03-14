@@ -28,7 +28,20 @@ describe(FiltersService, () => {
 
         expect(service.filters).toEqual({
           ...initialFilters,
-          sites: {},
+          sites: {
+            one: {
+              label: 'one',
+              value: 0,
+            },
+            three: {
+              label: 'three',
+              value: 0,
+            },
+            two: {
+              label: 'two',
+              value: 0,
+            },
+          },
         })
       })
     })
@@ -105,7 +118,9 @@ describe(FiltersService, () => {
     it('return true when the filters have falsey values', () => {
       const service = new FiltersService(
         {
-          chrcrit_part: [{ name: 'HC', value: 0 }],
+          chrcrit_part: {
+            HC: { label: 'HC', value: 0 },
+          },
           sites: {},
         },
         []
@@ -117,15 +132,14 @@ describe(FiltersService, () => {
     it('return false if any category filter is true', () => {
       const service = new FiltersService(
         {
-          chrcrit_part: [
-            { name: 'CHR', value: 1 },
-            { name: 'Missing', value: 0 },
-          ],
+          chrcrit_part: {
+            CHR: { name: 'CHR', value: 1 },
+            Missing:  { name: 'Missing', value: 0 },
+          },
           sites: {},
         },
         []
       )
-
       expect(service.allFiltersInactive()).toBe(false)
     })
   })

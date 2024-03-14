@@ -53,7 +53,7 @@ describe(BarChartService, () => {
             MA: { label: 'MA', value: 1 },
           },
         }
-        const filterService = new FiltersService(filters)
+        const filterService = new FiltersService(filters, ['YA', 'LA', 'MA'])
         const chartService = new BarChartService(appDb, chart, filterService)
         const chartData = await chartService.createChart()
         expect(chartData).toEqual({

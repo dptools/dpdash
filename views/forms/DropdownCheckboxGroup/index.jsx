@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FormControl, OutlinedInput, InputLabel, Select, MenuItem, Box, Chip } from '@mui/material'
+import { FormControl, OutlinedInput, InputLabel, Select, MenuItem, Box, Chip, Button } from '@mui/material'
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -33,6 +33,16 @@ const DropdownCheckboxGroup = ({
       onChange(label, value)
     }
   }
+
+  const handleClearSelection = (_) => {
+    setSelectedValue([])
+    onChange(label, [])
+  }
+
+  const handleSelectAll = (_) => {
+    setSelectedValue(options)
+    onChange(label, options)
+  }
   return (
     <>  
       <FormControl sx={{ m: 1, width: 300 }}>
@@ -62,6 +72,10 @@ const DropdownCheckboxGroup = ({
               {value}
             </MenuItem>
           })}
+          <Box sx={{display: 'flex', justifyContent: 'space-around'}}>
+            <Button onClick={handleClearSelection}>Clear</Button>
+            <Button onClick={handleSelectAll}>Select All</Button>
+          </Box>
       </Select>
     </FormControl>
   </>

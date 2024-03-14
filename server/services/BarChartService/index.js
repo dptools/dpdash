@@ -14,7 +14,7 @@ class BarChartService {
     return this.chart.fieldLabelValueMap.map(({ label, color }) => ({
       name: label,
       symbol: {
-        type: 'square',
+        type: 'rect',
         fill: color,
       },
     }))

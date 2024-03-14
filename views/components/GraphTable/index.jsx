@@ -17,7 +17,7 @@ const GraphTable = ({ graph, onGetCsv }) => {
   const { tableColumns, tableRows } = graph.graphTable
 
   return (
-    <Paper>
+    <Paper sx={{ mt: '60px' }}>
       <Toolbar>
         <Button
           variant="outlined"

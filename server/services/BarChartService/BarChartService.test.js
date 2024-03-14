@@ -78,6 +78,7 @@ describe(BarChartService, () => {
                 Foo: 1,
                 'N/A': 3,
               },
+              siteCode: 'YA',
               name: 'Yale',
               percentages: {
                 Bar: 0,
@@ -98,10 +99,11 @@ describe(BarChartService, () => {
                 Foo: 2,
                 'N/A': 12,
               },
+              siteCode: 'Totals',
               name: 'Totals',
               percentages: {
-                Foo: 14.285714285714285,
-                'N/A': 85.71428571428571,
+                Foo: 14,
+                'N/A': 85,
               },
               targets: {
                 Bar: 3,
@@ -118,6 +120,7 @@ describe(BarChartService, () => {
                 Foo: 1,
                 'N/A': 4,
               },
+              siteCode: 'MA',
               name: 'Madrid',
               percentages: {
                 Bar: 0,
@@ -184,8 +187,8 @@ describe(BarChartService, () => {
       const service = new BarChartService({}, chart, {})
 
       expect(service.legend()).toEqual([
-        { name: 'Foo', symbol: { fill: '#e2860a', type: 'square' } },
-        { name: 'Bar', symbol: { fill: 'red', type: 'square' } },
+        { name: 'Foo', symbol: { fill: '#e2860a', type: 'rect' } },
+        { name: 'Bar', symbol: { fill: 'red', type: 'rect' } },
       ])
     })
   })

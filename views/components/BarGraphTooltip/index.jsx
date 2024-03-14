@@ -1,38 +1,40 @@
-import React from 'react'
-import classnames from 'classnames'
-import { TOTAL_LABEL } from '../../../constants'
-import { isTargetShown, siteTooltipContent } from './helpers'
+import React, { Fragment } from 'react'
+import { SITE_NAMES } from '../../../server/utils/siteNames'
 
 import './BarGraphTooltip.css'
 
-const BarGraphTooltip = ({ active, payload, label, studyTotals }) => {
-  if (!active || !payload?.length) {
-    return null
-  }
+const BarGraphTooltip = ({
+  active,
+  payload,
+  label,
+  studyTotals,
+  displayLeft,
+  useSiteName,
+}) => {
+  if (!active || !payload?.length) return null
 
   return (
     <div className="BarGraphTooltip">
-      <div className="BarGraphTooltip_header">
+      {displayLeft ? <div className="arrow-left" /> : null}
+      <div className="BarGraphTooltip_data">
         <div className="BarGraphTooltip_label">{label}</div>
-        <div className="BarGraphTooltip_value">
-          {isTargetShown(payload) ? 'Value / Target' : 'Value'}
+        <div className="BarGraphTooltip_values">Value</div>
+        {payload.map(({ name, value }) => {
+          return (
+            <Fragment key={name}>
+              <div className="BarGraphTooltip_label">{name}</div>
+              <div className="BarGraphTooltip_values">{value}</div>
+            </Fragment>
+          )
+        })}
+        <div className="BarGraphTooltip_label">Total</div>
+        <div className="BarGraphTooltip_values">
+          {useSiteName
+            ? studyTotals[label]?.count || null
+            : studyTotals[SITE_NAMES[label]]?.count || null}
         </div>
       </div>
-      {siteTooltipContent(payload, studyTotals[label]).map(
-        ({ labelColumn, valueColumn }) => {
-          return (
-            <div
-              className={classnames('BarGraphTooltip_row', {
-                'BarGraphTooltip_row-total': labelColumn === TOTAL_LABEL,
-              })}
-              key={`${labelColumn}-${valueColumn}`}
-            >
-              <div className="BarGraphTooltip_label">{labelColumn}</div>
-              <div className="BarGraphTooltip_value">{valueColumn}</div>
-            </div>
-          )
-        }
-      )}
+      {!displayLeft ? <div className="arrow-right" /> : null}
     </div>
   )
 }

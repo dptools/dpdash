@@ -140,6 +140,7 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
         'N/A': 0,
         Total: 4,
       },
+      siteCode: 'YA',
       name: 'Yale',
       percentages: {
         Bar: 50,
@@ -163,11 +164,12 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
         'N/A': 2,
         Total: 12,
       },
+      siteCode: 'Totals',
       name: 'Totals',
       percentages: {
-        Bar: 14.285714285714285,
-        Foo: 71.42857142857143,
-        'N/A': 14.285714285714285,
+        Bar: 14,
+        Foo: 71,
+        'N/A': 14,
       },
       targets: {
         Bar: 5,
@@ -186,6 +188,7 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
         'N/A': 1,
         Total: 4,
       },
+      siteCode: 'MA',
       name: 'Madrid',
       percentages: {
         Bar: 0,
@@ -209,6 +212,7 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
         'N/A': 1,
         Total: 4,
       },
+      siteCode: 'LA',
       name: 'UCLA',
       percentages: {
         Bar: 0,
@@ -389,14 +393,14 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
       name: 'Foo',
       symbol: {
         fill: '#e2860a',
-        type: 'square',
+        type: 'rect',
       },
     },
     {
       name: 'Bar',
       symbol: {
         fill: 'red',
-        type: 'square',
+        type: 'rect',
       },
     },
   ],
@@ -439,6 +443,7 @@ export const chartsDataInitialResponse = (overrides = {}) => ({
         'N/A': 3,
         Total: 1,
       },
+      siteCode: 'YA',
       name: 'Yale',
       percentages: {
         Bar: 0,
@@ -461,10 +466,11 @@ export const chartsDataInitialResponse = (overrides = {}) => ({
         'N/A': 12,
         Total: 2,
       },
+      siteCode: 'Totals',
       name: 'Totals',
       percentages: {
-        Foo: 14.285714285714285,
-        'N/A': 85.71428571428571,
+        Foo: 14,
+        'N/A': 85,
       },
       targets: {
         Bar: 3,
@@ -483,6 +489,7 @@ export const chartsDataInitialResponse = (overrides = {}) => ({
         'N/A': 4,
         Total: 1,
       },
+      siteCode: 'MA',
       name: 'Madrid',
       percentages: {
         Bar: 0,
@@ -645,14 +652,14 @@ export const chartsDataInitialResponse = (overrides = {}) => ({
       name: 'Foo',
       symbol: {
         fill: '#e2860a',
-        type: 'square',
+        type: 'rect',
       },
     },
     {
       name: 'Bar',
       symbol: {
         fill: 'red',
-        type: 'square',
+        type: 'rect',
       },
     },
   ],
@@ -695,6 +702,7 @@ export const chartsDataFilterResponse = (overrides = {}) => ({
         'N/A': 4,
         Total: 1,
       },
+      siteCode: 'MA',
       name: 'Madrid',
       percentages: {
         Bar: 0,
@@ -717,10 +725,11 @@ export const chartsDataFilterResponse = (overrides = {}) => ({
         'N/A': 13,
         Total: 1,
       },
+      siteCode: 'Totals',
       name: 'Totals',
       percentages: {
-        Foo: 7.142857142857142,
-        'N/A': 92.85714285714286,
+        Foo: 7,
+        'N/A': 92,
       },
       targets: {
         Bar: 2,
@@ -860,14 +869,14 @@ export const chartsDataFilterResponse = (overrides = {}) => ({
       name: 'Foo',
       symbol: {
         fill: '#e2860a',
-        type: 'square',
+        type: 'rect',
       },
     },
     {
       name: 'Bar',
       symbol: {
         fill: 'red',
-        type: 'square',
+        type: 'rect',
       },
     },
   ],

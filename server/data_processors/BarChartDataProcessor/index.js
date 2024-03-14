@@ -1,4 +1,4 @@
-import { EMPTY_VALUE, N_A, TOTALS_STUDY } from '../../constants'
+import { EMPTY_VALUE, N_A, TOTALS_STUDY, TOTAL_LABEL } from '../../constants'
 import { SITE_NAMES } from '../../utils/siteNames'
 
 const studyCountsToPercentage = (studyCount, targetTotal) => {
@@ -6,7 +6,7 @@ const studyCountsToPercentage = (studyCount, targetTotal) => {
     return 0
   }
 
-  return (+studyCount / +targetTotal) * 100
+  return Math.floor((+studyCount / +targetTotal) * 100)
 }
 
 const calculateTotalsTargetValue = (currentTargetCount, nextTargetCount) =>
@@ -64,7 +64,7 @@ class BarChartDataProcessor {
     const { color, label, value, targetValues } = fieldLabelValueMap
     const targetValue = targetValues[study]
     const siteName = SITE_NAMES[study] || study
-    const dataKey = `${siteName}-${label}-${targetValue}`
+    const dataKey = `${siteName}-${label}-${study}-${targetValue}`
     const totalsDataKey = `${TOTALS_STUDY}-${label}`
     const isVariableValueEmpty = value === EMPTY_VALUE
     const shouldCountParticipant = isVariableValueEmpty
@@ -155,16 +155,16 @@ class BarChartDataProcessor {
     const totalsValueTargets = {}
 
     for (const [key, count] of this.dataMap) {
-      const [study, valueLabel, targetValue] = key.split('-')
-      const totalsForStudy = this.studyTotals[study]
+      const [siteName, valueLabel, study, targetValue] = key.split('-')
+      const totalsForStudy = this.studyTotals[siteName]
       const totals = totalsForStudy.targetTotal || totalsForStudy.count
       const percent = studyCountsToPercentage(count, totals)
-      const existingEntriesForStudy = processedDataBySite.get(study)
+      const existingEntriesForStudy = processedDataBySite.get(siteName)
       const targetValueAsNumber = +targetValue
       const targetValueIsNaN = Number.isNaN(targetValueAsNumber)
       const hasTargetValue =
-        !!targetValue && !targetValueIsNaN && study !== TOTALS_STUDY
-      const isTargetValueMissing = !targetValue && study !== TOTALS_STUDY
+        !!targetValue && !targetValueIsNaN && siteName !== TOTALS_STUDY
+      const isTargetValueMissing = !targetValue && siteName !== TOTALS_STUDY
 
       if (hasTargetValue) {
         totalsValueTargets[valueLabel] = calculateTotalsTargetValue(
@@ -181,7 +181,7 @@ class BarChartDataProcessor {
       }
 
       if (existingEntriesForStudy) {
-        processedDataBySite.set(study, {
+        processedDataBySite.set(siteName, {
           ...existingEntriesForStudy,
           counts: {
             ...existingEntriesForStudy.counts,
@@ -197,8 +197,9 @@ class BarChartDataProcessor {
           },
         })
       } else {
-        processedDataBySite.set(study, {
-          name: study,
+        processedDataBySite.set(siteName, {
+          name: siteName,
+          siteCode: study,
           counts: {
             [valueLabel]: count,
           },
@@ -243,6 +244,7 @@ class BarChartDataProcessor {
     processedDataBySite.set(TOTALS_STUDY, {
       ...processedTotals,
       targets: totalsValueTargets,
+      siteCode: TOTALS_STUDY,
     })
 
     this.processedDataBySite = processedDataBySite

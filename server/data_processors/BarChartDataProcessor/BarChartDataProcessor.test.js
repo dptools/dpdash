@@ -50,14 +50,14 @@ describe(BarChartDataProcessor, () => {
         },
       }
       const expectedDataMap = {
-        'Madrid-Bar-2': 0,
-        'Madrid-Foo-3': 4,
+        'Madrid-Bar-MA-2': 0,
+        'Madrid-Foo-MA-3': 4,
         'Totals-Bar': 2,
         'Totals-Foo': 10,
-        'UCLA-Bar-2': 0,
-        'UCLA-Foo-3': 4,
-        'Yale-Bar-1': 2,
-        'Yale-Foo-3': 2,
+        'UCLA-Bar-LA-2': 0,
+        'UCLA-Foo-LA-3': 4,
+        'Yale-Bar-YA-1': 2,
+        'Yale-Foo-YA-3': 2,
       }
       const expectedProcessedDataBySite = {
         Madrid: {
@@ -66,6 +66,7 @@ describe(BarChartDataProcessor, () => {
             Foo: 4,
             'N/A': 0,
           },
+          siteCode: 'MA',
           name: 'Madrid',
           percentages: {
             Bar: 0,
@@ -87,10 +88,11 @@ describe(BarChartDataProcessor, () => {
             Foo: 10,
             'N/A': 0,
           },
+          siteCode: 'Totals',
           name: 'Totals',
           percentages: {
-            Bar: 16.666666666666664,
-            Foo: 83.33333333333334,
+            Bar: 16,
+            Foo: 83,
             'N/A': 0,
           },
           targets: {
@@ -108,6 +110,7 @@ describe(BarChartDataProcessor, () => {
             Foo: 4,
             'N/A': 0,
           },
+          siteCode: 'LA',
           name: 'UCLA',
           percentages: {
             Bar: 0,
@@ -129,6 +132,7 @@ describe(BarChartDataProcessor, () => {
             Foo: 2,
             'N/A': 0,
           },
+          siteCode: 'YA',
           name: 'Yale',
           percentages: {
             Bar: 50,

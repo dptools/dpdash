@@ -1,29 +1,39 @@
 .BarGraphTooltip {
-  width: 200px;
-  padding: 14px 14px 7px 14px;
-  background: rgba(255, 255, 255, 0.9);
-}
-.BarGraphTooltip_header {
   display: flex;
-  width: 100%;
-  padding-bottom: 4px;
-  border-bottom: solid gray 0.5px;
 }
-.BarGraphTooltip_row {
-  display: flex;
-  width: 100%;
-  padding-top: 4px;
-  padding-bottom: 4px;
+.BarGraphTooltip_data {
+  display: grid;
+  width: 175px;
+  background: var(--dark-transparent-grey);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  column-gap: 20px;
+  font-size: 14px;
 }
-.BarGraphTooltip_row-total {
-  border-top: solid gray 0.5px;
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid var(--dark-transparent-grey);
+  align-self: center;
+}
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid var(--dark-transparent-grey);
+  align-self: center;
 }
 .BarGraphTooltip_label {
-  display: flex;
-  flex: 2;
+  grid-column-start: 1;
+  grid-column-end: 4;
 }
-.BarGraphTooltip_value {
-  display: flex;
-  flex: 3;
-  justify-content: center;
+.BarGraphTooltip_values {
+  grid-column-start: 4;
+  grid-column-end: 5;
+  text-align: right;
 }

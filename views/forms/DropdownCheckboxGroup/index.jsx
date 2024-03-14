@@ -6,7 +6,7 @@ const ITEM_PADDING_TOP = 8;
 const MenuProps = {
   PaperProps: {
     style: {
-      maxHeight: ITEM_HEIGHT + ITEM_PADDING_TOP,
+      maxHeight: ITEM_HEIGHT * 10.5 + ITEM_PADDING_TOP,
       width: 250,
     },
   },

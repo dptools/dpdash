@@ -1,5 +1,6 @@
 import AssessmentDayDataController from '.'
 import {
+  createAssessmentDayData,
   createNewAssessmentDayData,
   createRequest,
   createResponse,
@@ -7,6 +8,30 @@ import {
 import { collections } from '../../../utils/mongoCollections'
 
 describe('assessmentDayDataController', () => {
+  let appDb
+
+  beforeAll(async () => {
+    appDb = await global.MONGO_INSTANCE.db()
+  })
+  beforeEach(async () => {
+    await appDb.createCollection(collections.metadata)
+    await appDb.createCollection(collections.assessmentDayData)
+  })
+
+  afterEach(async () => {
+    const existingCollections = await appDb.listCollections().toArray()
+    const collectionNames = existingCollections.map(c => c.name)
+    if (collectionNames.includes(collections.metadata)) {
+      await appDb.collection(collections.metadata).drop()
+    }
+    if (collectionNames.includes(collections.assessmentDayData)) {
+      await appDb.collection(collections.assessmentDayData).drop()
+    }
+  })
+  afterAll(async () => {
+    await appDb.dropDatabase()
+  })
+
   describe(AssessmentDayDataController.create, () => {
     describe('When successful', () => {
       const metadata = {
@@ -32,23 +57,6 @@ describe('assessmentDayDataController', () => {
         Consent: '2020-01-02',
         Active: 1,
       }
-      let appDb
-
-      beforeAll(async () => {
-        appDb = await global.MONGO_INSTANCE.db('assessmentDayData')
-      })
-      beforeEach(async () => {
-        await appDb.createCollection(collections.metadata)
-        await appDb.createCollection(collections.assessmentDayData)
-      })
-
-      afterEach(async () => {
-        await appDb.collection(collections.metadata).drop()
-        await appDb.collection(collections.assessmentDayData).drop()
-      })
-      afterAll(async () => {
-        await appDb.dropDatabase()
-      })
 
       it('creates a participants assessment day data', async () => {
         const data = createNewAssessmentDayData({
@@ -457,6 +465,28 @@ describe('assessmentDayDataController', () => {
         expect(response.json).toHaveBeenCalledWith({
           message: 'some error',
         })
+      })
+    })
+  })
+  describe(AssessmentDayDataController.destroy, () => {
+    describe('when successful', () => {
+      it('deletes all documents in the assessmentDayData collection', async () => {
+        await appDb.collection(collections.assessmentDayData).insertMany([
+          createAssessmentDayData(),
+          createAssessmentDayData()
+        ])
+
+        const request = createRequest({
+          app: { locals: { appDb } },
+        })
+
+        const response = createResponse()
+
+        await AssessmentDayDataController.destroy(request, response)
+
+        const remainingCollections = await appDb.listCollections().toArray()
+        expect(response.status).toHaveBeenCalledWith(200)
+        expect(remainingCollections.map(c => c.name).includes(collections.assessmentDayData)).toBe(false)
       })
     })
   })

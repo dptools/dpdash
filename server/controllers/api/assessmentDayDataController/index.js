@@ -1,5 +1,6 @@
 import AssessmentDayDataModel from '../../../models/AssessmentDayDataModel'
 import SiteMetadataModel from '../../../models/SiteMetadataModel'
+import { collections } from '../../../utils/mongoCollections'
 
 const AssessmentDayDataController = {
   create: async (req, res) => {
@@ -121,6 +122,16 @@ const AssessmentDayDataController = {
       return res.status(400).json({ message: error.message })
     }
   },
+  destroy: async (req, res) => {
+    try {
+      const { appDb } = req.app.locals
+      await appDb.collection(collections.assessmentDayData).drop()
+
+      return res.status(200)
+    } catch (error) {
+      return res.status(400).json({ message: error.message})
+    }
+  }
 }
 
 function sortDayData(participantAssessmentData, participant_assessments) {

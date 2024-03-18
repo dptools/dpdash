@@ -308,3 +308,66 @@ export const createAssessmentDayData = (overrides = {}) => ({
   daysInStudy: overrides.dayData ? Math.max(...overrides.dayData.map(dayData => dayData.day)) : 0,
   ...overrides,
 })
+
+export const createGraphDataResponse = (overrides = {}) => (
+  {
+    "subject": {
+        "sid": "LA48928",
+        "project": "LA"
+    },
+    "graph": {
+        "matrixData": [
+            {
+                "analysis": "phone_power_activityScores_hourly",
+                "data": [],
+                "label": "Day",
+                "variable": "day",
+                "stat": [],
+                "range": [
+                    1,
+                    "3655"
+                ],
+                "text": true,
+                "color": [
+                    "#f7fcf5",
+                    "#e5f5e0",
+                    "#c7e9c0",
+                    "#a1d99b",
+                    "#74c476",
+                    "#41ab5d",
+                    "#238b45",
+                    "#006d2c",
+                    "#00441b"
+                ],
+                "category": "phone_use"
+            }
+        ],
+        "configurations": [
+            {
+                "range": [
+                    1,
+                    "3655"
+                ],
+                "text": true,
+                "variable": "day",
+                "label": "Day",
+                "color": [
+                    "#f7fcf5",
+                    "#e5f5e0",
+                    "#c7e9c0",
+                    "#a1d99b",
+                    "#74c476",
+                    "#41ab5d",
+                    "#238b45",
+                    "#006d2c",
+                    "#00441b"
+                ],
+                "category": "phone_use",
+                "analysis": "phone_power_activityScores_hourly"
+            },
+        ],
+        "consentDate": "2022-06-02T00:00:00.000Z"
+    },
+    ...overrides
+  }
+)

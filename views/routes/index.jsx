@@ -41,6 +41,7 @@ const Router = () => {
           }
         >
           <Route path={routes.dashboard()} element={<GraphPage />} />
+          <Route path={routes.studyDashboard()} element={<GraphPage />} />
           <Route
             path={routes.configurations}
             element={<ConfigurationsPage />}

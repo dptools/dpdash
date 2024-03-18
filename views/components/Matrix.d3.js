@@ -24,9 +24,6 @@ export default class Matrix {
     this.startDay = props.startDay
     this.lastDay = props.lastDay
     this.maxDay = props.maxDay
-    this.initialHeight = props.height
-    this.height = props.height - margin.top - margin.bottom
-    this.width = props.width - margin.right
     this.study = props.study
     this.subject = props.subject
     this.consentDate = props.consentDate
@@ -55,12 +52,13 @@ export default class Matrix {
   validDay = (d) => d.day >= this.startDay && d.day <= this.lastDayForFilter
   create = (data) => {
     this.data = data
+    const calculatedHeight = data.length * this.cardSize + margin.top + margin.bottom
 
     const svgElement = d3
       .select(this.el)
       .append('svg')
       .attr('width', () => '100%')
-      .attr('height', () => '100%')
+      .attr('height', () => calculatedHeight)
     this.svg = svgElement.append('g')
     this.cards = this.svg
       .append('g')
@@ -216,29 +214,6 @@ export default class Matrix {
     if (this.startFromTheLastDay) {
       this.update()
     }
-
-    this.maxYScroll = Math.max(
-      this.height,
-      this.matrixHeight + margin.bottom + margin.top
-    )
-    this.maxXScroll = Math.max(
-      this.width,
-      this.matrixWidth + this.maxYAxisWidth + margin.left
-    )
-    const zoom = d3
-      .zoom()
-      .scaleExtent([1, 5])
-      .translateExtent([
-        [0, 0],
-        [this.maxXScroll, this.maxYScroll],
-      ])
-      .on('zoom', this.zoomed)
-    //for some reason, vertical scrolling works better with these statements. investigate.
-    this.svg
-      .call(zoom, d3.zoomIdentity)
-      .on('wheel.zoom', this.pan)
-      .on('mousewheel.zoom', this.pan)
-      .on('DOMMouseScroll.zoom', this.pan)
   }
 
   adjustYAxisLeft = () => {
@@ -248,98 +223,6 @@ export default class Matrix {
       .text((d) => d.label)
       .attr('font-size', this.halfCardSize)
       .style('fill', DARK_GREY)
-  }
-
-  scaleAxes = (transform) => {
-    this.yAxisLeft.call(
-      this.yAxisLinear.scale(transform.rescaleY(this.yScaleLinear))
-    )
-    this.xAxisBottom.call(
-      this.xAxisLinearBottom.scale(transform.rescaleX(this.xScaleLinearBottom))
-    )
-    this.xAxisTop.call(
-      this.xAxisLinearTop.scale(transform.rescaleX(this.xScaleLinearTop))
-    )
-    this.adjustYAxisLeft()
-  }
-
-  zoomed = () => {
-    const sourceEvent = d3.event.sourceEvent
-    const eventTransform = d3.event.transform
-    sourceEvent?.preventDefault()
-
-    this.cards.attr('transform', eventTransform)
-    this.categoryMarker.attr(
-      'transform',
-      `translate(${eventTransform.x - this.maxYAxisWidth},${
-        eventTransform.y
-      }) scale(${eventTransform.k})`
-    )
-
-    this.scaleAxes(eventTransform)
-    this.filteredXAxisTop()
-  }
-
-  pan = () => {
-    const sourceEvent = d3.event
-    sourceEvent.preventDefault()
-
-    const transformAttr = this.cards.attr('transform')
-    const transformAttrArray = transformAttr
-      .substring(transformAttr.indexOf('(') + 1, transformAttr.indexOf(')'))
-      .split(',')
-
-    const x = parseInt(transformAttrArray[0])
-    const y = parseInt(transformAttrArray[1])
-
-    const mouseDelta = sourceEvent.wheelDelta || sourceEvent.detail
-    const deltaX =
-      sourceEvent.deltaX ||
-      -sourceEvent.wheelDeltaX ||
-      -(sourceEvent.axis == 1 ? mouseDelta : 0)
-    const deltaY =
-      sourceEvent.deltaY ||
-      -sourceEvent.wheelDeltaY ||
-      -(sourceEvent.axis == 2 ? mouseDelta : 0)
-    let dx = -deltaX + x
-    let dy = -deltaY + y
-
-    //Disable zoom-in upon wheeling
-    const eventTransform = d3.zoomIdentity.translate(dx, dy).scale(1)
-    let transformation = eventTransform.scale(1 / eventTransform.k)
-    const maxDy = (this.matrixHeight - this.height + margin.top) * -1
-    const maxDx =
-      (this.matrixWidth - this.width + this.maxYAxisWidth + margin.left) * -1
-
-    if (
-      dy >= 0 ||
-      this.matrixHeight < this.height ||
-      this.initialHeight === -1
-    ) {
-      dy = 0
-    } else if (dy < maxDy) {
-      dy = maxDy
-    }
-
-    if (this.matrixWidth < this.width || dx > 0) {
-      dx = 0
-    } else if (dx < maxDx) {
-      dx = maxDx
-    }
-
-    this.cards.attr('transform', `translate(${dx},${dy})`)
-    this.categoryMarker.attr(
-      'transform',
-      `translate(${dx - this.maxYAxisWidth},${dy})`
-    )
-
-    transformation = transformation.translate(
-      dx - transformation.x,
-      dy - transformation.y
-    )
-
-    this.scaleAxes(transformation)
-    this.filteredXAxisTop().attr('font-size', this.halfCardSize)
   }
 
   filteredXAxisTop = () => {
@@ -357,7 +240,7 @@ export default class Matrix {
     for (let i = firstDay; i < this.lastDayForFilter; i++) {
       const day = i + 1
 
-      if (startDate && startDate.getDay() == 0 || startDate.getDay() == 6) {
+      if (startDate && (startDate.getDay() == 0 || startDate.getDay() == 6)) {
         xAxisForDatesData.push({ day, marker: 'S' })
       } else if (startDate && startDate.getDay() == 3) {
         const month = startDate.getMonth() + 1
@@ -370,7 +253,9 @@ export default class Matrix {
       } else {
         xAxisForDatesData.push({ day, marker: 'N/A' })
       }
-      startDate.setDate(startDate.getDate() + 1)
+      if (startDate) {
+        startDate.setDate(startDate.getDate() + 1)
+      }
     }
 
     return xAxisForDatesData

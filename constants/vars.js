@@ -6,6 +6,7 @@ export const FILTER_CATEGORIES = {
   chrcrit_part: 'Cohort',
   included_excluded: 'Included Criteria',
   sex_at_birth: 'Sex At Birth',
+  sites: 'Network',
 }
 export const EMAIL_REGEX = '[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$'
 export const NOTIFICATION_DEFAULT = {

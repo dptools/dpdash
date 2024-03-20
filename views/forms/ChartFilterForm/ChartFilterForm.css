@@ -1,8 +1,9 @@
 .ChartFilterForm {
-  display: flex;
+  display: grid;
   width: 100%;
-  gap: 20px;
+  gap: 10px;
   padding-bottom: 20px;
+  grid-template-columns: repeat(1fr, 4);
 }
 .ChartFilterForm_container {
   display: flex;
@@ -20,4 +21,14 @@
   padding-top: 20px;
   width: 158px;
   padding-left: 15px;
+}
+
+@media screen and (max-width: 1040px) {
+  .ChartFilterForm {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+    padding-bottom: 20px;
+  }
 }

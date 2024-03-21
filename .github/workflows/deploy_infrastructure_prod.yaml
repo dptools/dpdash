@@ -1,4 +1,4 @@
-name: Deploy Infrastructure
+name: Deploy Infrastructure Production
 on:
   workflow_dispatch:
 jobs:
@@ -24,10 +24,11 @@ jobs:
       env:
         CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
         CDK_DEFAULT_REGION: ${{ vars.CDK_DEFAULT_REGION }}
+        CERT_ARN: ${{ vars.CERT_ARN_PRODUCTION }}
+        SES_IDENTITY_ARN: ${{ vars.SES_IDENTITY_ARN }}
         EMAIL_SENDER: ${{ vars.EMAIL_SENDER }}
         ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
-        BASE_DOMAIN: ${{ vars.BASE_DOMAIN }}
+        BASE_DOMAIN: ${{ vars.BASE_DOMAIN_PRODUCTION }}
         APP_MEMORY: ${{ vars.APP_MEMORY || '2048' }}
         APP_CPU: ${{ vars.APP_CPU || '1024' }}
-        DPDASH_INFRA_STAGING: "1"
       run: npm run deploy -- --require-approval never

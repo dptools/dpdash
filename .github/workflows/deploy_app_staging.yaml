@@ -1,4 +1,4 @@
-name: Deploy App
+name: Deploy App Staging
 on: 
   workflow_dispatch:
   push:
@@ -10,8 +10,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: ['16.x']
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node: ['latest']
+        os: [ubuntu-latest]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -20,11 +20,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Install deps
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       - name: Test
         run: npm run test
   build-and-deploy:
     name: Build and Deploy Docker Image
+    needs: test
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
     permissions:

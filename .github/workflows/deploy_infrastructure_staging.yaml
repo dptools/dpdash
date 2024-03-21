@@ -1,9 +1,9 @@
-name: Display Infrastructure Template
+name: Deploy Infrastructure Staging
 on:
   workflow_dispatch:
 jobs:
-  synth:
-    name: Synthesize Cloudformation with AWS CDK
+  deploy:
+    name: Deploy with AWS CDK
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
     permissions:
@@ -20,14 +20,16 @@ jobs:
         aws-region: us-east-1
     - name: Install dependencies
       run: npm ci
-    - name: Synthesize Cloudformation
+    - name: Deploy Dev
       env:
         CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
         CDK_DEFAULT_REGION: ${{ vars.CDK_DEFAULT_REGION }}
+        CERT_ARN: ${{ vars.CERT_ARN_STAGING }}
+        SES_IDENTITY_ARN: ${{ vars.SES_IDENTITY_ARN }}
         EMAIL_SENDER: ${{ vars.EMAIL_SENDER }}
         ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
-        BASE_DOMAIN: ${{ vars.BASE_DOMAIN }}
+        BASE_DOMAIN: ${{ vars.BASE_DOMAIN_STAGING }}
         APP_MEMORY: ${{ vars.APP_MEMORY || '2048' }}
         APP_CPU: ${{ vars.APP_CPU || '1024' }}
         DPDASH_INFRA_STAGING: "1"
-      run: npx cdk synth
+      run: npm run deploy -- --require-approval never

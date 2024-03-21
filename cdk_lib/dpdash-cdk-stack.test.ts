@@ -7,6 +7,8 @@ describe('DPDashCDKStack', () => {
     process.env = {
       CDK_DEFAULT_ACCOUNT: '000000000000',
       CDK_DEFAULT_REGION: 'us-east-1',
+      CERT_ARN: 'aws:certarn',
+      SES_IDENTITY_ARN: 'aws:sesarn',
       EMAIL_SENDER: 'noreply@dpdash.example.com',
       ADMIN_EMAIL: 'alice@example.com',
       BASE_DOMAIN: 'dpdash.example.com',
@@ -26,6 +28,11 @@ describe('DPDashCDKStack', () => {
     process.env = OLD_ENV;
   });
 
+  it('throws an error if the CERT_ARN and SES_IDENTITY_ARN are missing', () => {
+    setEnv({ CERT_ARN: undefined, SES_IDENTITY_ARN: undefined })
+    expect(() => createTemplate(DpdashCdkStack)).toThrowError("Missing required environment variables: CERT_ARN, SES_IDENTITY_ARN")
+  })
+
   it('creates a VPC', () => {
     setEnv()
     const template = createTemplate(DpdashCdkStack)
@@ -41,11 +48,17 @@ describe('DPDashCDKStack', () => {
     template.hasResource('AWS::DocDB::DBInstance', {})
   })
 
-  it('creates an Application Load Balanced Fargate Service', () => {
+  describe('when the DPDASH_INFRA_STAGING flag is set to "1"', () => {
+
+  it('creates a public Application Load Balanced Fargate Service with Dev names', () => {
     setEnv()
     const template = createTemplate(DpdashCdkStack)
 
-    template.hasResource('AWS::ElasticLoadBalancingV2::LoadBalancer', {})
+    template.hasResource('AWS::ElasticLoadBalancingV2::LoadBalancer', {
+      'Properties': {
+        'Scheme': 'internet-facing'
+      }
+    })
     template.hasResource('AWS::ECS::Cluster', {
       'Properties': {
         'ClusterName': 'dpDashDevCluster'
@@ -62,53 +75,85 @@ describe('DPDashCDKStack', () => {
       }
     })
   })
-
-  describe('when the DPDASH_INFRA_STAGING flag is set to "1"', () => {
-    it('creates a Hosted Zone', () => {
-      setEnv()
-      const template = createTemplate(DpdashCdkStack)
-      template.hasResource('AWS::Route53::HostedZone', {})
-    })
-
-    it('creates a Certificate', () => {
-      setEnv()
-      const template = createTemplate(DpdashCdkStack)
-      template.hasResource('AWS::CertificateManager::Certificate', {})
-    })
-
-    it('creates an SES Email Identity', () => {
-      setEnv()
-      const template = createTemplate(DpdashCdkStack)
-      template.hasResource('AWS::SES::EmailIdentity', {})
-    })
-
-    it('creates a public Application Load Balanced Fargate Service', () => {
+    it('uses the _DEV suffix for secret names', () => {
       setEnv()
       const template = createTemplate(DpdashCdkStack)
 
-      template.hasResource('AWS::ElasticLoadBalancingV2::LoadBalancer', {
+      template.hasResource('AWS::ECS::TaskDefinition', {
         'Properties': {
-          'Scheme': 'internet-facing'
+          'ContainerDefinitions': [
+            {
+              "Secrets": [
+                {
+                  "Name": "MONGODB_PASSWORD",
+                  "ValueFrom": {
+                    "Ref": "DocumentDBPassword52497A47"
+                  }
+                },
+                {
+                  "Name": "SESSION_SECRET",
+                  "ValueFrom": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":ssm:us-east-1:000000000000:parameter/DPDASH_SESSION_SECRET_DEV"
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "Name": "IMPORT_API_USERS",
+                  "ValueFrom": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":ssm:us-east-1:000000000000:parameter/DPDASH_IMPORT_API_USERS_DEV"
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "Name": "IMPORT_API_KEYS",
+                  "ValueFrom": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":ssm:us-east-1:000000000000:parameter/DPDASH_IMPORT_API_KEYS_DEV"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       })
     })
   })
   describe('when the DPDASH_INFRA_STAGING flag is not set to "1"', () => {
-    it('throws an error if the CERT_ARN and SES_IDENTITY_ARN are missing', () => {
+
+    it('creates a public Application Load Balanced Fargate Service with production names', () => {
       setEnv({ DPDASH_INFRA_STAGING: undefined })
-      expect(() => createTemplate(DpdashCdkStack)).toThrowError("Missing required environment variables: CERT_ARN, SES_IDENTITY_ARN")
-    })
-
-    it('creates a private Application Load Balanced Fargate Service', () => {
-      setEnv({ DPDASH_INFRA_STAGING: undefined, CERT_ARN: 'foo', SES_IDENTITY_ARN: 'bar' })
       const template = createTemplate(DpdashCdkStack)
-
+  
       template.hasResource('AWS::ElasticLoadBalancingV2::LoadBalancer', {
-          'Properties': {
-            'Scheme': 'internal'
-          }
-        })
-        template.hasResource('AWS::ECS::Cluster', {
+        'Properties': {
+          'Scheme': 'internet-facing'
+        }
+      })
+      template.hasResource('AWS::ECS::Cluster', {
         'Properties': {
           'ClusterName': 'dpDashCluster'
         }
@@ -121,6 +166,72 @@ describe('DPDashCDKStack', () => {
       template.hasResource('AWS::ECS::TaskDefinition', {
         'Properties': {
           'Family': 'dpDashTaskDefinition'
+        }
+      })
+    })
+    it('does not use the _DEV suffix for secret names', () => {
+      setEnv({ DPDASH_INFRA_STAGING: undefined })
+      const template = createTemplate(DpdashCdkStack)
+
+      template.hasResource('AWS::ECS::TaskDefinition', {
+        'Properties': {
+          'ContainerDefinitions': [
+            {
+              "Secrets": [
+                {
+                  "Name": "MONGODB_PASSWORD",
+                  "ValueFrom": {
+                    "Ref": "DocumentDBPassword52497A47"
+                  }
+                },
+                {
+                  "Name": "SESSION_SECRET",
+                  "ValueFrom": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":ssm:us-east-1:000000000000:parameter/DPDASH_SESSION_SECRET"
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "Name": "IMPORT_API_USERS",
+                  "ValueFrom": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":ssm:us-east-1:000000000000:parameter/DPDASH_IMPORT_API_USERS"
+                      ]
+                    ]
+                  }
+                },
+                {
+                  "Name": "IMPORT_API_KEYS",
+                  "ValueFrom": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:",
+                        {
+                          "Ref": "AWS::Partition"
+                        },
+                        ":ssm:us-east-1:000000000000:parameter/DPDASH_IMPORT_API_KEYS"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
         }
       })
     })

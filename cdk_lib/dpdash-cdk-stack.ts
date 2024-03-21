@@ -2,11 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ssm from "aws-cdk-lib/aws-ssm";
-import * as ses from "aws-cdk-lib/aws-ses";
 import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as docdb from "aws-cdk-lib/aws-docdb";
-import * as route53 from "aws-cdk-lib/aws-route53";
 import * as certificate_manager from "aws-cdk-lib/aws-certificatemanager";
 import * as ecs_patterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as secrets_manager from "aws-cdk-lib/aws-secretsmanager";
@@ -25,38 +23,16 @@ export class DpdashCdkStack extends cdk.Stack {
     const IS_DEV = process.env.DPDASH_INFRA_STAGING === "1"
     const APP_NAME =  IS_DEV ? "DpDashDev" : "DPDash";
 
-    let certArn
-    let sesIdentityArn
-    let cert
-
     if (!process.env.BASE_DOMAIN || !process.env.ADMIN_EMAIL || !process.env.EMAIL_SENDER) {
       throw new Error('Missing required environment variables: BASE_DOMAIN, ADMIN_EMAIL, EMAIL_SENDER');
     }
 
-    if (IS_DEV) {
-      const hostedZone = new route53.PublicHostedZone(this, `${APP_NAME}HostedZone`, {
-        zoneName: process.env.BASE_DOMAIN
-      });
-
-      cert = new certificate_manager.Certificate(this, `${APP_NAME}Certificate`, {
-        domainName: `${process.env.BASE_DOMAIN}`,
-        validation: certificate_manager.CertificateValidation.fromDns(hostedZone),
-      });
-
-      const identity = new ses.EmailIdentity(this, 'Identity', {
-        identity: ses.Identity.publicHostedZone(hostedZone),
-      });
-
-      certArn = cert.certificateArn;
-      sesIdentityArn = `arn:aws:ses:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:identity/${process.env.BASE_DOMAIN}`
-    } else {
-      if (!process.env.CERT_ARN || !process.env.SES_IDENTITY_ARN) {
-        throw new Error("Missing required environment variables: CERT_ARN, SES_IDENTITY_ARN")
-      }
-      certArn = process.env.CERT_ARN
-      sesIdentityArn = process.env.SES_IDENTITY_ARN
+    if (!process.env.CERT_ARN || !process.env.SES_IDENTITY_ARN) {
+      throw new Error("Missing required environment variables: CERT_ARN, SES_IDENTITY_ARN")
     }
 
+    const certArn = process.env.CERT_ARN
+    const sesIdentityArn = process.env.SES_IDENTITY_ARN
 
     const secrets = {
       sessionSecretDev: ecs.Secret.fromSsmParameter(ssm.StringParameter.fromSecureStringParameterAttributes(this, `${APP_NAME}SessionDevSecret`, {
@@ -77,7 +53,7 @@ export class DpdashCdkStack extends cdk.Stack {
     });
 
     const ddbPassSecret = new secrets_manager.Secret(this,'DocumentDB Password',{
-      secretName:'DPDASH_MONGODB_ADMIN_PASSWORD',
+      secretName:'DPDASH_MONGODB_ADMIN_PASSWORD' + (IS_DEV ? '_DEV' : ''),
       generateSecretString:{
         excludePunctuation:true,
         excludeCharacters:"/¥'%:;{}"
@@ -145,6 +121,11 @@ export class DpdashCdkStack extends cdk.Stack {
       logging: ecs.LogDrivers.awsLogs({ streamPrefix: `${APP_NAME}AppContainer` }),
     });
 
+    const dpDashServiceSg = new ec2.SecurityGroup(this, `${APP_NAME}ServiceSG`, {
+      vpc: vpc,
+      allowAllOutbound: true,
+    })
+
     const dpDashService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, `${APP_NAME}AppService`, {
       serviceName: IS_DEV ? 'dpDashDevService' : 'dpDashService',
       loadBalancerName: IS_DEV ? 'dpDashDevService' : 'dpDashLoadBalancer',
@@ -153,16 +134,28 @@ export class DpdashCdkStack extends cdk.Stack {
         clusterName: IS_DEV ? 'dpDashDevCluster' : 'dpDashCluster',
       }),
       taskDefinition: appTaskDefinition,
+      securityGroups: [
+        dpDashServiceSg
+      ],
       assignPublicIp: true,
-      publicLoadBalancer: IS_DEV,
+      publicLoadBalancer: true,
       redirectHTTP: true,
-      certificate: cert || certificate_manager.Certificate.fromCertificateArn(this, `${APP_NAME}Certificate`, certArn),
+      certificate: certificate_manager.Certificate.fromCertificateArn(this, `${APP_NAME}Certificate`, certArn),
       taskSubnets: {
-        subnets: IS_DEV ? vpc.publicSubnets.concat(vpc.privateSubnets) : vpc.privateSubnets
+        subnets: vpc.publicSubnets.concat(vpc.privateSubnets)
       },
     });
 
 
-    mongoCluster.connections.allowFrom(dpDashService.cluster.connections, ec2.Port.tcp(27017))
+    const mongoClusterSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, `${APP_NAME}MongoSG`, mongoCluster.securityGroupId, {
+      mutable: false
+    });
+
+    mongoClusterSecurityGroup.addIngressRule(
+      ec2.Peer.securityGroupId(
+        dpDashServiceSg.securityGroupId
+      ),
+      ec2.Port.tcp(27017)
+    )
   }
 }

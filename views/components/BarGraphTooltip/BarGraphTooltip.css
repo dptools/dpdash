@@ -3,12 +3,12 @@
 }
 .BarGraphTooltip_data {
   display: grid;
-  width: 175px;
+  max-width: 225px;
   background: var(--dark-transparent-grey);
   color: white;
   padding: 10px;
   border-radius: 10px;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   column-gap: 20px;
   font-size: 14px;
 }
@@ -30,10 +30,16 @@
 }
 .BarGraphTooltip_label {
   grid-column-start: 1;
-  grid-column-end: 4;
+  grid-column-end: 5;
 }
 .BarGraphTooltip_values {
-  grid-column-start: 4;
-  grid-column-end: 5;
+  grid-column-start: 5;
+  grid-column-end: 6;
   text-align: right;
+}
+.BarGraphTooltip_divider {
+  grid-column-start: 1;
+  grid-column-end: 6;
+  height: 3px;
+  background-color: var(--underline-grey);
 }

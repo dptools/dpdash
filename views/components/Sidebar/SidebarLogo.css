@@ -1,0 +1,9 @@
+.SidebarLogo_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 16px;
+}
+.SidebarLogo_image {
+  height: 45px;
+}

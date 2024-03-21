@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  node-app:
+    build:
+      dockerfile: dev.server.Dockerfile
+      context: .
+    depends_on:
+      - mongodb
+    env_file: .env.development
+    ports:
+      - 8000:8000
+      - 35729:35729
+    volumes:
+      - .:/src
+      - ~/.aws/:/root/.aws:ro
+    networks:
+      - default
+      - app-tier
+  mongodb:
+    image: mongo:5
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ADMIN_PASSWORD}
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - app-tier
+    ports:
+      - 27017:27017
+networks:
+  app-tier:
+    driver: bridge
+volumes:
+  mongodb:
+    name: dpdash-mongodb
+    external: true

@@ -1,6 +1,36 @@
+# pip
 Pipfile.lock
-docs/build
+
+# node
+node_modules
+
+# VSCode
+.vscode
+
+# Logs
 *.log
+*.dump
+
+# Local configs
 config.js
+.env
+.env.development
+!server/
+server/configs/*
+!server/configs/basePathConfig.js
+!server/configs/defaultUserConfig.js
+
+# Built code
 *.map
 *.min.js
+docs/build
+public/js
+public/css
+dist
+
+app_build
+
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out

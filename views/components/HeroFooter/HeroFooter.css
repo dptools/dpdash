@@ -1,0 +1,40 @@
+.HeroFooter_container {
+  bottom: 0;
+  display: flex;
+  gap: 60px;
+  left: 0;
+  padding: 24px 72px;
+  right: 0;
+}
+
+.HeroFooter_linksContainer {
+  display: flex;
+  gap: 40px;
+}
+
+@media screen and (max-width: 500px) {
+  .HeroFooter_container {
+    flex-direction: column-reverse;
+    gap: 20px;
+    padding: 20px;
+  }
+  .HeroFooter_linksContainer {
+    gap: 20px;
+    flex-direction: column;
+  }
+}
+
+@media screen and (min-width: 700px) {
+  .HeroFooter_container {
+    position: fixed;
+  }
+  .HeroFooter_linksContainer {
+    gap: 24px;
+  }
+}
+
+@media screen and (min-width: 1000px) {
+  .HeroFooter_linksContainer {
+    gap: 80px;
+  }
+}

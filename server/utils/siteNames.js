@@ -38,4 +38,5 @@ export const SITE_NAMES = {
   MU: 'Munich',
   SH: 'Shanghai',
   SL: 'Seoul',
+  Totals: 'Totals',
 }

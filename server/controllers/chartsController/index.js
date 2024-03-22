@@ -49,7 +49,11 @@ const chartsController = {
       while (await chartListCursor.hasNext()) {
         const chart = await chartListCursor.next()
 
-        chart.chartOwner = await UserModel.findOne(appDb, { uid: chart.owner }, { ...userMongoProjection, icon: 0 })
+        chart.chartOwner = await UserModel.findOne(
+          appDb,
+          { uid: chart.owner },
+          { ...userMongoProjection, icon: 0 }
+        )
 
         chartList.push(chart)
       }
@@ -129,7 +133,6 @@ const chartsController = {
           description,
           fieldLabelValueMap,
           public: isPublic,
-          updatedAt: new Date().toISOString(),
         }
       )
 

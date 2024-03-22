@@ -13,7 +13,6 @@ const chartsShareController = {
           { _id: new ObjectId(chart_id) },
           {
             sharedWith,
-            updatedAt: new Date(),
           }
         )
 

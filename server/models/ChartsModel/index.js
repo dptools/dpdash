@@ -4,13 +4,17 @@ import { ASC } from '../../constants'
 
 const id = '$_id'
 const idKey = '$chart_id'
-const chartId = 'chart_id'
 const updatedAt = 'updatedAt'
 const $updatedAt = '$updatedAt'
+const today = () => new Date()
 
 const ChartsModel = {
   create: async (db, chartAttributes) =>
-    await db.collection(collections.charts).insertOne(chartAttributes),
+    await db.collection(collections.charts).insertOne({
+      ...chartAttributes,
+      updatedAt: today(),
+      createdAt: today(),
+    }),
   all: async (db, user, queryParams) =>
     await db
       .collection(collections.charts)
@@ -31,7 +35,7 @@ const ChartsModel = {
       .collection(collections.charts)
       .findOneAndUpdate(
         query,
-        { $set: chartAttributes },
+        { $set: { ...chartAttributes, updatedAt: today() } },
         { returnOriginal: false, upsert: true, returnDocument: 'after' }
       ),
 }

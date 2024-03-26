@@ -24,11 +24,11 @@ jobs:
       env:
         CDK_DEFAULT_ACCOUNT: ${{ vars.CDK_DEFAULT_ACCOUNT }}
         CDK_DEFAULT_REGION: ${{ vars.CDK_DEFAULT_REGION }}
-        CERT_ARN: ${{ vars.CERT_ARN_PRODUCTION }}
+        CERT_ARN: ${{ vars.CERT_ARN_STAGING }}
         SES_IDENTITY_ARN: ${{ vars.SES_IDENTITY_ARN }}
         EMAIL_SENDER: ${{ vars.EMAIL_SENDER }}
         ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
-        BASE_DOMAIN: ${{ vars.BASE_DOMAIN_PRODUCTION }}
+        BASE_DOMAIN: ${{ vars.BASE_DOMAIN_STAGING }}
         APP_MEMORY: ${{ vars.APP_MEMORY || '2048' }}
         APP_CPU: ${{ vars.APP_CPU || '1024' }}
       run: npm run bootstrap -- --require-approval never

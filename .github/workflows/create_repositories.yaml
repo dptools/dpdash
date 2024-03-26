@@ -1,0 +1,38 @@
+name: Create Repositories
+on:
+  workflow_dispatch:
+jobs:
+  create-repositories:
+    name: Create Repositories for Docker Dependencies
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+    if: ${{ startsWith(vars.ROLE_ARN, 'arn:aws:iam') }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.ROLE_ARN }}
+          role-session-name: dpdash-ghactions-session
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Create dpdash docker repository in Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: dpdash
+        run:  aws ecr create-repository --repository-name ${REPOSITORY}
+
+      - name: Create mongo docker repository in Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: mongo
+        run:  aws ecr create-repository --repository-name ${REPOSITORY}

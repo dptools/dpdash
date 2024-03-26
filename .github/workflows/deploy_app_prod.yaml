@@ -61,9 +61,9 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: dpdash
           IMAGE_TAG: ${{ github.sha }}
-          CLUSTER_NAME: dpDashDevCluster
-          TASK_NAME: dpDashDevTaskDefinition
-          SERVICE_NAME: dpDashDevService
+          CLUSTER_NAME: dpDashCluster
+          TASK_NAME: dpDashTaskDefinition
+          SERVICE_NAME: dpDashService
         run:
           | # Grab JSON of current DP Dash task definition, replace container image field with the new container and fix up the JSON, then upload the task and update the service with the new task
           export ECR_IMAGE="$REGISTRY/$REPOSITORY:$IMAGE_TAG"

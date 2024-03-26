@@ -23,7 +23,7 @@ aws ssm put-parameter \
 
 export DPDASH_NUMBER_OF_USERS_DEV=$(($(echo $DPDASH_IMPORT_API_USERS_DEV | tr -cd , | wc -c) + 1))
 aws ssm put-parameter \
-    --name "DPDASH_IMPORT_API_KEYS" \
+    --name "DPDASH_IMPORT_API_KEYS_DEV" \
     --value $(
       for i in seq $DPDASH_NUMBER_OF_USERS_DEV; do
         echo $(openssl rand -base64 32 | tr -d "+=/")

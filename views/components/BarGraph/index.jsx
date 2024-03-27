@@ -63,7 +63,6 @@ const BarGraph = ({
       >
         <BarChart
           data={sanitizeSiteData(siteData)}
-          barSize={50}
           margin={{ top: 50 }}
           onMouseMove={(data) => {
             if (data.isTooltipActive) {
@@ -72,7 +71,6 @@ const BarGraph = ({
               handleTooltipPosition({ chartWidth: xAxisWidth, xCoordinate })
             }
           }}
-          barCategoryGap={40}
         >
           <Legend
             margin={{ bottom: 10 }}
@@ -117,7 +115,6 @@ const BarGraph = ({
                 id={label.name}
                 stackId="a"
                 fill={label.color}
-                barSize={90}
               >
                 <LabelList
                   label={{ fontSize: fontSize[14] }}

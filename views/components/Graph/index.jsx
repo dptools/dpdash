@@ -107,7 +107,7 @@ export const Graph = ({ study, subject, user, theme, setNotification }) => {
 
   React.useEffect(() => {
     onMount()
-  }, [])
+  }, [user])
 
   React.useEffect(() => {
     if (!graphRef.current) {

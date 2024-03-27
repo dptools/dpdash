@@ -1,6 +1,6 @@
 import BarChartTableService from '.'
 import { createLabel, createSiteData } from '../../../test/fixtures'
-import { SITE, TOTAL_LABEL } from '../../constants'
+import { NETWORK, TOTAL_LABEL } from '../../constants'
 
 const dataBySite = [
   createSiteData({
@@ -54,23 +54,35 @@ describe(BarChartTableService, () => {
 
       expect(service.websiteTableData()).toEqual({
         tableColumns: [
-          { name: SITE, color: 'gray' },
-          ...labels,
-          { name: TOTAL_LABEL, color: 'gray' },
+          {
+            dataProperty: 'site',
+            label: NETWORK,
+            sortable: true,
+          },
+          {
+            dataProperty: 'Good',
+            label: 'Good',
+            sortable: false,
+          },
+          {
+            dataProperty: 'Bad',
+            label: 'Bad',
+            sortable: false,
+          },
+          {
+            dataProperty: 'Total',
+            label: 'Total',
+            sortable: false,
+          },
         ],
         tableRows: [
-          [
-            { data: 'Site 1', color: 'gray' },
-            { data: '1', color: 'good-color' },
-            { data: '2', color: 'bad-color' },
-            { data: '3', color: 'gray' },
-          ],
-          [
-            { data: 'Site 2', color: 'gray' },
-            { data: '4 / 4 (100%)', color: 'good-color' },
-            { data: '6 / 6 (100%)', color: 'bad-color' },
-            { data: '10', color: 'gray' },
-          ],
+          { Bad: '2', Good: '1', Total: '3', site: 'Site 1' },
+          {
+            Bad: '6 / 6 (100%)',
+            Good: '4 / 4 (100%)',
+            Total: '10',
+            site: 'Site 2',
+          },
         ],
       })
     })
@@ -84,7 +96,7 @@ describe(BarChartTableService, () => {
       service.websiteTableData()
 
       expect(service.csvTableData()).toEqual({
-        tableColumns: [SITE, 'Good', 'Bad', TOTAL_LABEL],
+        tableColumns: [NETWORK, 'Good', 'Bad', TOTAL_LABEL],
         tableRows: [
           ['Site 1', '1', '2', '3'],
           ['Site 2', '4 / 4 (100%)', '6 / 6 (100%)', '10'],

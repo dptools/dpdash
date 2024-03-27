@@ -5,6 +5,7 @@ import {
   TableCell,
   TableContainer,
   TableRow,
+  TablePagination,
 } from '@mui/material'
 
 import TableHead from './TableHead'
@@ -42,53 +43,77 @@ const Table = (props) => {
     cellRenderer,
     data,
     headers,
-    sortDirection,
-    sortProperty,
+    handleChangePage,
+    handleChangeRowsPerPage,
     handleRequestSort,
     maxRows,
+    paginate,
+    page,
+    paginationCount,
+    rowsPerPage,
+    rowsPerPageOptions,
+    sortDirection,
+    sortProperty,
   } = props
 
   const rows = maxRows && data.length > maxRows ? data.slice(0, maxRows) : data
 
   return (
-    <TableContainer>
-      <MuiTable
-        size="small"
-        sx={{ border: 0, borderCollapse: 'separate', borderSpacing: '0 16px' }}
-      >
-        <TableHead
-          sortDirection={sortDirection}
-          sortProperty={sortProperty}
-          onRequestSort={handleRequestSort}
-          headCells={headers}
+    <>
+      <TableContainer>
+        <MuiTable
+          size="small"
+          sx={{
+            border: 0,
+            borderCollapse: 'separate',
+            borderSpacing: '0 16px',
+          }}
+        >
+          <TableHead
+            sortDirection={sortDirection}
+            sortProperty={sortProperty}
+            onRequestSort={handleRequestSort}
+            headCells={headers}
+          />
+          <TableBody>
+            {rows.map((rowData, rowIndex) => (
+              <TableRow data-testid={`row-${rowIndex}`}>
+                {headers.map((header, cellIndex) => (
+                  <TableCell
+                    align={header.dataAlign}
+                    key={`${header.dataProperty}-${rowIndex}-${cellIndex}`}
+                    sx={{
+                      borderBottomWidth: 1,
+                      borderBottomColor: 'grey.100',
+                      borderBottomStyle: 'solid',
+                      borderTopWidth: 1,
+                      borderTopColor: 'grey.100',
+                      borderTopStyle: 'solid',
+                      typography: 'body1',
+                      ...firstCellStyles(cellIndex),
+                      ...lastCellStyles(cellIndex, headers),
+                    }}
+                  >
+                    {cellRenderer(rowData, header.dataProperty, rowIndex)}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </MuiTable>
+      </TableContainer>
+      {paginate ? (
+        <TablePagination
+          component="div"
+          rowsPerPageOptions={rowsPerPageOptions}
+          count={paginationCount}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
-        <TableBody>
-          {rows.map((rowData, rowIndex) => (
-            <TableRow data-testid={`row-${rowIndex}`}>
-              {headers.map((header, cellIndex) => (
-                <TableCell
-                  align={header.dataAlign}
-                  key={`${header.dataProperty}-${rowIndex}-${cellIndex}`}
-                  sx={{
-                    borderBottomWidth: 1,
-                    borderBottomColor: 'grey.100',
-                    borderBottomStyle: 'solid',
-                    borderTopWidth: 1,
-                    borderTopColor: 'grey.100',
-                    borderTopStyle: 'solid',
-                    typography: 'body1',
-                    ...firstCellStyles(cellIndex),
-                    ...lastCellStyles(cellIndex, headers),
-                  }}
-                >
-                  {cellRenderer(rowData, header.dataProperty, rowIndex)}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </MuiTable>
-    </TableContainer>
+      ) : undefined}
+    </>
   )
 }
 

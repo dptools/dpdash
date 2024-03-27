@@ -1,4 +1,4 @@
-import { N_A, SITE, TOTALS_STUDY, TOTAL_LABEL } from '../../constants'
+import { NETWORK, N_A, TOTALS_STUDY, TOTAL_LABEL } from '../../constants'
 
 const formatAsPercentage = (value = 0) => value.toFixed(0) + '%'
 
@@ -20,10 +20,7 @@ class BarChartTableService {
 
   websiteTableData = () => {
     this.websiteColumns = this._graphTableColumns()
-    this.websiteRows = this._graphTableRowData(
-      this._sortedTableRowDataBySite(),
-      this.websiteColumns
-    )
+    this.websiteRows = this._graphTableRowData(this._sortedTableRowDataBySite())
 
     return {
       tableColumns: this.websiteColumns,
@@ -32,37 +29,46 @@ class BarChartTableService {
   }
 
   csvTableData = () => {
+    const tableColumns = this.websiteColumns.map(({ label }) => label)
+    const tableRows = this.websiteRows.map((siteData) =>
+      this.websiteColumns.map(({ dataProperty }) => siteData[dataProperty])
+    )
+
     return {
-      tableColumns: this.websiteColumns.map(({ name }) => name),
-      tableRows: this.websiteRows.map((siteData) =>
-        siteData.map(({ data }) => data)
-      ),
+      tableColumns,
+      tableRows,
     }
   }
 
   _graphTableColumns = () => [
-    { name: SITE, color: 'gray' },
+    {
+      dataProperty: 'site',
+      label: NETWORK,
+      sortable: true,
+    },
     ...this.labels
       .filter((column) => column.name !== N_A)
-      .concat({ name: TOTAL_LABEL, color: 'gray' }),
+      .concat({ name: TOTAL_LABEL })
+      .map(({ name }) => ({
+        dataProperty: name,
+        label: name,
+        sortable: false,
+      })),
   ]
 
-  _graphTableRowData = (sortedGraphTableData, tableHeaders) => {
+  _graphTableRowData = (sortedGraphTableData) => {
     return sortedGraphTableData.map((siteData) => {
-      return tableHeaders.map(({ name: columnHeader, color }) => {
-        const {
-          name,
-          counts: { [columnHeader]: siteCount },
-          targets: { [columnHeader]: siteTarget },
-        } = siteData
+      return {
+        site: siteData.name,
+        ...Object.keys(siteData.counts).reduce((varData, nextVar) => {
+          varData[nextVar] = this._formatGraphTableCellData(
+            siteData.targets?.[nextVar],
+            siteData.counts[nextVar]
+          )
 
-        return columnHeader === SITE
-          ? { data: name, color }
-          : {
-              data: this._formatGraphTableCellData(siteTarget, siteCount),
-              color,
-            }
-      })
+          return varData
+        }, {}),
+      }
     })
   }
 
@@ -80,6 +86,7 @@ class BarChartTableService {
         const { count, targetTotal } = site.totalsForStudy
         site.counts[TOTAL_LABEL] = count
         site.targets[TOTAL_LABEL] = targetTotal
+
         return site
       })
       .sort(this._sortSitesByNameAndTotalsAtBottom)

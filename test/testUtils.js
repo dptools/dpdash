@@ -283,95 +283,55 @@ export const chartsDataSuccessResponse = (overrides = {}) => ({
   graphTable: {
     tableColumns: [
       {
-        color: 'gray',
-        name: 'Site',
+        dataProperty: 'site',
+        label: 'Network',
+        sortable: true,
       },
       {
-        color: '#e2860a',
-        name: 'Foo',
+        dataProperty: 'Foo',
+        label: 'Foo',
+        sortable: false,
       },
       {
-        color: 'red',
-        name: 'Bar',
+        dataProperty: 'Bar',
+        label: 'Bar',
+        sortable: false,
       },
       {
-        color: 'gray',
-        name: 'Total',
+        dataProperty: 'Total',
+        label: 'Total',
+        sortable: false,
       },
     ],
     tableRows: [
-      [
-        {
-          color: 'gray',
-          data: 'Madrid',
-        },
-        {
-          color: '#e2860a',
-          data: '4 / 3 (133%)',
-        },
-        {
-          color: 'red',
-          data: '0 / 2 (0%)',
-        },
-        {
-          color: 'gray',
-          data: '4 / 5 (80%)',
-        },
-      ],
-      [
-        {
-          color: 'gray',
-          data: 'UCLA',
-        },
-        {
-          color: '#e2860a',
-          data: '4 / 3 (133%)',
-        },
-        {
-          color: 'red',
-          data: '0 / 2 (0%)',
-        },
-        {
-          color: 'gray',
-          data: '4 / 5 (80%)',
-        },
-      ],
-      [
-        {
-          color: 'gray',
-          data: 'Yale',
-        },
-        {
-          color: '#e2860a',
-          data: '2 / 3 (67%)',
-        },
-        {
-          color: 'red',
-          data: '2 / 1 (200%)',
-        },
-        {
-          color: 'gray',
-          data: '4 / 4 (100%)',
-        },
-      ],
-      [
-        {
-          color: 'gray',
-          data: 'Totals',
-        },
-        {
-          color: '#e2860a',
-          data: '10 / 9 (111%)',
-        },
-        {
-          color: 'red',
-          data: '2 / 5 (40%)',
-        },
-        {
-          color: 'gray',
-          data: '12 / 14 (86%)',
-        },
-      ],
+      {
+        Bar: '0 / 2 (0%)',
+        Foo: '4 / 3 (133%)',
+        'N/A': '1',
+        Total: '4 / 5 (80%)',
+        site: 'Madrid',
+      },
+      {
+        Bar: '0 / 2 (0%)',
+        Foo: '4 / 3 (133%)',
+        'N/A': '1',
+        Total: '4 / 5 (80%)',
+        site: 'UCLA',
+      },
+      {
+        Bar: '2 / 1 (200%)',
+        Foo: '2 / 3 (67%)',
+        'N/A': '0',
+        Total: '4 / 4 (100%)',
+        site: 'Yale',
+      },
+      {
+        Bar: '2 / 5 (40%)',
+        Foo: '10 / 9 (111%)',
+        'N/A': '2',
+        Total: '12 / 14 (86%)',
+        site: 'Totals',
+      },
     ],
   },
   labels: [
@@ -560,77 +520,47 @@ export const chartsDataInitialResponse = (overrides = {}) => ({
   graphTable: {
     tableColumns: [
       {
-        color: 'gray',
-        name: 'Site',
+        dataProperty: 'site',
+        label: 'Network',
+        sortable: true,
       },
       {
-        color: '#e2860a',
-        name: 'Foo',
+        dataProperty: 'Foo',
+        label: 'Foo',
+        sortable: false,
       },
       {
-        color: 'red',
-        name: 'Bar',
+        dataProperty: 'Bar',
+        label: 'Bar',
+        sortable: false,
       },
       {
-        color: 'gray',
-        name: 'Total',
+        dataProperty: 'Total',
+        label: 'Total',
+        sortable: false,
       },
     ],
     tableRows: [
-      [
-        {
-          color: 'gray',
-          data: 'Madrid',
-        },
-        {
-          color: '#e2860a',
-          data: '1 / 3 (33%)',
-        },
-        {
-          color: 'red',
-          data: '0 / 2 (0%)',
-        },
-        {
-          color: 'gray',
-          data: '1 / 5 (20%)',
-        },
-      ],
-      [
-        {
-          color: 'gray',
-          data: 'Yale',
-        },
-        {
-          color: '#e2860a',
-          data: '1 / 3 (33%)',
-        },
-        {
-          color: 'red',
-          data: '0 / 1 (0%)',
-        },
-        {
-          color: 'gray',
-          data: '1 / 4 (25%)',
-        },
-      ],
-      [
-        {
-          color: 'gray',
-          data: 'Totals',
-        },
-        {
-          color: '#e2860a',
-          data: '2 / 6 (33%)',
-        },
-        {
-          color: 'red',
-          data: '0 / 3 (0%)',
-        },
-        {
-          color: 'gray',
-          data: '2 / 14 (14%)',
-        },
-      ],
+      {
+        Bar: '0 / 2 (0%)',
+        Foo: '1 / 3 (33%)',
+        'N/A': '4',
+        Total: '1 / 5 (20%)',
+        site: 'Madrid',
+      },
+      {
+        Bar: '0 / 1 (0%)',
+        Foo: '1 / 3 (33%)',
+        'N/A': '3',
+        Total: '1 / 4 (25%)',
+        site: 'Yale',
+      },
+      {
+        Foo: '2 / 6 (33%)',
+        'N/A': '12',
+        Total: '2 / 14 (14%)',
+        site: 'Totals',
+      },
     ],
   },
   labels: [
@@ -795,59 +725,40 @@ export const chartsDataFilterResponse = (overrides = {}) => ({
   graphTable: {
     tableColumns: [
       {
-        color: 'gray',
-        name: 'Site',
+        dataProperty: 'site',
+        label: 'Network',
+        sortable: true,
       },
       {
-        color: '#e2860a',
-        name: 'Foo',
+        dataProperty: 'Foo',
+        label: 'Foo',
+        sortable: false,
       },
       {
-        color: 'red',
-        name: 'Bar',
+        dataProperty: 'Bar',
+        label: 'Bar',
+        sortable: false,
       },
       {
-        color: 'gray',
-        name: 'Total',
+        dataProperty: 'Total',
+        label: 'Total',
+        sortable: false,
       },
     ],
     tableRows: [
-      [
-        {
-          color: 'gray',
-          data: 'Madrid',
-        },
-        {
-          color: '#e2860a',
-          data: '1 / 3 (33%)',
-        },
-        {
-          color: 'red',
-          data: '0 / 2 (0%)',
-        },
-        {
-          color: 'gray',
-          data: '1 / 5 (20%)',
-        },
-      ],
-      [
-        {
-          color: 'gray',
-          data: 'Totals',
-        },
-        {
-          color: '#e2860a',
-          data: '1 / 3 (33%)',
-        },
-        {
-          color: 'red',
-          data: '0 / 2 (0%)',
-        },
-        {
-          color: 'gray',
-          data: '1 / 14 (7%)',
-        },
-      ],
+      {
+        Bar: '0 / 2 (0%)',
+        Foo: '1 / 3 (33%)',
+        'N/A': '4',
+        Total: '1 / 5 (20%)',
+        site: 'Madrid',
+      },
+      {
+        Foo: '1 / 3 (33%)',
+        'N/A': '13',
+        Total: '1 / 14 (7%)',
+        site: 'Totals',
+      },
     ],
   },
   labels: [

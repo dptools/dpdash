@@ -15,7 +15,8 @@ import PageHeader from '../../components/PageHeader'
 import ChartDescription from '../../components/ChartDescription'
 import { apiRoutes, routes } from '../../routes/routes'
 import api from '../../api'
-import { fontSize } from '../../../constants'
+import { SORT_DIRECTION, fontSize } from '../../../constants'
+import useTableSort from '../../hooks/useTableSort'
 
 import './ViewChartPage.css'
 
@@ -34,9 +35,12 @@ const ViewChartPage = () => {
   const [expanded, setExpanded] = useState(false)
   const [tooltipPosition, setTooltipPosition] = useState({})
   const [displayLeft, setDisplayLeft] = useState(true)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(5)
   const shortDescription = graph?.description?.substring(0, 296) + '...' || ''
   const handleDescriptionExpand = () => setExpanded(!expanded)
   const navigate = useNavigate()
+  const { onSort, sortDirection, sortBy } = useTableSort('site')
   const onSubmit = async (formValues) => {
     const filters = formValuesTofilters(formValues)
     const newRoute = routes.viewChart(chart_id, { filters })
@@ -107,6 +111,27 @@ const ViewChartPage = () => {
       isLg: useMediaQuery('(min-width:2000px)'),
       barsToDisplay: 10,
     },
+  }
+  const handleChangePage = (_, newPage) => setPage(newPage)
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
+  const graphTablePredicate = (a, b) => {
+    if (b[sortBy] < a[sortBy]) {
+      return sortDirection === SORT_DIRECTION.ASC ? 1 : -1
+    }
+    if (b[sortBy] > a[sortBy]) {
+      return sortDirection === SORT_DIRECTION.ASC ? -1 : 1
+    }
+    return 0
+  }
+  const visibleRows = () => {
+    if (!graph) return []
+
+    return graph.graphTable.tableRows
+      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+      .sort(graphTablePredicate)
   }
 
   useEffect(() => {
@@ -190,7 +215,20 @@ const ViewChartPage = () => {
         useSiteName={useSiteName}
       />
       {!!graph.dataBySite.length && (
-        <GraphTable graph={graph} onGetCsv={fetchGraphTableCSV} />
+        <GraphTable
+          graph={graph}
+          onGetCsv={fetchGraphTableCSV}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          tableColumns={graph.graphTable.tableColumns}
+          tableRows={visibleRows()}
+          rowCount={graph.graphTable.tableRows.length}
+          onSort={onSort}
+          sortDirection={sortDirection}
+          sortBy={sortBy}
+        />
       )}
     </Box>
   )

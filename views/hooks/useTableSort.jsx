@@ -6,8 +6,8 @@ export default function useTableSort(initialSortBy) {
   const [sortBy, setSortBy] = useState(initialSortBy)
 
   const onSort = (newSortBy, newSortDirection) => {
-    setSortBy(newSortBy)
-    setDirection(newSortDirection)
+    if (newSortBy) setSortBy(newSortBy)
+    if (newSortDirection) setDirection(newSortDirection)
   }
 
   return {

@@ -8,6 +8,7 @@ export const INCLUSION_EXCLUSION_CRITERIA_FORM =
 export const SOCIODEMOGRAPHICS_FORM = 'form_sociodemographics'
 export const TOTAL_LABEL = 'Total'
 export const SITE = 'Site'
+export const NETWORK = 'Network'
 
 export const ALL_SUBJECTS_MONGO_PROJECTION = {
   study: 1,

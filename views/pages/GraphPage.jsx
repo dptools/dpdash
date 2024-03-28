@@ -44,8 +44,8 @@ const GraphPage = () => {
           config: configurationId,
         },
       }
-      const updatedUser = await api.users.update(uid, userAttributes)
-      setUser(updatedUser)
+      setUser(userAttributes)
+      await api.users.update(uid, userAttributes)
     } catch (error) {
       setNotification({ open: true, message: error.message })
     }

@@ -57,7 +57,6 @@ export const Graph = ({ study, subject, user, theme, setNotification }) => {
 
       setGraph(graphData.graph)
       updateMaxDay(graphData.graph)
-      renderMatrix(graphData.graph)
 
       if (!HTMLCanvasElement.prototype.toBlob) {
         Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
@@ -107,7 +106,7 @@ export const Graph = ({ study, subject, user, theme, setNotification }) => {
 
   React.useEffect(() => {
     onMount()
-  }, [])
+  }, [user.preferences.config])
 
   React.useEffect(() => {
     if (!graphRef.current) {

@@ -1,0 +1,17 @@
+.SidebarFooter_container {
+  margin-top: auto;
+  padding-left: 24px;
+}
+
+.SidebarFooter_content {
+  padding: 8px 0;
+}
+
+.SidebarFooter_actions {
+  display: flex;
+  gap: 16px;
+}
+
+.SidebarFooter_version {
+  padding: 16px;
+}

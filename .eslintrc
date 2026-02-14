@@ -1,0 +1,65 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "prettier",
+    "universe/web",
+    "universe/node",
+  ],
+  "parser": "@babel/eslint-parser",
+  "env": {
+    "browser": true,
+    "node": true,
+  },
+  "parserOptions": {
+    "requireConfigFile": false,
+    "babelOptions": {
+      "presets": ["@babel/preset-react"],
+    },
+    "ecmaFeatures": {
+      "jsx": true,
+    },
+    "ecmaVersion": 15,
+    "sourceType": "module",
+    "parserOptions": {
+      "project": "./tsconfig.json",
+    },
+  },
+  "plugins": [
+    "react",
+    "jest",
+    "testing-library",
+    "no-only-tests",
+    "sort-keys-fix",
+    "prettier",
+    "promise",
+  ],
+  "rules": {
+    "react/prop-types": "off",
+    "no-unused-vars": [
+      "error",
+      { "varsIgnorePattern": "^_", "argsIgnorePattern": "^_" },
+    ],
+    "import/order": [
+      "error",
+      {
+        "alphabetize": {
+          "caseInsensitive": true,
+          "order": "asc",
+        },
+        "groups": ["builtin", "external", "internal"],
+        "newlines-between": "always",
+        "pathGroups": [
+          {
+            "group": "external",
+            "pattern": "react",
+            "position": "before",
+          },
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+      },
+    ],
+    "no-only-tests/no-only-tests": "error",
+    "react/react-in-jsx-scope": "off",
+  },
+}

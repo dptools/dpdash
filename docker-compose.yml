@@ -1,0 +1,75 @@
+services:
+  # Nginx Proxy Manager instead of standard nginx
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 81:81 # Admin UI
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+      - ./npm/config.json:/app/config/production.json
+    depends_on:
+      - node-app
+    networks:
+      - default
+      - app-tier
+    environment:
+      # Default credentials: admin@example.com / changeme
+      DB_SQLITE_FILE: '/data/database.sqlite'
+
+  node-app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - mongodb
+    env_file: .env
+    networks:
+      - app-tier
+    # Expose port for Nginx Proxy Manager to access
+    ports:
+      - 8000:8000
+    environment:
+      - HOME_URL=https://dpdash.local
+
+  mongodb:
+    image: mongo:5
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ADMIN_PASSWORD}
+    ports:
+      - 27017:27017
+    expose:
+      - 27017
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - app-tier
+
+  # SMTP testing server (optional)
+  mailcatcher:
+    image: sj26/mailcatcher
+    restart: unless-stopped
+    ports:
+      - 1080:1080 # Web UI
+      - 1025:1025 # SMTP port
+    command: --smtp-ip=0.0.0.0 --smtp-port=1025 --http-ip=0.0.0.0 --http-port=1080
+    networks:
+      - app-tier
+    profiles:
+      - smtp
+
+networks:
+  default:
+    driver: bridge
+  app-tier:
+
+volumes:
+  mongodb:
+    name: dpdash-mongodb
+  npm_data:
+  npm_letsencrypt:

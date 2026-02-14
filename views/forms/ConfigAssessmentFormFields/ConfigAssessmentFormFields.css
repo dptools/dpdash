@@ -1,0 +1,12 @@
+.ColorPaletteDropdown {
+  display: table;
+  width: 100%;
+}
+.ColorPaletteBlock {
+  width: 20px;
+  height: 20px;
+  display: table-cell;
+}
+.RangeFields {
+  display: 'flex';
+}

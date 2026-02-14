@@ -1,0 +1,24 @@
+.BarChartFieldsValueLabel {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+  padding-top: 20px;
+}
+.BarChartFieldsTargetValues {
+  display: flex;
+  align-items: center;
+}
+.BarChartFieldsAddTargets {
+  padding-top: 20px;
+}
+@media screen and (max-width: 800px) {
+  .BarChartFieldsValueLabel {
+    width: auto;
+  }
+}
+
+@media screen and (min-width: 900px) {
+  .BarChartFieldsValueLabel {
+    width: 50%;
+  }
+}

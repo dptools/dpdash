@@ -1,0 +1,14 @@
+{
+  "N_A": "N/A",
+  "TOTAL_LABEL": "Total",
+  "TOTALS": "Totals",
+  "DISALLOWED_STUDIES": ["combined", "files", "ProNET"],
+  "FILTER_CATEGORIES": {
+    "chrcrit_part": "Cohort",
+    "included_excluded": "Included Criteria",
+    "sex_at_birth": "Sex At Birth",
+    "sites": "Sites",
+    "networks": "Networks",
+    "recruitment_status": "Recruitment Status"
+  }
+}

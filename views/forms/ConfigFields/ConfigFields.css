@@ -1,0 +1,6 @@
+.ConfigFields {
+  display: flex;
+  gap: 10px;
+  flex-flow: wrap;
+  padding-top: 40px;
+}

@@ -1,0 +1,21 @@
+.AccountPage {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  padding: 35px;
+  margin: 0;
+}
+.AccountPageBanner {
+  display: flex;
+  justify-content: space-between;
+}
+
+.AccountLink {
+  align-self: flex-start;
+  color: var(--text-secondary);
+}
+@media screen and (min-width: 900px) {
+  .AccountPage {
+    padding: 70px 125px 70px 24px;
+  }
+}

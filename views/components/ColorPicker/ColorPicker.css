@@ -1,0 +1,23 @@
+.ColorPicker {
+  display: flex;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.ColorPickerPalette {
+  max-width: 200px;
+  display: flex;
+  padding: 6px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.ColorPickerSwatch {
+  width: 24px;
+  height: 24px;
+  margin: 4px;
+  border: none;
+  padding: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  outline: none;
+  color: transparent;
+}

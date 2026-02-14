@@ -1,0 +1,15 @@
+.UserProfileForm_profileImage {
+  display: flex;
+  align-items: center;
+  padding: 24px 0px;
+}
+.UserProfileFormFileUploadInput {
+  display: none;
+}
+.UserProfileFormAlert {
+  max-width: 502px;
+  padding-bottom: 24px;
+}
+.UserProfileFormFileInfo {
+  padding-right: 14px;
+}

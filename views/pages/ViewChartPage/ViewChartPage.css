@@ -1,0 +1,10 @@
+.ChartPageDetails {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  padding-bottom: 20px;
+}
+.ChartPageOwner {
+  display: flex;
+  grid-column-start: 4;
+  grid-column-end: 12;
+}

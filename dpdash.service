@@ -1,0 +1,19 @@
+[Unit]
+Description=Gnar company developed DPdash (unstable) at https://predict-dp.mgb.org/
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+
+[Service]
+User=root
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/dpdash
+ExecStart=docker compose up -d
+ExecStop=docker compose down
+KillMode=process
+TimeoutSec=60
+
+[Install]
+WantedBy=multi-user.target
+
+

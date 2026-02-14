@@ -1,0 +1,45 @@
+.BarGraphTooltip {
+  display: flex;
+}
+.BarGraphTooltip_data {
+  display: grid;
+  max-width: 225px;
+  background: var(--dark-transparent-grey);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  grid-template-columns: repeat(5, 1fr);
+  column-gap: 20px;
+  font-size: 14px;
+}
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid var(--dark-transparent-grey);
+  align-self: center;
+}
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid var(--dark-transparent-grey);
+  align-self: center;
+}
+.BarGraphTooltip_label {
+  grid-column-start: 1;
+  grid-column-end: 5;
+}
+.BarGraphTooltip_values {
+  grid-column-start: 5;
+  grid-column-end: 6;
+  text-align: right;
+}
+.BarGraphTooltip_divider {
+  grid-column-start: 1;
+  grid-column-end: 6;
+  height: 3px;
+  background-color: var(--underline-grey);
+}

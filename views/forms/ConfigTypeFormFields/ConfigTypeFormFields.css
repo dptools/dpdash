@@ -1,0 +1,41 @@
+.ConfigTypeFormFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'name type'
+    'description share';
+  grid-gap: 10%;
+}
+.ConfigTypeShareContainer {
+  display: flex;
+  grid-area: share;
+  flex-direction: column;
+}
+.ConfigTypeShareHeader {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: 'share_label make_public';
+}
+
+@media screen and (max-width: 1100px) {
+  .ConfigTypeFormFields {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'name'
+      'type'
+      'description'
+      'share';
+    grid-gap: 15px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .ConfigTypeShareHeader {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'make_public'
+      'share_label';
+  }
+}
